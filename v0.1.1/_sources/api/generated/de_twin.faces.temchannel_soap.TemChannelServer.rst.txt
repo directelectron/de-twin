@@ -1,0 +1,38 @@
+﻿de\_twin.faces.temchannel\_soap.TemChannelServer
+================================================
+
+.. currentmodule:: de_twin.faces.temchannel_soap
+
+.. autoclass:: TemChannelServer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TemChannelServer.__init__
+      ~TemChannelServer.batch_field
+      ~TemChannelServer.corrector_unit
+      ~TemChannelServer.handle
+      ~TemChannelServer.op_status
+      ~TemChannelServer.operations
+      ~TemChannelServer.property_value
+      ~TemChannelServer.start
+      ~TemChannelServer.stop
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TemChannelServer.MAX_CORRECTOR_WAIT_MS
+      ~TemChannelServer.port
+      ~TemChannelServer.url
+   
+   

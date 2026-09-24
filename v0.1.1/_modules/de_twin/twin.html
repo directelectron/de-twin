@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.twin &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/twin';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.1/_modules/de_twin/twin.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.1" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.twin</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.twin</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""DigitalTwin: column + specimen + holder + detector on one clock."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.clock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Clock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.state</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AcquisitionRequest</span><span class="p">,</span>
+    <span class="n">ExposureMode</span><span class="p">,</span>
+    <span class="n">FrameMeta</span><span class="p">,</span>
+    <span class="n">HolderState</span><span class="p">,</span>
+    <span class="n">MicroscopeState</span><span class="p">,</span>
+    <span class="n">Projection</span><span class="p">,</span>
+    <span class="n">RenderMode</span><span class="p">,</span>
+    <span class="n">TemStem</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DigitalTwin">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DigitalTwin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A complete simulated instrument.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    specimen</span>
+<span class="sd">        A preset/pattern name (see ``de_twin.specimen.PRESETS``/``PATTERNS``),</span>
+<span class="sd">        a ``SpecimenConfig`` or a ready ``Specimen``.</span>
+<span class="sd">    camera</span>
+<span class="sd">        A camera model name (``de_twin.detector.CAMERAS``) or ``CameraModel``.</span>
+<span class="sd">    column</span>
+<span class="sd">        A ``Column`` (default: a new simulated column on this twin's clock) or a</span>
+<span class="sd">        ``MirrorColumn`` following real software.</span>
+<span class="sd">    corrector</span>
+<span class="sd">        ``None`` (uncorrected), ``"probe"``, ``"image"`` or ``"both"``: give the twin's own</span>
+<span class="sd">        column a CEOS-like aberration corrector (see ``de_twin.column.corrector``).</span>
+<span class="sd">    holder</span>
+<span class="sd">        A holder object (duck type of autopilot's heater) or a spec string</span>
+<span class="sd">        (``"none"``, ``"sim-heating"``, ``"impulse"``).</span>
+<span class="sd">    clock</span>
+<span class="sd">        Shared clock; default real time. Use ``ManualClock`` for deterministic</span>
+<span class="sd">        offline runs or ``Clock(time_scale=...)`` to fast-forward.</span>
+<span class="sd">    flood_for_gain</span>
+<span class="sd">        Gain/vacuum exposure modes render a uniform flood (as if the operator</span>
+<span class="sd">        moved to an empty area), which is what gain references expect.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="DigitalTwin.__init__">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">specimen</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Dense Au on holey C"</span><span class="p">,</span>
+        <span class="n">camera</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"DE16"</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">corrector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">holder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">calibration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">optics_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">render_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clock</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Clock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">flood_for_gain</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">detector_overrides</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.column</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detector</span><span class="p">,</span> <span class="n">camera</span> <span class="k">as</span> <span class="n">camera_by_name</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.holder</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect_holder</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.optics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">OpticsConfig</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.render</span><span class="w"> </span><span class="kn">import</span> <span class="n">Renderer</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.specimen</span><span class="w"> </span><span class="kn">import</span> <span class="n">Specimen</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">,</span> <span class="n">from_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># frames exposed so far; seeds the detector noise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clock</span> <span class="o">=</span> <span class="n">clock</span> <span class="ow">or</span> <span class="n">Clock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flood_for_gain</span> <span class="o">=</span> <span class="n">flood_for_gain</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">specimen</span> <span class="o">=</span> <span class="n">Specimen</span><span class="p">(</span><span class="n">from_name</span><span class="p">(</span><span class="n">specimen</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">):</span>
+            <span class="n">specimen</span> <span class="o">=</span> <span class="n">Specimen</span><span class="p">(</span><span class="n">specimen</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span> <span class="o">=</span> <span class="n">specimen</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">camera_by_name</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">camera</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">camera</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">detector_overrides</span> <span class="ow">or</span> <span class="p">{}))</span>
+
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">corrector</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"pass corrector= only when the twin builds its own column"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column</span> <span class="o">=</span> <span class="n">column</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Column</span><span class="p">(</span>
+            <span class="n">clock</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="n">corrector</span><span class="o">=</span><span class="n">corrector</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">holder</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">holder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">holder</span> <span class="o">=</span> <span class="n">connect_holder</span><span class="p">(</span><span class="n">holder</span> <span class="ow">or</span> <span class="s2">"none"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">holder</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">calibration</span> <span class="ow">or</span> <span class="n">Calibration</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span> <span class="o">=</span> <span class="n">optics_config</span> <span class="ow">or</span> <span class="n">OpticsConfig</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span> <span class="n">render_config</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ state</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">camera_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span>
+
+<div class="viewcode-block" id="DigitalTwin.microscope_state">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.microscope_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">microscope_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MicroscopeState</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.holder_state">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.holder_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">holder_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HolderState</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">t</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="k">else</span> <span class="n">HolderState</span><span class="p">(</span><span class="n">t_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.set_specimen">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.set_specimen">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_specimen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Swap the specimen (e.g. a new preset) keeping column/holder/detector."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.render</span><span class="w"> </span><span class="kn">import</span> <span class="n">Renderer</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.specimen</span><span class="w"> </span><span class="kn">import</span> <span class="n">Specimen</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">,</span> <span class="n">from_name</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">specimen</span> <span class="o">=</span> <span class="n">Specimen</span><span class="p">(</span><span class="n">from_name</span><span class="p">(</span><span class="n">specimen</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">):</span>
+            <span class="n">specimen</span> <span class="o">=</span> <span class="n">Specimen</span><span class="p">(</span><span class="n">specimen</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span> <span class="o">=</span> <span class="n">specimen</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
+
+
+    <span class="c1"># ---------------------------------------------------------------- optics</span>
+<div class="viewcode-block" id="DigitalTwin.optics">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.optics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MicroscopeState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.optics</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_optics</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">derive_optics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.beam_on_detector">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.beam_on_detector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">beam_on_detector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">MicroscopeState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">beam_reaches_detector</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">beam_blanked</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">column_valves_open</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">ht_on</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">screen_position</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># screen down intercepts the beam</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.scan_point">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.scan_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scan_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+        <span class="n">scan</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">scan</span><span class="o">.</span><span class="n">park</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">park_position</span><span class="p">)</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">frame_index</span> <span class="o">//</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">scan</span><span class="o">.</span><span class="n">frames_per_point</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scan</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">point</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">points</span><span class="p">)])</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">scan</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">point</span> <span class="o">%=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">point</span> <span class="o">%</span> <span class="n">nx</span><span class="p">,</span> <span class="n">point</span> <span class="o">//</span> <span class="n">nx</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">dose_e_per_px_s</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DigitalTwin.flux">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span>
+        <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">scan_point</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MicroscopeState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">optics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_s</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Noiseless electrons/pixel/second on the ROI, or None if no beam."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="k">if</span> <span class="n">time_s</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">time_s</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_on_detector</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">optics</span> <span class="o">=</span> <span class="n">optics</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">roi</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">roi</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flood_for_gain</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">exposure_mode</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ExposureMode</span><span class="o">.</span><span class="n">GAIN</span><span class="p">,</span> <span class="n">ExposureMode</span><span class="o">.</span><span class="n">VACUUM</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flood</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">scan_point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">scan_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_point</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="n">scan_point</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">_fit</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">img</span></div>
+
+
+    <span class="c1"># ---------------------------------------------------------------- frames</span>
+<div class="viewcode-block" id="DigitalTwin.frames">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.frames">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">frames</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">stop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">FrameMeta</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Raw detector frames for ``request``.</span>
+
+<span class="sd">        TEM imaging re-reads the column at every buffer boundary (live view</span>
+<span class="sd">        follows stage moves); diffraction and STEM freeze the optics for the</span>
+<span class="sd">        whole acquisition, like DE-Server's VirtualSpecimen.</span>
+<span class="sd">        ``total_frames == 0`` means "until ``stop`` is set".</span>
+<span class="sd">        """</span>
+        <span class="n">frame_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">),</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">fpb</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frames_per_buffer</span><span class="p">))</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+        <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="n">frozen</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">!=</span> <span class="n">RenderMode</span><span class="o">.</span><span class="n">TEM_IMAGING</span>
+        <span class="n">t_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">request</span><span class="o">.</span><span class="n">total_frames</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">request</span><span class="o">.</span><span class="n">total_frames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="k">return</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">frozen</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">%</span> <span class="n">fpb</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">new_state</span> <span class="o">!=</span> <span class="n">state</span><span class="p">:</span>
+                    <span class="n">state</span> <span class="o">=</span> <span class="n">new_state</span>
+                    <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="n">holder_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">blanked</span> <span class="o">=</span> <span class="n">flux</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="c1"># Noise is seeded by a twin-wide frame counter, not the index within this</span>
+                <span class="c1"># request: repeated acquisitions (live view) must not repeat their noise.</span>
+                <span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">raw</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">expose</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">frame_time</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">ht_kv</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">)</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="n">FrameMeta</span><span class="p">(</span>
+                <span class="n">frame_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+                <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+                <span class="n">exposure_s</span><span class="o">=</span><span class="n">frame_time</span><span class="p">,</span>
+                <span class="n">electrons_per_pixel</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dose_e_per_px"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="n">render_mode</span><span class="o">=</span><span class="n">optics</span><span class="o">.</span><span class="n">render_mode</span><span class="p">,</span>
+                <span class="n">blanked</span><span class="o">=</span><span class="n">blanked</span><span class="p">,</span>
+                <span class="n">scan_point</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scan_point</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">microscope</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                <span class="n">holder</span><span class="o">=</span><span class="n">holder_state</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">pace</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">sleep_until</span><span class="p">(</span><span class="n">t_start</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">frame_time</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.acquire">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.acquire">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sum of all frames of ``request`` (uint32/float64 like a DE-Server integrated image)."""</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">pace</span><span class="p">):</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">if</span> <span class="n">total</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">total</span> <span class="o">+</span> <span class="n">raw</span>
+        <span class="k">return</span> <span class="n">total</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.raw_frame">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.raw_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">raw_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span> <span class="o">**</span><span class="n">request_kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""One raw detector frame (offset, noise, defects and all)."""</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">frame_time_s</span><span class="o">=</span><span class="n">frame_time_s</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">request_kw</span><span class="p">)</span>
+        <span class="n">raw</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">req</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">raw</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.snap">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.snap">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">snap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exposure_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">40.0</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"electrons"</span><span class="p">,</span>
+             <span class="o">**</span><span class="n">request_kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""An integrated, dark/gain-corrected image, the way DE-Server delivers one.</span>
+
+<span class="sd">        ``exposure_s`` is split into frames at ``fps``, each corrected with</span>
+<span class="sd">        references the twin measures on first use (see :attr:`processor`).</span>
+<span class="sd">        ``units``: "electrons" | "adu" | "raw".</span>
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">frames_for_exposure</span>
+
+        <span class="n">frame_time</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">frames_for_exposure</span><span class="p">(</span><span class="n">exposure_s</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">frame_time_s</span><span class="o">=</span><span class="n">frame_time</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">request_kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Reference store + correction (DE-Server-like processing)."""</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_processor"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Processor</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processor</span>
+
+<div class="viewcode-block" id="DigitalTwin.virtual_image">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.virtual_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">virtual_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">inner_mrad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">outer_mrad</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""STEM virtual detector image for the request's scan (noiseless)."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+            <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">virtual_image</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">inner_mrad</span><span class="p">,</span> <span class="n">outer_mrad</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.datacube">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.datacube">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datacube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Noiseless 4D-STEM data for the request's scan: float32 (scan ny, nx, Hd, Wd) at the</span>
+<span class="sd">        detector's *binned* output shape, electrons per binned pixel per second (multiply by the</span>
+<span class="sd">        dwell time for electrons per pattern). The same patterns :meth:`frames` exposes."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+            <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">datacube</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.stem_model">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.stem_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stem_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""""coherent" or "kinematic": the STEM model the renderer uses for this request."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">stem_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.ground_truth_ptychography">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.ground_truth_ptychography">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ground_truth_ptychography</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Ground truth of the coherent 4D-STEM simulation of ``request`` (to score</span>
+<span class="sd">        ptychography / tcBF):</span>
+
+<span class="sd">        * ``object``: complex transmission t(r) over the scanned field at the simulation pixel</span>
+<span class="sd">          ``dx_nm`` (lab frame: x = detector columns); ``view``: its world placement;</span>
+<span class="sd">        * ``positions_px`` / ``positions_nm``: (N, 2) probe centres (row, col) in that array, in</span>
+<span class="sd">          scan order (row-major), exactly as simulated;</span>
+<span class="sd">        * ``probe`` (principal mode), ``probe_modes`` / ``mode_weights`` (partial coherence):</span>
+<span class="sd">          complex (n, n) at ``dx_nm``, centred at (n/2, n/2), ``sum |P|^2 = 1``;</span>
+<span class="sd">        * ``wavelength_nm``, ``convergence_mrad`` (alpha), ``aberrations`` (the full probe set,</span>
+<span class="sd">          :class:`~de_twin.optics.aberrations.Aberrations`, incl. C1 = defocus and A1 = condenser</span>
+<span class="sd">          stig) and ``C1_nm``, ``A1_nm``, ``B2_nm``, ``C3_nm``, ``C5_nm``; ``focal_spread_nm``,</span>
+<span class="sd">          ``source_size_nm``, ``scan_step_nm``, ``scan_rotation_rad``;</span>
+<span class="sd">        * ``detector_shape``, ``detector_recip_px_inv_nm``, ``detector_center_px`` (binned) and</span>
+<span class="sd">          ``sampling`` (:class:`~de_twin.render.coherent.Sampling`).</span>
+
+<span class="sd">        the test helper ``tests/reconstruction.object_on_grid`` resamples the object to a reconstruction's pixel.</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+            <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">ground_truth_ptychography</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.ground_truth">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.ground_truth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AcquisitionRequest</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">as_arrays</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Phase + effective orientation (grain x stage tilt) per STEM scan point, or per raster</span>
+<span class="sd">        pixel of a TEM view, for scoring orientation maps (e.g. pyxem against</span>
+<span class="sd">        ``CrystalLibrary.template_library``). An orix ``CrystalMap`` (phase id = material id,</span>
+<span class="sd">        ``-1`` = not indexed: vacuum/amorphous; props ``grain_id``, ``thickness_nm``; x/y in nm),</span>
+<span class="sd">        or the raw arrays with ``as_arrays=True``."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+            <span class="n">optics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(),</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="n">gt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">ground_truth</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">as_arrays</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gt</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">orix.crystal_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrystalMap</span><span class="p">,</span> <span class="n">PhaseList</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">orix.quaternion</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.crystal</span><span class="w"> </span><span class="kn">import</span> <span class="n">phase_for</span>
+
+        <span class="n">gid</span><span class="p">,</span> <span class="n">mat</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="s2">"grain_id"</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">gt</span><span class="p">[</span><span class="s2">"material_id"</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mat</span><span class="p">[</span><span class="n">gid</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">])]</span>
+        <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="s2">"grain_id"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">gt</span><span class="p">[</span><span class="s2">"view"</span><span class="p">]</span><span class="o">.</span><span class="n">pixel_um</span> <span class="o">*</span> <span class="mf">1000.0</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">ny</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">nx</span><span class="p">]</span> <span class="o">*</span> <span class="n">step</span>
+        <span class="k">return</span> <span class="n">CrystalMap</span><span class="p">(</span><span class="n">Rotation</span><span class="p">(</span><span class="n">gt</span><span class="p">[</span><span class="s2">"quaternion"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gid</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                          <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                          <span class="n">phase_list</span><span class="o">=</span><span class="n">PhaseList</span><span class="p">([</span><span class="n">phase_for</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">],</span> <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">)</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s2">"grain_id"</span><span class="p">:</span> <span class="n">gid</span><span class="p">,</span> <span class="s2">"thickness_nm"</span><span class="p">:</span> <span class="n">gt</span><span class="p">[</span><span class="s2">"thickness_nm"</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()},</span> <span class="n">scan_unit</span><span class="o">=</span><span class="s2">"nm"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.request">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionRequest</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""An AcquisitionRequest for this twin's camera."""</span>
+        <span class="n">kw</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"camera_model"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">AcquisitionRequest</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.close">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="p">):</span>
+            <span class="n">close</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">close</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">close</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover - best effort</span>
+                    <span class="k">pass</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resize (nearest/linear) a render to the detector ROI if they disagree."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">zoom</span>
+
+    <span class="n">zy</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">zx</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">zoom</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">zy</span><span class="p">,</span> <span class="n">zx</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>  <span class="c1"># rounding</span>
+        <span class="n">fixed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">fixed</span><span class="p">[:</span><span class="n">h</span><span class="p">,</span> <span class="p">:</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[:</span><span class="n">h</span><span class="p">,</span> <span class="p">:</span><span class="n">w</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">fixed</span>
+    <span class="c1"># zoom scales per-pixel values unchanged; flux per pixel scales with pixel area</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">out</span> <span class="o">/</span> <span class="p">(</span><span class="n">zy</span> <span class="o">*</span> <span class="n">zx</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"DigitalTwin"</span><span class="p">,</span> <span class="s2">"AcquisitionRequest"</span><span class="p">,</span> <span class="s2">"ExposureMode"</span><span class="p">,</span> <span class="s2">"Projection"</span><span class="p">,</span> <span class="s2">"TemStem"</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

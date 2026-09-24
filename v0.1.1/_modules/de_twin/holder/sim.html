@@ -1,0 +1,910 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.holder.sim &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/holder/sim';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.1/_modules/de_twin/holder/sim.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../holder.html" class="nav-link">de_twin.holder</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.holder.sim</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.holder.sim</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""SimHeatingHolder: a MEMS heating chip (DENS Wildfire-like), optionally biasing.</span>
+
+<span class="sd">Physics (assumptions documented here, all parameters overridable):</span>
+
+<span class="sd">* **Controller.** Impulse runs a closed loop on the chip's 4-point Pt sensor.</span>
+<span class="sd">  ``set()`` steps the setpoint; ``ramp()`` moves it linearly at the requested</span>
+<span class="sd">  rate (or over the requested time).</span>
+<span class="sd">* **Chip response.** The membrane has a tiny heat capacity, so the measured</span>
+<span class="sd">  temperature follows the setpoint with a first-order lag of time constant</span>
+<span class="sd">  ``tau_s`` (default 5 ms; DENS quote heating rates up to ~1e6 degC/s and</span>
+<span class="sd">  millisecond settling for Wildfire chips, i.e. tau of order 1-10 ms). With</span>
+<span class="sd">  ``overshoot &gt; 0`` (fraction, e.g. 0.05) the response is second order</span>
+<span class="sd">  (natural frequency 1/tau, damping from the overshoot) to mimic an</span>
+<span class="sd">  aggressively tuned PID.</span>
+<span class="sd">* **Heater.** Pt resistance ``R(T) = R0 (1 + alpha T)`` with T in degC</span>
+<span class="sd">  (R0 = 500 ohm, alpha = 0.0030 /degC: thin-film Pt, lower than bulk 0.00385).</span>
+<span class="sd">  Electrical power ``P = G (T - T_amb) + eps*sigma*A (T^4 - T_amb^4) + C dT/dt``</span>
+<span class="sd">  with G = 3e-5 W/K (about 30 mW at 1000 degC, typical of MEMS heaters) and</span>
+<span class="sd">  ``C = G * tau``. Heater current ``sqrt(P / R)``.</span>
+<span class="sd">* **Bias channel (optional).** A semiconducting sample between the bias</span>
+<span class="sd">  contacts: ``R_s = R_s0 exp(-(T - T_amb) / T_decay)`` (1 Mohm, 200 degC, the</span>
+<span class="sd">  same law as autopilot's SimHeater), current ``V / R_s``.</span>
+<span class="sd">* **Noise.** Deterministic (hash of seed and clock millisecond), 0.01 degC rms.</span>
+
+<span class="sd">Time comes from an injected clock (callable or ``.now()``), so a virtual</span>
+<span class="sd">clock fast-forwards anneals; the response is integrated exactly (first order)</span>
+<span class="sd">or with RK4 over the transient and analytically afterwards (second order).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..hashing</span><span class="w"> </span><span class="kn">import</span> <span class="n">hash_seed</span><span class="p">,</span> <span class="n">normal_from_hash</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">HolderState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AMBIENT_C</span><span class="p">,</span>
+    <span class="n">DEFAULT_RAMP_RATE</span><span class="p">,</span>
+    <span class="n">DEFAULT_TOLERANCE_C</span><span class="p">,</span>
+    <span class="n">ChannelUnsupported</span><span class="p">,</span>
+    <span class="n">Reading</span><span class="p">,</span>
+    <span class="n">clock_fn</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">SIGMA</span> <span class="o">=</span> <span class="mf">5.670374419e-8</span>
+
+
+<div class="viewcode-block" id="SimHeatingHolder">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimHeatingHolder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Simulated MEMS heating (and optionally biasing) holder."""</span>
+
+    <span class="n">real</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="SimHeatingHolder.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Simulated MEMS heating holder (de_twin)."</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">tau_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="n">overshoot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">ambient_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AMBIENT_C</span><span class="p">,</span>
+        <span class="n">max_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1300.0</span><span class="p">,</span>
+        <span class="n">r0_ohm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">500.0</span><span class="p">,</span>
+        <span class="n">alpha_per_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0030</span><span class="p">,</span>
+        <span class="n">conductance_w_per_k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e-5</span><span class="p">,</span>
+        <span class="n">emissivity_area_m2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="n">sample_r0_ohm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e6</span><span class="p">,</span>
+        <span class="n">sample_decay_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+        <span class="n">noise_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">clock_fn</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"bias"</span><span class="p">)</span> <span class="k">if</span> <span class="n">bias</span> <span class="k">else</span> <span class="p">(</span><span class="s2">"temperature"</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tau_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overshoot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">overshoot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ambient_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r0_ohm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r0_ohm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_per_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">alpha_per_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">conductance_w_per_k</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_area</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">emissivity_area_m2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_r0_ohm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sample_r0_ohm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_decay_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sample_decay_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">noise_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span>  <span class="c1"># chip temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># dT/dt</span>
+        <span class="c1"># setpoint: moves from _sp0 at _sp_t0 towards _target at _rate (inf = step)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sp_t0</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rate</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bias_v</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+    <span class="c1"># -------------------------------------------------------------- clock</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clock</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="k">else</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="k">else</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># ----------------------------------------------------------- setpoint</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rate</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+        <span class="n">span</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span>
+        <span class="n">moved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_t0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="k">if</span> <span class="n">moved</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">span</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="n">moved</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ramp_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rate</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_t0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_t0</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_slope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rate</span><span class="p">)</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ramp_end</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span><span class="p">)</span>
+
+    <span class="c1"># ----------------------------------------------------------- dynamics</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_advance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ramp_end</span><span class="p">()</span>
+            <span class="n">t_next</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="k">else</span> <span class="n">t</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">,</span> <span class="n">t_next</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">t_next</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">-</span> <span class="n">t0</span>
+        <span class="k">if</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">u0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setpoint</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slope</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tau_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overshoot</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># y' = (u - y)/tau with u = u0 + b s: exact solution</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dt</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span>
+            <span class="n">u1</span> <span class="o">=</span> <span class="n">u0</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">dt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">u1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">-</span> <span class="n">u0</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">tau</span><span class="p">)</span> <span class="o">*</span> <span class="n">e</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_v</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">-</span> <span class="p">(</span><span class="n">u1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">tau</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">os_</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overshoot</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">),</span> <span class="mf">0.99</span><span class="p">)</span>
+        <span class="n">ln</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">os_</span><span class="p">)</span>
+        <span class="n">zeta</span> <span class="o">=</span> <span class="o">-</span><span class="n">ln</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">ln</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">tau</span>
+        <span class="n">transient</span> <span class="o">=</span> <span class="mf">40.0</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">zeta</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">tau</span> <span class="o">/</span> <span class="mf">20.0</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">acc</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">vv</span><span class="p">):</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">u0</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">ss</span>
+            <span class="k">return</span> <span class="n">w</span> <span class="o">*</span> <span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="n">yy</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">w</span> <span class="o">*</span> <span class="n">vv</span>
+
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">transient</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">s</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">hh</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">limit</span> <span class="o">-</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">k1y</span><span class="p">,</span> <span class="n">k1v</span> <span class="o">=</span> <span class="n">v</span><span class="p">,</span> <span class="n">acc</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="n">k2y</span><span class="p">,</span> <span class="n">k2v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k1v</span><span class="p">,</span> <span class="n">acc</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k1y</span><span class="p">,</span> <span class="n">v</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k1v</span><span class="p">)</span>
+            <span class="n">k3y</span><span class="p">,</span> <span class="n">k3v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k2v</span><span class="p">,</span> <span class="n">acc</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k2y</span><span class="p">,</span> <span class="n">v</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k2v</span><span class="p">)</span>
+            <span class="n">k4y</span><span class="p">,</span> <span class="n">k4v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k3v</span><span class="p">,</span> <span class="n">acc</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">hh</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k3y</span><span class="p">,</span> <span class="n">v</span> <span class="o">+</span> <span class="n">hh</span> <span class="o">*</span> <span class="n">k3v</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">+=</span> <span class="n">hh</span> <span class="o">/</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="n">k1y</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">k2y</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">k3y</span> <span class="o">+</span> <span class="n">k4y</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">+=</span> <span class="n">hh</span> <span class="o">/</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="n">k1v</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">k2v</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">k3v</span> <span class="o">+</span> <span class="n">k4v</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">hh</span>
+        <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="n">limit</span><span class="p">:</span>  <span class="c1"># transient has died out: steady ramp tracking</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">u0</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">b</span> <span class="o">/</span> <span class="n">w</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span> <span class="o">=</span> <span class="n">y</span><span class="p">,</span> <span class="n">v</span>
+
+    <span class="c1"># ------------------------------------------------------------- physics</span>
+<div class="viewcode-block" id="SimHeatingHolder.heater_resistance">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.heater_resistance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">heater_resistance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">r0_ohm</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_per_c</span> <span class="o">*</span> <span class="n">temp_c</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.heater_power">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.heater_power">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">heater_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dtdt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">tk</span><span class="p">,</span> <span class="n">ta</span> <span class="o">=</span> <span class="n">temp_c</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span> <span class="o">+</span> <span class="mf">273.15</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductance</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp_c</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">SIGMA</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_area</span> <span class="o">*</span> <span class="p">(</span><span class="n">tk</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">ta</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau_s</span> <span class="o">*</span> <span class="n">dtdt</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.sample_resistance">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.sample_resistance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_resistance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_r0_ohm</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">temp_c</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient_c</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_decay_c</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_c</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_c</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">normal_from_hash</span><span class="p">(</span><span class="n">hash_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)))))</span>
+
+    <span class="c1"># ---------------------------------------------------------- duck type</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">busy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ramp_end</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">DEFAULT_TOLERANCE_C</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noise</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">temp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bias_v</span>
+
+<div class="viewcode-block" id="SimHeatingHolder.read">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reading</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+        <span class="n">temp</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">dtdt</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamp</span><span class="p">()</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heater_power</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">dtdt</span><span class="p">)</span>
+        <span class="n">r_heater</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heater_resistance</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"bias"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="ow">and</span> <span class="n">bias</span><span class="p">:</span>
+            <span class="n">r_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_resistance</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Reading</span><span class="p">(</span><span class="n">measured</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">stamp</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span> <span class="n">resistance</span><span class="o">=</span><span class="n">r_s</span><span class="p">,</span>
+                           <span class="n">voltage</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">bias</span> <span class="o">/</span> <span class="n">r_s</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"bias"</span><span class="p">,</span> <span class="n">bias_target</span><span class="o">=</span><span class="n">bias</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">power</span> <span class="o">/</span> <span class="n">r_heater</span><span class="p">)</span> <span class="k">if</span> <span class="n">power</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">Reading</span><span class="p">(</span><span class="n">measured</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">stamp</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span> <span class="n">resistance</span><span class="o">=</span><span class="n">r_heater</span><span class="p">,</span>
+                       <span class="n">voltage</span><span class="o">=</span><span class="n">current</span> <span class="o">*</span> <span class="n">r_heater</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"heater"</span><span class="p">,</span>
+                       <span class="n">bias_target</span><span class="o">=</span><span class="n">bias</span> <span class="k">if</span> <span class="s2">"bias"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">channel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ChannelUnsupported</span><span class="p">(</span><span class="sa">f</span><span class="s2">"This holder has no </span><span class="si">{</span><span class="n">channel</span><span class="si">!r}</span><span class="s2"> channel (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="si">}</span><span class="s2">)."</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_retarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sp0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setpoint</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sp_t0</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rate</span> <span class="o">=</span> <span class="n">rate</span>
+
+<div class="viewcode-block" id="SimHeatingHolder.set">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"temperature"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">"bias"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bias_v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_retarget</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.ramp">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.ramp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ramp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rate_c_per_s</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"temperature"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">"bias"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bias_v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># a supply steps in microseconds</span>
+                <span class="k">return</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setpoint</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">seconds</span> <span class="ow">and</span> <span class="n">seconds</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rate_c_per_s</span><span class="p">:</span>
+                <span class="n">rate</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rate_c_per_s</span> <span class="ow">or</span> <span class="n">DEFAULT_RAMP_RATE</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_retarget</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">rate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.stop">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Hold where the setpoint has got to (not "go cold")."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_retarget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setpoint</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.flag">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.flag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_stamp</span><span class="p">(),</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"holder flag: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimHeatingHolder.describe">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.describe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="s2">"heating + biasing"</span> <span class="k">if</span> <span class="s2">"bias"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="k">else</span> <span class="s2">"heating"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Simulated MEMS </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> holder"</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.wait_for_control">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.wait_for_control">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_control</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.state">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HolderState</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""HolderState at clock time ``t`` (default now). ``t`` in the past reads the</span>
+<span class="sd">        current state (the model does not rewind)."""</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clock</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">temp</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">dtdt</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heater_power</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">dtdt</span><span class="p">)</span>
+        <span class="n">biasing</span> <span class="o">=</span> <span class="s2">"bias"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span>
+        <span class="k">if</span> <span class="n">biasing</span> <span class="ow">and</span> <span class="n">bias</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">bias</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_resistance</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heater_resistance</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">power</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="k">if</span> <span class="n">power</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">HolderState</span><span class="p">(</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">"heating_biasing"</span> <span class="k">if</span> <span class="n">biasing</span> <span class="k">else</span> <span class="s2">"heating"</span><span class="p">,</span>
+            <span class="n">temperature_c</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">target_c</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">power_w</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
+            <span class="n">resistance_ohm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">heater_resistance</span><span class="p">(</span><span class="n">temp</span><span class="p">),</span> <span class="n">bias_v</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">current_a</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">t_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimHeatingHolder.close">
+<a class="viewcode-back" href="../../../api/generated/de_twin.holder.SimHeatingHolder.html#de_twin.holder.SimHeatingHolder.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

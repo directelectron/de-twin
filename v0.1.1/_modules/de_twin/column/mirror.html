@@ -1,0 +1,1028 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.column.mirror &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/column/mirror';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.1/_modules/de_twin/column/mirror.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.column.mirror</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.column.mirror</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""MirrorColumn: a Column that follows a real (or Dummy) DE-TEM-Channel.</span>
+
+<span class="sd">It polls ``executeBatchCommands`` at a fixed period and turns the answer into a</span>
+<span class="sd">:class:`MicroscopeState` with the same keys, units and vendor normalisation as</span>
+<span class="sd">DE-Server's ``Camera::ParseEmMetaData`` (Camera.cpp): ``GUN_HT`` volts -&gt; kV,</span>
+<span class="sd">``PROJ_CameraLength`` cm -&gt; mm, ``PROJ_Defocus`` um, ``STAGE_PositionFull``</span>
+<span class="sd">"x;y;z;a;b" um/deg, ``ILLUM_ProbeMode`` normalised by ``INSTRUMENT_Type``</span>
+<span class="sd">(JEOL 0 TEM/1 EDS/2 NBD/3 CBD, otherwise 0 nanoprobe/1 microprobe),</span>
+<span class="sd">``ILLUM_ConvergenceAngle`` &lt; 0 = "not reported". Missing or empty fields keep</span>
+<span class="sd">their previous value, as DE-Server keeps its defaults for older channels.</span>
+
+<span class="sd">Writes (``set`` and every typed setter) are forwarded to the real channel, and</span>
+<span class="sd">the mirror re-polls immediately so a read after a write sees the channel's</span>
+<span class="sd">answer.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroscopeState</span><span class="p">,</span> <span class="n">ProbeMode</span><span class="p">,</span> <span class="n">Projection</span><span class="p">,</span> <span class="n">StagePosition</span><span class="p">,</span> <span class="n">TemStem</span><span class="p">,</span> <span class="n">Vec2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">ladders</span> <span class="k">as</span> <span class="n">L</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.column</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BEAM_TILT_MRAD_PER_UNIT</span><span class="p">,</span>
+    <span class="n">DIFF_SHIFT_MRAD_PER_UNIT</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">,</span>
+    <span class="n">ColumnRefused</span><span class="p">,</span>
+    <span class="n">is_tfs</span><span class="p">,</span>
+    <span class="n">probe_mode_from_raw</span><span class="p">,</span>
+    <span class="n">screen_from_raw</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.soap</span><span class="w"> </span><span class="kn">import</span> <span class="n">BATCH_KEYS</span><span class="p">,</span> <span class="n">SoapError</span><span class="p">,</span> <span class="n">SoapTemChannelClient</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_f</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_i</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">";"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="n">n</span><span class="p">]]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">out</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">state_from_batch</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">prev</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MicroscopeState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">camera_length_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"cm"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MicroscopeState</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Parse an executeBatchCommands answer (``{key: field}``) into a state.</span>
+
+<span class="sd">    Returns ``(state, info)`` where ``info`` carries the raw fields that have no</span>
+<span class="sd">    MicroscopeState slot (``op_status``, ``convergence_explicit``, ``stage_mode``,</span>
+<span class="sd">    ``max_ht_v``, ``filament``, ``raw_probe_mode``, ``raw_sub_mode``).</span>
+<span class="sd">    """</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev</span> <span class="ow">or</span> <span class="n">MicroscopeState</span><span class="p">())</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">vendor</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"INSTRUMENT_Type"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vendor</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">instrument_type</span> <span class="o">=</span> <span class="n">vendor</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">vendor</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">instrument_type</span>
+
+    <span class="n">ht</span> <span class="o">=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"GUN_HT"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ht</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ht</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">ht_kv</span> <span class="o">=</span> <span class="n">ht</span> <span class="o">/</span> <span class="mf">1000.0</span> <span class="k">if</span> <span class="n">ht</span> <span class="o">&gt;</span> <span class="mi">1000</span> <span class="k">else</span> <span class="n">ht</span>  <span class="c1"># channel reports volts</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"GUN_HTMax"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"max_ht_v"</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"GUN_HTState"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">ht_on</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_BeamBlankState"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beam_blanked</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_Filament"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"filament"</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"VACUUM_ColumnValvesOpen"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">column_valves_open</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_ScreenPosition"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">screen_position</span> <span class="o">=</span> <span class="n">screen_from_raw</span><span class="p">(</span><span class="n">vendor</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ColumnRefused</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="n">tem_stem</span> <span class="o">=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_TemStemMode"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tem_stem</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">tem_stem</span> <span class="o">=</span> <span class="n">TemStem</span><span class="p">(</span><span class="n">tem_stem</span><span class="p">)</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_Mode"</span><span class="p">)</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_SubMode"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"raw_sub_mode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub</span>
+    <span class="n">fm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">FM_DIFF</span>
+    <span class="k">elif</span> <span class="n">sub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_tfs</span><span class="p">(</span><span class="n">vendor</span><span class="p">):</span>
+            <span class="n">fm</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">FM_FROM_FEI_SUBMODE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">sub</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">fm</span> <span class="o">=</span> <span class="n">sub</span>
+    <span class="k">if</span> <span class="n">fm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">mag_mode</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">FUNCTION_MODE_NAMES</span><span class="p">[</span><span class="n">fm</span><span class="p">]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">Projection</span><span class="o">.</span><span class="n">DIFFRACTION</span> <span class="k">if</span> <span class="n">fm</span> <span class="o">==</span> <span class="n">L</span><span class="o">.</span><span class="n">FM_DIFF</span> <span class="k">else</span> <span class="n">Projection</span><span class="o">.</span><span class="n">IMAGING</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">Projection</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_Magnification"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">magnification</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_CameraLength"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">camera_length_mm</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="mf">10.0</span> <span class="k">if</span> <span class="n">camera_length_unit</span> <span class="o">==</span> <span class="s2">"cm"</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_Defocus"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">defocus_um</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># DE-Server reads PROJ_Defocus as micrometres</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">pos</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"STAGE_PositionFull"</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">StagePosition</span><span class="p">(</span><span class="o">*</span><span class="n">pos</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_BeamShift"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beam_shift_um</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_ImageShift"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">image_shift_um</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_BeamTilt"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beam_tilt_mrad</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">BEAM_TILT_MRAD_PER_UNIT</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">BEAM_TILT_MRAD_PER_UNIT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_ObjStig"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">objective_stig</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_CondenserStig"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">condenser_stig</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"PROJ_DiffractionShift"</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">diffraction_shift_mrad</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">DIFF_SHIFT_MRAD_PER_UNIT</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">DIFF_SHIFT_MRAD_PER_UNIT</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_SpotSize"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">spot_size</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_ProbeMode"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"raw_probe_mode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">pm</span> <span class="o">=</span> <span class="n">probe_mode_from_raw</span><span class="p">(</span><span class="n">vendor</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pm</span> <span class="o">!=</span> <span class="n">ProbeMode</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">probe_mode</span> <span class="o">=</span> <span class="n">pm</span>
+    <span class="n">conv</span> <span class="o">=</span> <span class="n">_f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_ConvergenceAngle"</span><span class="p">)</span>
+    <span class="n">info</span><span class="p">[</span><span class="s2">"convergence_explicit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">conv</span> <span class="k">if</span> <span class="n">conv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">conv</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">conv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">conv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">convergence_semi_angle_mrad</span> <span class="o">=</span> <span class="n">conv</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_AlphaSelector"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">alpha_selector</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"ILLUM_CondenserApertureIndex"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">condenser_aperture_index</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"OP_Status"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"op_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">op_status</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">_i</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"STAGE_Mode"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"stage_mode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">info</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_corrector</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MicroscopeState</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill ``state``'s corrector fields from a real channel's last measurement."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.corrector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceos_to_nm</span><span class="p">,</span> <span class="n">operator_c1a1</span>
+
+    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"none"</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">corrector</span> <span class="o">=</span> <span class="s2">"none"</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">probe_aberrations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">image_aberrations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">return</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">corrector</span> <span class="o">=</span> <span class="n">side</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">ab</span> <span class="o">=</span> <span class="n">ceos_to_nm</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">c1</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">operator_c1a1</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">side</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"C1"</span> <span class="ow">in</span> <span class="n">ab</span><span class="p">:</span>
+        <span class="n">ab</span><span class="p">[</span><span class="s2">"C1"</span><span class="p">]</span> <span class="o">-=</span> <span class="n">c1</span>
+    <span class="k">if</span> <span class="s2">"A1"</span> <span class="ow">in</span> <span class="n">ab</span><span class="p">:</span>
+        <span class="n">ab</span><span class="p">[</span><span class="s2">"A1"</span><span class="p">]</span> <span class="o">-=</span> <span class="n">a1</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s2">_aberrations"</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ab</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="MirrorColumn">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MirrorColumn</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A :class:`Column` that follows a DE-TEM-Channel over SOAP.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    host, port</span>
+<span class="sd">        The channel (a real one, the Dummy instrument, or another twin's</span>
+<span class="sd">        :class:`~de_twin.faces.temchannel_soap.TemChannelServer`).</span>
+<span class="sd">    period_s</span>
+<span class="sd">        Poll period. The first poll happens in the constructor (errors are</span>
+<span class="sd">        logged, not raised, unless ``strict=True``).</span>
+<span class="sd">    client</span>
+<span class="sd">        An existing :class:`SoapTemChannelClient` (overrides host/port).</span>
+<span class="sd">    poll_intensity</span>
+<span class="sd">        Also read ``getProperty("Intensity")`` each cycle (not in the batch).</span>
+<span class="sd">    corrector_every</span>
+<span class="sd">        Read the channel's aberration corrector every N polls (0 = never):</span>
+<span class="sd">        ``getCorrectorPresent``, ``getCorrectorInfo`` (mode STEM -&gt; probe side,</span>
+<span class="sd">        TEM -&gt; image side) and ``getAberrations`` (the corrector's *last</span>
+<span class="sd">        measurement*, metres). The measured C1 / A1 include the operator's focus and</span>
+<span class="sd">        stigmator, so those are subtracted (the optics adds them back) before the</span>
+<span class="sd">        set lands in ``state.probe_aberrations`` / ``image_aberrations``; until a</span>
+<span class="sd">        measurement exists the side's set is left as it was. A channel without the</span>
+<span class="sd">        corrector operations is asked once.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="MirrorColumn.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"127.0.0.1"</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5002</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">period_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SoapTemChannelClient</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">poll_intensity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">camera_length_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"cm"</span><span class="p">,</span>
+        <span class="n">corrector_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrector_every</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">corrector_every</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrector_info</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_corrector_supported</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span> <span class="n">stage_speed_um_s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="n">tilt_speed_deg_s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
+                         <span class="n">stage_limits</span><span class="o">=</span><span class="p">(</span><span class="mf">1e9</span><span class="p">,)</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">SoapTemChannelClient</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">period_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">period_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poll_intensity</span> <span class="o">=</span> <span class="n">poll_intensity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera_length_unit</span> <span class="o">=</span> <span class="n">camera_length_unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polls</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_supported</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+            <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"MirrorColumn: first poll of </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">start</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># ------------------------------------------------------------ polling</span>
+<div class="viewcode-block" id="MirrorColumn.poll">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.poll">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MicroscopeState</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""One synchronous refresh from the channel. Returns the new state."""</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">BATCH_KEYS</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SoapError</span><span class="p">:</span>
+            <span class="c1"># Older channels: DE-Server falls back to its first ten keys.</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[:</span><span class="mi">24</span><span class="p">]</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">fields</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_intensity</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">val</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s2">"Intensity"</span><span class="p">)</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"_Intensity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">except</span> <span class="n">SoapError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">corrector_every</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_corrector_supported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">polls</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrector_every</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_corrector</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">prev</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">StagePosition</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_stage_now</span><span class="p">)</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">state_from_batch</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">camera_length_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_length_unit</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_Intensity"</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"_Intensity"</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">if</span> <span class="n">corr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_apply_corrector</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="o">*</span><span class="n">corr</span><span class="p">)</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s2">"stage_mode"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">extra</span><span class="p">[</span><span class="s2">"StageMode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"stage_mode"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"max_ht_v"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">extra</span><span class="p">[</span><span class="s2">"MaxHighTension"</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"max_ht_v"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"filament"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">extra</span><span class="p">[</span><span class="s2">"Filament"</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"filament"</span><span class="p">]</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"op_status"</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">op_state</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+                                        <span class="n">convergence_explicit</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"convergence_explicit"</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remote_op</span> <span class="o">=</span> <span class="n">op</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polls</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">changed</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_notify</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.poll_corrector">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.poll_corrector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">poll_corrector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Read the channel's corrector: ``(side, [(name, (x_m, y_m)), ...])``,</span>
+<span class="sd">        ``("none", [])`` when it has none, None when the channel lacks the operations."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">present</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">corrector_present</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">SoapError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_corrector_supported</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_corrector_supported</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"MirrorColumn: channel has no corrector operations"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_corrector_supported</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">present</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">corrector_info</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">return</span> <span class="s2">"none"</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">corrector_info</span><span class="p">()</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">aberrations</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">SoapError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"corrector read failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrector_info</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">ctype</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"correctorType"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">side</span> <span class="o">=</span> <span class="s2">"image"</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"TEM"</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">mode</span> <span class="ow">and</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">"CETCOR"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"probe"</span>
+        <span class="k">return</span> <span class="n">side</span><span class="p">,</span> <span class="n">items</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.state">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MicroscopeState</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_remote_op"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">op_status</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.op_state">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.op_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">op_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_remote_op"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">op_state</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">period_s</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"MirrorColumn poll failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MirrorColumn.start">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"MirrorColumn"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"MirrorColumn-poll"</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.close">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">period_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------ writes</span>
+<div class="viewcode-block" id="MirrorColumn.set">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Forward a write to the channel, then refresh. Raises ColumnRefused on ``success=0``."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_guard</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"InstrumentType"</span><span class="p">,</span> <span class="s2">"HT"</span><span class="p">,</span> <span class="s2">"HTState"</span><span class="p">,</span> <span class="s2">"Filament"</span><span class="p">,</span> <span class="s2">"HighTension"</span><span class="p">,</span> <span class="s2">"MagString"</span><span class="p">,</span>
+                    <span class="s2">"FunctionMode"</span><span class="p">,</span> <span class="s2">"ApertureKind"</span><span class="p">,</span> <span class="s2">"ApertureSize"</span><span class="p">,</span> <span class="s2">"ConvergenceAngle"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"FunctionMode"</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">"SubMode"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ColumnRefused</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> cannot be written through DE-TEM-Channel"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"BeamTilt"</span><span class="p">,</span> <span class="s2">"DiffractionShift"</span><span class="p">,</span> <span class="s2">"ImageShift"</span><span class="p">,</span> <span class="s2">"BeamShift"</span><span class="p">,</span> <span class="s2">"ObjectiveStig"</span><span class="p">,</span>
+                    <span class="s2">"CondenserStig"</span><span class="p">,</span> <span class="s2">"GunShift"</span><span class="p">,</span> <span class="s2">"GunTilt"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="s2">"y"</span><span class="p">])</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"ProbeMode"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">.column</span><span class="w"> </span><span class="kn">import</span> <span class="n">probe_mode_to_raw</span>
+            <span class="n">pm</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ProbeMode</span><span class="p">)</span> <span class="k">else</span> <span class="n">ProbeMode</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">probe_mode_to_raw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instrument_type</span><span class="p">,</span> <span class="n">pm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"StagePosition"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="s2">"xyzab"</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">{{</span><span class="s2">"alpha"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">:</span> <span class="s2">"b"</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SoapError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ColumnRefused</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ColumnRefused</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DE-TEM-Channel refused </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"post-set poll failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">readback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">readback</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_notify</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">readback</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.stop">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+                <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="MirrorColumn.wait_idle">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MirrorColumn.html#de_twin.column.MirrorColumn.wait_idle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Poll until the channel's OP_Status is no longer Running (wall-clock timeout)."""</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_time</span>
+
+        <span class="n">deadline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+                <span class="k">pass</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_remote_op"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">deadline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">deadline</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">_time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">period_s</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

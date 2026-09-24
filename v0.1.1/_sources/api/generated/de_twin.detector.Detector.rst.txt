@@ -1,0 +1,37 @@
+﻿de\_twin.detector.Detector
+==========================
+
+.. currentmodule:: de_twin.detector
+
+.. autoclass:: Detector
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Detector.__init__
+      ~Detector.dark_current_map
+      ~Detector.expected_dark
+      ~Detector.expected_gain
+      ~Detector.expose
+      ~Detector.output_shape
+      ~Detector.roi
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Detector.bad_pixel_mask
+      ~Detector.dark_map
+      ~Detector.gain_map
+      ~Detector.hot_pixels
+   
+   

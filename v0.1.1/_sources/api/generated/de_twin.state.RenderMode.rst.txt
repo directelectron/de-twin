@@ -1,0 +1,42 @@
+﻿de\_twin.state.RenderMode
+=========================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: RenderMode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RenderMode.conjugate
+      ~RenderMode.bit_length
+      ~RenderMode.bit_count
+      ~RenderMode.to_bytes
+      ~RenderMode.from_bytes
+      ~RenderMode.as_integer_ratio
+      ~RenderMode.is_integer
+      ~RenderMode.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RenderMode.real
+      ~RenderMode.imag
+      ~RenderMode.numerator
+      ~RenderMode.denominator
+      ~RenderMode.TEM_IMAGING
+      ~RenderMode.TEM_DIFFRACTION
+      ~RenderMode.STEM_PARKED
+      ~RenderMode.STEM_4D
+   
+   

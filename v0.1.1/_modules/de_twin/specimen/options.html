@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.specimen.options &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/specimen/options';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.1/_modules/de_twin/specimen/options.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.specimen.options</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.specimen.options</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Specimen options, presets and test patterns (port of ``VirtualSpecimenProps`` + pattern table).</span>
+
+<span class="sd">Every *specimen-related* ``Simulator Virtual Specimen ...`` property of DE-Server's</span>
+<span class="sd">VirtualSpecimen module appears here as a snake_case field of :class:`SpecimenOptions`, with the</span>
+<span class="sd">same default and range. Optics/render/detector knobs (pixel-size fallbacks, flips, SA aperture,</span>
+<span class="sd">beam stop, probe, diffraction cache, render threads, ...) belong to other subpackages and are</span>
+<span class="sd">not repeated here.</span>
+
+<span class="sd">Dropped options (dead or superseded in the C++ as well):</span>
+
+<span class="sd">* ``Chip Window Grid`` - the authored in-situ SVG has exactly ten openings; the N x N window grid</span>
+<span class="sd">  of the old parametric chip is never read.</span>
+<span class="sd">* ``Support Film`` / ``Seed`` - these are :attr:`SpecimenConfig.film` / :attr:`SpecimenConfig.seed`.</span>
+<span class="sd">* ``Preset`` - a preset is a whole :class:`SpecimenConfig` (see :data:`PRESETS`); the C++ used</span>
+<span class="sd">  ``options.preset`` only to smuggle the thin-film material, which is now the real option</span>
+<span class="sd">  :attr:`SpecimenOptions.thin_film_material`.</span>
+<span class="sd">* ``Temperature (C)`` is kept as a fallback only; the live value comes from</span>
+<span class="sd">  ``HolderState.temperature_c`` passed to :meth:`Specimen.update`.</span>
+<span class="sd">* ``Nearest Cluster`` / ``Nearest Feature`` / ``Feature Table`` (read-only publishers) are the</span>
+<span class="sd">  methods :meth:`Specimen.nearest_feature` / :meth:`Specimen.features`.</span>
+<span class="sd">* ``Legacy Scan Patterns`` (gate) - legacy names are always accepted by :func:`from_name`.</span>
+
+<span class="sd">The C++ global option snapshot (``CurrentVirtualSpecimenOptions``), the Structure constructor</span>
+<span class="sd">side tables and the primitive-field smuggling of ``TimeEvolvingStructure`` are gone: every</span>
+<span class="sd">consumer receives a resolved :class:`SpecimenOptions` (or real constructor arguments).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="n">HOLDERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"waffle_grid"</span><span class="p">,</span> <span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"insitu_heating_chip"</span><span class="p">)</span>
+<span class="n">PREPARATIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"proteins"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">,</span> <span class="s2">"time_evolving"</span><span class="p">)</span>
+<span class="n">FILMS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"holey"</span><span class="p">,</span> <span class="s2">"lacey"</span><span class="p">,</span> <span class="s2">"continuous"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">,</span> <span class="s2">"vitreous_ice"</span><span class="p">,</span> <span class="s2">"auto"</span><span class="p">)</span>
+<span class="n">FIB_POST_SAMPLES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"precipitate_matrix"</span><span class="p">,</span> <span class="s2">"pn_junction"</span><span class="p">,</span> <span class="s2">"strained_inclusion"</span><span class="p">,</span>
+                    <span class="s2">"polycrystal"</span><span class="p">,</span> <span class="s2">"multilayer"</span><span class="p">)</span>
+<span class="n">THIN_FILM_MATERIALS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"gold"</span><span class="p">,</span> <span class="s2">"aluminum"</span><span class="p">,</span> <span class="s2">"copper"</span><span class="p">,</span> <span class="s2">"iron"</span><span class="p">,</span> <span class="s2">"silicon"</span><span class="p">,</span> <span class="s2">"platinum"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_opt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"lo"</span><span class="p">:</span> <span class="n">lo</span><span class="p">,</span> <span class="s2">"hi"</span><span class="p">:</span> <span class="n">hi</span><span class="p">,</span> <span class="s2">"doc"</span><span class="p">:</span> <span class="n">doc</span><span class="p">,</span> <span class="s2">"choices"</span><span class="p">:</span> <span class="n">choices</span><span class="p">})</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecimenOptions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Every specimen knob of the VirtualSpecimen module (defaults and ranges as in the C++)."""</span>
+
+    <span class="c1"># -- level of detail -------------------------------------------------------------------</span>
+    <span class="n">lod_threshold_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">16.0</span><span class="p">,</span> <span class="s2">"Simulator LOD Threshold (pixels): primitives "</span>
+                                   <span class="s2">"smaller than this many raster pixels across are culled."</span><span class="p">)</span>
+
+    <span class="c1"># -- support film ------------------------------------------------------------------------</span>
+    <span class="n">film_thickness_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"Support-film thickness; 0 keeps the film "</span>
+                                    <span class="s2">"type's default (12 continuous, 20 holey, 15 lacey, ice = "</span>
+                                    <span class="s2">"ice_thickness_nm)."</span><span class="p">)</span>
+
+    <span class="c1"># -- nanoparticles --------------------------------------------------------------------------</span>
+    <span class="n">particle_density_per_um2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">24.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5000.0</span><span class="p">,</span> <span class="s2">"Particles per um^2 of placement area."</span><span class="p">)</span>
+    <span class="n">particle_median_diameter_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">24.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"Median particle diameter (log-normal)."</span><span class="p">)</span>
+    <span class="n">particle_size_sigma_log</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"Std-dev of ln(diameter)."</span><span class="p">)</span>
+    <span class="n">clustered_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Fraction of particles in agglomerates."</span><span class="p">)</span>
+    <span class="n">cluster_density_per_um2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">"Agglomerate centres per um^2."</span><span class="p">)</span>
+    <span class="n">cluster_radius_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">"Gaussian sigma of an agglomerate."</span><span class="p">)</span>
+
+    <span class="c1"># -- proteins -----------------------------------------------------------------------------</span>
+    <span class="n">protein_diameter_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">"Median protein blob diameter."</span><span class="p">)</span>
+    <span class="n">protein_density_per_um2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">2000.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">50000.0</span><span class="p">,</span> <span class="s2">"Protein blobs per um^2."</span><span class="p">)</span>
+    <span class="n">ice_thickness_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"Vitreous-ice layer thickness."</span><span class="p">)</span>
+    <span class="n">negative_stain_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Fraction of blobs with a Pt stain halo."</span><span class="p">)</span>
+    <span class="n">dose_fading_per_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Protein contrast lost per time step "</span>
+                                       <span class="s2">"(fade = exp(-k * time_index))."</span><span class="p">)</span>
+    <span class="n">protein_crystal_patch_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Fraction of the area in 2D-crystal "</span>
+                                                 <span class="s2">"patches (C++ ProteinParams field without a "</span>
+                                                 <span class="s2">"property; exposed here)."</span><span class="p">)</span>
+
+    <span class="c1"># -- deposited thin film -----------------------------------------------------------------</span>
+    <span class="n">grain_size_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">150.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">5000.0</span><span class="p">,</span> <span class="s2">"Median grain size (fine lattice) of a deposited film."</span><span class="p">)</span>
+    <span class="n">deposited_film_thickness_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">40.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"Nominal deposited-film thickness."</span><span class="p">)</span>
+    <span class="n">pinhole_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Fraction of the film area that is a pinhole."</span><span class="p">)</span>
+    <span class="n">crack_density_per_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">"Film cracks per micrometre."</span><span class="p">)</span>
+    <span class="n">thin_film_material</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"Deposited-film material; 'auto' = gold on a waffle "</span>
+                                   <span class="s2">"grid, aluminium otherwise (replaces the C++ preset check)."</span><span class="p">,</span>
+                                   <span class="n">choices</span><span class="o">=</span><span class="n">THIN_FILM_MATERIALS</span><span class="p">)</span>
+    <span class="n">thin_film_gradient_per_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">"Fractional thickness change per mm "</span>
+                                            <span class="s2">"across the grid (C++ ThinFilmParams constant)."</span><span class="p">)</span>
+
+    <span class="c1"># -- FIB liftout ---------------------------------------------------------------------------</span>
+    <span class="n">fib_post_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"Number of FIB posts (authored SVG flags used)."</span><span class="p">)</span>
+    <span class="n">fib_post_sample</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"Force every post's BulkSampleKind; 'auto' keeps the "</span>
+                                <span class="s2">"seeded distinct permutation."</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">FIB_POST_SAMPLES</span><span class="p">)</span>
+    <span class="n">lamella_thickness_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"Nominal lamella thickness (+/-20% per lamella)."</span><span class="p">)</span>
+    <span class="n">curtain_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"FIB curtaining depth (fraction of mean thickness)."</span><span class="p">)</span>
+    <span class="n">junction_descan_x_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">512.0</span><span class="p">,</span> <span class="mf">512.0</span><span class="p">,</span> <span class="s2">"PN-junction descan step, x (detector px)."</span><span class="p">)</span>
+    <span class="n">junction_descan_y_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">512.0</span><span class="p">,</span> <span class="mf">512.0</span><span class="p">,</span> <span class="s2">"PN-junction descan step, y (detector px)."</span><span class="p">)</span>
+    <span class="n">junction_width_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"Junction smoothing width (fraction of lamella height)."</span><span class="p">)</span>
+    <span class="n">strain_magnitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"Strained-inclusion magnitude m -&gt; (1+m, m, 1-m/2)."</span><span class="p">)</span>
+
+    <span class="c1"># -- time evolution (nucleation + growth, TimeEvolvingPreparation) ---------------------------</span>
+    <span class="n">nucleation_sites_per_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">"Nucleation sites per placement area."</span><span class="p">)</span>
+    <span class="n">growth_rate_nm_per_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">100000.0</span><span class="p">,</span> <span class="s2">"Growth radius r = rate * sqrt(t - t_k)."</span><span class="p">)</span>
+    <span class="n">drift_per_step_x_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">100000.0</span><span class="p">,</span> <span class="mf">100000.0</span><span class="p">,</span> <span class="s2">"Field drift per time step, x."</span><span class="p">)</span>
+    <span class="n">drift_per_step_y_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">100000.0</span><span class="p">,</span> <span class="mf">100000.0</span><span class="p">,</span> <span class="s2">"Field drift per time step, y."</span><span class="p">)</span>
+    <span class="n">time_step_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s2">"Seconds of scene time per time index step (the C++ "</span>
+                              <span class="s2">"used whole seconds of acquisition time, or the scan repeat)."</span><span class="p">)</span>
+
+    <span class="c1"># -- in-situ crystallisation (thermal budget) ------------------------------------------------</span>
+    <span class="n">in_situ_crystallization</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"Per-grain glassy-&gt;crystalline model; "</span>
+                                                   <span class="s2">"None = on for the in-situ heating chip only."</span><span class="p">)</span>
+    <span class="n">nucleation_start_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">25.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3600.0</span><span class="p">,</span> <span class="s2">"Thermal budget at which the first grain nucleates."</span><span class="p">)</span>
+    <span class="n">nucleation_end_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">75.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3600.0</span><span class="p">,</span> <span class="s2">"Thermal budget at which the last grain nucleates."</span><span class="p">)</span>
+    <span class="n">crystal_growth_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="s2">"Budget from nucleation to fully crystalline."</span><span class="p">)</span>
+    <span class="n">specimen_temperature_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">25.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span> <span class="mf">1500.0</span><span class="p">,</span> <span class="s2">"Fallback temperature when update() "</span>
+                                         <span class="s2">"gets no holder."</span><span class="p">)</span>
+    <span class="n">crystallization_onset_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">400.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span> <span class="mf">1500.0</span><span class="p">,</span> <span class="s2">"Budget advances at and above this."</span><span class="p">)</span>
+    <span class="n">melting_temperature_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">800.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">,</span> <span class="s2">"At and above this the specimen re-amorphises."</span><span class="p">)</span>
+
+    <span class="c1"># -- hints for other subpackages (carried by presets/aliases, not used by the specimen) -------</span>
+    <span class="n">dose_rate_counts_per_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">4000.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s2">"Preset dose-rate hint for the renderer."</span><span class="p">)</span>
+    <span class="n">legacy_force_descan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"PNJunction-Scan quirk: renderer should force descan on."</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------------------------------</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SpecimenOptions"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build from a (possibly partial) dict; unknown keys raise, numbers are clamped to range."""</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">values</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opts</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown specimen option </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="k">if</span> <span class="n">md</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"choices"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">md</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be one of </span><span class="si">{</span><span class="n">md</span><span class="p">[</span><span class="s1">'choices'</span><span class="p">]</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lo"</span><span class="p">),</span> <span class="n">md</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hi"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hi</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SpecimenOptions"</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Name -&gt; {default, lo, hi, doc, choices} for every option."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">SpecimenOptions</span><span class="p">)}</span>
+
+
+<span class="c1"># Options whose change does NOT require regenerating the world (C++ RequiresSceneRegeneration</span>
+<span class="c1"># is false for these); all others rebuild the scene.</span>
+<span class="n">NON_REGENERATING</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">"lod_threshold_px"</span><span class="p">,</span> <span class="s2">"junction_descan_x_px"</span><span class="p">,</span> <span class="s2">"junction_descan_y_px"</span><span class="p">,</span> <span class="s2">"junction_width_frac"</span><span class="p">,</span>
+    <span class="s2">"strain_magnitude"</span><span class="p">,</span> <span class="s2">"drift_per_step_x_nm"</span><span class="p">,</span> <span class="s2">"drift_per_step_y_nm"</span><span class="p">,</span> <span class="s2">"time_step_s"</span><span class="p">,</span>
+    <span class="s2">"in_situ_crystallization"</span><span class="p">,</span> <span class="s2">"nucleation_start_s"</span><span class="p">,</span> <span class="s2">"nucleation_end_s"</span><span class="p">,</span> <span class="s2">"crystal_growth_s"</span><span class="p">,</span>
+    <span class="s2">"specimen_temperature_c"</span><span class="p">,</span> <span class="s2">"crystallization_onset_c"</span><span class="p">,</span> <span class="s2">"melting_temperature_c"</span><span class="p">,</span>
+    <span class="s2">"dose_rate_counts_per_s"</span><span class="p">,</span> <span class="s2">"legacy_force_descan"</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="c1"># Of those, the ones baked into populated areas (C++ clears the population cache for them).</span>
+<span class="n">CLEARS_POPULATION</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">"junction_descan_x_px"</span><span class="p">,</span> <span class="s2">"junction_descan_y_px"</span><span class="p">,</span> <span class="s2">"junction_width_frac"</span><span class="p">,</span> <span class="s2">"strain_magnitude"</span><span class="p">,</span>
+    <span class="s2">"drift_per_step_x_nm"</span><span class="p">,</span> <span class="s2">"drift_per_step_y_nm"</span><span class="p">,</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="SpecimenConfig">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecimenConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What to build: seed, holder, preparation, support film and option overrides."""</span>
+
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">holder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mesh_grid"</span>  <span class="c1"># mesh_grid | waffle_grid | fib_liftout | insitu_heating_chip</span>
+    <span class="n">preparation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"nanoparticles"</span>  <span class="c1"># nanoparticles | proteins | thin_film | bulk | time_evolving</span>
+    <span class="n">film</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span>  <span class="c1"># holey | lacey | continuous | none | vitreous_ice | auto</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># SpecimenOptions overrides (snake_case)</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># preset / pattern name it came from (informational)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">HOLDERS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"holder must be one of </span><span class="si">{</span><span class="n">HOLDERS</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PREPARATIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"preparation must be one of </span><span class="si">{</span><span class="n">PREPARATIONS</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FILMS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"film must be one of </span><span class="si">{</span><span class="n">FILMS</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpecimenConfig.resolved_options">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig.resolved_options">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolved_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecimenOptions</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SpecimenOptions</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpecimenConfig.resolved_film">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig.resolved_film">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolved_film</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The film after resolving 'auto' to the pattern's default film (C++ defaultFilm)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="o">!=</span> <span class="s2">"auto"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">film</span>
+        <span class="k">return</span> <span class="n">DEFAULT_FILM</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="p">),</span> <span class="s2">"holey"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpecimenConfig.with_options">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig.with_options">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SpecimenConfig"</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="SpecimenConfig.copy">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SpecimenConfig"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_norm</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+
+
+<span class="c1"># Pattern table (VirtualSpecimen.cpp PatternTable): holder, preparation, default film.</span>
+<span class="n">DEFAULT_FILM</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">):</span> <span class="s2">"holey"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"proteins"</span><span class="p">):</span> <span class="s2">"vitreous_ice"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">):</span> <span class="s2">"continuous"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"waffle_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">):</span> <span class="s2">"continuous"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">):</span> <span class="s2">"none"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"insitu_heating_chip"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">):</span> <span class="s2">"continuous"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"insitu_heating_chip"</span><span class="p">,</span> <span class="s2">"time_evolving"</span><span class="p">):</span> <span class="s2">"continuous"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PATTERN_TABLE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - TEM Grid (Nanoparticles)"</span><span class="p">,</span> <span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - TEM Grid (Proteins)"</span><span class="p">,</span> <span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"proteins"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - TEM Grid (Thin Film)"</span><span class="p">,</span> <span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - Waffle Grid (Thin Film)"</span><span class="p">,</span> <span class="s2">"waffle_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - FIB Liftout"</span><span class="p">,</span> <span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Virtual Specimen - In Situ Heating (Nanoparticles)"</span><span class="p">,</span> <span class="s2">"insitu_heating_chip"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># ApplyPreset (VirtualSpecimenProps.cpp): option overrides + support film per preset, applied on</span>
+<span class="c1"># top of the defaults. The (holder, preparation) pairing is the pattern each preset was designed</span>
+<span class="c1"># for (PHASE5_DESIGN 7.1 "intended preset").</span>
+<span class="n">_PRESET_TABLE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Sparse Au on holey C"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"holey"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">film_thickness_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">particle_density_per_um2</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span> <span class="n">particle_median_diameter_nm</span><span class="o">=</span><span class="mf">22.0</span><span class="p">,</span>
+        <span class="n">particle_size_sigma_log</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">clustered_fraction</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">cluster_density_per_um2</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+        <span class="n">cluster_radius_um</span><span class="o">=</span><span class="mf">0.80</span><span class="p">,</span> <span class="n">dose_rate_counts_per_s</span><span class="o">=</span><span class="mf">4000.0</span><span class="p">)),</span>
+    <span class="s2">"Dense Au on holey C"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"holey"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">film_thickness_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">particle_density_per_um2</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span> <span class="n">particle_median_diameter_nm</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>
+        <span class="n">particle_size_sigma_log</span><span class="o">=</span><span class="mf">0.80</span><span class="p">,</span> <span class="n">clustered_fraction</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">cluster_density_per_um2</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+        <span class="n">cluster_radius_um</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">dose_rate_counts_per_s</span><span class="o">=</span><span class="mf">4000.0</span><span class="p">)),</span>
+    <span class="s2">"Au clusters on lacey C"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"lacey"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">film_thickness_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">particle_density_per_um2</span><span class="o">=</span><span class="mf">14.0</span><span class="p">,</span> <span class="n">particle_median_diameter_nm</span><span class="o">=</span><span class="mf">16.0</span><span class="p">,</span>
+        <span class="n">particle_size_sigma_log</span><span class="o">=</span><span class="mf">0.70</span><span class="p">,</span> <span class="n">clustered_fraction</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">cluster_density_per_um2</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">cluster_radius_um</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">dose_rate_counts_per_s</span><span class="o">=</span><span class="mf">6000.0</span><span class="p">)),</span>
+    <span class="s2">"Custom"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"auto"</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="s2">"Apoferritin in ice"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"proteins"</span><span class="p">,</span> <span class="s2">"vitreous_ice"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">film_thickness_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ice_thickness_nm</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">protein_diameter_nm</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
+        <span class="n">protein_density_per_um2</span><span class="o">=</span><span class="mf">2000.0</span><span class="p">,</span> <span class="n">negative_stain_fraction</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dose_fading_per_step</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dose_rate_counts_per_s</span><span class="o">=</span><span class="mf">6000.0</span><span class="p">)),</span>
+    <span class="s2">"Negative stain on carbon"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"proteins"</span><span class="p">,</span> <span class="s2">"continuous"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">film_thickness_nm</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">ice_thickness_nm</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">protein_diameter_nm</span><span class="o">=</span><span class="mf">18.0</span><span class="p">,</span>
+        <span class="n">protein_density_per_um2</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span> <span class="n">negative_stain_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">dose_fading_per_step</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dose_rate_counts_per_s</span><span class="o">=</span><span class="mf">4000.0</span><span class="p">)),</span>
+    <span class="s2">"Au thin film 20 nm"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"mesh_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">,</span> <span class="s2">"continuous"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">deposited_film_thickness_nm</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">grain_size_nm</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">pinhole_fraction</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+        <span class="n">crack_density_per_um</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">thin_film_material</span><span class="o">=</span><span class="s2">"gold"</span><span class="p">)),</span>
+    <span class="s2">"Al thin film 100 nm"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"waffle_grid"</span><span class="p">,</span> <span class="s2">"thin_film"</span><span class="p">,</span> <span class="s2">"continuous"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">deposited_film_thickness_nm</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">grain_size_nm</span><span class="o">=</span><span class="mf">250.0</span><span class="p">,</span> <span class="n">pinhole_fraction</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">crack_density_per_um</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">thin_film_material</span><span class="o">=</span><span class="s2">"aluminum"</span><span class="p">)),</span>
+    <span class="s2">"Steel lamella with carbides"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">fib_post_sample</span><span class="o">=</span><span class="s2">"precipitate_matrix"</span><span class="p">,</span> <span class="n">lamella_thickness_nm</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)),</span>
+    <span class="s2">"PN junction lamella"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">fib_post_sample</span><span class="o">=</span><span class="s2">"pn_junction"</span><span class="p">,</span> <span class="n">lamella_thickness_nm</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">junction_descan_x_px</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">junction_descan_y_px</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">junction_width_frac</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)),</span>
+    <span class="s2">"Strained inclusion lamella"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"fib_liftout"</span><span class="p">,</span> <span class="s2">"bulk"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">fib_post_sample</span><span class="o">=</span><span class="s2">"strained_inclusion"</span><span class="p">,</span> <span class="n">lamella_thickness_nm</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">strain_magnitude</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)),</span>
+    <span class="s2">"Droplet crystallization"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"insitu_heating_chip"</span><span class="p">,</span> <span class="s2">"nanoparticles"</span><span class="p">,</span> <span class="s2">"auto"</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">particle_density_per_um2</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">nucleation_sites_per_window</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">growth_rate_nm_per_step</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+        <span class="n">drift_per_step_x_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">drift_per_step_y_nm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="c1"># LegacyAlias.cpp: legacy name -&gt; (pattern, preset, forced post sample, force descan).</span>
+<span class="n">_LEGACY_ALIASES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"NanoCrystals-Scan"</span><span class="p">,</span> <span class="s2">"Virtual Specimen - TEM Grid (Nanoparticles)"</span><span class="p">,</span> <span class="s2">"Dense Au on holey C"</span><span class="p">,</span>
+     <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Strain-Scan"</span><span class="p">,</span> <span class="s2">"Virtual Specimen - FIB Liftout"</span><span class="p">,</span> <span class="s2">"Strained inclusion lamella"</span><span class="p">,</span>
+     <span class="s2">"strained_inclusion"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"PNJunction-Scan"</span><span class="p">,</span> <span class="s2">"Virtual Specimen - FIB Liftout"</span><span class="p">,</span> <span class="s2">"PN junction lamella"</span><span class="p">,</span> <span class="s2">"pn_junction"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"DropletCrystallization-Scan"</span><span class="p">,</span> <span class="s2">"Virtual Specimen - In Situ Heating (Nanoparticles)"</span><span class="p">,</span>
+     <span class="s2">"Droplet crystallization"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_presets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">holder</span><span class="p">,</span> <span class="n">prep</span><span class="p">,</span> <span class="n">film</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_PRESET_TABLE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">SpecimenOptions</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>  <span class="c1"># validate</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpecimenConfig</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">holder</span><span class="o">=</span><span class="n">holder</span><span class="p">,</span> <span class="n">preparation</span><span class="o">=</span><span class="n">prep</span><span class="p">,</span> <span class="n">film</span><span class="o">=</span><span class="n">film</span><span class="p">,</span>
+                                   <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">opts</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_patterns</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">holder</span><span class="p">,</span> <span class="n">prep</span> <span class="ow">in</span> <span class="n">_PATTERN_TABLE</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpecimenConfig</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">holder</span><span class="o">=</span><span class="n">holder</span><span class="p">,</span> <span class="n">preparation</span><span class="o">=</span><span class="n">prep</span><span class="p">,</span> <span class="n">film</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+                                   <span class="n">options</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">presets</span> <span class="o">=</span> <span class="n">_build_presets</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">legacy</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">preset</span><span class="p">,</span> <span class="n">post</span><span class="p">,</span> <span class="n">descan</span> <span class="ow">in</span> <span class="n">_LEGACY_ALIASES</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">pattern</span><span class="p">]</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">presets</span><span class="p">[</span><span class="n">preset</span><span class="p">]</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">opts</span><span class="p">[</span><span class="s2">"fib_post_sample"</span><span class="p">]</span> <span class="o">=</span> <span class="n">post</span>
+        <span class="k">if</span> <span class="n">descan</span><span class="p">:</span>
+            <span class="n">opts</span><span class="p">[</span><span class="s2">"legacy_force_descan"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">film</span> <span class="o">=</span> <span class="n">presets</span><span class="p">[</span><span class="n">preset</span><span class="p">]</span><span class="o">.</span><span class="n">film</span> <span class="k">if</span> <span class="n">presets</span><span class="p">[</span><span class="n">preset</span><span class="p">]</span><span class="o">.</span><span class="n">film</span> <span class="o">!=</span> <span class="s2">"auto"</span> <span class="k">else</span> <span class="s2">"auto"</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">legacy</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpecimenConfig</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">holder</span><span class="o">=</span><span class="n">base</span><span class="o">.</span><span class="n">holder</span><span class="p">,</span> <span class="n">preparation</span><span class="o">=</span><span class="n">base</span><span class="o">.</span><span class="n">preparation</span><span class="p">,</span>
+                                     <span class="n">film</span><span class="o">=</span><span class="n">film</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="c1">#: The 12 VirtualSpecimen presets (ApplyPreset), each paired with the pattern it was designed for.</span>
+<span class="n">PRESETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_presets</span><span class="p">()</span>
+<span class="c1">#: The 6 "Virtual Specimen - ..." test patterns plus the 4 legacy ``*-Scan`` aliases.</span>
+<span class="n">PATTERNS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_patterns</span><span class="p">()</span>
+<span class="n">LEGACY_ALIASES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_LEGACY_ALIASES</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="from_name">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.from_name.html#de_twin.specimen.from_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecimenConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Look up a preset, test pattern or legacy alias by name (case-insensitive).</span>
+
+<span class="sd">    Pattern names may omit the ``"Virtual Specimen - "`` prefix. Returns a fresh copy.</span>
+<span class="sd">    """</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="n">PRESETS</span><span class="p">,</span> <span class="n">PATTERNS</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">kl</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">kl</span> <span class="ow">or</span> <span class="p">(</span><span class="n">kl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"virtual specimen - "</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">==</span> <span class="n">kl</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">"virtual specimen - "</span><span class="p">):]):</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">out</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown specimen preset/pattern </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: "</span>
+                   <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">PRESETS</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sorted</span><span class="p">(</span><span class="n">PATTERNS</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

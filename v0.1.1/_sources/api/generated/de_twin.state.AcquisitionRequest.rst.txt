@@ -1,0 +1,42 @@
+﻿de\_twin.state.AcquisitionRequest
+=================================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: AcquisitionRequest
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AcquisitionRequest.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AcquisitionRequest.acquisition_index
+      ~AcquisitionRequest.beam_blank_cmd
+      ~AcquisitionRequest.beam_reaches_detector
+      ~AcquisitionRequest.bit_depth
+      ~AcquisitionRequest.camera_inserted
+      ~AcquisitionRequest.camera_model
+      ~AcquisitionRequest.counting
+      ~AcquisitionRequest.exposure_mode
+      ~AcquisitionRequest.frame_time_s
+      ~AcquisitionRequest.frames_per_buffer
+      ~AcquisitionRequest.hw_binning
+      ~AcquisitionRequest.hw_roi
+      ~AcquisitionRequest.shutter_cmd
+      ~AcquisitionRequest.total_frames
+      ~AcquisitionRequest.scan
+   
+   

@@ -1,0 +1,42 @@
+﻿de\_twin.render.Renderer
+========================
+
+.. currentmodule:: de_twin.render
+
+.. autoclass:: Renderer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Renderer.__init__
+      ~Renderer.coherent_sampling
+      ~Renderer.datacube
+      ~Renderer.field_map
+      ~Renderer.ground_truth
+      ~Renderer.ground_truth_ptychography
+      ~Renderer.invalidate
+      ~Renderer.render
+      ~Renderer.scan_point_for
+      ~Renderer.stem_model
+      ~Renderer.virtual_image
+      ~Renderer.warm_up
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Renderer.crystallinity
+      ~Renderer.grains
+      ~Renderer.seed
+      ~Renderer.stats
+   
+   

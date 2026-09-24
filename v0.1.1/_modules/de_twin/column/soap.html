@@ -1,0 +1,1130 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.column.soap &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/column/soap';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.1/_modules/de_twin/column/soap.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.column.soap</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.column.soap</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""DE-TEM-Channel SOAP protocol: envelopes, the batch key list, and a stdlib client.</span>
+
+<span class="sd">DE-TEM-Channel is a gSOAP RPC/encoded service on port 5002, namespace</span>
+<span class="sd">``http://tempuri.org/ns.xsd`` (``service/EMinstrumentWebservice.wsdl``). A call is</span>
+<span class="sd">``&lt;ns:method&gt;&lt;param&gt;..&lt;/param&gt;&lt;/ns:method&gt;`` in the SOAP body; the response is a</span>
+<span class="sd">struct named after its *type*, not the operation (``getfloatResponse``,</span>
+<span class="sd">``gettwofloatResponse``, ``getfivefloatResponse``, ``getshortResponse``,</span>
+<span class="sd">``getintResponse``, ``setResult``, ``getPropertyResponse``, or</span>
+<span class="sd">``&lt;op&gt;Response`` with an ``&lt;r&gt;`` string). See ``docs/soap-samples``.</span>
+
+<span class="sd">``executeBatchCommands(commands="K1,K2,...", totalCommands=n)`` answers one</span>
+<span class="sd">comma-separated string, one field per key, with multi-valued fields ``;``</span>
+<span class="sd">separated and unknown keys answered empty. DE-Server's client</span>
+<span class="sd">(``Instrument.cpp``) only accepts the answer when it splits into exactly</span>
+<span class="sd">``totalCommands`` fields.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.error</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.sax.saxutils</span><span class="w"> </span><span class="kn">import</span> <span class="n">escape</span>
+
+<span class="n">NAMESPACE</span> <span class="o">=</span> <span class="s2">"http://tempuri.org/ns.xsd"</span>
+<span class="n">DEFAULT_PORT</span> <span class="o">=</span> <span class="mi">5002</span>
+
+<span class="c1">#: DE-TEM-Channel ``core/confige.cpp`` command_list, in wire order. DE-Server's</span>
+<span class="c1">#: Instrument.cpp mirrors this list (its enum must stay aligned).</span>
+<span class="n">BATCH_KEYS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"GUN_HT"</span><span class="p">,</span> <span class="s2">"GUN_HTMax"</span><span class="p">,</span> <span class="s2">"GUN_HTState"</span><span class="p">,</span> <span class="s2">"PROJ_BeamBlankState"</span><span class="p">,</span> <span class="s2">"ILLUM_Filament"</span><span class="p">,</span>
+    <span class="s2">"PROJ_Mode"</span><span class="p">,</span> <span class="s2">"PROJ_Magnification"</span><span class="p">,</span> <span class="s2">"PROJ_ImageShift"</span><span class="p">,</span> <span class="s2">"PROJ_Focus"</span><span class="p">,</span> <span class="s2">"PROJ_Defocus"</span><span class="p">,</span>
+    <span class="s2">"PROJ_ImageBeamShift"</span><span class="p">,</span> <span class="s2">"PROJ_ScreenPosition"</span><span class="p">,</span> <span class="s2">"CAMERA_MeasuredExposureTime"</span><span class="p">,</span>
+    <span class="s2">"STAGE_Status"</span><span class="p">,</span> <span class="s2">"STAGE_Holder"</span><span class="p">,</span> <span class="s2">"STAGE_Position"</span><span class="p">,</span> <span class="s2">"VACUUM_Status"</span><span class="p">,</span>
+    <span class="s2">"VACUUM_ColumnValvesOpen"</span><span class="p">,</span> <span class="s2">"VACUUM_PVPRunning"</span><span class="p">,</span> <span class="s2">"VACUUM_Gauges"</span><span class="p">,</span> <span class="s2">"PROJ_CameraLength"</span><span class="p">,</span>
+    <span class="s2">"INSTRUMENT_Type"</span><span class="p">,</span> <span class="s2">"PROJ_SubMode"</span><span class="p">,</span> <span class="s2">"PROJ_TemStemMode"</span><span class="p">,</span> <span class="s2">"STAGE_PositionFull"</span><span class="p">,</span>
+    <span class="s2">"ILLUM_ImageShift"</span><span class="p">,</span> <span class="s2">"ILLUM_BeamShift"</span><span class="p">,</span> <span class="s2">"ILLUM_BeamTilt"</span><span class="p">,</span> <span class="s2">"PROJ_ObjStig"</span><span class="p">,</span>
+    <span class="s2">"ILLUM_CondenserStig"</span><span class="p">,</span> <span class="s2">"OP_Status"</span><span class="p">,</span> <span class="s2">"STAGE_Mode"</span><span class="p">,</span> <span class="s2">"ILLUM_SpotSize"</span><span class="p">,</span> <span class="s2">"ILLUM_ProbeMode"</span><span class="p">,</span>
+    <span class="s2">"ILLUM_ConvergenceAngle"</span><span class="p">,</span> <span class="s2">"ILLUM_AlphaSelector"</span><span class="p">,</span> <span class="s2">"ILLUM_CondenserApertureIndex"</span><span class="p">,</span>
+    <span class="s2">"PROJ_DiffractionShift"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The batch DE-Server polls every cycle (Instrument.cpp get_Properties order).</span>
+<span class="n">DESERVER_BATCH</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"PROJ_Mode"</span><span class="p">,</span> <span class="s2">"PROJ_SubMode"</span><span class="p">,</span> <span class="s2">"PROJ_Magnification"</span><span class="p">,</span> <span class="s2">"PROJ_CameraLength"</span><span class="p">,</span> <span class="s2">"PROJ_Defocus"</span><span class="p">,</span>
+    <span class="s2">"GUN_HT"</span><span class="p">,</span> <span class="s2">"PROJ_ScreenPosition"</span><span class="p">,</span> <span class="s2">"PROJ_BeamBlankState"</span><span class="p">,</span> <span class="s2">"PROJ_TemStemMode"</span><span class="p">,</span>
+    <span class="s2">"INSTRUMENT_Type"</span><span class="p">,</span> <span class="s2">"STAGE_PositionFull"</span><span class="p">,</span> <span class="s2">"ILLUM_BeamShift"</span><span class="p">,</span> <span class="s2">"ILLUM_ImageShift"</span><span class="p">,</span>
+    <span class="s2">"ILLUM_SpotSize"</span><span class="p">,</span> <span class="s2">"ILLUM_ProbeMode"</span><span class="p">,</span> <span class="s2">"ILLUM_ConvergenceAngle"</span><span class="p">,</span> <span class="s2">"ILLUM_AlphaSelector"</span><span class="p">,</span>
+    <span class="s2">"ILLUM_CondenserApertureIndex"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: getProperty status ids (DE-TEM-Channel core/global.h PropertyOperationId).</span>
+<span class="n">PROP_OP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"GLOBAL"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"BEAMBLANK"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">"SPOTSIZE"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span> <span class="s2">"MAGINDEX"</span><span class="p">:</span> <span class="mi">102</span><span class="p">,</span> <span class="s2">"DEFOCUS"</span><span class="p">:</span> <span class="mi">103</span><span class="p">,</span>
+    <span class="s2">"IMAGESHIFT"</span><span class="p">:</span> <span class="mi">104</span><span class="p">,</span> <span class="s2">"BEAMSHIFT"</span><span class="p">:</span> <span class="mi">105</span><span class="p">,</span> <span class="s2">"BEAMTILT"</span><span class="p">:</span> <span class="mi">106</span><span class="p">,</span> <span class="s2">"OBJSTIG"</span><span class="p">:</span> <span class="mi">107</span><span class="p">,</span>
+    <span class="s2">"CONDENSERSTIG"</span><span class="p">:</span> <span class="mi">108</span><span class="p">,</span> <span class="s2">"SCREENPOSITION"</span><span class="p">:</span> <span class="mi">109</span><span class="p">,</span> <span class="s2">"COLUMNVALVES"</span><span class="p">:</span> <span class="mi">110</span><span class="p">,</span> <span class="s2">"STAGE_X"</span><span class="p">:</span> <span class="mi">111</span><span class="p">,</span>
+    <span class="s2">"STAGE_Y"</span><span class="p">:</span> <span class="mi">112</span><span class="p">,</span> <span class="s2">"STAGE_Z"</span><span class="p">:</span> <span class="mi">113</span><span class="p">,</span> <span class="s2">"STAGE_A"</span><span class="p">:</span> <span class="mi">114</span><span class="p">,</span> <span class="s2">"STAGE_B"</span><span class="p">:</span> <span class="mi">115</span><span class="p">,</span> <span class="s2">"STAGEPOSITION"</span><span class="p">:</span> <span class="mi">116</span><span class="p">,</span>
+    <span class="s2">"PROJECTIONMODE"</span><span class="p">:</span> <span class="mi">117</span><span class="p">,</span> <span class="s2">"TEMSTEMMODE"</span><span class="p">:</span> <span class="mi">118</span><span class="p">,</span> <span class="s2">"APERTUREKIND"</span><span class="p">:</span> <span class="mi">119</span><span class="p">,</span> <span class="s2">"APERTURESIZE"</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+    <span class="s2">"STAGEMODE"</span><span class="p">:</span> <span class="mi">121</span><span class="p">,</span> <span class="s2">"INTENSITY"</span><span class="p">:</span> <span class="mi">122</span><span class="p">,</span> <span class="s2">"CAMERALENGTH"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">"DIFFFOCUS"</span><span class="p">:</span> <span class="mi">124</span><span class="p">,</span>
+    <span class="s2">"SCANROTATION"</span><span class="p">:</span> <span class="mi">125</span><span class="p">,</span> <span class="s2">"GUNSHIFT"</span><span class="p">:</span> <span class="mi">126</span><span class="p">,</span> <span class="s2">"GUNTILT"</span><span class="p">:</span> <span class="mi">127</span><span class="p">,</span> <span class="s2">"FUNCTIONMODE"</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="s2">"PROBEMODE"</span><span class="p">:</span> <span class="mi">129</span><span class="p">,</span> <span class="s2">"ALPHASELECTOR"</span><span class="p">:</span> <span class="mi">130</span><span class="p">,</span> <span class="s2">"DIFFRACTIONSHIFT"</span><span class="p">:</span> <span class="mi">131</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: OperationState (core/global.h).</span>
+<span class="n">OP_IDLE</span><span class="p">,</span> <span class="n">OP_RUNNING</span><span class="p">,</span> <span class="n">OP_DONE</span><span class="p">,</span> <span class="n">OP_FAILED</span><span class="p">,</span> <span class="n">OP_ABORTED</span><span class="p">,</span> <span class="n">OP_TIMEOUT</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="n">_ENVELOPE_HEAD</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s2">"&lt;SOAP-ENV:Envelope</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s1">' xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s1">' xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s1">' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s1">' xmlns:xsd="http://www.w3.org/2001/XMLSchema"</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s1">' xmlns:ns="http://tempuri.org/ns.xsd"&gt;</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="s1">' &lt;SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"&gt;</span><span class="se">\n</span><span class="s1">'</span>
+<span class="p">)</span>
+<span class="n">_ENVELOPE_TAIL</span> <span class="o">=</span> <span class="s2">" &lt;/SOAP-ENV:Body&gt;</span><span class="se">\n</span><span class="s2">&lt;/SOAP-ENV:Envelope&gt;</span><span class="se">\n</span><span class="s2">"</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SoapError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A SOAP call failed (transport, fault or unparseable response)."""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fmt_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Serialise one SOAP value the way gSOAP does (floats ``%.9G``)."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"1"</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">"0"</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"NaN"</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"-inf"</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="s2">"INF"</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"-INF"</span>
+        <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">".9G"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">escape</span><span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">envelope</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A gSOAP-shaped envelope with ``&lt;ns:element&gt;`` holding ``fields`` in order."""</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   &lt;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&gt;</span><span class="si">{</span><span class="n">fmt_value</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_ENVELOPE_HEAD</span><span class="si">}</span><span class="s2">  &lt;ns:</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">  &lt;/ns:</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">_ENVELOPE_TAIL</span><span class="si">}</span><span class="s2">"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fault_envelope</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SOAP-ENV:Client"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_ENVELOPE_HEAD</span><span class="si">}</span><span class="s2">  &lt;SOAP-ENV:Fault&gt;</span><span class="se">\n</span><span class="s2">   &lt;faultcode&gt;</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&lt;/faultcode&gt;</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"   &lt;faultstring&gt;</span><span class="si">{</span><span class="n">escape</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/faultstring&gt;</span><span class="se">\n</span><span class="s2">  &lt;/SOAP-ENV:Fault&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">_ENVELOPE_TAIL</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_local</span><span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tag</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"}"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_body</span><span class="p">(</span><span class="n">xml</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(element local name, {child local name: text})`` of the first Body child.</span>
+
+<span class="sd">    Namespace/prefix agnostic, tolerant of ``xsi:type`` and whitespace, so it</span>
+<span class="sd">    reads gSOAP, de_microscope and our own envelopes alike. Raises</span>
+<span class="sd">    :class:`SoapError` for a SOAP Fault.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ET</span><span class="o">.</span><span class="n">ParseError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unparseable SOAP message: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">_local</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"Body"</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">el</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">body</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="s2">"no SOAP Body"</span><span class="p">)</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">children</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="s2">"empty SOAP Body"</span><span class="p">)</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">op</span><span class="p">:</span>
+        <span class="n">fields</span><span class="p">[</span><span class="n">_local</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">_local</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"Fault"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"faultstring"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"SOAP Fault"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_local</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">tag</span><span class="p">),</span> <span class="n">fields</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">split_batch</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Split an executeBatchCommands answer exactly as DE-Server does.</span>
+
+<span class="sd">    DE-Server's ``split`` only produces fields when a comma is present and then</span>
+<span class="sd">    accepts the answer only if the field count equals ``totalCommands``. For a</span>
+<span class="sd">    single key (no comma) the whole answer is the field.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">response</span><span class="p">]</span> <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parts</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="n">total</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_num</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_integer</span><span class="p">()</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[-+]?\d+"</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">"x"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">v</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Property registry (the same names as de_microscope / Column)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1">#   get: ("batch", key) | ("value", method, tag) | ("pair", method) | ("prop", key)</span>
+<span class="c1">#        | ("props", kx, ky) | ("stage", index) | ("stage_all",) | ("string", method)</span>
+<span class="c1">#   set: ("value", method, arg) | ("pair", method) | ("stage", axis) | ("stage_all",)</span>
+<span class="c1">#        | ("aperture", kind)</span>
+<span class="n">PROPERTIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Magnification"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"batch"</span><span class="p">,</span> <span class="s2">"PROJ_Magnification"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setMagnification"</span><span class="p">,</span> <span class="s2">"mag"</span><span class="p">),</span> <span class="s2">"Magnification"</span><span class="p">),</span>
+    <span class="s2">"MagnificationIndex"</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setMagnificationIndex"</span><span class="p">,</span> <span class="s2">"idx"</span><span class="p">),</span> <span class="s2">"Magnification"</span><span class="p">),</span>
+    <span class="s2">"CameraLength"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"batch"</span><span class="p">,</span> <span class="s2">"PROJ_CameraLength"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setCameraLength"</span><span class="p">,</span> <span class="s2">"cl-cm"</span><span class="p">),</span> <span class="s2">"CameraLength"</span><span class="p">),</span>
+    <span class="s2">"Defocus"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getDeFocusValue"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setDefocus"</span><span class="p">,</span> <span class="s2">"defocus-m"</span><span class="p">),</span> <span class="s2">"Defocus"</span><span class="p">),</span>
+    <span class="s2">"SpotSize"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getSpotSize"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setSpotSize"</span><span class="p">,</span> <span class="s2">"spot"</span><span class="p">),</span> <span class="s2">"SpotSize"</span><span class="p">),</span>
+    <span class="s2">"ProbeMode"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"ProbeMode"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setProbeMode"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ConvergenceAngle"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"ConvergenceAngle"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"AlphaSelector"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"AlphaSelector"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setAlphaSelector"</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"CondenserApertureIndex"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"CondenserApertureIndex"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"aperture"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"Intensity"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"Intensity"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setIntensity"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span> <span class="s2">"Intensity"</span><span class="p">),</span>
+    <span class="s2">"ImageShift"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getImageShift"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setImageShift"</span><span class="p">),</span> <span class="s2">"ImageShiftX"</span><span class="p">),</span>
+    <span class="s2">"BeamShift"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getBeamShift"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setBeamShift"</span><span class="p">),</span> <span class="s2">"BeamShiftX"</span><span class="p">),</span>
+    <span class="s2">"BeamTilt"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getBeamTilt"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setBeamTilt"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ObjectiveStig"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getObjectiveStig"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setObjectiveStig"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"CondenserStig"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getCondenserStig"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setCondenserStig"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"DiffractionShift"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"getDiffractionShift"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setDiffractionShift"</span><span class="p">),</span> <span class="s2">"DiffractionShiftX"</span><span class="p">),</span>
+    <span class="s2">"StagePosition"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage_all"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"stage_all"</span><span class="p">,),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"StageX"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="s2">"stage"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">),</span> <span class="s2">"StageX"</span><span class="p">),</span>
+    <span class="s2">"StageY"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s2">"stage"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span> <span class="s2">"StageY"</span><span class="p">),</span>
+    <span class="s2">"StageZ"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="s2">"stage"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">),</span> <span class="s2">"StageZ"</span><span class="p">),</span>
+    <span class="s2">"StageA"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage"</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="s2">"stage"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">),</span> <span class="s2">"StageA"</span><span class="p">),</span>
+    <span class="s2">"StageB"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"stage"</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="s2">"stage"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">),</span> <span class="s2">"StageB"</span><span class="p">),</span>
+    <span class="s2">"TemStemMode"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getTemStemMode"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setTemStemMode"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">),</span> <span class="s2">"TemStemMode"</span><span class="p">),</span>
+    <span class="s2">"ProjectionMode"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getProjectMode"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setProjectionMode"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">),</span> <span class="s2">"ProjectionMode"</span><span class="p">),</span>
+    <span class="s2">"SubMode"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getProjectSubMode"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setFunctionMode"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">),</span> <span class="s2">"SubMode"</span><span class="p">),</span>
+    <span class="s2">"BeamBlank"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getBeamBlankState"</span><span class="p">,</span> <span class="s2">"intResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setBeamBlank"</span><span class="p">,</span> <span class="s2">"blank"</span><span class="p">),</span> <span class="s2">"BeamBlank"</span><span class="p">),</span>
+    <span class="s2">"ScreenPosition"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getScreenPosition"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setScreenPosition"</span><span class="p">,</span> <span class="s2">"pos"</span><span class="p">),</span> <span class="s2">"ScreenPosition"</span><span class="p">),</span>
+    <span class="s2">"ColumnValvesOpen"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getColumnValveStatus"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setColumnValvesOpen"</span><span class="p">,</span> <span class="s2">"open"</span><span class="p">),</span> <span class="s2">"ColumnValvesOpen"</span><span class="p">),</span>
+    <span class="s2">"HighTension"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getAccelVoltage"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"MaxHighTension"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getMaxHTValue"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"HTState"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getHTState"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"Filament"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getFilamentValue"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"Focus"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getFocusValue"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"InstrumentType"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"batch"</span><span class="p">,</span> <span class="s2">"INSTRUMENT_Type"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"OperationStatus"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getOperationStatus"</span><span class="p">,</span> <span class="s2">"intResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"StageMode"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"StageMode"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setStageMode"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">),</span> <span class="s2">"StageMode"</span><span class="p">),</span>
+    <span class="s2">"StageHolder"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getStageHolder"</span><span class="p">,</span> <span class="s2">"shortResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ScanRotation"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"ScanRotation"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setScanRotation"</span><span class="p">,</span> <span class="s2">"deg"</span><span class="p">),</span> <span class="s2">"ScanRotation"</span><span class="p">),</span>
+    <span class="s2">"DiffractionFocus"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"DiffractionFocus"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"setDiffractionFocus"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span> <span class="s2">"DiffractionFocus"</span><span class="p">),</span>
+    <span class="s2">"GunShift"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"props"</span><span class="p">,</span> <span class="s2">"GunShiftX"</span><span class="p">,</span> <span class="s2">"GunShiftY"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setGunShift"</span><span class="p">),</span> <span class="s2">"GunShiftX"</span><span class="p">),</span>
+    <span class="s2">"GunTilt"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"props"</span><span class="p">,</span> <span class="s2">"GunTiltX"</span><span class="p">,</span> <span class="s2">"GunTiltY"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"pair"</span><span class="p">,</span> <span class="s2">"setGunTilt"</span><span class="p">),</span> <span class="s2">"GunTiltX"</span><span class="p">),</span>
+    <span class="s2">"ScreenCurrent"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"ScreenCurrent"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"VacuumStatus"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getVacuumStatus"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ExposureTime"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"getExposureTime"</span><span class="p">,</span> <span class="s2">"floatResult"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"MagString"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"string"</span><span class="p">,</span> <span class="s2">"getMagStr"</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SoapTemChannelClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A small, stdlib-only client for DE-TEM-Channel (or the twin's SOAP face).</span>
+
+<span class="sd">    &gt;&gt;&gt; c = SoapTemChannelClient("127.0.0.1", 5002)</span>
+<span class="sd">    &gt;&gt;&gt; c.execute_batch(["GUN_HT", "PROJ_Magnification"])     # ['200000', '20000']</span>
+<span class="sd">    &gt;&gt;&gt; c.get("StagePosition"); c.set("Magnification", 50000)</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="SoapTemChannelClient.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"127.0.0.1"</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_PORT</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">/"</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"SoapTemChannelClient(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">)"</span>
+
+    <span class="c1"># ------------------------------------------------------------ transport</span>
+<div class="viewcode-block" id="SoapTemChannelClient.call">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.call">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Invoke ``method``; keyword ``cl_cm`` style names map to ``cl-cm``.</span>
+<span class="sd">        Returns the response element's children as strings."""</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">envelope</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"text/xml; charset=utf-8"</span><span class="p">,</span> <span class="s2">"SOAPAction"</span><span class="p">:</span> <span class="s1">'""'</span><span class="p">})</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">urllib</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># gSOAP answers faults with HTTP 500</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">parse_body</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">SoapError</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">: HTTP </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">parse_body</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="c1"># ---------------------------------------------------------------- batch</span>
+<div class="viewcode-block" id="SoapTemChannelClient.execute_batch">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.execute_batch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"executeBatchCommands"</span><span class="p">,</span> <span class="n">commands</span><span class="o">=</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">),</span> <span class="n">totalCommands</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">split_batch</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch answered </span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'r'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> keys"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fields</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.batch_dict">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.batch_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batch_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">BATCH_KEYS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">(</span><span class="n">keys</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.get_property">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.get_property">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getProperty"</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.operation_status">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.operation_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">operation_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getOperationStatus"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">op_id</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"intResult"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.stop">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"stopOperation"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------ typed getters</span>
+<div class="viewcode-block" id="SoapTemChannelClient.get_stage_position">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.get_stage_position">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stage_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getStagePosition"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"one"</span><span class="p">,</span> <span class="s2">"two"</span><span class="p">,</span> <span class="s2">"three"</span><span class="p">,</span> <span class="s2">"four"</span><span class="p">,</span> <span class="s2">"five"</span><span class="p">))</span>  <span class="c1"># type: ignore</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.get_pair">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.get_pair">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"floatone"</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"floattwo"</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.set_stage_position">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.set_stage_position">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_stage_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="n">b</span><span class="p">}</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">axes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"setStagePosition"</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">"axes-mask"</span><span class="p">:</span> <span class="n">mask</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------- name registry</span>
+<div class="viewcode-block" id="SoapTemChannelClient.get">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">PROPERTIES</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown property </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is write-only"</span><span class="p">)</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"batch"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">([</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">]])[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"value"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"string"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"pair"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pair</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"prop"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"props"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">])[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"stage"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage_position</span><span class="p">()[</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"stage_all"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="s2">"xyzab"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage_position</span><span class="p">()))</span>
+        <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bad get spec </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.set">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Write ``name``. Returns the channel's ``success`` flag."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">PROPERTIES</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown property </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is read-only"</span><span class="p">)</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"value"</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"pair"</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"stage"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_stage_position</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)})</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"stage_all"</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">{{</span><span class="s2">"alpha"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">:</span> <span class="s2">"b"</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">val</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_stage_position</span><span class="p">(</span><span class="o">**</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"aperture"</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"setApertureSize"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SoapError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bad set spec </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.status">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">PROPERTIES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_status</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------ corrector (F1/F2)</span>
+    <span class="c1"># Commands are posted: True = accepted. Poll corrector_status() (0 idle,</span>
+    <span class="c1"># 1 running, 2 done, 3 failed, 6 absent) or corrector_wait(), then read</span>
+    <span class="c1"># corrector_result() / aberrations() / corrector_error(). CEOS units: metres</span>
+    <span class="c1"># (radians for WD).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span>
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_present">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_present">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_present</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorPresent"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"intResult"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_status">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorStatus"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"intResult"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">6</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_info">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""``getCorrectorInfo`` parsed (``correctorType``, ``mode``, ``currentLabel``, ...)."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.corrector</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_info</span>
+
+        <span class="k">return</span> <span class="n">parse_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorInfo"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_endpoints">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_endpoints">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorEndpoints"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_error">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorError"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_result">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorResult"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.aberrations">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.aberrations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aberrations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">"""Last measurement, ``[(name, (x, y))]`` in the corrector's order and units."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.corrector</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aberration_set</span>
+
+        <span class="k">return</span> <span class="n">parse_aberration_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getAberrations"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.aberration">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.aberration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aberration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getAberration"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.alignment_file">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.alignment_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alignment_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getAlignmentFile"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_measure_c1a1">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_measure_c1a1">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_measure_c1a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorMeasureC1A1"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_acquire_tableau">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_acquire_tableau">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_acquire_tableau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                  <span class="n">max_fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorAcquireTableau"</span><span class="p">,</span> <span class="n">tabType</span><span class="o">=</span><span class="n">tab_type</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">angle_mrad</span><span class="p">),</span>
+                        <span class="n">maxFit</span><span class="o">=</span><span class="n">max_fit</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_correct">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_correct">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">select</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+                          <span class="n">wait_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``correctorCorrectAberration``. ``value`` None = the corrector's own estimate,</span>
+<span class="sd">        ``target`` None = zero. With ``wait_ms`` &gt; 0, True means *completed*."""</span>
+        <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">target</span> <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorCorrectAberration"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">useValue</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+                        <span class="n">valueX</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vx</span><span class="p">),</span> <span class="n">valueY</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vy</span><span class="p">),</span> <span class="n">useTarget</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+                        <span class="n">targetX</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">tx</span><span class="p">),</span> <span class="n">targetY</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">ty</span><span class="p">),</span> <span class="n">select</span><span class="o">=</span><span class="n">select</span><span class="p">,</span> <span class="n">waitMs</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">wait_ms</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_fetch_alignment_file">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_fetch_alignment_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_fetch_alignment_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorFetchAlignmentFile"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_put_alignment_file">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_put_alignment_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_put_alignment_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorPutAlignmentFile"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_get_config_option">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_get_config_option">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_get_config_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorGetConfigOption"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_set_config_option">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_set_config_option">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_set_config_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">"true"</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">"false"</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorSetConfigOption"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_read_back">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_read_back">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_read_back</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorReadBack"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_reconnect">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_reconnect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_reconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"correctorReconnect"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.set_corrector_beam_tilt">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.set_corrector_beam_tilt">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_corrector_beam_tilt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_rad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_rad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                <span class="n">wait_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ok</span><span class="p">(</span><span class="s2">"setCorrectorBeamTilt"</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">x_rad</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">y_rad</span><span class="p">),</span>
+                        <span class="n">relative</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">relative</span><span class="p">)),</span> <span class="n">waitMs</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">wait_ms</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.get_corrector_beam_tilt">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.get_corrector_beam_tilt">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_corrector_beam_tilt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getCorrectorBeamTilt"</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">),</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span></div>
+
+
+<div class="viewcode-block" id="SoapTemChannelClient.corrector_wait">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient.corrector_wait">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrector_wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span> <span class="n">poll_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Poll ``getCorrectorStatus`` (wall clock) until it leaves 1 (running)."""</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_time</span>
+
+        <span class="n">deadline</span> <span class="o">=</span> <span class="n">_time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrector_status</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">st</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">_time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">deadline</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">st</span>
+            <span class="n">_time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">poll_s</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

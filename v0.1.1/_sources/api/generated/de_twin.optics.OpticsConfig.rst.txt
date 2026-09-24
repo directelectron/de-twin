@@ -1,0 +1,67 @@
+﻿de\_twin.optics.OpticsConfig
+============================
+
+.. currentmodule:: de_twin.optics
+
+.. autoclass:: OpticsConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OpticsConfig.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OpticsConfig.cc_mm
+      ~OpticsConfig.condenser_apertures_um
+      ~OpticsConfig.condenser_stig_nm_per_unit
+      ~OpticsConfig.condenser_stig_zero
+      ~OpticsConfig.cs_mm
+      ~OpticsConfig.default_camera_length_mm
+      ~OpticsConfig.defocus_offset_um
+      ~OpticsConfig.dose_model
+      ~OpticsConfig.energy_spread_ev
+      ~OpticsConfig.eucentric_height_um
+      ~OpticsConfig.fallback_pixel_nm
+      ~OpticsConfig.fallback_recip_inv_nm
+      ~OpticsConfig.flip_x
+      ~OpticsConfig.flip_y
+      ~OpticsConfig.geometric_diffraction
+      ~OpticsConfig.illum_max_diameter_um
+      ~OpticsConfig.illum_min_diameter_um
+      ~OpticsConfig.illum_reference_alpha_mrad
+      ~OpticsConfig.illum_reference_diameter_um
+      ~OpticsConfig.illumination_semi_angle_mrad
+      ~OpticsConfig.legacy_dose_rate_counts_per_s
+      ~OpticsConfig.lowmag_illumination_factor
+      ~OpticsConfig.nanoprobe_illuminated_um
+      ~OpticsConfig.objective_aperture_mrad
+      ~OpticsConfig.objective_stig_zero
+      ~OpticsConfig.pixel_size_override_nm
+      ~OpticsConfig.probe_d0_nm
+      ~OpticsConfig.reference_condenser_index
+      ~OpticsConfig.reference_current_pa
+      ~OpticsConfig.reference_spot
+      ~OpticsConfig.render_mode_override
+      ~OpticsConfig.sa_aperture_um
+      ~OpticsConfig.spot_exponent
+      ~OpticsConfig.stage_offset_um
+      ~OpticsConfig.stem_current_factor
+      ~OpticsConfig.stem_default_convergence_mrad
+      ~OpticsConfig.stem_source_size_nm
+      ~OpticsConfig.stig_nm_per_unit
+      ~OpticsConfig.tem_illuminated_area_um
+      ~OpticsConfig.probe_mode_current_factor
+   
+   

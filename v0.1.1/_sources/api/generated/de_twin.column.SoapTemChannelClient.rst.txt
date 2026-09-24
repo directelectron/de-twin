@@ -1,0 +1,55 @@
+﻿de\_twin.column.SoapTemChannelClient
+====================================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: SoapTemChannelClient
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SoapTemChannelClient.__init__
+      ~SoapTemChannelClient.aberration
+      ~SoapTemChannelClient.aberrations
+      ~SoapTemChannelClient.alignment_file
+      ~SoapTemChannelClient.batch_dict
+      ~SoapTemChannelClient.call
+      ~SoapTemChannelClient.corrector_acquire_tableau
+      ~SoapTemChannelClient.corrector_correct
+      ~SoapTemChannelClient.corrector_endpoints
+      ~SoapTemChannelClient.corrector_error
+      ~SoapTemChannelClient.corrector_fetch_alignment_file
+      ~SoapTemChannelClient.corrector_get_config_option
+      ~SoapTemChannelClient.corrector_info
+      ~SoapTemChannelClient.corrector_measure_c1a1
+      ~SoapTemChannelClient.corrector_present
+      ~SoapTemChannelClient.corrector_put_alignment_file
+      ~SoapTemChannelClient.corrector_read_back
+      ~SoapTemChannelClient.corrector_reconnect
+      ~SoapTemChannelClient.corrector_result
+      ~SoapTemChannelClient.corrector_set_config_option
+      ~SoapTemChannelClient.corrector_status
+      ~SoapTemChannelClient.corrector_wait
+      ~SoapTemChannelClient.execute_batch
+      ~SoapTemChannelClient.get
+      ~SoapTemChannelClient.get_corrector_beam_tilt
+      ~SoapTemChannelClient.get_pair
+      ~SoapTemChannelClient.get_property
+      ~SoapTemChannelClient.get_stage_position
+      ~SoapTemChannelClient.operation_status
+      ~SoapTemChannelClient.set
+      ~SoapTemChannelClient.set_corrector_beam_tilt
+      ~SoapTemChannelClient.set_stage_position
+      ~SoapTemChannelClient.status
+      ~SoapTemChannelClient.stop
+   
+   
+
+   
+   
+   
