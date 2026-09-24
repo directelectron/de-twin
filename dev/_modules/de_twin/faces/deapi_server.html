@@ -529,6 +529,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_socketmod</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
@@ -695,7 +696,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">:</span> <span class="s2">"TwinFakeServer"</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">n_acq</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                  <span class="n">movie</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_acq</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_acq</span><span class="p">))</span>
+        <span class="c1"># 0 acquisitions = repeat until stopped (live view), as DE-Server does</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_acq</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_acq</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_acq</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">movie</span> <span class="o">=</span> <span class="n">movie</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cond</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Condition</span><span class="p">()</span>
@@ -754,8 +757,11 @@
         <span class="n">srv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_references</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_acq</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_acq</span><span class="p">)):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">a</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous</span> <span class="ow">and</span> <span class="n">a</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sum</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the sum is per repetition, like one live buffer</span>
                 <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">srv</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">srv</span><span class="o">.</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
@@ -961,11 +967,22 @@
             <span class="n">s</span> <span class="o">=</span> <span class="n">st</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">_PROJECT_NAMES</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">col</span><span class="o">.</span><span class="n">function_mode</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">tem_stem</span><span class="p">)),</span> <span class="s2">"Unknown"</span><span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">pixel_nm</span><span class="p">():</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">binning</span><span class="p">(</span><span class="n">axis</span><span class="p">):</span>
+            <span class="c1"># DE-Server reports pixel sizes per *binned* pixel: hardware x software binning</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"Hardware Binning </span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Binning </span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">"</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">b</span> <span class="o">*=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - property not present</span>
+                    <span class="k">pass</span>
+            <span class="k">return</span> <span class="n">b</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">pixel_nm</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"X"</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">calibration</span><span class="o">.</span><span class="n">specimen_pixel_nm</span><span class="p">(</span><span class="n">st</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="p">))</span>
+                <span class="n">px</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">calibration</span><span class="o">.</span><span class="n">specimen_pixel_nm</span><span class="p">(</span><span class="n">st</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
                 <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span>
+            <span class="k">return</span> <span class="n">px</span> <span class="o">*</span> <span class="n">binning</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">recip_px</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1000,8 +1017,8 @@
             <span class="p">(</span><span class="s2">"Instrument Alpha Selector"</span><span class="p">,</span> <span class="n">g</span><span class="p">(</span><span class="s2">"AlphaSelector"</span><span class="p">),</span> <span class="s2">"Integer"</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Instrument Condenser Aperture Index"</span><span class="p">,</span> <span class="n">g</span><span class="p">(</span><span class="s2">"CondenserApertureIndex"</span><span class="p">),</span> <span class="s2">"Integer"</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Instrument Type"</span><span class="p">,</span> <span class="n">g</span><span class="p">(</span><span class="s2">"InstrumentType"</span><span class="p">),</span> <span class="s2">"String"</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">"Specimen Pixel Size X (nanometers)"</span><span class="p">,</span> <span class="n">pixel_nm</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">"Specimen Pixel Size Y (nanometers)"</span><span class="p">,</span> <span class="n">pixel_nm</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"Specimen Pixel Size X (nanometers)"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">pixel_nm</span><span class="p">(</span><span class="s2">"X"</span><span class="p">),</span> <span class="s2">"Float"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"Specimen Pixel Size Y (nanometers)"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">pixel_nm</span><span class="p">(</span><span class="s2">"Y"</span><span class="p">),</span> <span class="s2">"Float"</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Diffraction Pixel Size X"</span><span class="p">,</span> <span class="n">recip_px</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Diffraction Pixel Size Y"</span><span class="p">,</span> <span class="n">recip_px</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">),</span>
         <span class="p">]</span>
@@ -1113,6 +1130,8 @@
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acq</span>
         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">continuous</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># until stopped</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">n_acq</span> <span class="o">-</span> <span class="n">a</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
