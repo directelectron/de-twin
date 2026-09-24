@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="prev" title="Development and releases" href="dev/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.0" />
+  <meta name="docsearch:version" content="0.1.1" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -507,7 +507,20 @@
 <a class="reference external" href="https://towncrier.readthedocs.io/">towncrier</a> when a release is prepared
 (see <code class="docutils literal notranslate"><span class="pre">upcoming_changes/README.rst</span></code> for contributor instructions).</p>
 <section id="id1">
-<h2>0.1.0 (2026-09-24)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<h2>0.1.1 (2026-09-24)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The deapi face reports “Specimen Pixel Size X/Y (nanometers)” per binned pixel, including hardware and software binning, as DE-Server does.</p></li>
+<li><p>The deapi face treats <code class="docutils literal notranslate"><span class="pre">start_acquisition(0)</span></code> as live view (repeat until stopped), as
+DE-Server does, instead of a single acquisition; and repeated acquisitions no longer repeat
+the same detector noise, because noise is now seeded by a twin-wide frame counter rather than
+the frame index within each request.</p></li>
+</ul>
+</section>
+</section>
+<section id="id2">
+<h2>0.1.0 (2026-09-24)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <section id="new-features">
 <h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -526,8 +539,8 @@ through its processing pipeline (<code class="docutils literal notranslate"><spa
 Impulse holder instead of simulating them.</p></li>
 </ul>
 </section>
-<section id="bug-fixes">
-<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Bug Fixes<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Coherent 4D-STEM data no longer depends on the machine: the probe’s partial-coherence
 modes were truncated through a degenerate pair of eigenmodes, whose basis LAPACK chooses
@@ -587,9 +600,13 @@ runners can check them without being tuned to one workstation.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.1.0 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.1.1 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.1.0 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maintenance">Maintenance</a></li>
 </ul>
 </li>

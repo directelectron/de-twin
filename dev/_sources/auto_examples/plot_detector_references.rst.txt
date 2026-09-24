@@ -79,7 +79,7 @@ gain-corrected with references the twin measures, the way DE-Server delivers the
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 20.457 seconds)
+   **Total running time of the script:** (0 minutes 19.483 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_detector_references.py:
