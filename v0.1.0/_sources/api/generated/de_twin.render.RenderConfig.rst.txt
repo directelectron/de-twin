@@ -1,0 +1,67 @@
+﻿de\_twin.render.RenderConfig
+============================
+
+.. currentmodule:: de_twin.render
+
+.. autoclass:: RenderConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RenderConfig.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RenderConfig.add_descan
+      ~RenderConfig.amplitude_contrast
+      ~RenderConfig.beam_stop_radius_px
+      ~RenderConfig.coherent_auto_max_pattern_px
+      ~RenderConfig.coherent_beam_tilt
+      ~RenderConfig.coherent_cache_mb
+      ~RenderConfig.coherent_field_max_px
+      ~RenderConfig.coherent_focal_samples
+      ~RenderConfig.coherent_focal_spread
+      ~RenderConfig.coherent_incoherent_scattering
+      ~RenderConfig.coherent_max_grid
+      ~RenderConfig.coherent_max_modes
+      ~RenderConfig.coherent_mode_power
+      ~RenderConfig.coherent_object_bandwidth_inv_nm
+      ~RenderConfig.coherent_probe_tail
+      ~RenderConfig.coherent_source_size
+      ~RenderConfig.descan_ramp_px
+      ~RenderConfig.descan_ramp_scale
+      ~RenderConfig.diffraction_cache_mb
+      ~RenderConfig.diffraction_contrast_scale
+      ~RenderConfig.diffuse_scattering
+      ~RenderConfig.edge_taper_nm
+      ~RenderConfig.fieldmap_cache_size
+      ~RenderConfig.film_halo
+      ~RenderConfig.illumination_profile
+      ~RenderConfig.intensity_jitter
+      ~RenderConfig.lattice_fringes
+      ~RenderConfig.lattice_phase_rad
+      ~RenderConfig.max_g_inv_nm
+      ~RenderConfig.mip_phase
+      ~RenderConfig.park_on_feature
+      ~RenderConfig.phase_texture_scale
+      ~RenderConfig.probe_footprint_blend
+      ~RenderConfig.refraction_loss
+      ~RenderConfig.scaled_diffraction_saturation
+      ~RenderConfig.stem_model
+      ~RenderConfig.tem_model
+      ~RenderConfig.texture_bandlimit_nm
+      ~RenderConfig.texture_seed_salt
+      ~RenderConfig.time_quantum_s
+   
+   

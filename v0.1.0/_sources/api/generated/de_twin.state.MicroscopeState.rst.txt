@@ -1,0 +1,58 @@
+﻿de\_twin.state.MicroscopeState
+==============================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: MicroscopeState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MicroscopeState.__init__
+      ~MicroscopeState.copy
+      ~MicroscopeState.to_dict
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MicroscopeState.alpha_selector
+      ~MicroscopeState.beam_blanked
+      ~MicroscopeState.camera_length_mm
+      ~MicroscopeState.column_valves_open
+      ~MicroscopeState.condenser_aperture_index
+      ~MicroscopeState.convergence_semi_angle_mrad
+      ~MicroscopeState.corrector
+      ~MicroscopeState.defocus_um
+      ~MicroscopeState.ht_kv
+      ~MicroscopeState.ht_on
+      ~MicroscopeState.instrument_type
+      ~MicroscopeState.intensity
+      ~MicroscopeState.mag_mode
+      ~MicroscopeState.magnification
+      ~MicroscopeState.op_status
+      ~MicroscopeState.probe_mode
+      ~MicroscopeState.projection
+      ~MicroscopeState.screen_position
+      ~MicroscopeState.spot_size
+      ~MicroscopeState.tem_stem
+      ~MicroscopeState.beam_shift_um
+      ~MicroscopeState.beam_tilt_mrad
+      ~MicroscopeState.condenser_stig
+      ~MicroscopeState.image_shift_um
+      ~MicroscopeState.diffraction_shift_mrad
+      ~MicroscopeState.objective_stig
+      ~MicroscopeState.stage
+      ~MicroscopeState.probe_aberrations
+      ~MicroscopeState.image_aberrations
+   
+   

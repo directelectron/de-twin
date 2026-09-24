@@ -1,0 +1,44 @@
+﻿de\_twin.specimen.Specimen
+==========================
+
+.. currentmodule:: de_twin.specimen
+
+.. autoclass:: Specimen
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Specimen.__init__
+      ~Specimen.bounds_um
+      ~Specimen.crystallinity
+      ~Specimen.drift_um
+      ~Specimen.features
+      ~Specimen.nearest_feature
+      ~Specimen.overview
+      ~Specimen.rasterize
+      ~Specimen.required_layers
+      ~Specimen.reset_clock
+      ~Specimen.set_options
+      ~Specimen.update
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Specimen.crystallization_enabled
+      ~Specimen.temperature_c
+      ~Specimen.thermal_budget_s
+      ~Specimen.time_dependent
+      ~Specimen.time_index
+      ~Specimen.time_s
+   
+   

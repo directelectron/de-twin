@@ -1,0 +1,47 @@
+﻿de\_twin.twin.DigitalTwin
+=========================
+
+.. currentmodule:: de_twin.twin
+
+.. autoclass:: DigitalTwin
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DigitalTwin.__init__
+      ~DigitalTwin.acquire
+      ~DigitalTwin.beam_on_detector
+      ~DigitalTwin.close
+      ~DigitalTwin.datacube
+      ~DigitalTwin.flux
+      ~DigitalTwin.frames
+      ~DigitalTwin.ground_truth
+      ~DigitalTwin.ground_truth_ptychography
+      ~DigitalTwin.holder_state
+      ~DigitalTwin.microscope_state
+      ~DigitalTwin.optics
+      ~DigitalTwin.raw_frame
+      ~DigitalTwin.request
+      ~DigitalTwin.scan_point
+      ~DigitalTwin.set_specimen
+      ~DigitalTwin.snap
+      ~DigitalTwin.stem_model
+      ~DigitalTwin.virtual_image
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DigitalTwin.camera_model
+      ~DigitalTwin.processor
+   
+   

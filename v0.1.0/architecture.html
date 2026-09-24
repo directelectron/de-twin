@@ -1,0 +1,984 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>de-twin architecture &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.0/architecture.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development and releases" href="dev/index.html" />
+    <link rel="prev" title="de_twin.transport.shm.FrameConsumer" href="api/generated/de_twin.transport.shm.FrameConsumer.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de-twin architecture</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="de-twin-architecture">
+<h1>de-twin architecture<a class="headerlink" href="#de-twin-architecture" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">de-twin</span></code> is a digital twin of a Direct Electron camera on a TEM: the column,
+the specimen, the in-situ holder and the detector, advancing on one clock. It
+is a standalone Python package, not part of DE-Server. It replaces the
+VirtualSpecimen module that was compiled into DE-Server’s CameraServer.</p>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Realistic enough to develop automation against.</strong> Stage, magnification,
+defocus, tilt, beam/image shift, spot size and illumination all change the
+frames the way a real column does. Frames are raw detector output, with a
+dark offset, a fixed pattern, read noise, gain non-uniformity, bad pixels,
+shot noise and saturation. That means dark/gain references are meaningful
+and must be taken.</p></li>
+<li><p><strong>Usable with nothing else installed.</strong> In-process numpy frames, no DE-Server,
+no microscope, no vendor simulator.</p></li>
+<li><p><strong>Connects to real software in both directions.</strong> Each part of the twin can
+either <em>own</em> its state (simulate it) or <em>mirror</em> real software:</p>
+<ul class="simple">
+<li><p>microscope: simulated <code class="docutils literal notranslate"><span class="pre">Column</span></code>, or <code class="docutils literal notranslate"><span class="pre">MirrorColumn</span></code> following a real (or
+Dummy) DE-TEM-Channel over SOAP</p></li>
+<li><p>holder: simulated <code class="docutils literal notranslate"><span class="pre">SimHeatingHolder</span></code>, or <code class="docutils literal notranslate"><span class="pre">ImpulseFollower</span></code> following a
+DENS Impulse holder or DENS’s own simulator via impulsePy</p></li>
+<li><p>camera: frames go to DE-Server over shared memory and come out of the full
+DE-Server pipeline, or to the deapi fake server, or straight to the caller.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="picture">
+<h2>Picture<a class="headerlink" href="#picture" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                 <span class="n">state</span> <span class="n">sources</span>                      <span class="n">frame</span> <span class="n">sinks</span> <span class="p">(</span><span class="s2">"faces"</span><span class="p">)</span>
+              <span class="o">+------------------+</span>
+ <span class="n">DE</span><span class="o">-</span><span class="n">TEM</span><span class="o">-</span><span class="n">Chan</span><span class="o">.</span> <span class="o">|</span>  <span class="n">Column</span>          <span class="o">|---+</span>         <span class="o">+--&gt;</span> <span class="ow">in</span><span class="o">-</span><span class="n">process</span> <span class="n">numpy</span> <span class="p">(</span><span class="n">DigitalTwin</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+ <span class="p">(</span><span class="n">real</span><span class="o">/</span><span class="n">Dummy</span><span class="p">)</span> <span class="o">|</span>  <span class="o">|</span> <span class="n">MirrorColumn</span>  <span class="o">|</span>   <span class="o">|</span>         <span class="o">|</span>
+     <span class="n">SOAP</span> <span class="o">---&gt;|</span>                  <span class="o">|</span>   <span class="n">v</span>         <span class="o">+--&gt;</span> <span class="n">SharedMemory</span> <span class="n">ring</span> <span class="o">--&gt;</span> <span class="n">DE</span><span class="o">-</span><span class="n">Server</span> <span class="n">GrabberSim</span>
+              <span class="o">+------------------+</span> <span class="o">+--------+</span>  <span class="o">|</span>        <span class="p">(</span><span class="s2">"External Frame Source"</span> <span class="n">test</span> <span class="n">pattern</span><span class="p">)</span>
+ <span class="n">impulsePy</span> <span class="o">--&gt;|</span>  <span class="n">Holder</span>          <span class="o">|</span> <span class="o">|</span> <span class="n">Digital</span><span class="o">|--+</span>
+ <span class="p">(</span><span class="n">DENS</span><span class="o">/</span><span class="n">sim</span><span class="p">)</span>   <span class="o">|</span>  <span class="o">|</span> <span class="n">ImpulseFollwr</span> <span class="o">|&gt;|</span>  <span class="n">Twin</span>  <span class="o">|</span>  <span class="o">+--&gt;</span> <span class="n">deapi</span> <span class="n">TwinFakeServer</span> <span class="p">(</span><span class="n">DE</span><span class="o">-</span><span class="n">Server</span> <span class="n">emulation</span><span class="p">)</span>
+              <span class="o">+------------------+</span> <span class="o">|</span> <span class="n">clock</span>  <span class="o">|</span>
+              <span class="o">|</span>  <span class="n">Specimen</span>        <span class="o">|&gt;|</span>        <span class="o">|---&gt;</span> <span class="n">TEM</span><span class="o">-</span><span class="n">Channel</span> <span class="n">SOAP</span> <span class="n">face</span> <span class="n">on</span> <span class="p">:</span><span class="mi">5002</span>
+              <span class="o">+------------------+</span> <span class="o">+--------+</span>     <span class="p">(</span><span class="n">DE</span><span class="o">-</span><span class="n">Server</span><span class="p">,</span> <span class="n">de_microscope</span><span class="p">,</span> <span class="n">autopilot</span> <span class="ow">and</span>
+              <span class="o">|</span>  <span class="n">Detector</span> <span class="n">model</span>  <span class="o">|</span>                 <span class="n">groundcrew</span> <span class="nb">all</span> <span class="n">drive</span> <span class="n">the</span> <span class="n">twin</span><span class="s1">'s column)</span>
+              <span class="o">+------------------+</span>
+</pre></div>
+</div>
+<p>A single process (<code class="docutils literal notranslate"><span class="pre">de-twin</span> <span class="pre">serve</span></code>) can host the twin and every face at once.
+Because there is one column, moving the stage over SOAP changes the frames seen
+by DE-Server, by the deapi fake server and by in-process callers alike.</p>
+</section>
+<section id="frame-pipeline">
+<h2>Frame pipeline<a class="headerlink" href="#frame-pipeline" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MicroscopeState</span> <span class="o">+</span> <span class="n">AcquisitionRequest</span> <span class="o">+</span> <span class="n">Calibration</span> <span class="o">--</span><span class="n">derive_optics</span><span class="o">--&gt;</span> <span class="n">OpticsState</span>
+<span class="n">Specimen</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span><span class="n">OpticsState</span><span class="o">.</span><span class="n">view</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span> <span class="o">---------------&gt;</span> <span class="n">FieldMap</span>
+<span class="n">Renderer</span><span class="p">(</span><span class="n">TEM</span> <span class="o">|</span> <span class="n">SAED</span> <span class="o">|</span> <span class="n">STEM</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">OpticsState</span><span class="p">,</span> <span class="n">FieldMap</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">---&gt;</span> <span class="n">flux</span> <span class="p">[</span><span class="n">e</span><span class="o">-/</span><span class="n">px</span><span class="o">/</span><span class="n">s</span><span class="p">],</span> <span class="n">float32</span><span class="p">,</span> <span class="n">ROI</span> <span class="n">shape</span>
+<span class="n">Detector</span><span class="o">.</span><span class="n">expose</span><span class="p">(</span><span class="n">flux</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">exposure_s</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span> <span class="o">--&gt;</span> <span class="n">raw</span> <span class="n">ADU</span> <span class="n">frame</span> <span class="p">(</span><span class="n">uint16</span><span class="o">/</span><span class="n">uint8</span><span class="p">),</span> <span class="n">binned</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>flux</strong> is the expected number of electrons per detector pixel per second,
+before the detector. <code class="docutils literal notranslate"><span class="pre">None</span></code> means no beam reached the detector: a dark
+reference, beam blanked, camera retracted, or column valves closed.</p></li>
+<li><p>The Detector adds everything the camera would add: Poisson arrivals,
+per-electron charge spread and MTF, gain map, dark offset and fixed pattern,
+dark current, read noise, bad/hot pixels, saturation, binning, and
+quantisation to the model’s bit depth. Counting cameras (Apollo-type) emit
+counted events instead.</p></li>
+<li><p>Dark and gain references come out right because the twin honours
+<code class="docutils literal notranslate"><span class="pre">AcquisitionRequest.exposure_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">beam_blank_cmd</span></code> and <code class="docutils literal notranslate"><span class="pre">shutter_cmd</span></code>.</p></li>
+</ul>
+</section>
+<section id="module-ownership-and-interfaces">
+<h2>Module ownership and interfaces<a class="headerlink" href="#module-ownership-and-interfaces" title="Link to this heading">#</a></h2>
+<section id="de-twin-state-and-de-twin-hashing-core-fixed">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.state</span></code> and <code class="docutils literal notranslate"><span class="pre">de_twin.hashing</span></code> (core, fixed)<a class="headerlink" href="#de-twin-state-and-de-twin-hashing-core-fixed" title="Link to this heading">#</a></h3>
+<p>Dataclasses: <code class="docutils literal notranslate"><span class="pre">MicroscopeState</span></code>, <code class="docutils literal notranslate"><span class="pre">HolderState</span></code>, <code class="docutils literal notranslate"><span class="pre">AcquisitionRequest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ScanRequest</span></code>, <code class="docutils literal notranslate"><span class="pre">Roi</span></code>, <code class="docutils literal notranslate"><span class="pre">FrameMeta</span></code>. Enums: <code class="docutils literal notranslate"><span class="pre">ProbeMode</span></code>, <code class="docutils literal notranslate"><span class="pre">TemStem</span></code>, <code class="docutils literal notranslate"><span class="pre">Projection</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ExposureMode</span></code>, <code class="docutils literal notranslate"><span class="pre">RenderMode</span></code>. Units are in the field names.</p>
+<p>The hashing helpers <code class="docutils literal notranslate"><span class="pre">hash_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">splitmix64</span></code>, <code class="docutils literal notranslate"><span class="pre">mix_cell</span></code>, <code class="docutils literal notranslate"><span class="pre">uniform_from_hash</span></code>,
+<code class="docutils literal notranslate"><span class="pre">normal_from_hash</span></code>, <code class="docutils literal notranslate"><span class="pre">fnv1a64</span></code> and <code class="docutils literal notranslate"><span class="pre">rng_for</span></code> are vectorised over uint64 arrays.
+Hot loops use hashes. Generation-time streams use <code class="docutils literal notranslate"><span class="pre">rng_for(seed,</span> <span class="pre">kind,</span> <span class="pre">index)</span></code>.</p>
+</section>
+<section id="de-twin-specimen">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.specimen</span></code><a class="headerlink" href="#de-twin-specimen" title="Link to this heading">#</a></h3>
+<p>Fixed contract: <code class="docutils literal notranslate"><span class="pre">materials.py</span></code>, <code class="docutils literal notranslate"><span class="pre">fieldmap.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ViewWindow</span></code>, <code class="docutils literal notranslate"><span class="pre">FieldMap</span></code>, <code class="docutils literal notranslate"><span class="pre">GrainTable</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">GrainTable</span></code> holds a full 3D orientation per grain id (<code class="docutils literal notranslate"><span class="pre">quaternions</span></code>, orix/diffsims
+convention, see <code class="docutils literal notranslate"><span class="pre">de_twin.crystal</span></code>) plus <code class="docutils literal notranslate"><span class="pre">nucleation_u</span></code>; grain ids are
+<code class="docutils literal notranslate"><span class="pre">material</span> <span class="pre">*</span> <span class="pre">512</span> <span class="pre">+</span> <span class="pre">k</span></code>. Orientations are drawn from <code class="docutils literal notranslate"><span class="pre">rng_for(seed,</span> <span class="pre">GRAIN,</span> <span class="pre">id)</span></code> with a
+per-scene texture: uniform random (particles, polycrystals), a <code class="docutils literal notranslate"><span class="pre">&lt;111&gt;</span></code> fibre (~3 deg)
+for deposited thin films, and a single crystal near a low-index zone (Si [110]) for
+FIB lamella matrices. There is no tilt layer: misorientation follows from the real
+orientation and the stage tilt at render time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecimenConfig</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">holder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mesh_grid"</span>         <span class="c1"># mesh_grid | waffle_grid | fib_liftout | insitu_heating_chip</span>
+    <span class="n">preparation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"nanoparticles"</span>  <span class="c1"># nanoparticles | proteins | thin_film | bulk | time_evolving</span>
+    <span class="n">film</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span>                <span class="c1"># holey | lacey | continuous | none | vitreous_ice | auto</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>                <span class="c1"># every VirtualSpecimen knob, snake_case, see specimen/options.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Specimen</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">SpecimenConfig</span><span class="p">):</span> <span class="o">...</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">SpecimenConfig</span>
+    <span class="n">grains</span><span class="p">:</span> <span class="n">GrainTable</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">holder</span><span class="p">:</span> <span class="n">HolderState</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>   <span class="c1"># advance scene clock / thermal budget</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rasterize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">ViewWindow</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">FieldMap</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">crystallinity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grain_id</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>   <span class="c1"># in-situ: 0 glassy .. 1 crystalline</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds_um</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Feature</span><span class="p">]</span>            <span class="c1"># navigation helpers</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nearest_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_um</span><span class="p">,</span> <span class="n">y_um</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Feature</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">overview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>   <span class="c1"># whole-holder thickness image (debug)</span>
+
+<span class="n">PRESETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]</span>       <span class="c1"># the 12 VirtualSpecimen presets</span>
+<span class="n">PATTERNS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">]</span>      <span class="c1"># the 6 "Virtual Specimen - ..." test patterns</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecimenConfig</span>
+</pre></div>
+</div>
+</section>
+<section id="de-twin-optics">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.optics</span></code><a class="headerlink" href="#de-twin-optics" title="Link to this heading">#</a></h3>
+<p>Fixed contract: <code class="docutils literal notranslate"><span class="pre">state.py</span></code> (<code class="docutils literal notranslate"><span class="pre">OpticsState</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpticsConfig</span><span class="p">:</span> <span class="o">...</span>        <span class="c1"># fallbacks, offsets, flips, render-mode override, aperture, eucentric height</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Calibration</span><span class="p">:</span>             <span class="c1"># magnification -&gt; nm/px and camera length -&gt; 1/nm/px, per mag mode</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_mag_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Calibration"</span>   <span class="c1"># DE-Server configurations/mag.yaml</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Calibration"</span>               <span class="c1"># built-in, JEOL-like ladders</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">specimen_pixel_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">camera</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span>   <span class="c1"># per unbinned detector pixel</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recip_pixel_inv_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">camera</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span>
+    <span class="n">mag_ladder</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="o">/</span> <span class="n">cl_ladder</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">beam_current_pa</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_optics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">camera</span><span class="p">:</span> <span class="n">CameraModel</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpticsState</span>
+</pre></div>
+</div>
+<p>Aberrations (<code class="docutils literal notranslate"><span class="pre">aberrations.py</span></code>, CEOS notation, complex nm; <code class="docutils literal notranslate"><span class="pre">chi</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient</span></code>) are wired by
+<code class="docutils literal notranslate"><span class="pre">derive_optics</span></code> into <code class="docutils literal notranslate"><span class="pre">OpticsState.image_aberrations</span></code> (the column’s image-side residuals, or
+an uncorrected C3, plus C1 = effective defocus and A1 = objective stigmator) and
+<code class="docutils literal notranslate"><span class="pre">OpticsState.probe_aberrations</span></code> (probe side, plus C1 and A1 = condenser stigmator,
+<code class="docutils literal notranslate"><span class="pre">OpticsConfig.condenser_stig_nm_per_unit</span></code>). The TEM CTF evaluates the image set, and the
+coherent STEM probe evaluates the probe set. <code class="docutils literal notranslate"><span class="pre">image_aberrations_of</span></code> / <code class="docutils literal notranslate"><span class="pre">probe_aberrations_of</span></code>
+fall back to <code class="docutils literal notranslate"><span class="pre">cs_mm</span></code>/<code class="docutils literal notranslate"><span class="pre">defocus_um</span></code>/<code class="docutils literal notranslate"><span class="pre">astigmatism_nm</span></code> for a hand-built <code class="docutils literal notranslate"><span class="pre">OpticsState</span></code>.
+<code class="docutils literal notranslate"><span class="pre">OpticsState.source_size_nm</span></code> is the effective source FWHM at the specimen (STEM spatial
+coherence). <code class="docutils literal notranslate"><span class="pre">extras[&quot;hw_binning&quot;]</span></code> carries the detector binning.</p>
+</section>
+<section id="de-twin-crystal">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.crystal</span></code><a class="headerlink" href="#de-twin-crystal" title="Link to this heading">#</a></h3>
+<p>Crystallography on diffsims + orix.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">phases.py</span></code>: full-unit-cell orix <code class="docutils literal notranslate"><span class="pre">Phase</span></code> (diffpy <code class="docutils literal notranslate"><span class="pre">Structure</span></code>) per crystalline material
+(<code class="docutils literal notranslate"><span class="pre">phase_for</span></code>); <code class="docutils literal notranslate"><span class="pre">register_cif(path)</span></code> adds a CIF phase as a new material.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">library.py</span></code>: <code class="docutils literal notranslate"><span class="pre">CrystalLibrary(phase)</span></code> computes the reciprocal lattice to
+<code class="docutils literal notranslate"><span class="pre">max_g_inv_nm</span></code> (25 1/nm) with kinematic <code class="docutils literal notranslate"><span class="pre">|F|^2</span></code> and Debye-Waller once per phase
+(<code class="docutils literal notranslate"><span class="pre">library_for</span></code>, cached; optional on-disk cache via <code class="docutils literal notranslate"><span class="pre">DE_TWIN_CRYSTAL_CACHE</span></code>).
+<code class="docutils literal notranslate"><span class="pre">excite(matrices,</span> <span class="pre">lambda,</span> <span class="pre">t,</span> <span class="pre">kV,</span> <span class="pre">convergence)</span></code> is vectorised over orientations x
+reflections: exact Ewald excitation error (diffsims’ formula), two-beam kinematic
+intensity <code class="docutils literal notranslate"><span class="pre">(pi</span> <span class="pre">t</span> <span class="pre">/</span> <span class="pre">xi_g)^2</span> <span class="pre">&lt;sinc^2(pi</span> <span class="pre">t</span> <span class="pre">s)&gt;</span></code> averaged over the illumination cone.
+Positions, hkl and relative intensities match <code class="docutils literal notranslate"><span class="pre">SimulationGenerator.calculate_diffraction2d</span></code>
+exactly (<code class="docutils literal notranslate"><span class="pre">tests/test_crystal.py</span></code>). <code class="docutils literal notranslate"><span class="pre">template_library(resolution_deg)</span></code> gives a diffsims
+template library over the reduced fundamental zone for pyxem orientation mapping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">orientation.py</span></code>: conventions. Lab = detector frame (x column, y row, beam along -z,
+as diffsims). A grain rotation <code class="docutils literal notranslate"><span class="pre">R</span></code> is the diffsims <code class="docutils literal notranslate"><span class="pre">rotation</span></code>: crystal-&gt;lab is
+<code class="docutils literal notranslate"><span class="pre">R.to_matrix().T</span></code>. Stage tilt <code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">Rx(alpha)</span> <span class="pre">&#64;</span> <span class="pre">Ry(beta)</span></code> (alpha about x foreshortens y,
+beta about y foreshortens x, matching <code class="docutils literal notranslate"><span class="pre">ViewWindow.cos_alpha/cos_beta</span></code>); the effective
+crystal-&gt;lab matrix is <code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">&#64;</span> <span class="pre">R.to_matrix().T</span></code>.</p></li>
+</ul>
+<p>Normalisation of a pattern (per material/grain/thickness bucket, before the
+<code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">exp(-t/Lambda)</span></code> mass-thickness split whose <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">T</span></code> becomes the screened-Rutherford
+background): Bragg fraction <code class="docutils literal notranslate"><span class="pre">D</span> <span class="pre">=</span> <span class="pre">0.75</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">exp(-P/0.75))</span></code> with <code class="docutils literal notranslate"><span class="pre">P</span></code> the kinematic sum,
+spots <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">D</span> <span class="pre">I_g</span> <span class="pre">/</span> <span class="pre">P</span></code>, glassy halo <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">-</span> <span class="pre">c)</span> <span class="pre">A</span></code> (in-situ crystallinity <code class="docutils literal notranslate"><span class="pre">c</span></code>), direct beam the rest.
+<code class="docutils literal notranslate"><span class="pre">DigitalTwin.ground_truth(request)</span></code> returns an orix <code class="docutils literal notranslate"><span class="pre">CrystalMap</span></code> of phase + effective
+orientation per STEM scan point / TEM raster pixel.</p>
+</section>
+<section id="de-twin-render">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.render</span></code><a class="headerlink" href="#de-twin-render" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Renderer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">:</span> <span class="n">Specimen</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RenderConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">:</span> <span class="n">OpticsState</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="c1"># float32 (ny, nx) = optics.output_shape, electrons / detector pixel / second</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invalidate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>It dispatches on <code class="docutils literal notranslate"><span class="pre">optics.render_mode</span></code> to TEM imaging, SAED or STEM (parked or
+4D; <code class="docutils literal notranslate"><span class="pre">scan_point=(ix,</span> <span class="pre">iy)</span></code> selects the probe position). Every reflection is a disk of
+the column’s convergence (<code class="docutils literal notranslate"><span class="pre">OpticsState.disk_radius_px</span> <span class="pre">=</span> <span class="pre">alpha</span> <span class="pre">/</span> <span class="pre">(lambda</span> <span class="pre">recip_px)</span></code>, PSF
+limited when small) in every mode. TEM bright-field diffraction contrast is the fraction
+Bragg-scattered outside the objective aperture at each grain’s effective orientation. The renderer owns the
+FieldMap cache (it re-rasterises only when the view or time changes) and the
+diffraction-pattern LRU cache.</p>
+<p>STEM has two models (<code class="docutils literal notranslate"><span class="pre">RenderConfig.stem_model</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;coherent&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;kinematic&quot;</span></code>):</p>
+<ul>
+<li><p><strong>kinematic</strong> (<code class="docutils literal notranslate"><span class="pre">stem.py</span></code>): cached disk patterns per (grain, thickness, crystallinity).
+It is fast, but the bright-field disk has no interference.</p></li>
+<li><p><strong>coherent</strong> (<code class="docutils literal notranslate"><span class="pre">coherent.py</span></code>): the probe <code class="docutils literal notranslate"><span class="pre">IFFT[A(k)</span> <span class="pre">exp(-i</span> <span class="pre">chi(k))]</span></code> times the specimen
+transmission <code class="docutils literal notranslate"><span class="pre">t(r)</span></code>, then <code class="docutils literal notranslate"><span class="pre">|FFT|^2</span></code> integrated over each binned detector pixel. <code class="docutils literal notranslate"><span class="pre">t(r)</span></code>
+comes from <code class="docutils literal notranslate"><span class="pre">tem.transmission_function</span></code>, the same object model as TEM imaging, built on a
+fine world-locked grid over the scan field. Scattering beyond the object band limit
+<code class="docutils literal notranslate"><span class="pre">K_t</span></code> is added back incoherently, so totals and ADF agree with the kinematic model.</p>
+<ul class="simple">
+<li><p>Partial coherence: focal spread and source size, handled as probe modes.</p></li>
+<li><p>Sampling: <code class="docutils literal notranslate"><span class="pre">dx</span> <span class="pre">=</span> <span class="pre">1/(n</span> <span class="pre">dk)</span></code>; the window is oversampled to hold defocused probes.</p></li>
+<li><p>Rendering: patterns are computed in blocks of scan points, cached for frame-by-frame
+rendering.</p></li>
+<li><p>Extra entry points: <code class="docutils literal notranslate"><span class="pre">Renderer.datacube</span></code>, <code class="docutils literal notranslate"><span class="pre">Renderer.ground_truth_ptychography</span></code> and a
+coherent <code class="docutils literal notranslate"><span class="pre">virtual_image</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> picks the coherent model when the binned pattern is at most 256² (or the step is
+below 2x the probe size) and the probe window fits <code class="docutils literal notranslate"><span class="pre">coherent_max_grid</span></code>.</p>
+</li>
+</ul>
+</section>
+<section id="reconstruction-checks-tests-reconstruction">
+<h3>Reconstruction checks (<code class="docutils literal notranslate"><span class="pre">tests/reconstruction/</span></code>)<a class="headerlink" href="#reconstruction-checks-tests-reconstruction" title="Link to this heading">#</a></h3>
+<p>de-twin produces data; it does not ship reconstruction methods. The test suite keeps small
+numpy reconstructions (tcBF/parallax and ePIE) only to check that coherent twin data
+reconstructs against <code class="docutils literal notranslate"><span class="pre">DigitalTwin.ground_truth_ptychography</span></code>.</p>
+</section>
+<section id="de-twin-detector">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.detector</span></code><a class="headerlink" href="#de-twin-detector" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CameraModel</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">,</span> <span class="n">pixel_um</span><span class="p">,</span> <span class="n">bit_depth</span><span class="p">,</span> <span class="n">bytes_per_pixel</span><span class="p">,</span> <span class="n">topology</span><span class="p">,</span>
+                   <span class="n">hardware_counting</span><span class="p">,</span> <span class="n">max_fps</span><span class="p">,</span> <span class="n">adu_per_electron</span><span class="p">,</span> <span class="n">read_noise_adu</span><span class="p">,</span> <span class="n">dark_offset_adu</span><span class="p">,</span> <span class="o">...</span>
+<span class="n">CAMERAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CameraModel</span><span class="p">]</span>      <span class="c1"># DE16, DE64, Celeritas, Apollo, DESim, ...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">camera</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Detector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">CameraModel</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">defects</span><span class="p">):</span> <span class="o">...</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">CameraModel</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>          <span class="c1"># hw_frame (after ROI and binning)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">roi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Roi</span>                               <span class="c1"># resolved hardware ROI</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">expose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">exposure_s</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
+        <span class="c1"># flux: float32 (roi.h, roi.w) e-/px/s, or None for no beam</span>
+        <span class="c1"># returns raw frame (uint16 or uint8) with the hw_frame shape, plus info</span>
+        <span class="c1"># {"dose_e_per_px", "saturated", "blanked"}</span>
+    <span class="n">dark_map</span> <span class="o">/</span> <span class="n">gain_map</span> <span class="o">/</span> <span class="n">bad_pixel_mask</span>   <span class="c1"># ground truth for tests</span>
+</pre></div>
+</div>
+</section>
+<section id="de-twin-column">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.column</span></code><a class="headerlink" href="#de-twin-column" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Column</span><span class="p">:</span>                        <span class="c1"># owns a MicroscopeState and behaves like a column</span>
+    <span class="n">state</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MicroscopeState</span>       <span class="c1"># snapshot (stage motion interpolated to "now")</span>
+    <span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>     <span class="c1"># DE-TEM-Channel property names</span>
+    <span class="n">set_stage</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">...</span>  <span class="c1"># plus typed setters for everything</span>
+    <span class="n">on_change</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="n">mag_ladder</span><span class="p">,</span> <span class="n">cl_ladder</span>            <span class="c1"># snapping like the Dummy instrument</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MirrorColumn</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>          <span class="c1"># follows a real DE-TEM-Channel (SOAP client); sets are forwarded</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SoapTemChannelClient</span>           <span class="c1"># stdlib-only SOAP client (executeBatchCommands, get*, set*)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColumnAdapter</span>                  <span class="c1"># de_microscope/autopilot SimColumn duck type</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Corrector</span>                      <span class="c1"># column.corrector when Column(corrector="probe"|"image"|"both")</span>
+</pre></div>
+</div>
+<section id="aberration-corrector-column-corrector-py">
+<h4>Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>)<a class="headerlink" href="#aberration-corrector-column-corrector-py" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Corrector</span></code> holds one <code class="docutils literal notranslate"><span class="pre">CorrectorUnit</span></code> per fitted side. Each unit models one
+CEOS-RPC server as DE-TEM-Channel’s <code class="docutils literal notranslate"><span class="pre">CorrectorService</span></code> sees it: probe/CESCOR on
+7072, image/CETCOR on 7071.</p>
+<p>The ground truth is <code class="docutils literal notranslate"><span class="pre">residual</span> <span class="pre">=</span> <span class="pre">native</span> <span class="pre">+</span> <span class="pre">offset</span> <span class="pre">+</span> <span class="pre">drift</span></code>, as complex nm in CEOS
+notation (<code class="docutils literal notranslate"><span class="pre">optics.aberrations</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">native</span></code> is the uncorrected lens.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code> is the corrector’s elements.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drift</span></code> is a random walk on a fixed time grid, so its value is deterministic
+however often it is read.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Column.state()</span></code> copies the residual into <code class="docutils literal notranslate"><span class="pre">probe_aberrations</span></code> and
+<code class="docutils literal notranslate"><span class="pre">image_aberrations</span></code> (left empty for a side with no corrector), and sets
+<code class="docutils literal notranslate"><span class="pre">corrector</span></code>. The residual excludes the operator’s C1/A1 (defocus + stage z,
+and the objective or condenser stig), which <code class="docutils literal notranslate"><span class="pre">derive_optics</span></code> adds. Measurements
+see the total aberration.</p>
+<p>Commands are posted and finish lazily on the column’s clock. The unit shares
+the column’s <code class="docutils literal notranslate"><span class="pre">RLock</span></code>, so there is no lock-order inversion with <code class="docutils literal notranslate"><span class="pre">state()</span></code>. The
+unit’s <code class="docutils literal notranslate"><span class="pre">_advance()</span></code> runs a finished command at its completion time.</p>
+<p>The tableau does not render images. It evaluates the second derivatives of chi
+at the (mis-calibrated, jittered) tilts and adds noise, then fits the linear
+model up to <code class="docutils literal notranslate"><span class="pre">maxFit</span></code>. So truncation, angle and measurement-range effects follow
+from the physics, not from hand-made error tables.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Column._set_local</span></code> compares <code class="docutils literal notranslate"><span class="pre">(HT,</span> <span class="pre">probe</span> <span class="pre">mode,</span> <span class="pre">function</span> <span class="pre">mode,</span> <span class="pre">TEM/STEM)</span></code>
+before and after each write, and calls <code class="docutils literal notranslate"><span class="pre">Corrector.on_ht_change</span></code> or
+<code class="docutils literal notranslate"><span class="pre">perturb(&quot;mode&quot;)</span></code>.</p>
+<p>The SOAP face (<code class="docutils literal notranslate"><span class="pre">TemChannelServer._corrector_handlers</span></code>) serves one unit, the
+probe unit unless <code class="docutils literal notranslate"><span class="pre">corrector_side=&quot;image&quot;</span></code>, which matches the channel keeping
+one endpoint. <code class="docutils literal notranslate"><span class="pre">MirrorColumn.poll_corrector</span></code> reads a real channel’s corrector
+every <code class="docutils literal notranslate"><span class="pre">corrector_every</span></code> polls and subtracts the operator’s C1/A1 from the
+measured set.</p>
+</section>
+</section>
+<section id="de-twin-holder">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.holder</span></code><a class="headerlink" href="#de-twin-holder" title="Link to this heading">#</a></h3>
+<p>The holder duck type matches autopilot’s <code class="docutils literal notranslate"><span class="pre">SimHeater</span></code> and <code class="docutils literal notranslate"><span class="pre">ImpulseHeater</span></code>:
+<code class="docutils literal notranslate"><span class="pre">real</span></code>, <code class="docutils literal notranslate"><span class="pre">reason</span></code>, <code class="docutils literal notranslate"><span class="pre">channels</span></code>, <code class="docutils literal notranslate"><span class="pre">busy</span></code>, <code class="docutils literal notranslate"><span class="pre">read()</span></code>, <code class="docutils literal notranslate"><span class="pre">set()</span></code>, <code class="docutils literal notranslate"><span class="pre">ramp()</span></code>, <code class="docutils literal notranslate"><span class="pre">stop()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">flag()</span></code>, <code class="docutils literal notranslate"><span class="pre">describe()</span></code> and <code class="docutils literal notranslate"><span class="pre">close()</span></code>, plus <code class="docutils literal notranslate"><span class="pre">state(t)</span> <span class="pre">-&gt;</span> <span class="pre">HolderState</span></code>.
+Implementations: <code class="docutils literal notranslate"><span class="pre">NoHolder</span></code>, <code class="docutils literal notranslate"><span class="pre">SimHeatingHolder</span></code> (first-order thermal model,
+Pt heater resistance, optional bias), and <code class="docutils literal notranslate"><span class="pre">ImpulseFollower</span></code> (impulsePy).</p>
+</section>
+<section id="de-twin-transport">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.transport</span></code><a class="headerlink" href="#de-twin-transport" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">shm_layout.py</span></code> is the protocol v2 layout (mirror of <code class="docutils literal notranslate"><span class="pre">cpp/ExternalFrameSource.h</span></code>).
+<code class="docutils literal notranslate"><span class="pre">shm.py</span></code> provides <code class="docutils literal notranslate"><span class="pre">FrameProducer</span></code> (the twin: opens the mapping DE-Server created and
+publishes frames) and <code class="docutils literal notranslate"><span class="pre">FrameConsumer</span></code> (a Python stand-in for DE-Server, used by tests).</p>
+</section>
+<section id="de-twin-faces">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.faces</span></code><a class="headerlink" href="#de-twin-faces" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">temchannel_soap.py</span></code>: an HTTP SOAP server that impersonates DE-TEM-Channel
+on port 5002. It is backed by a <code class="docutils literal notranslate"><span class="pre">Column</span></code>, and DE-Server polls it through
+<code class="docutils literal notranslate"><span class="pre">executeBatchCommands</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deapi_server.py</span></code>: <code class="docutils literal notranslate"><span class="pre">TwinFakeServer</span></code>, a subclass of
+<code class="docutils literal notranslate"><span class="pre">deapi.simulated_server.fake_server.FakeServer</span></code> that renders through the
+twin, plus a launcher with deapi’s CLI (positional port and “started” banner).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shm_face.py</span></code>: runs the producer loop. It reads DE-Server’s request, renders
+frames and publishes them.</p></li>
+</ul>
+</section>
+<section id="de-twin-twin">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.twin</span></code><a class="headerlink" href="#de-twin-twin" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">DigitalTwin</span></code> ties everything together on one <code class="docutils literal notranslate"><span class="pre">Clock</span></code>. The clock is real-time
+or virtual, with a time scale, so in-situ experiments can be fast-forwarded.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span><span class="n">specimen</span><span class="o">=</span><span class="s2">"Dense Au on holey C"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"DE16"</span><span class="p">)</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Magnification"</span><span class="p">,</span> <span class="mi">50_000</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">frame</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">AcquisitionRequest</span><span class="p">(</span><span class="n">frame_time_s</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="mi">10</span><span class="p">)):</span> <span class="o">...</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>      <span class="c1"># summed</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">flux</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>         <span class="c1"># noiseless ground truth</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">datacube</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>     <span class="c1"># noiseless 4D-STEM (scan y, x, binned det y, x), e/px/s</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">ground_truth_ptychography</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>  <span class="c1"># object t(r), probe modes, positions, aberrations</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">stem_model</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>          <span class="c1"># "coherent" | "kinematic"</span>
+</pre></div>
+</div>
+</section>
+<section id="de-server-side-cpp">
+<h3>DE-Server side (<code class="docutils literal notranslate"><span class="pre">cpp/</span></code>)<a class="headerlink" href="#de-server-side-cpp" title="Link to this heading">#</a></h3>
+<p>DE-Server’s only twin-related code is <code class="docutils literal notranslate"><span class="pre">ExternalFrameSource.h/.cpp</span></code> (about 220 lines)
+plus a GrabberSim test pattern called “External Frame Source (Shared Memory)”; see
+<code class="docutils literal notranslate"><span class="pre">cpp/README.md</span></code>. On each acquisition GrabberSim publishes the request (frame size, ROI,
+binning, frame time, frame count, exposure mode, scan size) and copies each frame into
+its grab buffer. From there, frames follow the normal path: frame-number stamp, crude
+layout, <code class="docutils literal notranslate"><span class="pre">CheckBuffer</span></code> and processing. All simulation lives in de-twin.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api/generated/de_twin.transport.shm.FrameConsumer.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">de_twin.transport.shm.FrameConsumer</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dev/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Development and releases</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goals">Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#picture">Picture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-pipeline">Frame pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ownership-and-interfaces">Module ownership and interfaces</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-state-and-de-twin-hashing-core-fixed"><code class="docutils literal notranslate"><span class="pre">de_twin.state</span></code> and <code class="docutils literal notranslate"><span class="pre">de_twin.hashing</span></code> (core, fixed)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-specimen"><code class="docutils literal notranslate"><span class="pre">de_twin.specimen</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-optics"><code class="docutils literal notranslate"><span class="pre">de_twin.optics</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-crystal"><code class="docutils literal notranslate"><span class="pre">de_twin.crystal</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-render"><code class="docutils literal notranslate"><span class="pre">de_twin.render</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstruction-checks-tests-reconstruction">Reconstruction checks (<code class="docutils literal notranslate"><span class="pre">tests/reconstruction/</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-detector"><code class="docutils literal notranslate"><span class="pre">de_twin.detector</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-column"><code class="docutils literal notranslate"><span class="pre">de_twin.column</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aberration-corrector-column-corrector-py">Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-holder"><code class="docutils literal notranslate"><span class="pre">de_twin.holder</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-transport"><code class="docutils literal notranslate"><span class="pre">de_twin.transport</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-faces"><code class="docutils literal notranslate"><span class="pre">de_twin.faces</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-twin"><code class="docutils literal notranslate"><span class="pre">de_twin.twin</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-server-side-cpp">DE-Server side (<code class="docutils literal notranslate"><span class="pre">cpp/</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/architecture.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

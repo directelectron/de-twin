@@ -1,0 +1,6 @@
+﻿de\_twin.holder.connect\_holder
+===============================
+
+.. currentmodule:: de_twin.holder
+
+.. autofunction:: connect_holder

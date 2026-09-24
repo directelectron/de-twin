@@ -1,0 +1,36 @@
+﻿de\_twin.transport.shm.FrameProducer
+====================================
+
+.. currentmodule:: de_twin.transport.shm
+
+.. autoclass:: FrameProducer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrameProducer.__init__
+      ~FrameProducer.acquiring
+      ~FrameProducer.close
+      ~FrameProducer.payload
+      ~FrameProducer.poll_request
+      ~FrameProducer.publish
+      ~FrameProducer.request_changed
+      ~FrameProducer.slot
+      ~FrameProducer.wait_slot_free
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FrameProducer.max_frame_bytes
+   
+   

@@ -1,0 +1,37 @@
+﻿de\_twin.specimen.SpecimenConfig
+================================
+
+.. currentmodule:: de_twin.specimen
+
+.. autoclass:: SpecimenConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SpecimenConfig.__init__
+      ~SpecimenConfig.copy
+      ~SpecimenConfig.resolved_film
+      ~SpecimenConfig.resolved_options
+      ~SpecimenConfig.with_options
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SpecimenConfig.film
+      ~SpecimenConfig.holder
+      ~SpecimenConfig.name
+      ~SpecimenConfig.preparation
+      ~SpecimenConfig.seed
+      ~SpecimenConfig.options
+   
+   

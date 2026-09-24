@@ -1,0 +1,805 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.crystal.library &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/crystal/library';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.1.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.1.0/_modules/de_twin/crystal/library.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.crystal.library</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.crystal.library</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Reciprocal-lattice library of one phase and exact kinematic excitation.</span>
+
+<span class="sd">:class:`CrystalLibrary` computes, once per phase, every allowed reciprocal lattice</span>
+<span class="sd">vector out to ``max_g_inv_nm`` (crystal Cartesian frame, 1/nm) with its kinematic</span>
+<span class="sd">``|F|^2`` (diffsims, Lobato electron scattering factors, Debye-Waller factor</span>
+<span class="sd">``exp(-B g^2 / 2)``, g in 1/A - the same convention as diffsims). From that,</span>
+<span class="sd">:meth:`CrystalLibrary.excite` evaluates a batch of orientations at once:</span>
+
+<span class="sd">* lab-frame vectors ``g_lab = M g`` (``M`` crystal-&gt;lab, see :mod:`.orientation`);</span>
+<span class="sd">* the exact Ewald-sphere excitation error, as in diffsims:</span>
+<span class="sd">  ``s = (1/lambda - sqrt(1/lambda^2 - gx^2 - gy^2)) - gz``;</span>
+<span class="sd">* the kinematic two-beam intensity ``I_g = (pi t / xi_g)^2 &lt;sinc^2(pi t s)&gt;`` with the</span>
+<span class="sd">  extinction distance ``xi_g = pi V_c / (lambda gamma |F_g|)``; ``&lt;&gt;`` averages the</span>
+<span class="sd">  rocking curve over the illumination cone (``s +- g alpha``) analytically, so convergent</span>
+<span class="sd">  beams excite a band of orientations and parallel beams reduce to the plain ``sinc^2``.</span>
+
+<span class="sd">Reflections further than ``S_WINDOW_INV_NM`` from the Ewald sphere are dropped with a</span>
+<span class="sd">smooth taper (their kinematic tails are negligible and the taper keeps every intensity a</span>
+<span class="sd">continuous function of orientation). :meth:`CrystalLibrary.powder` gives the</span>
+<span class="sd">orientation average (``&lt;I_g&gt; = t / (2 g xi_g^2) pi^2``) for Debye-Scherrer rings.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">sici</span>
+
+<span class="n">S_WINDOW_INV_NM</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># excitation errors beyond this are dropped ...</span>
+<span class="n">S_TAPER_INV_NM</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># ... after a cos^2 taper starting here</span>
+<span class="n">MAX_G_INV_NM</span> <span class="o">=</span> <span class="mf">25.0</span>
+<span class="n">MIN_F2_FRACTION</span> <span class="o">=</span> <span class="mf">1e-8</span>
+<span class="n">CHUNK</span> <span class="o">=</span> <span class="mi">256</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">relativistic_gamma</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">ht_kv</span> <span class="o">/</span> <span class="mf">510.99895</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sinc2_antiderivative</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""F(x) = Si(2x) - sin^2(x)/x, so that F' = sinc^2 = sin^2(x)/x^2 (odd, F(0) = 0)."""</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">si</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sici</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">si</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">safe</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">safe</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rocking_curve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Mean of sinc^2 over [x - a, x + a] (a &gt;= 0), where sinc(x) = sin(x)/x."""</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">small</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mf">1e-3</span>
+    <span class="n">safe_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">plain</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">safe_x</span><span class="p">)</span> <span class="o">/</span> <span class="n">safe_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">a_safe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+    <span class="n">avg</span> <span class="o">=</span> <span class="p">(</span><span class="n">_sinc2_antiderivative</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">a_safe</span><span class="p">)</span> <span class="o">-</span> <span class="n">_sinc2_antiderivative</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">a_safe</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">a_safe</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">plain</span><span class="p">,</span> <span class="n">avg</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Excitation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Excited reflections of a batch of N orientations (flattened, K entries)."""</span>
+
+    <span class="n">owner</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) orientation index</span>
+    <span class="n">index</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) reflection index into the library</span>
+    <span class="n">gx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) 1/nm, detector x</span>
+    <span class="n">gy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) 1/nm, detector y</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) excitation error, 1/nm</span>
+    <span class="n">intensity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K,) kinematic fraction (pi t / xi_g)^2 &lt;sinc^2&gt;</span>
+    <span class="n">total</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (N,) sum of intensity per orientation</span>
+
+
+<div class="viewcode-block" id="CrystalLibrary">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CrystalLibrary</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Reciprocal lattice + kinematic ``|F|^2`` of one phase, computed once."""</span>
+
+<div class="viewcode-block" id="CrystalLibrary.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">max_g_inv_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MAX_G_INV_NM</span><span class="p">,</span> <span class="n">debye_waller_a2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">scattering_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"lobato"</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_g_inv_nm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_g_inv_nm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debye_waller_a2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">debye_waller_a2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scattering_params</span> <span class="o">=</span> <span class="n">scattering_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_a3</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>  <span class="c1"># diffpy.structure 3.x deprecations inside diffsims</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hkl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f2</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="c1"># ---------------------------------------------------------------- build</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">diffsims.crystallography</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReciprocalLatticeVector</span>
+
+        <span class="n">rlv</span> <span class="o">=</span> <span class="n">ReciprocalLatticeVector</span><span class="o">.</span><span class="n">from_min_dspacing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="n">min_dspacing</span><span class="o">=</span><span class="mf">10.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_g_inv_nm</span><span class="p">)</span>
+        <span class="n">rlv</span> <span class="o">=</span> <span class="n">rlv</span><span class="p">[</span><span class="n">rlv</span><span class="o">.</span><span class="n">allowed</span><span class="p">]</span>
+        <span class="n">rlv</span><span class="o">.</span><span class="n">sanitise_phase</span><span class="p">()</span>
+        <span class="n">rlv</span><span class="o">.</span><span class="n">calculate_structure_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scattering_params</span><span class="p">)</span>
+        <span class="n">g_a</span> <span class="o">=</span> <span class="n">rlv</span><span class="o">.</span><span class="n">gspacing</span>  <span class="c1"># 1/A</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rlv</span><span class="o">.</span><span class="n">structure_factor</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">debye_waller_a2</span> <span class="o">*</span> <span class="n">g_a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">f2</span> <span class="o">&gt;</span> <span class="n">MIN_F2_FRACTION</span> <span class="o">*</span> <span class="n">f2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rlv</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[</span><span class="n">keep</span><span class="p">]</span> <span class="o">*</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">rlv</span><span class="o">.</span><span class="n">hkl</span><span class="p">[</span><span class="n">keep</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                <span class="n">f2</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cache_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">):</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DE_TWIN_CRYSTAL_CACHE"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="p">),</span> <span class="p">[(</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">xyz</span><span class="p">,</span> <span class="mi">6</span><span class="p">)))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">space_group</span><span class="o">.</span><span class="n">number</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">space_group</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_g_inv_nm</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debye_waller_a2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scattering_params</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">.npz"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">as</span> <span class="n">z</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">z</span><span class="p">[</span><span class="s2">"g"</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="s2">"hkl"</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="s2">"f2"</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">f2</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c1"># -------------------------------------------------------------- physics</span>
+<div class="viewcode-block" id="CrystalLibrary.inv_xi">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.inv_xi">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inv_xi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""pi / xi_g in 1/nm (xi_g: kinematic extinction distance)."""</span>
+        <span class="n">lam_a</span> <span class="o">=</span> <span class="n">wavelength_nm</span> <span class="o">*</span> <span class="mf">10.0</span>
+        <span class="k">return</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">lam_a</span> <span class="o">*</span> <span class="n">relativistic_gamma</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f2</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_a3</span></div>
+
+
+<div class="viewcode-block" id="CrystalLibrary.extinction_distance_nm">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.extinction_distance_nm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extinction_distance_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">hkl</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">hkl</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_xi</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">)[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="CrystalLibrary.excite">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.excite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">excite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrices</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness_nm</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+               <span class="n">convergence_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">min_intensity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Excitation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Excited reflections of each crystal-&gt;lab matrix (N, 3, 3) at thickness (N,) nm.</span>
+
+<span class="sd">        ``thickness_nm`` may also be (N, T): every orientation at T thicknesses; ``intensity``</span>
+<span class="sd">        is then (K, T) and ``total`` (N, T) (``min_intensity`` must be 0)."""</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">t_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">thickness_nm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">t_in</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,)</span> <span class="o">+</span> <span class="n">t_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">t_in</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">t_in</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,))</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_xi</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">)</span>
+        <span class="n">inv_lam</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">wavelength_nm</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">convergence_mrad</span> <span class="o">*</span> <span class="mf">1e-3</span>
+        <span class="n">s_max</span> <span class="o">=</span> <span class="n">S_WINDOW_INV_NM</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_len</span> <span class="o">*</span> <span class="n">alpha</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">CHUNK</span><span class="p">):</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"nij,gj-&gt;ngi"</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="n">c0</span><span class="p">:</span><span class="n">c0</span> <span class="o">+</span> <span class="n">CHUNK</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">gl</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">gl</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">inv_lam</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">inv_lam</span> <span class="o">*</span> <span class="n">inv_lam</span> <span class="o">-</span> <span class="n">r2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">-</span> <span class="n">gl</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">own</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">s_max</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">own</span> <span class="o">+</span> <span class="n">c0</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">gl</span><span class="p">[</span><span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">gl</span><span class="p">[</span><span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">]))</span>
+        <span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">))</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">own</span><span class="p">]</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">tt</span> <span class="o">*</span> <span class="n">col</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">tt</span> <span class="o">*</span> <span class="n">col</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g_len</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="n">excess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="n">S_TAPER_INV_NM</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_len</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span>
+                         <span class="o">/</span> <span class="p">(</span><span class="n">S_WINDOW_INV_NM</span> <span class="o">-</span> <span class="n">S_TAPER_INV_NM</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">taper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">excess</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">inten</span> <span class="o">=</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">*</span> <span class="n">tt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rocking_curve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">col</span><span class="p">(</span><span class="n">taper</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">own</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">inten</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Excitation</span><span class="p">(</span><span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">inten</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">own</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">inten</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_intensity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="n">inten</span> <span class="o">&gt;=</span> <span class="n">min_intensity</span>
+            <span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">inten</span> <span class="o">=</span> <span class="n">own</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">gx</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">gy</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">inten</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Excitation</span><span class="p">(</span><span class="n">own</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">inten</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span></div>
+
+
+    <span class="c1"># --------------------------------------------------------------- powder</span>
+<div class="viewcode-block" id="CrystalLibrary.rings">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.rings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""(ring radius g [1/nm], orientation-averaged intensity per nm of thickness) per family."""</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">wavelength_nm</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">key</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_xi</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">wavelength_nm</span><span class="p">)</span>
+            <span class="n">per</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_len</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g_len</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">uniq</span><span class="p">,</span> <span class="n">inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">uniq</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">per</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rings</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------- orientation mapping</span>
+<div class="viewcode-block" id="CrystalLibrary.template_library">
+<a class="viewcode-back" href="../../../api/generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary.template_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">template_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+                         <span class="n">max_excitation_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A diffsims ``Simulation2D`` over the reduced fundamental zone (orix</span>
+<span class="sd">        ``get_sample_reduced_fundamental``), i.e. an orientation-mapping template library</span>
+<span class="sd">        in the twin's own convention (pyxem ``get_orientation``)."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">diffsims.generators.simulation_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationGenerator</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">orix.sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_reduced_fundamental</span>
+
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">get_sample_reduced_fundamental</span><span class="p">(</span><span class="n">resolution_deg</span><span class="p">,</span> <span class="n">point_group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">point_group</span><span class="p">)</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">SimulationGenerator</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gen</span><span class="o">.</span><span class="n">calculate_diffraction2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">rot</span><span class="p">,</span> <span class="n">reciprocal_radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_g_inv_nm</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">,</span>
+                                           <span class="n">max_excitation_error</span><span class="o">=</span><span class="n">max_excitation_error</span><span class="p">,</span> <span class="n">with_direct_beam</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">library_for</span><span class="p">(</span><span class="n">material_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_g_inv_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MAX_G_INV_NM</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CrystalLibrary</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Cached library of a material (``None`` for amorphous materials)."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..specimen.materials</span><span class="w"> </span><span class="kn">import</span> <span class="n">material</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.phases</span><span class="w"> </span><span class="kn">import</span> <span class="n">phase_for</span>
+
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">phase_for</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">phase</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">CrystalLibrary</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">max_g_inv_nm</span><span class="o">=</span><span class="n">max_g_inv_nm</span><span class="p">,</span>
+                          <span class="n">debye_waller_a2</span><span class="o">=</span><span class="n">material</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span><span class="o">.</span><span class="n">debye_waller_a2</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
