@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=7026087e"></script>
+    <script src="_static/documentation_options.js?v=01f34227"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="prev" title="Development and releases" href="dev/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.0.0" />
+  <meta name="docsearch:version" content="0.1.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -506,6 +506,47 @@
 <p>Fragment files in <code class="docutils literal notranslate"><span class="pre">upcoming_changes/</span></code> are assembled into this file by
 <a class="reference external" href="https://towncrier.readthedocs.io/">towncrier</a> when a release is prepared
 (see <code class="docutils literal notranslate"><span class="pre">upcoming_changes/README.rst</span></code> for contributor instructions).</p>
+<section id="id1">
+<h2>0.1.0 (2026-09-24)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>First release of the de-twin digital twin: a simulated TEM column (JEOL/TFS-style
+modes, magnification and camera-length ladders, stage motion, aberrations and an
+optional probe/image corrector), seeded specimens (grids, thin films, proteins in ice,
+FIB lamellae, an in-situ heating chip) with real crystal orientations from diffsims and
+orix, wave-optical TEM imaging, diffraction and coherent 4D-STEM, and a detector model
+for every Direct Electron camera. <code class="docutils literal notranslate"><span class="pre">DigitalTwin</span></code> runs it all in-process.</p></li>
+<li><p>The twin can stand in for real software: a DE-TEM-Channel SOAP server
+(<code class="docutils literal notranslate"><span class="pre">de-twin</span> <span class="pre">serve</span> <span class="pre">--soap</span></code>) that DE-Server, de_microscope, de_autopilot and
+de_ground_crew drive unchanged, a deapi-compatible fake DE-Server
+(<code class="docutils literal notranslate"><span class="pre">--deapi</span></code>), and a shared-memory frame source that feeds a real DE-Server
+through its processing pipeline (<code class="docutils literal notranslate"><span class="pre">--shm</span></code>, test pattern “External Frame Source
+(Shared Memory)”). It can also follow a real or Dummy DE-TEM-Channel and a DENS
+Impulse holder instead of simulating them.</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Coherent 4D-STEM data no longer depends on the machine: the probe’s partial-coherence
+modes were truncated through a degenerate pair of eigenmodes, whose basis LAPACK chooses
+differently with BLAS threading, so the same request gave different patterns on different
+computers. Truncation now keeps degenerate groups whole.</p></li>
+</ul>
+</section>
+<section id="maintenance">
+<h3>Maintenance<a class="headerlink" href="#maintenance" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Packaging, documentation site and release workflows (towncrier changelog,
+Prepare Release PR, PyPI publishing when a GitHub Release is published).</p></li>
+<li><p>Raised the minimum supported versions to numpy 2.0, scipy 1.13 and diffpy.structure 3.2
+(and matplotlib 3.9 for the docs), the oldest set the test suite passes with. Timing
+budgets in the performance tests now scale with <code class="docutils literal notranslate"><span class="pre">DE_TWIN_PERF_SLACK</span></code> so shared CI
+runners can check them without being tuned to one workstation.</p></li>
+</ul>
+</section>
+</section>
 </section>
 
 
@@ -537,6 +578,23 @@
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.1.0 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maintenance">Maintenance</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 
