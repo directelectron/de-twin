@@ -3,5 +3,10 @@
     "name": "dev (latest)",
     "version": "dev",
     "url": "https://cssfrancis.github.io/de-twin/dev/"
+  },
+  {
+    "name": "v0.1.0 (stable)",
+    "version": "v0.1.0",
+    "url": "https://cssfrancis.github.io/de-twin/v0.1.0/"
   }
 ]
