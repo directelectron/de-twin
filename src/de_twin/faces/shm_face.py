@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 #: first view of a new magnification, the full render after a drag — so when no new
 #: frame is ready after this long, the last one is published again.
 KEEPALIVE_S = 0.5
+#: A pool nobody has asked for frames for in this long is closed (its thread stops).
+POOL_IDLE_S = 5.0
 _DONE = object()
 
 
@@ -49,6 +51,10 @@ class ShmFace:
         self.pool_size = int(pool_size)
         self.threads = threads
         self.frames_reused = 0
+        self._pool = None
+        self._pool_key = None
+        self._pool_used = 0.0
+        self._last_frame = None  # the last frame published, for keep-alives across requests
         self.name = name
         self.pace = pace
         self.warm_up = warm_up
@@ -69,6 +75,7 @@ class ShmFace:
         self._stop.set()
         if self._thread:
             self._thread.join(timeout=5)
+        self._close_pool()
         if self.producer is not None:
             self.producer.close()
 
@@ -109,6 +116,8 @@ class ShmFace:
             got = pending or self.producer.poll_request(timeout=0.05)
             pending = None
             if got is None:
+                if self._pool is not None and _now() - self._pool_used > POOL_IDLE_S:
+                    self._close_pool()
                 continue
             self.requests_served += 1
             try:
@@ -133,8 +142,7 @@ class ShmFace:
         shape = (h.frame_height, h.frame_width)
         dtype = np.uint8 if h.bytes_per_pixel == 1 else np.uint16
         recycle = self.reuse > 1
-        pool = _FramePool(self.twin, request, size=max(2, self.pool_size if recycle else 2),
-                          reuse=self.reuse, pace=self.pace and not recycle, threads=self.threads)
+        pool = self._pool_for(request, recycle)
         frame_time = max(float(request.frame_time_s), 1e-6)
         t0 = time.monotonic()
         k = 0
@@ -147,16 +155,22 @@ class ShmFace:
                     return None
                 if isinstance(got, BaseException):
                     raise got
-                if got is None:
-                    continue  # nothing rendered yet
+                if got is None:  # nothing rendered for this request yet
+                    last = self._last_frame
+                    if last is None or last[0].shape != shape or last[0].dtype != dtype:
+                        continue
+                    got = (last[1], False)
                 (raw, meta), fresh = got
                 if not fresh and not recycle:
                     self.keepalives += 1
                 while not p.wait_slot_free(timeout=0.05):
                     if self._stop.is_set() or p.request_changed(request_id):
                         return p.poll_request()
-                p.publish(_fit(raw, shape, dtype), request_id=request_id, frame_index=k,
+                out = _fit(raw, shape, dtype)
+                p.publish(out, request_id=request_id, frame_index=k,
                           flags=L.FLAG_BLANKED if meta.blanked else 0)
+                self._last_frame = (out, (raw, meta))
+                self._pool_used = _now()
                 self.frames_published += 1
                 self.frames_reused += 0 if fresh else 1
                 k += 1
@@ -167,7 +181,44 @@ class ShmFace:
                     if delay > 0:
                         self._stop.wait(delay)
         finally:
+            self._pool_used = _now()
+            if self._pool_key is None:  # a one-off pool (scan, pinned seed)
+                pool.close()
+                if self._pool is pool:
+                    self._pool = None
+
+    def _pool_for(self, request, recycle: bool) -> "_FramePool":
+        """The frame pool for *request*: the running one when the request asks for the
+        same frames as the last (DE-MC's live view is a string of short acquisitions,
+        one request each), so its rendered frames, and the keep-alive, carry over;
+        otherwise a new one. A scan or a pinned seed depends on the frame index, so it
+        always starts afresh."""
+        import dataclasses
+
+        if request.scan.enabled or request.seed is not None:
+            key = None
+        else:
+            key = dataclasses.replace(request, total_frames=0, acquisition_index=0)
+        pool = self._pool
+        if key is not None and pool is not None and self._pool_key == key and pool.alive:
+            return pool
+        self._close_pool()
+        live = key if key is not None else request
+        pool = _FramePool(self.twin, live, size=max(2, self.pool_size if recycle else 2),
+                          reuse=self.reuse, pace=self.pace and not recycle, threads=self.threads)
+        self._pool, self._pool_key = pool, key
+        return pool
+
+    def _close_pool(self) -> None:
+        pool, self._pool, self._pool_key = self._pool, None, None
+        if pool is not None:
             pool.close()
+
+def _now() -> float:
+    import time
+
+    return time.monotonic()
+
 
 def _fit(frame: np.ndarray, shape: tuple[int, int], dtype) -> np.ndarray:
     """Crop or zero-pad to exactly the hw_frame DE-Server asked for."""
@@ -263,6 +314,11 @@ class _FramePool:
                 if left <= 0:
                     return (self._last, False) if self._last is not None else None
                 self._cond.wait(left)
+
+    @property
+    def alive(self) -> bool:
+        with self._cond:
+            return self._end is None and not self._stop.is_set()
 
     def close(self) -> None:
         self._stop.set()  # the renderer stops at its next frame; the twin's lock orders them

@@ -172,3 +172,42 @@ def test_a_view_change_drops_recycled_frames():
             assert item[1].microscope.stage.x_um != x0
     finally:
         pool.close()
+
+
+def test_live_view_as_short_acquisitions_is_kept_fed(monkeypatch):
+    """DE-MC's live view is a string of short acquisitions, one request each. The pool
+    (and so the keep-alive) carries over between them, so a slow render at the start of
+    one does not starve DE-Server."""
+    import time
+
+    from de_twin.faces import shm_face
+
+    twin, face, consumer = _served_with()
+    monkeypatch.setattr(shm_face, "KEEPALIVE_S", 0.1)
+    real = twin.frames
+    calls = {"n": 0}
+
+    def slow_frames(request, **kw):
+        calls["n"] += 1
+        for k, item in enumerate(real(request, **kw)):
+            if k == 7:
+                time.sleep(1.0)  # a slow render, in the second acquisition
+            yield item
+
+    monkeypatch.setattr(twin, "frames", slow_frames)
+    try:
+        gaps, t = [], None
+        for _ in range(4):  # four 4-frame acquisitions
+            consumer.begin(frame_shape=(1024, 1024), frame_time_s=0.001, total_frames=4)
+            for _ in range(4):
+                consumer.read(timeout=10)
+                now = time.monotonic()
+                if t is not None:
+                    gaps.append(now - t)
+                t = now
+        assert max(gaps) < 0.5, gaps
+        assert calls["n"] == 1, "one render stream for the whole live view"
+        assert face.keepalives >= 3
+    finally:
+        face.stop()
+        consumer.close()

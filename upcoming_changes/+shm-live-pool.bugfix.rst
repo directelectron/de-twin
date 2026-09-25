@@ -1,0 +1,1 @@
+The shared-memory face keeps its frame pool across back-to-back requests for the same frames (DE-MC's live view is a string of short acquisitions), and republishes the last frame while a new request has nothing rendered yet, so a slow render at the start of one no longer stops DE-Server.
