@@ -18,6 +18,7 @@
       ~Specimen.crystallinity
       ~Specimen.drift_um
       ~Specimen.features
+      ~Specimen.home_um
       ~Specimen.nearest_feature
       ~Specimen.overview
       ~Specimen.rasterize

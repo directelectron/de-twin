@@ -27,9 +27,11 @@
       ~DigitalTwin.optics
       ~DigitalTwin.raw_frame
       ~DigitalTwin.request
+      ~DigitalTwin.safe_dose_e_per_px_s
       ~DigitalTwin.scan_point
       ~DigitalTwin.set_specimen
       ~DigitalTwin.snap
+      ~DigitalTwin.start_on_specimen
       ~DigitalTwin.stem_model
       ~DigitalTwin.virtual_image
    

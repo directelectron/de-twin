@@ -507,12 +507,22 @@
 <div class="viewcode-block" id="ShmFace">
 <a class="viewcode-back" href="../../../api/generated/de_twin.faces.shm_face.ShmFace.html#de_twin.faces.shm_face.ShmFace">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ShmFace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Serve DE-Server's requests from ``twin``.</span>
+
+<span class="sd">    ``warm_up`` renders one frame before attaching: a fresh twin spends seconds on its</span>
+<span class="sd">    first frame (imports, GPU start-up, building the specimen), while DE-Server waits about</span>
+<span class="sd">    one frame time plus a second before it gives up on the acquisition. ``ready`` is set</span>
+<span class="sd">    once the face is warm and serving.</span>
+<span class="sd">    """</span>
+
 <div class="viewcode-block" id="ShmFace.__init__">
 <a class="viewcode-back" href="../../../api/generated/de_twin.faces.shm_face.ShmFace.html#de_twin.faces.shm_face.ShmFace.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">DEFAULT_NAME</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">DEFAULT_NAME</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">warm_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">twin</span> <span class="o">=</span> <span class="n">twin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pace</span> <span class="o">=</span> <span class="n">pace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warm_up</span> <span class="o">=</span> <span class="n">warm_up</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ready</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">producer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -555,7 +565,17 @@
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_warm_up</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">frame_time_s</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">req</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># a failed warm-up only costs the first request its speed</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"warm-up render failed"</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warm_up</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_warm_up</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ready</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="n">pending</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

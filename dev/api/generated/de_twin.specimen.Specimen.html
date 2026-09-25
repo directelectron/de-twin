@@ -601,25 +601,28 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.features" title="de_twin.specimen.Specimen.features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.nearest_feature" title="de_twin.specimen.Specimen.nearest_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nearest_feature</span></code></a>(x_um, y_um)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.home_um" title="de_twin.specimen.Specimen.home_um"><code class="xref py py-obj docutils literal notranslate"><span class="pre">home_um</span></code></a>()</p></td>
+<td><p>Stage position (µm) a twin starts at: somewhere there is specimen to see.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.nearest_feature" title="de_twin.specimen.Specimen.nearest_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nearest_feature</span></code></a>(x_um, y_um)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.overview" title="de_twin.specimen.Specimen.overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overview</span></code></a>([shape])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.overview" title="de_twin.specimen.Specimen.overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overview</span></code></a>([shape])</p></td>
 <td><p>Whole-holder projected-thickness image (DebugOverview), float32 nm, 5 % padding.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.rasterize" title="de_twin.specimen.Specimen.rasterize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rasterize</span></code></a>(view[, layers])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.rasterize" title="de_twin.specimen.Specimen.rasterize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rasterize</span></code></a>(view[, layers])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.required_layers" title="de_twin.specimen.Specimen.required_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">required_layers</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.required_layers" title="de_twin.specimen.Specimen.required_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">required_layers</span></code></a>()</p></td>
 <td><p>Optional FieldMap layers this specimen can fill (descan/strain for FIB lamellae).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.reset_clock" title="de_twin.specimen.Specimen.reset_clock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_clock</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.reset_clock" title="de_twin.specimen.Specimen.reset_clock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_clock</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.set_options" title="de_twin.specimen.Specimen.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_options</span></code></a>(**kw)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.set_options" title="de_twin.specimen.Specimen.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_options</span></code></a>(**kw)</p></td>
 <td><p>Change options live.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.update" title="de_twin.specimen.Specimen.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(time_s[, holder])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.update" title="de_twin.specimen.Specimen.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(time_s[, holder])</p></td>
 <td><p>Advance the scene clock to <code class="docutils literal notranslate"><span class="pre">time_s</span></code> and integrate the thermal budget.</p></td>
 </tr>
 </tbody>
@@ -649,6 +652,22 @@
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.specimen.Specimen.home_um">
+<span class="sig-name descname"><span class="pre">home_um</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.home_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.home_um" title="Link to this definition">#</a></dt>
+<dd><p>Stage position (µm) a twin starts at: somewhere there is specimen to see.</p>
+<p>The stage origin is often not: on a waffle grid it is a bar, on a heating chip the
+frame, on a sparse grid a bare patch of film. So: the placement area (grid square,
+well, lamella, chip window) nearest the origin whose film is intact where the holder
+has a film, and inside it the largest particle cluster when the preparation clusters,
+else the area’s centre.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.specimen.Specimen.set_options">
 <span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.set_options" title="Link to this definition">#</a></dt>
@@ -873,6 +892,7 @@ time-evolving in-situ scene, and “unresolved fine grains” (powder, 1) elsewh
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen"><code class="docutils literal notranslate"><span class="pre">Specimen</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.__init__"><code class="docutils literal notranslate"><span class="pre">Specimen.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.home_um"><code class="docutils literal notranslate"><span class="pre">Specimen.home_um()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.set_options"><code class="docutils literal notranslate"><span class="pre">Specimen.set_options()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.time_s"><code class="docutils literal notranslate"><span class="pre">Specimen.time_s</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.time_index"><code class="docutils literal notranslate"><span class="pre">Specimen.time_index</span></code></a></li>

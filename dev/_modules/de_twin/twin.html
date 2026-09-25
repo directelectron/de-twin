@@ -487,6 +487,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -551,6 +553,7 @@
         <span class="n">clock</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Clock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">flood_for_gain</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">detector_overrides</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_on_specimen</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.column</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detector</span><span class="p">,</span> <span class="n">camera</span> <span class="k">as</span> <span class="n">camera_by_name</span>
@@ -584,7 +587,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">calibration</span> <span class="ow">or</span> <span class="n">Calibration</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span> <span class="o">=</span> <span class="n">optics_config</span> <span class="ow">or</span> <span class="n">OpticsConfig</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span> <span class="n">render_config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span> <span class="n">render_config</span><span class="p">)</span>
+        <span class="c1"># Only a column the twin built is its to move: a supplied one may be a mirror of</span>
+        <span class="c1"># real hardware, whose stage and beam are the operator's.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_own_column</span> <span class="o">=</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">start_on_specimen</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_own_column</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_on_specimen</span><span class="p">()</span></div>
 
 
     <span class="c1"># ------------------------------------------------------------------ state</span>
@@ -606,10 +614,88 @@
         <span class="k">return</span> <span class="n">state</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="k">else</span> <span class="n">HolderState</span><span class="p">(</span><span class="n">t_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="DigitalTwin.start_on_specimen">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.start_on_specimen">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_on_specimen</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Point the column at the specimen, as an operator would on loading it.</span>
+
+<span class="sd">        The stage goes to `Specimen.home_um` (the origin is often a grid bar, a chip frame or</span>
+<span class="sd">        bare film), the beam to the preset's `start_dose_e_per_px_s` (by solving the</span>
+<span class="sd">        Intensity — the default spread beam gives ~2 e- per live frame, which reads as pure</span>
+<span class="sd">        noise), and the defocus to its `start_defocus_um`. Everything stays the operator's</span>
+<span class="sd">        to change afterwards.</span>
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.optics.derive</span><span class="w"> </span><span class="kn">import</span> <span class="n">stage_for_view_center</span>
+
+        <span class="n">opts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span> <span class="s2">"options"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opts</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span> <span class="s2">"home_um"</span><span class="p">):</span>
+            <span class="k">return</span>  <span class="c1"># a synthetic test specimen has no holder to find</span>
+        <span class="c1"># `home_um` is a point on the SPECIMEN; the stage carries the specimen, so the stage</span>
+        <span class="c1"># position that puts it on axis is not the point itself.</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">stage_for_view_center</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">home_um</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">move_stage</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set_defocus_um</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_defocus_um</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">start_dose_e_per_px_s</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_dose_e_per_px_s</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Intensity"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_intensity_for_dose</span><span class="p">(</span><span class="n">target</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_start_defocus_um</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The preset's start defocus; for unstained proteins in ice with none set,</span>
+<span class="sd">        1.5 um underfocus — a phase object shows almost nothing in focus, and that is</span>
+<span class="sd">        how cryo is imaged."""</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">start_defocus_um</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">df</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">"preparation"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"proteins"</span>                 <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="s2">"negative_stain_fraction"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mf">1.5</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="DigitalTwin.safe_dose_e_per_px_s">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.safe_dose_e_per_px_s">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">safe_dose_e_per_px_s</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">40.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A dose rate the detector takes without saturating a frame at *fps*.</span>
+
+<span class="sd">        A DE integrating pixel holds only a few electrons per frame (~206 ADU per e- at</span>
+<span class="sd">        300 kV against ~2100 ADU of range), so its frames are meant to be sparse and an</span>
+<span class="sd">        image is their sum over the exposure: ~35 % of that per frame here. A counting</span>
+<span class="sd">        camera wants ~0.1 e- per pixel per sensor cycle, or coincidence loss sets in.</span>
+<span class="sd">        """</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">hardware_counting</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">hw_quanta</span><span class="p">)</span> <span class="o">*</span> <span class="n">fps</span>
+        <span class="n">ht</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span><span class="o">.</span><span class="n">ht_kv</span> <span class="ow">or</span> <span class="n">m</span><span class="o">.</span><span class="n">reference_ht_kv</span><span class="p">)</span>
+        <span class="n">per_e</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">adu_per_electron_at</span><span class="p">(</span><span class="n">ht</span><span class="p">))</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s2">"adu_per_electron_at"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>             <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">adu_per_electron</span><span class="p">)</span>
+        <span class="n">per_frame</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">saturation_adu</span><span class="p">)</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">dark_offset_adu</span><span class="p">))</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">per_e</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">))</span>
+        <span class="k">return</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="n">per_frame</span> <span class="o">*</span> <span class="n">fps</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_intensity_for_dose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The Intensity (C2) at which the beam gives *target* e-/px/s at the current</span>
+<span class="sd">        magnification: dose falls monotonically as Intensity spreads the beam, so bisect</span>
+<span class="sd">        on the optics (no rendering)."""</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">()</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.98</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">dose</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="n">v</span><span class="p">))</span><span class="o">.</span><span class="n">dose_e_per_px_s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dose</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">lo</span>
+        <span class="k">if</span> <span class="n">dose</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hi</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">):</span>
+            <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dose</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">target</span><span class="p">:</span>
+                <span class="n">lo</span> <span class="o">=</span> <span class="n">mid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hi</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+
 <div class="viewcode-block" id="DigitalTwin.set_specimen">
 <a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.set_specimen">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_specimen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Swap the specimen (e.g. a new preset) keeping column/holder/detector."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_specimen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Swap the specimen (e.g. a new preset) keeping column/holder/detector. With</span>
+<span class="sd">        *start*, the column is pointed at the new specimen (`start_on_specimen`)."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.render</span><span class="w"> </span><span class="kn">import</span> <span class="n">Renderer</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.specimen</span><span class="w"> </span><span class="kn">import</span> <span class="n">Specimen</span><span class="p">,</span> <span class="n">SpecimenConfig</span><span class="p">,</span> <span class="n">from_name</span>
 
@@ -619,7 +705,9 @@
             <span class="n">specimen</span> <span class="o">=</span> <span class="n">Specimen</span><span class="p">(</span><span class="n">specimen</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span> <span class="o">=</span> <span class="n">specimen</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_own_column"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_on_specimen</span><span class="p">()</span></div>
 
 
     <span class="c1"># ---------------------------------------------------------------- optics</span>

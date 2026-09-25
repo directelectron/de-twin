@@ -601,6 +601,9 @@
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"on"</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">)</span>
 
 
+<span class="c1">#: The exposure a fresh face starts with, in seconds (see `_frame_count`).</span>
+<span class="n">DEFAULT_EXPOSURE_S</span> <span class="o">=</span> <span class="mf">0.5</span>
+
 <span class="k">class</span><span class="w"> </span><span class="nc">DynamicProperty</span><span class="p">(</span><span class="n">Property</span><span class="p">):</span>  <span class="c1"># type: ignore[misc]</span>
 <span class="w">    </span><span class="sd">"""A property whose value is computed (and optionally applied) by callables."""</span>
 
@@ -898,7 +901,10 @@
                                       <span class="n">options</span><span class="o">=</span><span class="s2">"'1*', '2'"</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s2">"1"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Basic"</span><span class="p">))</span>
         <span class="c1"># exposure: frames per second / frame count / exposure time stay consistent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fps</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">default_fps</span><span class="p">),</span> <span class="n">max_fps</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># A 0.5 s exposure to begin with, not one frame: a DE frame is sparse by</span>
+        <span class="c1"># design (a pixel holds a few electrons), and an image is the sum of frames</span>
+        <span class="c1"># over the exposure. One frame per image reads as pure noise.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">DEFAULT_EXPOSURE_S</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fps</span><span class="p">)))</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">set_fps</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="n">exposure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fps</span>
