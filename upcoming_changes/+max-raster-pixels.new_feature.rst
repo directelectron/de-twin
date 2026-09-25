@@ -1,1 +1,0 @@
-``OpticsConfig(max_raster_pixels=...)`` sets the largest TEM raster (0: render at the frame's own sampling, for CTF and MTF measurements); ``OpticsState.resolution_warning`` says when a frame is upsampled from a coarser raster.

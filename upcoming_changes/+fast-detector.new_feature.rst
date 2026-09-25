@@ -1,1 +1,0 @@
-The detector simulation runs as fused numba kernels for integrating cameras: 6x faster at 4096² (170 → 28 ms a frame) and 11x at 1024² (42 → 4 ms), with the same statistics; ``DE_TWIN_NUMPY_DETECTOR=1`` keeps the numpy path. TEM images render at up to 1024² (from 2048²), which makes a re-render after a stage move ~2.7x faster on a 4096² camera. numba is now a dependency.

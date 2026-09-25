@@ -1,1 +1,0 @@
-TEM imaging renders a view 15 % of the field larger on each side and serves a stage move inside that margin by cropping it: a nudge costs ~2 ms instead of a render; ``RenderConfig(pan_margin=0)`` turns it off.

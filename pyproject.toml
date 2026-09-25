@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "de-twin"
 # Bumped by the "Prepare Release" workflow; the first release is prepared with bump=minor -> 0.1.0.
-version = "0.1.1"
+version = "0.1.2"
 description = "Digital twin of a Direct Electron camera on a TEM: column, specimen, in-situ holder and detector, for developing automated microscope control."
 readme = "README.md"
 license = { text = "MIT" }
