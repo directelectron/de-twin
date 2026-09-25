@@ -1,1 +1,0 @@
-The shared-memory face renders on a thread of its own and republishes the last frame while a slow render runs, so DE-Server no longer stops a live acquisition ("no frame from the producer within 1020 ms") when a view takes over a second to render.

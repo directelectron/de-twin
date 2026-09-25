@@ -1,1 +1,0 @@
-STEM and 4D STEM patterns with large disks (a probe's disks can outgrow the detector) are drawn row by row over the detector with a numba kernel instead of stamping each disk's whole square: a Steel 4D STEM frame goes from ~3.3 s to ~50 ms.

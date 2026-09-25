@@ -1,1 +1,0 @@
-``RenderConfig(interactive=True)``: while the view keeps changing (dragging the stage, zooming), a view the pan cache cannot crop is rendered at up to ``preview_side``² and upsampled, so live view keeps up; once the view has been still for ``settle_s`` it is rendered in full.

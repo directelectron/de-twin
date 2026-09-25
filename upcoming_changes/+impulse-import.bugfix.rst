@@ -1,1 +1,0 @@
-impulsePy is imported on a thread of its own with a timeout (``holder.impulse.import_impulse``): with Impulse not running, ``connect_holder("impulse")`` falls back to the simulated holder instead of hanging.
