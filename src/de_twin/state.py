@@ -117,6 +117,12 @@ class MicroscopeState:
     beam_shift_um: Vec2 = field(default_factory=Vec2)
     beam_tilt_mrad: Vec2 = field(default_factory=Vec2)
     condenser_stig: Vec2 = field(default_factory=Vec2)
+    # Precession [twin]: the beam-tilt coils driven round a cone of half-angle
+    # `precession_mrad` at `precession_hz`; with descan the pattern is brought back.
+    precession_on: bool = False
+    precession_mrad: float = 10.0
+    precession_hz: float = 100.0
+    precession_descan: bool = True
 
     # Projection
     magnification: float = 20000.0

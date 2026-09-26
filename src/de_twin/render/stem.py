@@ -45,7 +45,7 @@ class StemTables:
     key_index: np.ndarray  # (ny, nx) index into keys
     keys: np.ndarray  # (K, 4) int64: material, grain, thickness bin, crystallinity bin
     jitter: np.ndarray  # (ny, nx) float32 fluctuation factor (1 when disabled)
-    all_specs: object = None  # PatternSet of every key, built on first use
+    all_specs: dict = None  # _tilt_key -> PatternSet of every key, built on first use
 
 
 def build_tables(fm, optics, grains, crystallinity, cfg, seed: int) -> StemTables:
@@ -101,6 +101,13 @@ def _blend_samples(optics, ix, iy, enabled: bool):
     return [(int(np.clip(x, 0, nx - 1)), int(np.clip(y, 0, ny - 1)), wt) for x, y, wt in pts]
 
 
+def _tilt_key(optics) -> tuple:
+    """What of the beam tilt and precession a pattern depends on."""
+    return (tuple(optics.beam_tilt_mrad), getattr(optics, "precession_mrad", 0.0),
+            getattr(optics, "precession_descan", True), getattr(optics, "precession_phase_rad", 0.0),
+            getattr(optics, "precession_arc_rad", 0.0))
+
+
 class StemRenderer:
     def __init__(self, cache: DiffractionCache, cfg, seed: int):
         self.cache = cache
@@ -128,19 +135,25 @@ class StemRenderer:
     def all_specs(self, tab: StemTables, optics, grains):
         """PatternSet of every key of the table (one vectorised batch, then kept)."""
         if tab.all_specs is None:
-            tab.all_specs = self._bucket(tab.keys, optics, grains)
-        return tab.all_specs
+            tab.all_specs = {}
+        tk = _tilt_key(optics)
+        if tk not in tab.all_specs:
+            if len(tab.all_specs) >= 48:
+                tab.all_specs.pop(next(iter(tab.all_specs)))
+            tab.all_specs[tk] = self._bucket(tab.keys, optics, grains)
+        return tab.all_specs[tk]
 
     def spec(self, tab: StemTables, i: int, optics, grains):
-        if tab.all_specs is not None:
-            return tab.all_specs[i]
+        specs = (tab.all_specs or {}).get(_tilt_key(optics))
+        if specs is not None:
+            return specs[i]
         return self._bucket(tab.keys[i:i + 1], optics, grains)[0]
 
     def _pattern(self, tab, i, optics, grains) -> np.ndarray:
         h, w = optics.output_shape
         key = ("dp", tuple(int(v) for v in tab.keys[i]), (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px,
                optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv,
-               PatternOptions.from_config(self.cfg))
+               PatternOptions.from_config(self.cfg), _tilt_key(optics))
         return self.cache.get(key, lambda _k: render_pattern(self.spec(tab, i, optics, grains), (h, w),
                                                              optics.recip_pixel_inv_nm, optics.disk_radius_px))
 

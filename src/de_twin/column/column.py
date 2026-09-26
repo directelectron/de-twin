@@ -43,6 +43,10 @@ Intensity               C2, echoed unclamped (like the Dummy)
 ImageShift, BeamShift   (x, y) um
 BeamTilt                (x, y) normalised units, x BEAM_TILT_MRAD_PER_UNIT mrad
 DiffractionShift        (x, y) normalised units, x DIFF_SHIFT_MRAD_PER_UNIT mrad
+Precession              [twin] bool: drive the beam-tilt coils round a cone
+PrecessionAngle         [twin] cone half-angle, mrad
+PrecessionFrequency     [twin] Hz
+PrecessionDescan        [twin] bool: descan brings the pattern back (default on)
 ObjectiveStig,
 CondenserStig           (x, y) normalised units
 StagePosition           dict x, y, z (um), a, b (deg); set any subset
@@ -851,6 +855,22 @@ def _set_vec(attr: str, scale: float = 1.0):
     return setter
 
 
+def _set_flag(attr: str):
+    def setter(col: Column, value) -> None:
+        v = value.strip().lower() in ("1", "true", "on", "yes") if isinstance(value, str) else bool(value)
+        setattr(col._s, attr, v)
+    return setter
+
+
+def _set_float(attr: str, lo: float, hi: float):
+    def setter(col: Column, value) -> None:
+        v = float(value)
+        if not lo <= v <= hi:
+            raise ColumnRefused(f"{attr} must be in [{lo:g}, {hi:g}], got {v:g}")
+        setattr(col._s, attr, v)
+    return setter
+
+
 def _set_extra_pair(key: str):
     def setter(col: Column, value) -> None:
         col._extra[key] = _pair(value, key)
@@ -893,6 +913,10 @@ _GETTERS: dict[str, Callable[[Column], Any]] = {
     "BeamShift": lambda c: _v2(c._s.beam_shift_um),
     "BeamTilt": lambda c: _v2(c._s.beam_tilt_mrad, BEAM_TILT_MRAD_PER_UNIT),
     "DiffractionShift": lambda c: _v2(c._s.diffraction_shift_mrad, DIFF_SHIFT_MRAD_PER_UNIT),
+    "Precession": lambda c: bool(c._s.precession_on),
+    "PrecessionAngle": lambda c: float(c._s.precession_mrad),
+    "PrecessionFrequency": lambda c: float(c._s.precession_hz),
+    "PrecessionDescan": lambda c: bool(c._s.precession_descan),
     "ObjectiveStig": lambda c: _v2(c._s.objective_stig),
     "CondenserStig": lambda c: _v2(c._s.condenser_stig),
     "StagePosition": lambda c: c._stage_dict(),
@@ -985,6 +1009,10 @@ _SETTERS: dict[str, Callable[[Column, Any], None]] = {
     "BeamShift": _set_vec("beam_shift_um"),
     "BeamTilt": _set_vec("beam_tilt_mrad", BEAM_TILT_MRAD_PER_UNIT),
     "DiffractionShift": _set_vec("diffraction_shift_mrad", DIFF_SHIFT_MRAD_PER_UNIT),
+    "Precession": _set_flag("precession_on"),
+    "PrecessionAngle": _set_float("precession_mrad", 0.0, 100.0),
+    "PrecessionFrequency": _set_float("precession_hz", 0.0, 1.0e5),
+    "PrecessionDescan": _set_flag("precession_descan"),
     "ObjectiveStig": _set_vec("objective_stig"),
     "CondenserStig": _set_vec("condenser_stig"),
     "StagePosition": Column._s_stage,

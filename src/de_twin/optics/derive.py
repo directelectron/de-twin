@@ -232,7 +232,8 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     else:
         axis = (sw // 2 - rx0, sh // 2 - ry0)
     ds = state.diffraction_shift_mrad
-    center = (axis[0] + ds.x / mrad_per_px, axis[1] + ds.y / mrad_per_px)
+    bt = state.beam_tilt_mrad  # a tilted beam moves the whole pattern (no descan of tilt)
+    center = (axis[0] + (ds.x + bt.x) / mrad_per_px, axis[1] + (ds.y + bt.y) / mrad_per_px)
 
     # Dose [twin]: physical electrons
     blanked = (state.beam_blanked or not state.ht_on or not state.column_valves_open
@@ -328,6 +329,9 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         fresnel_sigma_px=float(fresnel_sigma),
         objective_stig=(float(stig.x), float(stig.y)),
         beam_tilt_mrad=(float(state.beam_tilt_mrad.x), float(state.beam_tilt_mrad.y)),
+        precession_mrad=float(state.precession_mrad) if state.precession_on else 0.0,
+        precession_hz=float(state.precession_hz),
+        precession_descan=bool(state.precession_descan),
         alpha_rad=alpha_rad,
         beta_rad=beta_rad,
         thickness_tilt_factor=t_factor,

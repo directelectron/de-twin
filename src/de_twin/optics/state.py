@@ -58,6 +58,13 @@ class OpticsState:
     fresnel_sigma_px: float
     objective_stig: tuple[float, float] = (0.0, 0.0)
     beam_tilt_mrad: tuple[float, float] = (0.0, 0.0)
+    # Precession: cone half-angle (0 = off), frequency, descan; and, per frame, the
+    # phase the sweep starts at and the arc it covers (2 pi or more: the whole cone).
+    precession_mrad: float = 0.0
+    precession_hz: float = 0.0
+    precession_descan: bool = True
+    precession_phase_rad: float = 0.0
+    precession_arc_rad: float = 6.283185307179586
 
     # Specimen orientation
     alpha_rad: float = 0.0

@@ -1,0 +1,1 @@
+Precession: the column's ``Precession``, ``PrecessionAngle`` (mrad), ``PrecessionFrequency`` (Hz) and ``PrecessionDescan`` drive the beam tilt round a cone; SAED and kinematic 4D-STEM patterns average over the tilts swept during each frame (the whole cone, or the arc a frame shorter than the period covers). Without descan the pattern sweeps round a ring.

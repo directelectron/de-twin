@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+import math
 from collections import OrderedDict
 from typing import Optional
 
@@ -36,6 +37,30 @@ from .tem import TransferCache, render_tem
 TEM_LAYERS = frozenset()
 SAED_LAYERS = frozenset()
 STEM_LAYERS = frozenset({LAYER_DESCAN, LAYER_STRAIN})
+
+
+#: Precession phases are quantised to this many steps of the cone, so frames that cover
+#: only part of it share a handful of cached patterns.
+PRECESSION_PHASES = 24
+
+
+def _precession_frame(optics, time_s: float):
+    """The optics of one frame under precession: the sweep's phase at its start and the
+    arc it covers in the exposure. A frame shorter than a precession period sees part of
+    the cone, as a real one does. (`Renderer.datacube`, `virtual_image` and `ground_truth`
+    are noiseless summaries: they show the whole cone.)"""
+    theta = float(getattr(optics, "precession_mrad", 0.0))
+    hz = float(getattr(optics, "precession_hz", 0.0))
+    if theta <= 0.0 or hz <= 0.0:
+        return optics
+    exposure = float(optics.extras.get("exposure_s", 0.0) or 0.0)
+    arc = 2.0 * math.pi * hz * exposure if exposure > 0 else 2.0 * math.pi
+    if arc >= 2.0 * math.pi:
+        return dataclasses.replace(optics, precession_phase_rad=0.0, precession_arc_rad=2.0 * math.pi)
+    step = 2.0 * math.pi / PRECESSION_PHASES
+    phase = (2.0 * math.pi * hz * float(time_s)) % (2.0 * math.pi)
+    arc = max(step, round(arc / step) * step)
+    return dataclasses.replace(optics, precession_phase_rad=round(phase / step) * step, precession_arc_rad=arc)
 
 
 class Renderer:
@@ -240,6 +265,8 @@ class Renderer:
         if optics.beam_blanked:
             return np.zeros((h, w), np.float32)
         mode = optics.render_mode
+        if mode != RenderMode.TEM_IMAGING:  # precession only changes diffraction patterns
+            optics = _precession_frame(optics, time_s)
         if mode == RenderMode.TEM_IMAGING and self.config.pan_margin > 0 \
                 and optics.view.rotation_rad == 0.0:
             return self._render_tem_panned(optics, time_s)
