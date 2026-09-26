@@ -79,12 +79,41 @@ def _output_geometry(request: AcquisitionRequest, camera) -> tuple[tuple[int, in
     return (h, w), (x + w / 2.0 - sw / 2.0, y + h / 2.0 - sh / 2.0)
 
 
+def _tem_imaging(state: MicroscopeState) -> bool:
+    return state.tem_stem == TemStem.TEM and state.projection == Projection.IMAGING
+
+
+def _shift_terms(state: MicroscopeState, cfg: OpticsConfig) -> tuple[float, float]:
+    """Everything but the stage that moves the view centre (before the flips), um:
+    image shift (through the column's image-shift matrix), beam shift, the displacement of a
+    tilted specimen that is off eucentric height, and the magnification's image offset."""
+    isx, isy = state.image_shift_um.x, state.image_shift_um.y
+    r = cfg.realism
+    if r is not None and _tem_imaging(state):
+        isx, isy = (float(v) for v in r.is_matrix(state.mag_mode, state.magnification) @ (isx, isy))
+    x = isx + state.beam_shift_um.x
+    y = isy + state.beam_shift_um.y
+    # a specimen dz above the eucentric plane puts the point dz tan(tilt) away (specimen
+    # coordinates) on axis, which the foreshortened view images dz sin(tilt) across the axis
+    dz = state.stage.z_um + cfg.stage_offset_um[2] - cfg.eucentric_height_um
+    if dz:
+        x += dz * math.tan(math.radians(state.stage.beta_deg))
+        y += dz * math.tan(math.radians(state.stage.alpha_deg))
+    if r is not None and _tem_imaging(state):
+        ox, oy = r.mag_offset_um(state.mag_mode, state.magnification)
+        x, y = x + ox, y + oy
+    return x, y
+
+
 def view_center_um(state: MicroscopeState, cfg: OpticsConfig) -> tuple[float, float]:
     sx = -1.0 if cfg.flip_x else 1.0
     sy = -1.0 if cfg.flip_y else 1.0
     ox, oy, _ = cfg.stage_offset_um
-    cx = sx * (-(state.stage.x_um + ox) + state.image_shift_um.x + state.beam_shift_um.x)
-    cy = sy * (-(state.stage.y_um + oy) + state.image_shift_um.y + state.beam_shift_um.y)
+    err = getattr(state, "stage_error_um", None)
+    ex, ey = (err.x, err.y) if err is not None else (0.0, 0.0)
+    tx, ty = _shift_terms(state, cfg)
+    cx = sx * (-(state.stage.x_um + ox + ex) + tx)
+    cy = sy * (-(state.stage.y_um + oy + ey) + ty)
     return cx, cy
 
 
@@ -95,8 +124,11 @@ def stage_for_view_center(center_um: tuple[float, float], state: MicroscopeState
     sx = -1.0 if cfg.flip_x else 1.0
     sy = -1.0 if cfg.flip_y else 1.0
     ox, oy, _ = cfg.stage_offset_um
-    x = -(center_um[0] / sx - state.image_shift_um.x - state.beam_shift_um.x) - ox
-    y = -(center_um[1] / sy - state.image_shift_um.y - state.beam_shift_um.y) - oy
+    err = getattr(state, "stage_error_um", None)
+    ex, ey = (err.x, err.y) if err is not None else (0.0, 0.0)
+    tx, ty = _shift_terms(state, cfg)
+    x = -(center_um[0] / sx - tx) - ox - ex
+    y = -(center_um[1] / sy - ty) - oy - ey
     return x, y
 
 
@@ -123,6 +155,10 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         nm_per_px = calibration.specimen_pixel_nm(state, camera) if state.tem_stem == TemStem.TEM else 0.0
         if not nm_per_px > 0:
             nm_per_px = float(cfg.fallback_pixel_nm)
+    # What the column's calibration says, and (realism) what the camera really sees
+    nominal_nm_per_px = nm_per_px
+    if cfg.realism is not None and _tem_imaging(state) and cfg.pixel_size_override_nm <= 0:
+        nm_per_px = nm_per_px * cfg.realism.pixel_scale(state.mag_mode, state.magnification)
 
     # Reciprocal space
     cl_mm = state.camera_length_mm if state.camera_length_mm > 0 else cfg.default_camera_length_mm
@@ -187,6 +223,8 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         cx += roi_offset_px[0] * nm_per_px / 1000.0 / cos_x
         cy += roi_offset_px[1] * nm_per_px / 1000.0 / cos_y
     rotation = math.radians(scan.rotation_deg) if scanning else 0.0
+    if cfg.realism is not None and mode == RenderMode.TEM_IMAGING and not scanning:
+        rotation = cfg.realism.rotation_rad(state.mag_mode, state.magnification)
     view = ViewWindow(center_um=(cx, cy), pixel_um=raster_nm / 1000.0, shape=(int(ry), int(rx)),
                       rotation_rad=rotation, cos_alpha=cos_y, cos_beta=cos_x)
 
@@ -232,7 +270,8 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     else:
         axis = (sw // 2 - rx0, sh // 2 - ry0)
     ds = state.diffraction_shift_mrad
-    center = (axis[0] + ds.x / mrad_per_px, axis[1] + ds.y / mrad_per_px)
+    bt = state.beam_tilt_mrad  # a tilted beam moves the whole pattern (no descan of tilt)
+    center = (axis[0] + (ds.x + bt.x) / mrad_per_px, axis[1] + (ds.y + bt.y) / mrad_per_px)
 
     # Dose [twin]: physical electrons
     blanked = (state.beam_blanked or not state.ht_on or not state.column_valves_open
@@ -293,6 +332,7 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         "illumination_semi_angle_mrad": theta_ill_mrad,
         "stem_step_nm": step_nm,
         "probe_blend_offset_px": (0.5 * probe_d / step_nm) if step_nm > 0 else 0.0,
+        "nominal_pixel_nm": float(nominal_nm_per_px),
         "render_nm_per_px": render_nm,
         "view_center_um": (cx, cy),
         "roi_offset_px": roi_offset_px,
@@ -328,6 +368,9 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         fresnel_sigma_px=float(fresnel_sigma),
         objective_stig=(float(stig.x), float(stig.y)),
         beam_tilt_mrad=(float(state.beam_tilt_mrad.x), float(state.beam_tilt_mrad.y)),
+        precession_mrad=float(state.precession_mrad) if state.precession_on else 0.0,
+        precession_hz=float(state.precession_hz),
+        precession_descan=bool(state.precession_descan),
         alpha_rad=alpha_rad,
         beta_rad=beta_rad,
         thickness_tilt_factor=t_factor,

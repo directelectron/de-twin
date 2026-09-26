@@ -33,7 +33,7 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Optional
 
 HOLDERS = ("mesh_grid", "waffle_grid", "fib_liftout", "insitu_heating_chip")
-PREPARATIONS = ("nanoparticles", "proteins", "thin_film", "bulk", "time_evolving")
+PREPARATIONS = ("nanoparticles", "proteins", "thin_film", "bulk", "time_evolving", "cross_grating")
 FILMS = ("holey", "lacey", "continuous", "none", "vitreous_ice", "auto")
 FIB_POST_SAMPLES = ("auto", "precipitate_matrix", "pn_junction", "strained_inclusion",
                     "polycrystal", "multilayer")
@@ -79,6 +79,9 @@ class SpecimenOptions:
     # -- deposited thin film -----------------------------------------------------------------
     grain_size_nm: float = _opt(150.0, 2.0, 5000.0, "Median grain size (fine lattice) of a deposited film.")
     deposited_film_thickness_nm: float = _opt(40.0, 1.0, 1000.0, "Nominal deposited-film thickness.")
+    grating_lines_per_mm: float = _opt(2160.0, 10.0, 10000.0, "Cross grating: lines per mm (period 1/that).")
+    grating_base_nm: float = _opt(20.0, 0.0, 500.0, "Cross grating: carbon film under the ridges, nm.")
+    grating_depth_nm: float = _opt(40.0, 0.0, 500.0, "Cross grating: ridge height, nm.")
     pinhole_fraction: float = _opt(0.03, 0.0, 1.0, "Fraction of the film area that is a pinhole.")
     crack_density_per_um: float = _opt(0.02, 0.0, 5.0, "Film cracks per micrometre.")
     thin_film_material: str = _opt("auto", doc="Deposited-film material; 'auto' = gold on a waffle "
@@ -280,6 +283,7 @@ _PRESET_TABLE: dict[str, tuple[str, str, str, dict]] = {
         film_thickness_nm=12.0, ice_thickness_nm=60.0, protein_diameter_nm=18.0,
         protein_density_per_um2=900.0, negative_stain_fraction=0.9, dose_fading_per_step=0.0,
         dose_rate_counts_per_s=4000.0)),
+    "Cross grating 2160 l/mm": ("mesh_grid", "cross_grating", "none", dict()),
     "Au thin film 20 nm": ("mesh_grid", "thin_film", "continuous", dict(
         deposited_film_thickness_nm=20.0, grain_size_nm=30.0, pinhole_fraction=0.02,
         crack_density_per_um=0.0, thin_film_material="gold")),

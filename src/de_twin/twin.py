@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 
+import math
 import threading
 from typing import Iterator, Optional, Union
 
@@ -98,6 +99,8 @@ class DigitalTwin:
 
         self.calibration = calibration or Calibration.default()
         self.optics_config = optics_config or OpticsConfig()
+        if self.optics_config.realism is not None and column is None:
+            self.column.backlash_um = float(self.optics_config.realism.backlash_um)
         self.renderer = Renderer(self.specimen, render_config)
         # Only a column the twin built is its to move: a supplied one may be a mirror of
         # real hardware, whose stage and beam are the operator's.
@@ -420,6 +423,37 @@ class DigitalTwin:
             t = self.clock.now()
             self.specimen.update(t, self.holder_state(t))
             return self.renderer.ground_truth_ptychography(optics, time_s=t)
+
+    def calibration_truth(self, request: Optional[AcquisitionRequest] = None) -> dict:
+        """What SerialEM's calibrations should find at the column's current state: the true
+        pixel size against the nominal one, the image rotation on the camera, the image-shift
+        matrix, the magnification's image offset, the stage's backlash error and how far the
+        specimen is off eucentric height. For closed-loop tests: calibrate the twin, then
+        compare. An ideal column (no ``OpticsConfig.realism``) reports the identities."""
+        request = request or self.request()
+        state = self.column.state()
+        o = self.optics(request, state)
+        cfg = self.optics_config
+        r = cfg.realism
+        imaging = o.render_mode == RenderMode.TEM_IMAGING
+        out = {
+            "magnification": float(state.magnification),
+            "mag_mode": str(state.mag_mode),
+            "nominal_pixel_nm": float(o.extras.get("nominal_pixel_nm", o.specimen_pixel_nm)),
+            "true_pixel_nm": float(o.specimen_pixel_nm),
+            "image_rotation_deg": math.degrees(o.view.rotation_rad) if imaging else 0.0,
+            "is_matrix_um_per_unit": [[1.0, 0.0], [0.0, 1.0]],
+            "mag_offset_um": (0.0, 0.0),
+            "stage_error_um": (float(state.stage_error_um.x), float(state.stage_error_um.y)),
+            "backlash_um": float(self.column.backlash_um) if hasattr(self.column, "backlash_um") else 0.0,
+            "eucentric_offset_um": float(state.stage.z_um + cfg.stage_offset_um[2] - cfg.eucentric_height_um),
+            "flip": (bool(cfg.flip_x), bool(cfg.flip_y)),
+        }
+        if r is not None and imaging:
+            t = r.truth(state.mag_mode, state.magnification)
+            out["is_matrix_um_per_unit"] = t["is_matrix_um_per_unit"]
+            out["mag_offset_um"] = tuple(t["mag_offset_um"])
+        return out
 
     def ground_truth(self, request: Optional[AcquisitionRequest] = None, *, as_arrays: bool = False):
         """Phase + effective orientation (grain x stage tilt) per STEM scan point, or per raster
