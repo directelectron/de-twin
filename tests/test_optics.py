@@ -152,7 +152,8 @@ def test_view_centre_sign_convention():
     assert o.view.center_um == pytest.approx((-1.0, 2.0))
     s = _state(image_shift_um=Vec2(0.5, 0.25), beam_shift_um=Vec2(0.1, 0.0))
     o = _derive(s)
-    assert o.view.center_um == pytest.approx((0.6, 0.25))
+    assert o.view.center_um == pytest.approx((0.5, 0.25)), "beam shift moves the beam, not the image"
+    assert o.beam_offset_px == pytest.approx((0.1 / o.view.pixel_um, 0.0), rel=1e-6)
     s = _state()
     s.stage.x_um = 1.0
     o = _derive(s, cfg=OpticsConfig(flip_x=True, stage_offset_um=(0.5, 0.0, 0.0)))
@@ -348,3 +349,36 @@ def test_max_raster_pixels_zero_renders_at_the_frame_sampling():
     assert native.view.pixel_um == pytest.approx(0.325e-3)
     mid = _derive(_state(magnification=20000), cfg=OpticsConfig(max_raster_pixels=2048 * 2048))
     assert mid.raster_downsample == 2
+
+
+def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes():
+    from de_twin.state import Projection
+
+    doses = {}
+    for zoom in (False, True):
+        cfg = OpticsConfig(intensity_zoom=zoom)
+        doses[zoom] = [_derive(_state(magnification=m), cfg=cfg).dose_e_per_px_s
+                       for m in (5000, 20000, 80000)]
+    assert doses[True][0] == pytest.approx(doses[True][1], rel=1e-6)
+    assert doses[True][2] == pytest.approx(doses[True][1], rel=1e-6)
+    assert doses[False][0] > 10 * doses[False][2], "without it, dose/px goes as 1/mag^2"
+    # at the reference magnification the two agree
+    ref = OpticsConfig().intensity_zoom_reference_mag
+    s = _state(magnification=ref)
+    assert _derive(s, cfg=OpticsConfig(intensity_zoom=True)).dose_e_per_px_s == pytest.approx(
+        _derive(s).dose_e_per_px_s, rel=1e-6)
+    # diffraction is left alone
+    d = _state(magnification=5000, projection=Projection.DIFFRACTION)
+    assert _derive(d, cfg=OpticsConfig(intensity_zoom=True)).illuminated_diameter_um == pytest.approx(
+        _derive(d).illuminated_diameter_um)
+
+
+def test_beam_shift_moves_a_scan_even_on_a_column_that_reports_tem():
+    """A 4D-STEM request on a column in TEM (DE-Server's Scan - Enable) is a scan: beam shift
+    moves the probe, i.e. the scanned area."""
+    r = AcquisitionRequest()
+    r.scan.enabled = True
+    a = _derive(_state(), request=r)
+    b = _derive(_state(beam_shift_um=Vec2(0.5, 0.0)), request=r)
+    assert a.render_mode == RenderMode.STEM_4D
+    assert b.view.center_um[0] - a.view.center_um[0] == pytest.approx(0.5)

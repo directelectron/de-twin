@@ -1,0 +1,1 @@
+The realistic column (``OpticsConfig.realistic``) has a C2 crossover (the beam converges to its smallest at an Intensity that varies by spot size and probe mode, and spreads again past it) and a beam-shift matrix; ``calibration_truth()`` reports both. Closed-loop tests run SerialEM's Beam Crossover and Beam Shift calibrations against them.
