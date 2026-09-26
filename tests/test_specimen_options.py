@@ -3,12 +3,12 @@ import pytest
 from de_twin.specimen import LEGACY_ALIASES, PATTERNS, PRESETS, SpecimenConfig, SpecimenOptions, from_name
 
 
-def test_twelve_presets_and_six_patterns():
-    assert len(PRESETS) == 12
+def test_thirteen_presets_and_six_patterns():
+    assert len(PRESETS) == 13
     assert {"Sparse Au on holey C", "Dense Au on holey C", "Au clusters on lacey C", "Custom",
             "Apoferritin in ice", "Negative stain on carbon", "Au thin film 20 nm", "Al thin film 100 nm",
             "Steel lamella with carbides", "PN junction lamella", "Strained inclusion lamella",
-            "Droplet crystallization"} == set(PRESETS)
+            "Droplet crystallization", "Cross grating 2160 l/mm"} == set(PRESETS)
     virtual = [n for n in PATTERNS if n.startswith("Virtual Specimen - ")]
     assert len(virtual) == 6
     assert set(LEGACY_ALIASES) <= set(PATTERNS) and len(LEGACY_ALIASES) == 4

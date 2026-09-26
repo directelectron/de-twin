@@ -145,12 +145,52 @@ def _rings(owner, weight, g, gw, width):
             np.stack([np.tile(g, len(o)), np.full(len(o) * len(g), width), (w[:, None] * gw).ravel()], 1))
 
 
-def _excite_buckets(lib, grains, gids, t_nm, optics):
+def beam_tilt_rotation(tilt_rad) -> np.ndarray:
+    """The lab rotation equivalent to tilting the incident beam by *tilt_rad* = (tx, ty):
+    the Ewald sphere tilts with the beam, which is the crystal tilting the other way.
+    Tilting the beam towards -g by the Bragg angle excites +g."""
+    tx, ty = (float(v) for v in tilt_rad)
+    if tx == 0.0 and ty == 0.0:
+        return np.eye(3)
+    from scipy.spatial.transform import Rotation
+
+    return Rotation.from_rotvec([-ty, tx, 0.0]).as_matrix()
+
+
+def tilt_samples(optics, n_cone: int = 24) -> list:
+    """The beam tilts one exposure averages over, as ``(tilt_rad, weight, shift_inv_nm)``:
+    the static beam tilt, or with precession `n_cone` tilts on the cone swept during the
+    frame (its arc, from its phase). ``shift`` is where the pattern lands relative to the
+    static diffraction centre: nothing with descan, the tilt itself without. (Without
+    descan only the Bragg spots and the direct beam sweep; rings and the diffuse
+    background stay centred, a simplification.)"""
+    bx, by = (v * 1e-3 for v in getattr(optics, "beam_tilt_mrad", (0.0, 0.0)))
+    theta = float(getattr(optics, "precession_mrad", 0.0)) * 1e-3
+    if theta <= 0.0:
+        return [((bx, by), 1.0, (0.0, 0.0))]
+    arc = float(getattr(optics, "precession_arc_rad", 2.0 * math.pi))
+    phase = float(getattr(optics, "precession_phase_rad", 0.0))
+    n = n_cone if arc >= 2.0 * math.pi else max(2, int(math.ceil(n_cone * arc / (2.0 * math.pi))))
+    step = min(arc, 2.0 * math.pi) / n
+    lam = optics.wavelength_nm
+    descan = bool(getattr(optics, "precession_descan", True))
+    out = []
+    for j in range(n):
+        phi = phase + (j + 0.5) * step
+        px, py = theta * math.cos(phi), theta * math.sin(phi)
+        shift = (0.0, 0.0) if descan else (px / lam, py / lam)
+        out.append(((bx + px, by + py), 1.0 / n, shift))
+    return out
+
+
+def _excite_buckets(lib, grains, gids, t_nm, optics, tilt_rad=(0.0, 0.0)):
     """Excitation of (grain, thickness) buckets: each distinct grain is evaluated once over the
     distinct thicknesses, then expanded to its buckets. Returns (owner bucket, gx, gy, I, P)."""
     ug, ginv = np.unique(gids, return_inverse=True)
     ut, tinv = np.unique(t_nm, return_inverse=True)
     m = effective_matrices(grains.matrices[ug], optics.alpha_rad, optics.beta_rad)
+    if tilt_rad[0] != 0.0 or tilt_rad[1] != 0.0:
+        m = np.einsum("ij,njk->nik", beam_tilt_rotation(tilt_rad), m)
     if len(ug) * len(ut) > 4 * len(gids) + 64:  # scattered thicknesses: one orientation per bucket
         ex = lib.excite(m[ginv], optics.wavelength_nm, t_nm, optics.ht_kv, optics.convergence_mrad)
         return ex.owner, ex.gx, ex.gy, ex.intensity, ex.total
@@ -169,7 +209,46 @@ def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
                     options: PatternOptions = PatternOptions()) -> PatternSet:
     """Normalised patterns of N buckets (material, grain, thickness, crystallinity). Crystalline
     buckets with a grain use the exact excitation at the grain's effective orientation (grain x
-    stage tilt); crystalline buckets without one the powder (orientation) average."""
+    stage tilt x beam tilt); crystalline buckets without one the powder (orientation) average.
+    With precession, the average over the tilts of the cone (`tilt_samples`)."""
+    samples = tilt_samples(optics)
+    if len(samples) == 1 and samples[0][2] == (0.0, 0.0):
+        return _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, samples[0][0])
+    base = (np.asarray(mats, np.int64).tobytes(), np.asarray(gids, np.int64).tobytes(),
+            np.asarray(t_nm, float).tobytes(), np.asarray(cryst, float).tobytes(), id(grains),
+            float(optics.alpha_rad), float(optics.beta_rad), float(optics.wavelength_nm),
+            float(optics.ht_kv), float(optics.convergence_mrad), options)
+
+    def at(tilt):
+        key = (base, round(tilt[0], 12), round(tilt[1], 12))
+        hit = _CONE_CACHE.get(key)
+        if hit is not None and hit[0] is grains:
+            _CONE_CACHE.move_to_end(key)
+            return hit[1]
+        ps = _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt)
+        _CONE_CACHE[key] = (grains, ps)
+        while len(_CONE_CACHE) > CONE_CACHE_SIZE:
+            _CONE_CACHE.popitem(last=False)
+        return ps
+
+    parts = [(at(tilt), w, sh) for tilt, w, sh in samples]
+    n = parts[0][0].n
+    spots = np.concatenate([p.spots * [1.0, 1.0, w] + [sh[0], sh[1], 0.0] for p, w, sh in parts])
+    s_own = np.concatenate([p.spot_owner for p, _, _ in parts])
+    rings = np.concatenate([p.rings * [1.0, 1.0, w] for p, w, _ in parts])
+    r_own = np.concatenate([p.ring_owner for p, _, _ in parts])
+    si, ri = np.argsort(s_own, kind="stable"), np.argsort(r_own, kind="stable")
+    return PatternSet(n, spots[si], s_own[si], rings[ri], r_own[ri])
+
+
+#: Pattern sets per precession tilt, so a frame that covers part of the cone re-weights
+#: cached tilts instead of exciting every grain again (two full cones' worth).
+CONE_CACHE_SIZE = 48
+_CONE_CACHE: "OrderedDict[tuple, tuple]" = OrderedDict()
+
+
+def _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt_rad) -> PatternSet:
+    """`bucket_patterns` for one incident-beam tilt (radians)."""
     mats = np.asarray(mats, np.int64)
     gids = np.asarray(gids, np.int64)
     t_nm = np.asarray(t_nm, float)
@@ -196,7 +275,8 @@ def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
             lib = library_for(int(mid), options.max_g_inv_nm)
             if has.any() and lib is not None:  # an amorphous material scatters no Bragg beams
                 own = sel[has]
-                owner, gx, gy, inten, total = _excite_buckets(lib, grains, gids[own], t_nm[own], optics)
+                owner, gx, gy, inten, total = _excite_buckets(lib, grains, gids[own], t_nm[own], optics,
+                                                              tilt_rad)
                 bragg = cryst[own] * bragg_fraction(total)
                 w = inten * np.where(total > 0, bragg / np.maximum(total, 1e-300), 0.0)[owner]
                 keep = w > MIN_SPOT_WEIGHT  # the dropped remainder stays in the direct beam
