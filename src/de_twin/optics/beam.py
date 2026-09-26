@@ -85,10 +85,27 @@ def illuminated_diameter_um(state: MicroscopeState, cfg: OpticsConfig | None = N
         return cfg.nanoprobe_illuminated_um * spot / cfg.reference_spot
     x = float(np.clip(state.intensity, 0.0, 1.0))
     d = cfg.illum_min_diameter_um * (cfg.illum_max_diameter_um / cfg.illum_min_diameter_um) ** x
+    if _intensity_zoom(state, cfg):
+        # the condenser tracks the field of view (LowMAG included: no separate spread)
+        return float(d * cfg.intensity_zoom_reference_mag / float(state.magnification))
     mode = "".join(ch for ch in str(state.mag_mode).lower() if ch.isalnum())
     if mode.startswith("low") or mode == "lm":
         d *= cfg.lowmag_illumination_factor
     return float(d)
+
+
+def _intensity_zoom(state: MicroscopeState, cfg: OpticsConfig) -> bool:
+    """Intensity zoom applies to TEM imaging with a known magnification."""
+    if not getattr(cfg, "intensity_zoom", False) or not state.magnification or state.magnification <= 0:
+        return False
+    if cfg.intensity_zoom_reference_mag <= 0:
+        return False
+    try:
+        from ..state import Projection, TemStem
+
+        return state.tem_stem == TemStem.TEM and state.projection == Projection.IMAGING
+    except Exception:  # noqa: BLE001 - an odd state: no zoom
+        return False
 
 
 def illumination_semi_angle_mrad(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:

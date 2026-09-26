@@ -72,6 +72,13 @@ class OpticsConfig:
     illum_reference_diameter_um: float = 3.1623
     nanoprobe_illuminated_um: float = 0.20  # C++ kNanoprobeIlluminatedAreaUm (TEM-mode nanoprobe)
     lowmag_illumination_factor: float = 30.0  # LowMAG condenser setting spreads the beam this much more
+    #: Intensity zoom (TFS "Intensity Zoom"): in TEM imaging the condenser follows the
+    #: magnification, so the illuminated area keeps its size relative to the field of
+    #: view and the dose per detector pixel stays put as the operator zooms. Intensity
+    #: then sets the beam at `intensity_zoom_reference_mag` (and so at every mag). Off:
+    #: the dose per pixel goes as 1/mag^2 and zooming out saturates the camera.
+    intensity_zoom: bool = False
+    intensity_zoom_reference_mag: float = 20000.0
 
     # ---- aberrations / coherence (twin additions) --------------------------
     cs_mm: float = 1.2
