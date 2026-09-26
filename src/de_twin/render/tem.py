@@ -244,6 +244,24 @@ def _kgrid(shape, pitch_nm):
     return kx, ky
 
 
+def _raster_tilt(optics) -> tuple[float, float]:
+    """The beam tilt (1/nm) in the raster's frame: the tilt coils sit above the specimen, so
+    a tilt is a specimen-plane (world) direction, turned by the view's rotation and flips
+    like everything else on the camera."""
+    lam = optics.wavelength_nm
+    wx, wy = (v / 1000.0 / lam for v in optics.beam_tilt_mrad)
+    view = optics.view
+    rot = float(getattr(view, "rotation_rad", 0.0))
+    if rot:
+        c, s = math.cos(rot), math.sin(rot)
+        wx, wy = c * wx + s * wy, -s * wx + c * wy
+    if getattr(view, "flip_x", False):
+        wx = -wx
+    if getattr(view, "flip_y", False):
+        wy = -wy
+    return wx, wy
+
+
 def transfer_function(shape, pitch_nm, optics) -> np.ndarray | None:
     """Objective transfer H(k) (complex64, FFT layout) or None when it is ~identity.
 
@@ -252,7 +270,7 @@ def transfer_function(shape, pitch_nm, optics) -> np.ndarray | None:
     ``chi(k + k_t) - chi(k_t)`` and the envelopes use ``grad chi(k + k_t) - grad chi(k_t)``."""
     lam = optics.wavelength_nm
     ab = image_aberrations_of(optics)
-    tx, ty = (v / 1000.0 / lam for v in optics.beam_tilt_mrad)
+    tx, ty = _raster_tilt(optics)
     alpha = optics.illumination_mrad / 1000.0
     delta = optics.focal_spread_nm
     kap = optics.objective_aperture_mrad / 1000.0 / lam if optics.objective_aperture_mrad > 0 else 0.0
@@ -300,18 +318,33 @@ def transfer_function(shape, pitch_nm, optics) -> np.ndarray | None:
     return H
 
 
+def _world_locked_noise(view, seed: int, salt: int) -> np.ndarray:
+    """Unit white noise on the raster of *view*, each pixel the value of the world cell under
+    it (cells of pitch (px / cos_beta, px / cos_alpha)), so it moves with the specimen. An
+    unrotated view reads a block of cells directly; a rotated one (a realistic column's
+    image rotation) takes each pixel's nearest cell."""
+    ny, nx = view.shape
+    pitch_x = view.pixel_um / view.cos_beta
+    pitch_y = view.pixel_um / view.cos_alpha
+    if not getattr(view, "rotation_rad", 0.0) and not getattr(view, "flip_x", False)             and not getattr(view, "flip_y", False):
+        ix0 = int(round(view.center_um[0] / pitch_x + (0.5 - nx / 2.0)))
+        iy0 = int(round(view.center_um[1] / pitch_y + (0.5 - ny / 2.0)))
+        return world_normal_noise(ix0, iy0, ny, nx, seed, salt)
+    rows, cols = np.mgrid[0:ny, 0:nx]
+    x, y = view.pixel_to_world(rows.ravel(), cols.ravel())
+    ix = np.floor(np.asarray(x) / pitch_x).astype(np.int64)
+    iy = np.floor(np.asarray(y) / pitch_y).astype(np.int64)
+    x0, y0 = int(ix.min()), int(iy.min())
+    block = world_normal_noise(x0, y0, int(iy.max()) - y0 + 1, int(ix.max()) - x0 + 1, seed, salt)
+    return block[iy - y0, ix - x0].reshape(ny, nx)
+
+
 def texture_noise(optics, cfg, seed: int) -> np.ndarray:
     """World-locked unit white noise on the raster, band-limited by the atomic form factor."""
     view = optics.view
-    ny, nx = view.shape
     p_nm = view.pixel_um * 1000.0
-    # world cell of raster pixel (row, col): pitch (px/cos_beta, px/cos_alpha); TEM rotation is 0
-    pitch_x = view.pixel_um / view.cos_beta
-    pitch_y = view.pixel_um / view.cos_alpha
-    ix0 = int(round(view.center_um[0] / pitch_x + (0.5 - nx / 2.0)))
-    iy0 = int(round(view.center_um[1] / pitch_y + (0.5 - ny / 2.0)))
     salt = cfg.texture_seed_salt ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
-    noise = world_normal_noise(ix0, iy0, ny, nx, seed, salt)
+    noise = _world_locked_noise(view, seed, salt)
     sb = cfg.texture_bandlimit_nm / p_nm
     if sb > 0.3:
         noise = ndimage.gaussian_filter(noise, sb, mode="wrap")
@@ -330,10 +363,6 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
     view = fm.view
     ny, nx = view.shape
     p_nm = view.pixel_um * 1000.0
-    pitch_x = view.pixel_um / view.cos_beta
-    pitch_y = view.pixel_um / view.cos_alpha
-    ix0 = int(round(view.center_um[0] / pitch_x + (0.5 - nx / 2.0)))
-    iy0 = int(round(view.center_um[1] / pitch_y + (0.5 - ny / 2.0)))
     ky = sfft.fftfreq(ny, p_nm).astype(np.float32)[:, None]
     kx = sfft.fftfreq(nx, p_nm).astype(np.float32)[None, :]
     k2 = kx * kx + ky * ky
@@ -343,7 +372,7 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
             continue
         k0 = screening_angle_mrad(m, optics.wavelength_nm) / (1000.0 * optics.wavelength_nm)
         salt = (cfg.texture_seed_salt * 31 + 7919 * int(m)) ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
-        noise = world_normal_noise(ix0, iy0, ny, nx, seed, salt)
+        noise = _world_locked_noise(view, seed, salt)
         psd = np.float32(1.0) / (k2 + np.float32(k0 * k0)) ** 2
         psd[k2 > np.float32(k_max * k_max)] = 0
         filt = np.sqrt(psd / psd.mean()).astype(np.float32)  # unit-variance white noise stays unit variance
@@ -499,7 +528,7 @@ def render_physical(fm, optics, grains, crystallinity, cfg, seed: int, cache: Tr
         cache._put(cache.spectra, skey, spec)
     else:
         cache.spectra.move_to_end(skey)
-    hkey = (shape, p_nm, optics.wavelength_nm, image_aberrations_of(optics).key(), optics.beam_tilt_mrad,
+    hkey = (shape, p_nm, optics.wavelength_nm, image_aberrations_of(optics).key(), _raster_tilt(optics),
             optics.illumination_mrad, optics.focal_spread_nm, optics.objective_aperture_mrad)
     if hkey in cache.transfer:
         H = cache.transfer[hkey]
@@ -548,8 +577,9 @@ def finish_tem(img, optics, cfg) -> np.ndarray:
         ny, nx = view.shape
         d = max(1, optics.raster_downsample)
         off = optics.extras.get("roi_offset_px", (0.0, 0.0))
-        cx = (nx - 1) / 2.0 - off[0] / d
-        cy = (ny - 1) / 2.0 - off[1] / d
+        bo = getattr(optics, "beam_offset_px", (0.0, 0.0))
+        cx = (nx - 1) / 2.0 - off[0] / d + bo[0]
+        cy = (ny - 1) / 2.0 - off[1] / d + bo[1]
         radius = optics.illuminated_diameter_um * 1000.0 / 2.0 / (view.pixel_um * 1000.0)
         prof = disk_profile(view.shape, cx, cy, radius, max(0.5, 0.01 * radius))
         if prof is not None:

@@ -1,0 +1,171 @@
+"""A realistic column's geometry: what SerialEM's calibrations exist to measure.
+
+The ideal twin (the default) has none of this: the image never rotates, the pixel size is the
+nominal one, image shift moves the specimen one micrometre per unit along the camera's axes,
+changing magnification keeps the same point on axis, and the stage lands where it is told.
+A real column does none of those, and every one of them is a calibration:
+
+========================  =====================================================  =======================
+effect                    model                                                  SerialEM calibration
+========================  =====================================================  =======================
+image rotation            per imaging mode a base angle, per magnification a     Image & Stage Shift,
+                          few degrees of jitter (LowMAG and MAG1 differ by a     stage calibration
+                          large angle)
+true pixel size           nominal x (1 + a few % per magnification)              Pixel Size
+image-shift matrix        per magnification a 2x2 of scale, skew and rotation   Image Shift
+                          mapping image-shift units to specimen micrometres
+magnification offsets     per magnification a shift of the image centre          Mag IS offsets
+                          (a fraction of its field of view)
+stage backlash            the stage stops short by half the backlash, against   stage backlash
+                          the direction it came from                              correction
+========================  =====================================================  =======================
+
+Every value is a deterministic function of ``seed`` and (imaging mode, magnification), so a
+twin reproduces its column; :meth:`ColumnRealism.truth` reports them for closed-loop tests.
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass
+
+import numpy as np
+
+
+def _u(seed: int, *parts) -> float:
+    """A uniform in [0, 1) from the seed and any non-negative integers (numpy's SeedSequence:
+    stable across versions and platforms)."""
+    words = [0x5E4A, int(seed) & 0xFFFFFFFF] + [int(p) & 0xFFFFFFFF for p in parts]
+    return float(np.random.default_rng(np.random.SeedSequence(words)).random())
+
+
+def _n(seed: int, *parts) -> float:
+    """A standard normal from the seed and any integers (Box-Muller on two uniforms)."""
+    a = max(_u(seed, *parts, 1), 1e-12)
+    b = _u(seed, *parts, 2)
+    return math.sqrt(-2.0 * math.log(a)) * math.cos(2.0 * math.pi * b)
+
+
+_MODES = {"lowmag": 1, "lm": 1, "mag1": 2, "m": 2, "mag2": 3, "mh": 3, "samag": 4, "sa": 4}
+
+
+def _mode_id(mag_mode) -> int:
+    return _MODES.get("".join(ch for ch in str(mag_mode).lower() if ch.isalnum()), 2)
+
+
+@dataclass(frozen=True)
+class ColumnRealism:
+    """The imperfect geometry of a real column (see the module docstring)."""
+
+    seed: int = 0
+    #: Spread of the per-magnification image rotation around its mode's base angle, degrees.
+    rotation_jitter_deg: float = 2.0
+    #: The base angle of each imaging mode is drawn over the full circle.
+    image_rotation: bool = True
+    #: Spread of true / nominal pixel size, per magnification (fraction).
+    pixel_scale_sigma: float = 0.02
+    #: Image-shift matrix: spread of each axis's scale, of the skew, and of its rotation (deg).
+    is_scale_sigma: float = 0.05
+    is_skew_sigma: float = 0.02
+    is_rotation_sigma_deg: float = 3.0
+    #: Image-centre offset on a magnification change, as a fraction of that mag's field width.
+    mag_offset_fraction: float = 0.02
+    #: The stage stops short by half of this against its approach direction, micrometres.
+    backlash_um: float = 0.3
+    #: Beam-shift matrix (illumination system: one for all magnifications): scale / skew /
+    #: rotation spreads, as for image shift.
+    bs_scale_sigma: float = 0.05
+    bs_skew_sigma: float = 0.02
+    bs_rotation_sigma_deg: float = 5.0
+    #: C2 crossover: the Intensity at which the beam is smallest, and its spread over spot
+    #: sizes and probe modes (SerialEM's Beam Crossover calibration).
+    crossover_intensity: float = 0.35
+    crossover_sigma: float = 0.02
+    #: Image shift images the specimen off the objective's coma-free axis: an effective beam
+    #: tilt of this many mrad per micrometre of image shift (~1 / f_obj, f_obj ~ 2.3 mm), at
+    #: a small seeded angle, and an axial astigmatism of this many nm per micrometre. What
+    #: SerialEM's coma-vs-image-shift calibration measures.
+    is_coma_mrad_per_um: float = 0.43
+    is_astig_nm_per_um: float = 15.0
+    #: High defocus weakens the objective: the magnification changes by this fraction and
+    #: the image rotates by this many degrees per micrometre of defocus (SerialEM's
+    #: high-defocus magnification / image-shift calibrations; -200 um: ~4 %, ~2 deg).
+    hd_scale_per_um: float = 2.0e-4
+    hd_rotation_deg_per_um: float = 0.01
+
+    def _key(self, mag_mode, mag: float) -> tuple[int, int]:
+        return _mode_id(mag_mode), int(round(float(mag)))
+
+    def rotation_rad(self, mag_mode, mag: float) -> float:
+        """How far the image is rotated on the camera, radians (world -> camera)."""
+        if not self.image_rotation:
+            return 0.0
+        mode, m = self._key(mag_mode, mag)
+        base = 2.0 * math.pi * _u(self.seed, 11, mode)
+        return base + math.radians(self.rotation_jitter_deg) * _n(self.seed, 12, mode, m)
+
+    def pixel_scale(self, mag_mode, mag: float) -> float:
+        """True pixel size / nominal pixel size."""
+        mode, m = self._key(mag_mode, mag)
+        return 1.0 + self.pixel_scale_sigma * _n(self.seed, 21, mode, m)
+
+    def is_matrix(self, mag_mode, mag: float) -> np.ndarray:
+        """2x2: specimen micrometres (world frame) per image-shift unit."""
+        mode, m = self._key(mag_mode, mag)
+        sx = 1.0 + self.is_scale_sigma * _n(self.seed, 31, mode, m)
+        sy = 1.0 + self.is_scale_sigma * _n(self.seed, 32, mode, m)
+        k = self.is_skew_sigma * _n(self.seed, 33, mode, m)
+        r = math.radians(self.is_rotation_sigma_deg) * _n(self.seed, 34, mode, m)
+        c, s = math.cos(r), math.sin(r)
+        return np.array([[c, -s], [s, c]]) @ np.array([[sx, k], [0.0, sy]])
+
+    def mag_offset_um(self, mag_mode, mag: float) -> tuple[float, float]:
+        """Where this magnification puts the image centre, relative to the ideal, micrometres:
+        `mag_offset_fraction` of a nominal field of 1e5 / mag um (5 um at 20 kx)."""
+        mode, m = self._key(mag_mode, mag)
+        f = self.mag_offset_fraction * 1.0e5 / max(float(mag), 1.0)
+        return f * _n(self.seed, 41, mode, m), f * _n(self.seed, 42, mode, m)
+
+    def bs_matrix(self) -> np.ndarray:
+        """2x2: specimen micrometres (world frame) per beam-shift unit."""
+        sx = 1.0 + self.bs_scale_sigma * _n(self.seed, 51)
+        sy = 1.0 + self.bs_scale_sigma * _n(self.seed, 52)
+        k = self.bs_skew_sigma * _n(self.seed, 53)
+        r = math.radians(self.bs_rotation_sigma_deg) * _n(self.seed, 54)
+        c, s = math.cos(r), math.sin(r)
+        return np.array([[c, -s], [s, c]]) @ np.array([[sx, k], [0.0, sy]])
+
+    def crossover(self, spot: int, probe_mode: int = 0) -> float:
+        """The Intensity at the C2 crossover for this spot size and probe mode."""
+        x = self.crossover_intensity + self.crossover_sigma * _n(self.seed, 61, int(spot), int(probe_mode))
+        return float(min(max(x, 0.05), 0.95))
+
+    def is_tilt_mrad(self, isx_um: float, isy_um: float) -> tuple[float, float]:
+        """The effective beam tilt (mrad) of an image shift of (x, y) specimen micrometres."""
+        a = math.radians(10.0) * _n(self.seed, 71)
+        c, s = math.cos(a), math.sin(a)
+        k = self.is_coma_mrad_per_um
+        return k * (c * isx_um - s * isy_um), k * (s * isx_um + c * isy_um)
+
+    def is_astig_nm(self, isx_um: float, isy_um: float) -> complex:
+        """The axial astigmatism A1 (complex nm) an image shift of (x, y) um adds."""
+        phase = 2.0 * math.pi * _u(self.seed, 72)
+        return self.is_astig_nm_per_um * complex(math.cos(phase), math.sin(phase)) * complex(isx_um, isy_um)
+
+    def defocus_scale(self, defocus_um: float) -> float:
+        """True pixel size factor at this defocus (the magnification drops as it grows)."""
+        return 1.0 + self.hd_scale_per_um * abs(float(defocus_um))
+
+    def defocus_rotation_rad(self, defocus_um: float) -> float:
+        return math.radians(self.hd_rotation_deg_per_um * float(defocus_um))
+
+    def truth(self, mag_mode, mag: float) -> dict:
+        """Every value at one magnification, for tests that calibrate against the twin."""
+        return {
+            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, mag)),
+            "pixel_scale": self.pixel_scale(mag_mode, mag),
+            "is_matrix_um_per_unit": self.is_matrix(mag_mode, mag).tolist(),
+            "mag_offset_um": self.mag_offset_um(mag_mode, mag),
+            "backlash_um": self.backlash_um,
+            "bs_matrix_um_per_unit": self.bs_matrix().tolist(),
+        }

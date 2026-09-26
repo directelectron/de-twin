@@ -282,6 +282,31 @@ class ProteinsPreparation(Preparation):
         return mean, MaterialId.PROTEIN, -1, 0.0
 
 
+class CrossGratingPreparation(Preparation):
+    """A carbon replica cross grating: the calibration specimen for pixel size and image-shift
+    calibrations (SerialEM's Find Pixel Size)."""
+
+    kind = "cross_grating"
+
+    def __init__(self, lines_per_mm: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5):
+        self.period_um = 1000.0 / max(float(lines_per_mm), 1e-6)
+        self.base, self.depth, self.w = float(base_nm), float(depth_nm), float(line_fraction)
+
+    def populate(self, holder, area, seed) -> Batch:
+        from .structures import CrossGratingStructure, cross_grating_mean_nm
+
+        if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:
+            return Batch(area.index, PrimitiveSet(0))
+        s = CrossGratingStructure(self.period_um, self.base, self.depth, self.w)
+        mean = cross_grating_mean_nm(self.base, self.depth, self.w)
+        return Batch(area.index, _rect_prim(area, mean, MaterialId.AMORPHOUS_CARBON, seed, structure=s))
+
+    def aggregate_params(self, holder, area, seed):
+        from .structures import cross_grating_mean_nm
+
+        return cross_grating_mean_nm(self.base, self.depth, self.w), MaterialId.AMORPHOUS_CARBON, -1, 0.0
+
+
 class ThinFilmPreparation(Preparation):
     kind = "thin_film"
 
@@ -465,6 +490,8 @@ def make_preparation(kind: str, holder_kind: str, film: str, o: SpecimenOptions)
                 grain_um = 0.03
         return ThinFilmPreparation(grain_um, thick, o.thin_film_gradient_per_mm, o.pinhole_fraction,
                                    o.crack_density_per_um, mat)
+    if kind == "cross_grating":
+        return CrossGratingPreparation(o.grating_lines_per_mm, o.grating_base_nm, o.grating_depth_nm)
     if kind == "bulk":
         from .holders import _POST_SAMPLE_TO_KIND
         k = _POST_SAMPLE_TO_KIND.get(o.fib_post_sample, 0)

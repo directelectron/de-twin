@@ -72,13 +72,48 @@ def apply_beam_stop(img: np.ndarray, cx: float, cy: float, radius: float) -> Non
     img[stop] = 0.0
 
 
+#: Memory for the drawn patterns of precession tilts (a frame shorter than a precession
+#: period sums a few of them instead of drawing every grain's disks again).
+PRECESSION_CACHE_BYTES = 256 * 1024 * 1024
+
+
 class SaedRenderer:
     def __init__(self, cfg):
         self.cfg = cfg
         self._composites: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+        self._tilts: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
         self.exact_grains = 0
 
     def render(self, fm, fm_token, optics, grains, crystallinity) -> np.ndarray:
+        """The SAED pattern; under precession the average of the cone's tilts in the frame,
+        each tilt's pattern drawn once and kept (`PRECESSION_CACHE_BYTES`)."""
+        import dataclasses
+
+        from .diffraction import tilt_samples
+
+        samples = tilt_samples(optics)
+        if len(samples) == 1 and samples[0][2] == (0.0, 0.0):
+            return self._render_one(fm, fm_token, optics, grains, crystallinity)
+        out = None
+        for (tx, ty), wt, (sx, sy) in samples:
+            key = (fm_token, dataclasses.replace(optics, precession_mrad=0.0, precession_phase_rad=0.0,
+                                                 precession_arc_rad=6.283185307179586,
+                                                 beam_tilt_mrad=(tx * 1e3, ty * 1e3)),
+                   round(sx, 9), round(sy, 9))
+            img = self._tilts.get(key)
+            if img is None:
+                img = self._render_one(fm, fm_token, key[1], grains, crystallinity, keep=False)
+                if sx or sy:  # no descan: this tilt's pattern sits off the centre
+                    img = shift_bilinear(img, sx / optics.recip_pixel_inv_nm, sy / optics.recip_pixel_inv_nm)
+                self._tilts[key] = img
+                while sum(v.nbytes for v in self._tilts.values()) > PRECESSION_CACHE_BYTES and len(self._tilts) > 1:
+                    self._tilts.popitem(last=False)
+            else:
+                self._tilts.move_to_end(key)
+            out = img * np.float32(wt) if out is None else out + img * np.float32(wt)
+        return out
+
+    def _render_one(self, fm, fm_token, optics, grains, crystallinity, keep: bool = True) -> np.ndarray:
         cfg = self.cfg
         h, w = optics.output_shape
         options = PatternOptions.from_config(cfg)
@@ -102,6 +137,8 @@ class SaedRenderer:
         pat *= np.float32(optics.pattern_e_per_s)
         ax, ay = optics.extras.get("axis_center_px", (cx0, cy0))
         apply_beam_stop(pat, ax, ay, cfg.beam_stop_radius_px)
+        if not keep:
+            return pat
         self._composites[sig] = pat
         while len(self._composites) > 2:
             self._composites.popitem(last=False)
