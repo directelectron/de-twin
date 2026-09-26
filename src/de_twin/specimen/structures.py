@@ -495,6 +495,37 @@ class AmorphousStructure(Structure):
             ctx.grain[B.flat] = -1
 
 
+def cross_grating_mean_nm(base_nm: float, depth_nm: float, line_fraction: float) -> float:
+    """Area-mean thickness of a cross grating: ridges of `line_fraction` of the period in x
+    and in y over a `base_nm` film."""
+    w = min(max(float(line_fraction), 0.0), 1.0)
+    return float(base_nm) + float(depth_nm) * (1.0 - (1.0 - w) ** 2)
+
+
+class CrossGratingStructure(Structure):
+    """A replica cross grating (the pixel-size standard, e.g. 2160 lines/mm): ridges along x
+    and along y, `line_fraction` of the period wide, `depth_nm` over a `base_nm` film, at an
+    exact `period_um` in the owner's own (unrotated) frame."""
+
+    required_layers = frozenset()
+
+    def __init__(self, period_um: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5):
+        self.period = float(period_um)
+        self.base = float(base_nm)
+        self.depth = float(depth_nm)
+        self.w = min(max(float(line_fraction), 0.0), 1.0)
+
+    def fill(self, ctx, owner):
+        if self.period <= 0 or self.depth == 0 or not _resolved(self.period, ctx):
+            return  # unresolved: the owner already carries the mean
+        mean = cross_grating_mean_nm(self.base, self.depth, self.w)
+        for B in _owner_pixels(ctx, owner):
+            fx = np.mod(B.lx / self.period, 1.0)
+            fy = np.mod(B.ly / self.period, 1.0)
+            ridge = (fx < self.w) | (fy < self.w)
+            ctx.add_thickness(B.flat, self.base + self.depth * ridge - mean)
+
+
 class MultilayerStructure(Structure):
     """Stacked bands of different materials perpendicular to the owner's local y."""
 

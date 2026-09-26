@@ -91,6 +91,7 @@ snap to the simulation grid (``dx``, ~0.02-0.05 nm; the true positions used are 
 
 from __future__ import annotations
 
+
 import dataclasses
 import math
 from collections import OrderedDict
@@ -107,7 +108,7 @@ from .diffraction import (THICKNESS_BIN_NM, Pattern, PatternOptions, PatternSet,
                           bucket_patterns, diffuse_annulus_fraction, render_pattern, screening_angle_mrad,
                           thickness_bin_for)
 from .samples import DIFFUSE_CUTOFF_LENGTHS
-from .stem import resolve_scan_point
+from .stem import _tilt_key, resolve_scan_point
 from .tem import transmission_function
 from .util import chi_and_gradient, pool, shift_bilinear
 
@@ -686,7 +687,8 @@ class CoherentStem:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
         ck = ("coh-bragg", key, (hd, wd), rb, round(center_b[0], 3), round(center_b[1], 3), s.object_bandwidth,
-              optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv, self.cfg.max_g_inv_nm)
+              optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv, self.cfg.max_g_inv_nm,
+              _tilt_key(optics))
 
         def render(_k):
             mid, gid, tb = key
