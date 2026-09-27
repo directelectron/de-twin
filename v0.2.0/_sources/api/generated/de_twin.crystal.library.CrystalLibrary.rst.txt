@@ -1,0 +1,27 @@
+﻿de\_twin.crystal.library.CrystalLibrary
+=======================================
+
+.. currentmodule:: de_twin.crystal.library
+
+.. autoclass:: CrystalLibrary
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CrystalLibrary.__init__
+      ~CrystalLibrary.excite
+      ~CrystalLibrary.extinction_distance_nm
+      ~CrystalLibrary.inv_xi
+      ~CrystalLibrary.rings
+      ~CrystalLibrary.template_library
+   
+   
+
+   
+   
+   

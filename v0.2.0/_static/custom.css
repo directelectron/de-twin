@@ -1,0 +1,2 @@
+/* Keep gallery thumbnails of micrographs square and unsmoothed. */
+.sphx-glr-thumbcontainer img { image-rendering: auto; }

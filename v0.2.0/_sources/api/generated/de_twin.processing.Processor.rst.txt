@@ -1,0 +1,32 @@
+﻿de\_twin.processing.Processor
+=============================
+
+.. currentmodule:: de_twin.processing
+
+.. autoclass:: Processor
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Processor.__init__
+      ~Processor.acquire
+      ~Processor.clear
+      ~Processor.correct
+      ~Processor.lookup
+      ~Processor.references
+      ~Processor.store_dark
+      ~Processor.store_gain
+      ~Processor.synthesize_gain
+      ~Processor.take_dark
+      ~Processor.take_gain
+   
+   
+
+   
+   
+   

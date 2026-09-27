@@ -1,0 +1,1014 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.optics.serialem &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/optics/serialem';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.2.0/_modules/de_twin/optics/serialem.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.optics.serialem</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.optics.serialem</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""SerialEM calibrations to and from a column definition.</span>
+
+<span class="sd">A twin's column (`OpticsConfig.realism`) can be written out as the calibrations SerialEM would</span>
+<span class="sd">measure on it, and a column can be defined from a real microscope's SerialEM calibrations, so</span>
+<span class="sd">the twin behaves like that microscope. Fitting or refining a definition from acquired data is</span>
+<span class="sd">not done here (that is Ground Crew's / de_autopilot's job); this module only converts.</span>
+
+<span class="sd">Files (formats from SerialEM's ``ParameterIO.cpp``):</span>
+
+<span class="sd">``SerialEMcalibrations.txt``</span>
+<span class="sd">    ``ImageShiftMatrix`` (count, then ``magInd camera xpx xpy ypx ypy mag``);</span>
+<span class="sd">    ``StageToCameraMatrix magInd camera xpx xpy ypx ypy focus mag``; ``ImageShiftOffsets``</span>
+<span class="sd">    (count, then ``magInd gif isx isy``): the image shift that re-centres each magnification;</span>
+<span class="sd">    ``BeamShiftCalibration magInd xpx xpy ypx ypy alpha probe retain mag``: beam shift per</span>
+<span class="sd">    image shift (read only: see below); ``CrossoverIntensity spot micro [nano]``;</span>
+<span class="sd">    ``HighFocusMagCal spot probe defocus intensity scale rotation crossover aperture magInd``;</span>
+<span class="sd">    ``FocusCalibration magInd camera slopeX slopeY beamTilt nPoints direction probe alpha</span>
+<span class="sd">    mag`` then ``defocus dx dy`` lines, per unit of beam tilt.</span>
+<span class="sd">``SerialEMproperties.txt``</span>
+<span class="sd">    in a camera's ``CameraProperties n`` ... ``EndCameraProperties`` block:</span>
+<span class="sd">    ``RotationAndPixel magInd deltaRotation rotation pixel_nm`` (999 = undefined).</span>
+
+<span class="sd">Conventions (SerialEM's help, "Image Rotation", and ``ShiftManager.cpp``). SerialEM's camera</span>
+<span class="sd">coordinates are right-handed: x right, y UP (the twin's raster has y down). Its specimen</span>
+<span class="sd">coordinates are minus its stage coordinates, and ``SpecimenToCamera = R(rotation) / pixel``;</span>
+<span class="sd">so ``StageToCamera = -R(rotation) / pixel`` (image rotation = ``atan2(-ypx, -xpx)``) and</span>
+<span class="sd">``IStoCamera = SpecimenToCamera @ (specimen shift per image-shift unit)``. The twin's stage y</span>
+<span class="sd">runs opposite to SerialEM's; with that, SerialEM's image rotation is the twin view's</span>
+<span class="sd">``rotation_rad`` and every matrix has a positive determinant, as on a real scope. A matrix</span>
+<span class="sd">``[[xpx, xpy], [ypx, ypy]]`` maps (x, y) to (xpx x + xpy y, ypx x + ypy y).</span>
+
+<span class="sd">In the twin, image shift never moves the beam off the imaged area (the illumination follows</span>
+<span class="sd">it, as on a scope that couples them), so the IS-to-BS calibration SerialEM would measure is</span>
+<span class="sd">zero and none is written; a real file's is read and gives the beam-shift matrix.</span>
+
+<span class="sd">Magnification indices: SerialEM numbers the scope's magnifications from 1. The twin's own are</span>
+<span class="sd">its imaging ladder (LowMAG then MAG1) numbered from 1 (`twin_mag_table`); a real scope's table</span>
+<span class="sd">can be passed as ``{index: magnification}`` with its low-mag ceiling as ``lm_max_mag``.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.realism</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnRealism</span>
+
+<span class="c1">#: The beam tilt (mrad) and defocus points of the focus calibration written out.</span>
+<span class="n">FOCUS_CAL_TILT_MRAD</span> <span class="o">=</span> <span class="mf">3.0</span>
+<span class="n">FOCUS_CAL_DEFOCUS_UM</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+<span class="c1">#: The defocus values of the high-focus magnification calibration written out.</span>
+<span class="n">HIGH_FOCUS_DEFOCUS_UM</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">50.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">100.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">200.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">300.0</span><span class="p">)</span>
+<span class="c1">#: SerialEM's "undefined" for rotations and (old files) pixel sizes.</span>
+<span class="n">UNDEFINED</span> <span class="o">=</span> <span class="mf">999.0</span>
+
+<span class="n">_T_CAM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">]])</span>  <span class="c1"># twin raster (y down) -&gt; SerialEM camera (y up)</span>
+<span class="n">_T_STAGE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">]])</span>  <span class="c1"># SerialEM specimen &lt;-&gt; twin world</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">twin_mag_table</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The twin column's imaging magnifications, numbered from 1 as SerialEM numbers a scope's."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..column</span><span class="w"> </span><span class="kn">import</span> <span class="n">ladders</span> <span class="k">as</span> <span class="n">L</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LOWMAG_MAGS</span> <span class="o">+</span> <span class="n">L</span><span class="o">.</span><span class="n">MAG1_MAGS</span><span class="p">)}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_twin_lm_max</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..column</span><span class="w"> </span><span class="kn">import</span> <span class="n">ladders</span> <span class="k">as</span> <span class="n">L</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LOWMAG_MAGS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mode_for</span><span class="p">(</span><span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lm_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">"LowMAG"</span> <span class="k">if</span> <span class="n">mag</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">lm_max</span> <span class="k">if</span> <span class="n">lm_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_twin_lm_max</span><span class="p">())</span> <span class="k">else</span> <span class="s2">"MAG1"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_lm</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"low"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">==</span> <span class="s2">"lm"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rot</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">]])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_probe</span><span class="p">(</span><span class="n">twin_probe</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""SerialEM's probe index (0 nanoprobe, 1 microprobe) of a twin ProbeMode."""</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">twin_probe</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+
+
+<span class="c1"># ------------------------------------------------------------------ the column definition</span>
+<div class="viewcode-block" id="ColumnDefinition">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColumnDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A column defined by tables (from calibrations) rather than drawn from a seed: the same</span>
+<span class="sd">    interface as :class:`~de_twin.optics.realism.ColumnRealism`, so it goes in</span>
+<span class="sd">    ``OpticsConfig(realism=...)``.</span>
+
+<span class="sd">    Per magnification: the image rotation (rad), the true pixel size (nm, for the camera it was</span>
+<span class="sd">    calibrated on) against the twin's nominal one, the image-shift matrix (specimen um per</span>
+<span class="sd">    unit) and the magnification's image offset (um). One beam-shift matrix, crossovers per</span>
+<span class="sd">    (spot, SerialEM probe), and the high-defocus scale / rotation per micrometre. What the</span>
+<span class="sd">    tables do not give is ideal. A magnification between entries takes the nearest (in log</span>
+<span class="sd">    magnification) of its own range (LM or not), where it has one. Compared and hashed by</span>
+<span class="sd">    identity (it holds mutable tables).</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ColumnDefinition.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lm_max_mag</span> <span class="o">=</span> <span class="n">lm_max_mag</span> <span class="k">if</span> <span class="n">lm_max_mag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_twin_lm_max</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mag -&gt; rad</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mag -&gt; true pixel (nm)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_pixel_nm</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mag -&gt; the twin's nominal (nm)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mag -&gt; 2x2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_offsets</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mag -&gt; (x, y) um</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (spot, SerialEM probe) -&gt; intensity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crossover_intensity</span> <span class="o">=</span> <span class="n">ColumnRealism</span><span class="o">.</span><span class="n">crossover_intensity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backlash_um</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_coma_mrad_per_um</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_astig_nm_per_um</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hd_scale_per_um</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hd_rotation_deg_per_um</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_near</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">lm</span> <span class="o">=</span> <span class="n">_is_lm</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm_max_mag</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">table</span> <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm_max_mag</span><span class="p">)</span> <span class="o">==</span> <span class="n">lm</span><span class="p">]</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">same</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">))</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">mag</span><span class="p">),</span> <span class="mf">1e-9</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">table</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ColumnDefinition.rotation_rad">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.rotation_rad">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotation_rad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.pixel_scale">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.pixel_scale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pixel_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_pixel_nm</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">n</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.is_matrix">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.is_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.mag_offset_um">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.mag_offset_um">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mag_offset_um</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_offsets</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.bs_matrix">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.bs_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bs_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.crossover">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.crossover">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">crossover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spot</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">probe_mode</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spot</span><span class="p">),</span> <span class="n">_probe</span><span class="p">(</span><span class="n">probe_mode</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">same</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">same</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crossovers</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover_intensity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.is_tilt_mrad">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.is_tilt_mrad">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_tilt_mrad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isx_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">isy_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_coma_mrad_per_um</span>
+        <span class="k">return</span> <span class="n">k</span> <span class="o">*</span> <span class="n">isx_um</span><span class="p">,</span> <span class="n">k</span> <span class="o">*</span> <span class="n">isy_um</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.is_astig_nm">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.is_astig_nm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_astig_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isx_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">isy_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_astig_nm_per_um</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="n">isx_um</span><span class="p">,</span> <span class="n">isy_um</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.defocus_scale">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.defocus_scale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hd_scale_per_um</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.defocus_rotation_rad">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_rotation_rad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hd_rotation_deg_per_um</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ColumnDefinition.truth">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition.truth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">truth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"image_rotation_deg"</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation_rad</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)),</span>
+            <span class="s2">"pixel_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_scale</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
+            <span class="s2">"is_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s2">"mag_offset_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_offset_um</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
+            <span class="s2">"backlash_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backlash_um</span><span class="p">,</span>
+            <span class="s2">"bs_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------ twin -&gt; SerialEM</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_nominal_pixel_nm</span><span class="p">(</span><span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">calibration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lm_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroscopeState</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibration</span>
+
+    <span class="n">cal</span> <span class="o">=</span> <span class="n">calibration</span> <span class="ow">or</span> <span class="n">Calibration</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">MicroscopeState</span><span class="p">(</span><span class="n">magnification</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">mag</span><span class="p">),</span> <span class="n">mag_mode</span><span class="o">=</span><span class="n">_mode_for</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">lm_max</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">specimen_pixel_nm</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">camera</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flip_matrix</span><span class="p">(</span><span class="n">flips</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">fx</span><span class="p">,</span> <span class="n">fy</span> <span class="o">=</span> <span class="n">flips</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">fx</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">fy</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_specimen_to_camera</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flips</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""SerialEM's SpecimenToCamera (camera px per specimen um) of a twin view rotated by</span>
+<span class="sd">    *theta*: the twin maps world w to raster F R(-theta) w / p; SerialEM's specimen is T w and</span>
+<span class="sd">    its camera T_cam raster."""</span>
+    <span class="k">return</span> <span class="n">_T_CAM</span> <span class="o">@</span> <span class="n">_flip_matrix</span><span class="p">(</span><span class="n">flips</span><span class="p">)</span> <span class="o">@</span> <span class="n">_rot</span><span class="p">(</span><span class="o">-</span><span class="n">theta</span><span class="p">)</span> <span class="o">@</span> <span class="n">_T_STAGE</span> <span class="o">/</span> <span class="n">p_um</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_camera_mats</span><span class="p">(</span><span class="n">realism</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nominal_nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flips</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="n">lm_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""(StageToCamera, IStoCamera, rotation rad, true pixel nm) of one magnification."""</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">_mode_for</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">lm_max</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">realism</span><span class="o">.</span><span class="n">rotation_rad</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>
+    <span class="n">p_um</span> <span class="o">=</span> <span class="n">nominal_nm</span> <span class="o">*</span> <span class="n">realism</span><span class="o">.</span><span class="n">pixel_scale</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span>
+    <span class="n">s2c</span> <span class="o">=</span> <span class="n">_specimen_to_camera</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">p_um</span><span class="p">,</span> <span class="n">flips</span><span class="p">)</span>
+    <span class="n">stage</span> <span class="o">=</span> <span class="o">-</span><span class="n">s2c</span>  <span class="c1"># specimen = -stage</span>
+    <span class="n">is_</span> <span class="o">=</span> <span class="n">s2c</span> <span class="o">@</span> <span class="n">_T_STAGE</span> <span class="o">@</span> <span class="n">realism</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span>  <span class="c1"># IS moves the centred specimen point by T M u</span>
+    <span class="k">return</span> <span class="n">stage</span><span class="p">,</span> <span class="n">is_</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">p_um</span> <span class="o">*</span> <span class="mf">1000.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialem_rotation_deg</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""SerialEM's image rotation from a stage matrix: the mean of its X- and Y-axis estimates."""</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="o">-</span><span class="n">stage</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">stage</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+    <span class="n">ay</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="o">-</span><span class="n">stage</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">stage</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="mf">90.0</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">ay</span> <span class="o">-</span> <span class="n">ax</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">)</span> <span class="o">%</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="mf">180.0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">ax</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">)</span> <span class="o">%</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="mf">180.0</span>
+
+
+<div class="viewcode-block" id="to_serialem">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.to_serialem.html#de_twin.optics.serialem.to_serialem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_serialem</span><span class="p">(</span><span class="n">realism</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">calibrations_path</span><span class="p">,</span> <span class="n">properties_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                <span class="n">mag_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">calibration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spots</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">reference_mag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span><span class="p">,</span>
+                <span class="n">camera_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">flips</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write the calibrations SerialEM would measure on a column (and, with</span>
+<span class="sd">    *properties_path*, the camera's ``RotationAndPixel`` block). *flips* are the twin's</span>
+<span class="sd">    ``OpticsConfig.flip_x / flip_y``."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">camera</span> <span class="k">as</span> <span class="n">camera_by_name</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..column.column</span><span class="w"> </span><span class="kn">import</span> <span class="n">BEAM_TILT_MRAD_PER_UNIT</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProbeMode</span>
+
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">camera_by_name</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">camera</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">camera</span>
+    <span class="n">mags</span> <span class="o">=</span> <span class="n">mag_table</span> <span class="ow">or</span> <span class="n">twin_mag_table</span><span class="p">()</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"SerialEMCalibrations"</span><span class="p">]</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">stage_rows</span><span class="p">,</span> <span class="n">offs</span><span class="p">,</span> <span class="n">rot_rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">mag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mags</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">nominal</span> <span class="o">=</span> <span class="n">_nominal_pixel_nm</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">cam</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">)</span>
+        <span class="n">stage</span><span class="p">,</span> <span class="n">is_</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">p_nm</span> <span class="o">=</span> <span class="n">_camera_mats</span><span class="p">(</span><span class="n">realism</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">nominal</span><span class="p">,</span> <span class="n">flips</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">)</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">camera_index</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">is_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">is_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">is_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">is_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">   </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">mag</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">stage_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"StageToCameraMatrix </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">camera_index</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">stage</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">stage</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> "</span>
+                          <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stage</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">stage</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">   0.000000   </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">mag</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">_mode_for</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">)</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">realism</span><span class="o">.</span><span class="n">mag_offset_um</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+            <span class="n">isx</span><span class="p">,</span> <span class="n">isy</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">realism</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span> <span class="n">o</span><span class="p">)</span>
+            <span class="n">offs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> 0 </span><span class="si">{</span><span class="n">isx</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">isy</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">rot_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"RotationAndPixel </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">UNDEFINED</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_serialem_rotation_deg</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">p_nm</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ImageShiftMatrix </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="n">rows</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="n">stage_rows</span>
+    <span class="k">if</span> <span class="n">offs</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ImageShiftOffsets </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">offs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="n">offs</span>
+    <span class="n">micro</span><span class="p">,</span> <span class="n">nano</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ProbeMode</span><span class="o">.</span><span class="n">TEM</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ProbeMode</span><span class="o">.</span><span class="n">NANOPROBE</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">spot</span> <span class="ow">in</span> <span class="n">spots</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CrossoverIntensity </span><span class="si">{</span><span class="n">spot</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">realism</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span><span class="n">spot</span><span class="p">,</span><span class="w"> </span><span class="n">micro</span><span class="p">)</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">realism</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span><span class="n">spot</span><span class="p">,</span><span class="w"> </span><span class="n">nano</span><span class="p">)</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="c1"># high-focus magnification: image scale and rotation relative to focus (a mag cal: index 0)</span>
+    <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">HIGH_FOCUS_DEFOCUS_UM</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">realism</span><span class="o">.</span><span class="n">defocus_scale</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">realism</span><span class="o">.</span><span class="n">defocus_rotation_rad</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HighFocusMagCal 3 1 </span><span class="si">{</span><span class="n">df</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> 0.500000 </span><span class="si">{</span><span class="n">scale</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">rot</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> "</span>
+                     <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">realism</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">micro</span><span class="p">)</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> 0 0"</span><span class="p">)</span>
+    <span class="c1"># autofocus: image displacement (SerialEM camera px) between +/- beam tilt, per unit tilt</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mags</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">reference_mag</span><span class="p">))</span>
+    <span class="n">mag</span> <span class="o">=</span> <span class="n">mags</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+    <span class="n">stage</span><span class="p">,</span> <span class="n">is_</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">p_nm</span> <span class="o">=</span> <span class="n">_camera_mats</span><span class="p">(</span><span class="n">realism</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">_nominal_pixel_nm</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">cam</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">),</span>
+                                           <span class="n">flips</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">)</span>
+    <span class="n">bt_units</span> <span class="o">=</span> <span class="n">FOCUS_CAL_TILT_MRAD</span> <span class="o">/</span> <span class="n">BEAM_TILT_MRAD_PER_UNIT</span>
+    <span class="c1"># a tilt along world x displaces the image by 2 df tau along it: in SerialEM camera px</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">_T_CAM</span> <span class="o">@</span> <span class="n">_flip_matrix</span><span class="p">(</span><span class="n">flips</span><span class="p">)</span> <span class="o">@</span> <span class="n">_rot</span><span class="p">(</span><span class="o">-</span><span class="n">theta</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="n">per_um</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="mf">1000.0</span> <span class="o">*</span> <span class="n">FOCUS_CAL_TILT_MRAD</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">/</span> <span class="n">p_nm</span> <span class="o">*</span> <span class="n">d</span> <span class="o">/</span> <span class="n">bt_units</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="p">[(</span><span class="n">df</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">df</span> <span class="o">*</span> <span class="n">per_um</span><span class="p">))</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">FOCUS_CAL_DEFOCUS_UM</span><span class="p">]</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FocusCalibration </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">camera_index</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">per_um</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">per_um</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> "</span>
+                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bt_units</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="si">}</span><span class="s2"> 0 1 -999   </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">mag</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">b</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">c</span><span class="si">:</span><span class="s2">.12g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">calibrations_path</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">properties_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">properties_path</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"CameraProperties </span><span class="si">{</span><span class="n">camera_index</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rot_rows</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">EndCameraProperties</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------ SerialEM -&gt; column</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_floats</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rotation_and_pixel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">camera_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``RotationAndPixel`` of one camera: {magInd: (rotation deg or None, pixel nm or None)},</span>
+<span class="sd">    from its ``CameraProperties`` block (or the whole file if it has no blocks)."""</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">blocks</span> <span class="o">=</span> <span class="p">{},</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"CameraProperties"</span><span class="p">:</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"EndCameraProperties"</span><span class="p">:</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"RotationAndPixel"</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">blocks</span> <span class="ow">and</span> <span class="n">block</span> <span class="o">!=</span> <span class="n">camera_index</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">rot</span><span class="p">,</span> <span class="n">pix</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">out</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rot</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">900</span> <span class="k">else</span> <span class="n">rot</span><span class="p">,</span>
+                          <span class="kc">None</span> <span class="k">if</span> <span class="n">pix</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mf">998.9</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pix</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">999.1</span> <span class="k">else</span> <span class="n">pix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="from_serialem">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.serialem.from_serialem.html#de_twin.optics.serialem.from_serialem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_serialem</span><span class="p">(</span><span class="n">calibrations_path</span><span class="p">,</span> <span class="n">properties_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">mag_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="n">lm_max_mag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">calibration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">camera_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="n">flips</span><span class="o">=</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">ColumnDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A column definition from a microscope's SerialEM calibrations (and, if given, the</span>
+<span class="sd">    camera's ``RotationAndPixel`` lines). Stage calibrations give each magnification's</span>
+<span class="sd">    rotation and true pixel size; ``RotationAndPixel`` values override them where defined."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">camera</span> <span class="k">as</span> <span class="n">camera_by_name</span>
+
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">camera_by_name</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">camera</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">camera</span>
+    <span class="n">mags</span> <span class="o">=</span> <span class="n">mag_table</span> <span class="ow">or</span> <span class="n">twin_mag_table</span><span class="p">()</span>
+    <span class="n">is_cam</span><span class="p">,</span> <span class="n">stage_cam</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">bs_rows</span><span class="p">,</span> <span class="n">cross</span><span class="p">,</span> <span class="n">hf</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">[],</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">calibrations_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"ImageShiftMatrix"</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">camera_index</span><span class="p">:</span>
+                        <span class="n">is_cam</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_floats</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">6</span><span class="p">]))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"StageToCameraMatrix"</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="n">camera_index</span><span class="p">:</span>
+                <span class="n">stage_cam</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_floats</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">7</span><span class="p">]))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"ImageShiftOffsets"</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">offsets</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_floats</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"BeamShiftCalibration"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">bs_rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_floats</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">6</span><span class="p">]))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"CrossoverIntensity"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">spot</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="n">_floats</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">cross</span><span class="p">[(</span><span class="n">spot</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">cross</span><span class="p">[(</span><span class="n">spot</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"HighFocusMagCal"</span><span class="p">:</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_floats</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">7</span><span class="p">]))</span>  <span class="c1"># defocus, intensity, scale, rotation</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"FocusCalibration"</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"STEMfocusVersusZ"</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="k">continue</span>  <span class="c1"># a form this reader does not know: SerialEM's older lines, say</span>
+    <span class="n">rot_pix</span> <span class="o">=</span> <span class="n">_rotation_and_pixel</span><span class="p">(</span><span class="n">properties_path</span><span class="p">,</span> <span class="n">camera_index</span><span class="p">)</span> <span class="k">if</span> <span class="n">properties_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">ColumnDefinition</span><span class="p">(</span><span class="n">lm_max_mag</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">mags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">nominal_pixel_nm</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="n">_nominal_pixel_nm</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">cam</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">lm_max_mag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">stage_cam</span><span class="p">:</span>
+            <span class="n">s2c</span> <span class="o">=</span> <span class="o">-</span><span class="n">stage_cam</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="n">p_um</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">s2c</span><span class="p">)))</span>
+            <span class="c1"># s2c p = T_cam F R(-theta) T_stage  -&gt;  R(-theta)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">_T_CAM</span> <span class="o">@</span> <span class="n">_flip_matrix</span><span class="p">(</span><span class="n">flips</span><span class="p">))</span> <span class="o">@</span> <span class="p">(</span><span class="n">s2c</span> <span class="o">*</span> <span class="n">p_um</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">_T_STAGE</span><span class="p">)</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">rotation</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_um</span> <span class="o">*</span> <span class="mf">1000.0</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">rot_pix</span><span class="p">:</span>
+            <span class="n">rot_deg</span><span class="p">,</span> <span class="n">p_nm</span> <span class="o">=</span> <span class="n">rot_pix</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">rot_deg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flips</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flips</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">rotation</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">rot_deg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p_nm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_nm</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">is_cam</span> <span class="ow">and</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">rotation</span> <span class="ow">and</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">:</span>
+            <span class="n">s2c</span> <span class="o">=</span> <span class="n">_specimen_to_camera</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">rotation</span><span class="p">[</span><span class="n">mag</span><span class="p">],</span> <span class="n">d</span><span class="o">.</span><span class="n">pixel_nm</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">flips</span><span class="p">)</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">_T_STAGE</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">s2c</span><span class="p">,</span> <span class="n">is_cam</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">offsets</span> <span class="ow">and</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">:</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">mag_offsets</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">[</span><span class="n">mag</span><span class="p">]</span> <span class="o">@</span> <span class="n">offsets</span><span class="p">[</span><span class="n">ind</span><span class="p">]))</span>
+    <span class="c1"># beam shift per unit: B = M (IS-&gt;BS)^-1, averaged over magnifications that have both</span>
+    <span class="n">est</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">bs_rows</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">mags</span> <span class="ow">and</span> <span class="n">mags</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">is_matrices</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1e-12</span><span class="p">:</span>
+            <span class="n">est</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">is_matrices</span><span class="p">[</span><span class="n">mags</span><span class="p">[</span><span class="n">ind</span><span class="p">]]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">est</span><span class="p">:</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">bs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">crossovers</span> <span class="o">=</span> <span class="n">cross</span>
+    <span class="k">if</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="n">hf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hf</span><span class="p">)</span>
+        <span class="n">dfs</span><span class="p">,</span> <span class="n">scales</span><span class="p">,</span> <span class="n">rots</span> <span class="o">=</span> <span class="n">hf</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">hf</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">hf</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="c1"># scale = 1 / (1 + k |df|), rotation = -r df</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dfs</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">scales</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">dfs</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="o">-</span><span class="n">rots</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">hd_scale_per_um</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">hd_rotation_deg_per_um</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

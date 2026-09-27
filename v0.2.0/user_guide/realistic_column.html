@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>A realistic column &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/realistic_column';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/v0.2.0/user_guide/realistic_column.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SerialEM calibrations" href="serialem.html" />
+    <link rel="prev" title="Low dose" href="low_dose.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="simulated.html">What is simulated</a></li>
+<li class="toctree-l1"><a class="reference internal" href="in_process.html">Using the twin in-process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving the twin to existing software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deserver.html">Feeding a real DE-Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mirroring.html">Following real software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="corrector.html">Probe and image corrector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fourd_stem.html">4D-STEM data for ptychography and tcBF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beam_tilt_precession.html">Beam tilt and precession</a></li>
+<li class="toctree-l1"><a class="reference internal" href="low_dose.html">Low dose</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">A realistic column</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialem.html">SerialEM calibrations</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">A realistic column</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="a-realistic-column">
+<h1>A realistic column<a class="headerlink" href="#a-realistic-column" title="Link to this heading">#</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">de_twin</span><span class="w"> </span><span class="kn">import</span> <span class="n">DigitalTwin</span><span class="p">,</span> <span class="n">ManualClock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">de_twin.optics</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpticsConfig</span>
+
+<span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span><span class="s2">"Dense Au on holey C"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"DESim"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">ManualClock</span><span class="p">(),</span>
+                   <span class="n">optics_config</span><span class="o">=</span><span class="n">OpticsConfig</span><span class="o">.</span><span class="n">realistic</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Magnification"</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="n">truth</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">calibration_truth</span><span class="p">()</span>
+<span class="n">truth</span><span class="p">[</span><span class="s2">"image_rotation_deg"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"true_pixel_nm"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"nominal_pixel_nm"</span><span class="p">]</span>
+<span class="n">truth</span><span class="p">[</span><span class="s2">"is_matrix_um_per_unit"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"mag_offset_um"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"crossover_intensity"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The default twin is an ideal column. Its image never rotates, the pixel size is the nominal
+one, and image shift moves the specimen one micrometre per unit along the camera axes.
+Changing magnification keeps the same point on axis, and the stage lands where it is told.</p>
+<p>A real column does none of these, and each difference is something a SerialEM calibration
+measures. <code class="docutils literal notranslate"><span class="pre">OpticsConfig.realistic(seed)</span></code> gives the twin those imperfections. Every value is a
+deterministic function of the seed and of the imaging mode and magnification, so the same
+seed always gives the same column. <code class="docutils literal notranslate"><span class="pre">DigitalTwin.calibration_truth()</span></code> reports the true values
+at the column’s current state. A test can run a calibration procedure on the twin’s images
+and compare its answer with them.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Effect</p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>SerialEM calibration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Image rotation</p></td>
+<td><p>Per imaging mode, a base angle (LowMAG and MAG1 differ by a large angle). Per magnification, about 2° of jitter. High defocus adds 0.01°/µm.</p></td>
+<td><p>Image &amp; Stage Shift, stage calibration</p></td>
+</tr>
+<tr class="row-odd"><td><p>True pixel size</p></td>
+<td><p>Nominal × (1 ± about 2 %) per magnification. High defocus adds 2×10⁻⁴/µm (4 % at −200 µm). Clients such as the deapi face and DE-Server still see the nominal value.</p></td>
+<td><p>Find Pixel Size, High-Defocus Mag</p></td>
+</tr>
+<tr class="row-even"><td><p>Image-shift matrix</p></td>
+<td><p>Per magnification, a 2×2 of scale, skew and rotation, in specimen µm per image-shift unit.</p></td>
+<td><p>Image Shift</p></td>
+</tr>
+<tr class="row-odd"><td><p>Magnification offsets</p></td>
+<td><p>Per magnification, an image-centre offset (2 % of a 1e5 / mag µm field).</p></td>
+<td><p>Mag IS offsets</p></td>
+</tr>
+<tr class="row-even"><td><p>Stage backlash</p></td>
+<td><p>The stage stops short by backlash / 2 against its approach direction, while reporting the commanded position.</p></td>
+<td><p>Backlash correction</p></td>
+</tr>
+<tr class="row-odd"><td><p>C2 crossover</p></td>
+<td><p>The beam converges to its smallest at an Intensity that depends on spot size and probe mode, and spreads again past it.</p></td>
+<td><p>Beam Crossover, Beam Intensity</p></td>
+</tr>
+<tr class="row-even"><td><p>Beam-shift matrix</p></td>
+<td><p>One 2×2 for the illumination system.</p></td>
+<td><p>Beam Shift</p></td>
+</tr>
+<tr class="row-odd"><td><p>Coma from image shift</p></td>
+<td><p>Image shift images the specimen off the coma-free axis. This acts as an effective beam tilt of about 0.43 mrad per µm of image shift, plus about 15 nm of A1 per µm.</p></td>
+<td><p>Coma vs Image Shift</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two effects are plain physics, so they are on in every twin:</p>
+<ul class="simple">
+<li><p><strong>A tilted specimen that is off eucentric height moves in the image.</strong> The displacement is
+dz·sin(tilt) across the tilt axis (dz·tan(tilt) in specimen coordinates). This is what
+eucentricity routines measure.</p></li>
+<li><p><strong>Beam shift moves the beam, not the image.</strong> In TEM imaging it moves the illuminated disc
+across the camera and leaves the specimen in place. In STEM, and for any scan request, it
+moves the probe.</p></li>
+</ul>
+<p>The realistic column takes the magnification-specific terms (rotation, pixel size,
+image-shift matrix, offsets and induced coma) from the <strong>render mode</strong>, not the column
+state. A 4D-STEM request on a column that reports TEM is therefore treated as a scan.</p>
+<section id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">image_rotation_deg</span></code> is the rotation of the view from the world (specimen) frame to the
+camera frame. Image features turn by minus that angle in (x right, y down) pixel
+coordinates. Beam tilt is a direction in the specimen plane, because the tilt coils sit above
+the specimen. Its effects on the camera turn with the image, including the axial coma, the
+focus-dependent image shift and the tilt induced by image shift.</p>
+</section>
+<section id="intensity-zoom">
+<h2>Intensity zoom<a class="headerlink" href="#intensity-zoom" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">OpticsConfig</span><span class="p">(</span><span class="n">intensity_zoom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>      <span class="c1"># or OpticsConfig.realistic(seed, intensity_zoom=True)</span>
+</pre></div>
+</div>
+<p>Without intensity zoom, the dose per detector pixel goes as 1/mag². Zooming out from a
+detector-safe beam then saturates the camera, and zooming in leaves only shot noise.
+Intensity zoom works like TFS Intensity Zoom: in TEM imaging the condenser follows the
+magnification, so the illuminated area keeps its size relative to the field of view and the
+dose per pixel stays the same. Intensity still sets the beam at
+<code class="docutils literal notranslate"><span class="pre">intensity_zoom_reference_mag</span></code>, and so at every magnification. Diffraction and STEM are
+unaffected. Ground Crew’s twin turns it on.</p>
+</section>
+<section id="calibration-specimens">
+<h2>Calibration specimens<a class="headerlink" href="#calibration-specimens" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;Cross</span> <span class="pre">grating</span> <span class="pre">2160</span> <span class="pre">l/mm&quot;</span></code> is a carbon replica cross grating with a 463 nm period. It is
+the standard specimen for pixel size, and for image-shift calibrations at low
+magnification. At higher magnification, use a non-periodic specimen such as
+<code class="docutils literal notranslate"><span class="pre">&quot;Dense</span> <span class="pre">Au</span> <span class="pre">on</span> <span class="pre">holey</span> <span class="pre">C&quot;</span></code>, so cross-correlations have a unique answer.</p>
+</section>
+<section id="closed-loop-tests">
+<h2>Closed-loop tests<a class="headerlink" href="#closed-loop-tests" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tests/test_realism_calibrations.py</span></code> runs each calibration procedure on the twin’s images and
+checks the result against <code class="docutils literal notranslate"><span class="pre">calibration_truth()</span></code>. It covers:</p>
+<ul class="simple">
+<li><p>pixel size from the grating’s FFT;</p></li>
+<li><p>image-shift and stage matrices from cross-correlation;</p></li>
+<li><p>magnification offsets and backlash;</p></li>
+<li><p>eucentric displacement;</p></li>
+<li><p>beam crossover and beam shift;</p></li>
+<li><p>autofocus beam-tilt pairs;</p></li>
+<li><p>coma vs image shift;</p></li>
+<li><p>the high-defocus scale and rotation.</p></li>
+</ul>
+<p>The measuring code in these tests is test-only on purpose: de-twin produces data and ground
+truth, and the calibration methods belong to the tools that drive a microscope.</p>
+<p>Some things to know when measuring on twin images:</p>
+<ul class="simple">
+<li><p><strong>Focus-step pairs.</strong> Use a plain cross-correlation of low-passed images. Phase correlation
+whitens the spectrum, so low-pass filtering has no effect on it, and the fine contrast
+differs between focus settings.</p></li>
+<li><p><strong>Gratings.</strong> Use a spread beam and a window function. Otherwise the fixed illuminated disc
+and the edges of the image dominate the FFT.</p></li>
+<li><p><strong>Stage steps.</strong> Keep them to a fraction of the field of view, and set
+<code class="docutils literal notranslate"><span class="pre">column.backlash_um</span> <span class="pre">=</span> <span class="pre">0</span></code> when the test is not about backlash.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="low_dose.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Low dose</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="serialem.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SerialEM calibrations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conventions">Conventions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#intensity-zoom">Intensity zoom</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration-specimens">Calibration specimens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#closed-loop-tests">Closed-loop tests</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/realistic_column.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

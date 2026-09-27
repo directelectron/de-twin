@@ -1,0 +1,78 @@
+﻿de\_twin.column.MirrorColumn
+============================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: MirrorColumn
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MirrorColumn.__init__
+      ~MirrorColumn.cl_ladder
+      ~MirrorColumn.close
+      ~MirrorColumn.convergence_mrad
+      ~MirrorColumn.get
+      ~MirrorColumn.mag_ladder
+      ~MirrorColumn.move_stage
+      ~MirrorColumn.now
+      ~MirrorColumn.on_change
+      ~MirrorColumn.op_state
+      ~MirrorColumn.poll
+      ~MirrorColumn.poll_corrector
+      ~MirrorColumn.property_names
+      ~MirrorColumn.set
+      ~MirrorColumn.set_alpha_selector
+      ~MirrorColumn.set_beam_blank
+      ~MirrorColumn.set_beam_shift_um
+      ~MirrorColumn.set_beam_tilt_mrad
+      ~MirrorColumn.set_camera_length_cm
+      ~MirrorColumn.set_camera_length_mm
+      ~MirrorColumn.set_column_valves
+      ~MirrorColumn.set_condenser_aperture
+      ~MirrorColumn.set_condenser_stig
+      ~MirrorColumn.set_convergence_mrad
+      ~MirrorColumn.set_defocus_um
+      ~MirrorColumn.set_diffraction_shift_mrad
+      ~MirrorColumn.set_function_mode
+      ~MirrorColumn.set_ht_kv
+      ~MirrorColumn.set_image_shift_um
+      ~MirrorColumn.set_instrument_type
+      ~MirrorColumn.set_intensity
+      ~MirrorColumn.set_magnification
+      ~MirrorColumn.set_magnification_index
+      ~MirrorColumn.set_objective_stig
+      ~MirrorColumn.set_probe_mode
+      ~MirrorColumn.set_projection
+      ~MirrorColumn.set_screen
+      ~MirrorColumn.set_spot_size
+      ~MirrorColumn.set_stage
+      ~MirrorColumn.set_tem_stem
+      ~MirrorColumn.stage_position
+      ~MirrorColumn.stage_target
+      ~MirrorColumn.start
+      ~MirrorColumn.state
+      ~MirrorColumn.stop
+      ~MirrorColumn.time_to_idle
+      ~MirrorColumn.values
+      ~MirrorColumn.wait_idle
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MirrorColumn.busy
+      ~MirrorColumn.function_mode
+      ~MirrorColumn.instrument_type
+      ~MirrorColumn.real
+   
+   

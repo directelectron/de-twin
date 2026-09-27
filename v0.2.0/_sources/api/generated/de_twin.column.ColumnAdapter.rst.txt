@@ -1,0 +1,40 @@
+﻿de\_twin.column.ColumnAdapter
+=============================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: ColumnAdapter
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ColumnAdapter.__init__
+      ~ColumnAdapter.close
+      ~ColumnAdapter.get
+      ~ColumnAdapter.move_stage
+      ~ColumnAdapter.on_move
+      ~ColumnAdapter.on_set
+      ~ColumnAdapter.screen_positions
+      ~ColumnAdapter.set
+      ~ColumnAdapter.stage_xy
+      ~ColumnAdapter.stop
+      ~ColumnAdapter.tilt
+      ~ColumnAdapter.tilt_to
+      ~ColumnAdapter.values
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ColumnAdapter.vendor
+   
+   

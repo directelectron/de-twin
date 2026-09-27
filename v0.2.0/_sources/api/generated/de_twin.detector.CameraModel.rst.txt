@@ -1,0 +1,72 @@
+﻿de\_twin.detector.CameraModel
+=============================
+
+.. currentmodule:: de_twin.detector
+
+.. autoclass:: CameraModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CameraModel.__init__
+      ~CameraModel.adu_per_electron_at
+      ~CameraModel.charge_spread_at
+      ~CameraModel.with_
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CameraModel.adu_cv
+      ~CameraModel.adu_per_electron
+      ~CameraModel.adu_table
+      ~CameraModel.aliases
+      ~CameraModel.bad_column_fraction
+      ~CameraModel.charge_spread
+      ~CameraModel.cluster_area_px
+      ~CameraModel.dark_current_adu_per_s
+      ~CameraModel.dark_offset_adu
+      ~CameraModel.dead_pixel_fraction
+      ~CameraModel.dsnu_adu
+      ~CameraModel.dtype
+      ~CameraModel.false_event_rate
+      ~CameraModel.fpn_column_adu
+      ~CameraModel.fpn_pattern
+      ~CameraModel.full_frame_time_s
+      ~CameraModel.gain_column_sigma
+      ~CameraModel.gain_pixel_sigma
+      ~CameraModel.gain_radial
+      ~CameraModel.gain_stitch
+      ~CameraModel.hardware_counting
+      ~CameraModel.hot_dark_current_adu_per_s
+      ~CameraModel.hot_pixel_fraction
+      ~CameraModel.hw_quanta
+      ~CameraModel.max_fps
+      ~CameraModel.max_value
+      ~CameraModel.num_parts
+      ~CameraModel.read_noise_adu
+      ~CameraModel.reference_ht_kv
+      ~CameraModel.saturation_adu
+      ~CameraModel.segment_shape
+      ~CameraModel.sensor_family
+      ~CameraModel.sensor_h
+      ~CameraModel.sensor_w
+      ~CameraModel.supports_hw_roi_x
+      ~CameraModel.topology
+      ~CameraModel.name
+      ~CameraModel.de_model
+      ~CameraModel.sensor_shape
+      ~CameraModel.pixel_um
+      ~CameraModel.bit_depth
+      ~CameraModel.bytes_per_pixel
+   
+   

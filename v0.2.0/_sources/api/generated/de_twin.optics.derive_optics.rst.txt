@@ -1,0 +1,6 @@
+﻿de\_twin.optics.derive\_optics
+==============================
+
+.. currentmodule:: de_twin.optics
+
+.. autofunction:: derive_optics

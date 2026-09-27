@@ -1,0 +1,34 @@
+﻿de\_twin.column.lowdose.LowDoseArea
+===================================
+
+.. currentmodule:: de_twin.column.lowdose
+
+.. autoclass:: LowDoseArea
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LowDoseArea.__init__
+      ~LowDoseArea.as_dict
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LowDoseArea.beam_shift
+      ~LowDoseArea.defocus_offset_um
+      ~LowDoseArea.image_shift
+      ~LowDoseArea.magnification
+      ~LowDoseArea.spot_size
+      ~LowDoseArea.intensity
+   
+   
