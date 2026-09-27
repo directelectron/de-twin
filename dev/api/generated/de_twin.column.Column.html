@@ -623,7 +623,7 @@ or <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;
 <td><p>Read a property by its DE-TEM-Channel name (see the module docstring).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.column.Column.mag_ladder" title="de_twin.column.Column.mag_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_ladder</span></code></a>()</p></td>
-<td><p>Magnifications of the active optics mode (<code class="docutils literal notranslate"><span class="pre">None</span></code> in TEM diffraction).</p></td>
+<td><p>Magnifications a <code class="docutils literal notranslate"><span class="pre">Magnification</span></code> write can reach from here (<code class="docutils literal notranslate"><span class="pre">None</span></code> in TEM diffraction).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.column.Column.move_stage" title="de_twin.column.Column.move_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_stage</span></code></a>([x, y, z, alpha, beta, wait, timeout])</p></td>
 <td><p></p></td>
@@ -798,7 +798,11 @@ or <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.column.Column.mag_ladder">
 <span class="sig-name descname"><span class="pre">mag_ladder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/column/column.html#Column.mag_ladder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.column.Column.mag_ladder" title="Link to this definition">#</a></dt>
-<dd><p>Magnifications of the active optics mode (<code class="docutils literal notranslate"><span class="pre">None</span></code> in TEM diffraction).</p>
+<dd><p>Magnifications a <code class="docutils literal notranslate"><span class="pre">Magnification</span></code> write can reach from here (<code class="docutils literal notranslate"><span class="pre">None</span></code> in TEM
+diffraction). In TEM imaging that is LowMAG’s and MAG1’s together: a write
+beyond the active mode’s ladder crosses into the other (<cite>imaging_mode_for</cite>),
+as a real column’s mag knob does, so a client stepping this ladder is not
+stuck at the top of LowMAG.</p>
 </dd></dl>
 
 <dl class="py method">

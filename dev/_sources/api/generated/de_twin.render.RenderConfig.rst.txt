@@ -49,15 +49,19 @@
       ~RenderConfig.film_halo
       ~RenderConfig.illumination_profile
       ~RenderConfig.intensity_jitter
+      ~RenderConfig.interactive
       ~RenderConfig.lattice_fringes
       ~RenderConfig.lattice_phase_rad
       ~RenderConfig.max_g_inv_nm
       ~RenderConfig.mip_phase
+      ~RenderConfig.pan_margin
       ~RenderConfig.park_on_feature
       ~RenderConfig.phase_texture_scale
+      ~RenderConfig.preview_side
       ~RenderConfig.probe_footprint_blend
       ~RenderConfig.refraction_loss
       ~RenderConfig.scaled_diffraction_saturation
+      ~RenderConfig.settle_s
       ~RenderConfig.stem_model
       ~RenderConfig.tem_model
       ~RenderConfig.texture_bandlimit_nm

@@ -516,6 +516,12 @@
     <span class="n">flip_x</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">render_mode_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RenderMode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None = Auto</span>
+    <span class="c1">#: The largest raster a TEM image is rendered at (pixels); a bigger frame is upsampled</span>
+    <span class="c1">#: from it (`OpticsState.raster_downsample` says by how much). 0 renders at the</span>
+    <span class="c1">#: frame's own sampling: what a CTF or MTF measurement needs, since an upsampled frame</span>
+    <span class="c1">#: carries its contrast transfer only up to the raster's Nyquist. The default keeps a</span>
+    <span class="c1">#: re-render (every stage move and focus step) well under a second on a 4096² camera.</span>
+    <span class="n">max_raster_pixels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
 
     <span class="c1"># ---- illumination (C++: Illumination Semi-Angle TEM, SA Aperture, TEM Illuminated Area)</span>
     <span class="c1"># 0 = derive from the beam spread (brightness conservation, see beam.py);</span>
@@ -553,6 +559,13 @@
     <span class="n">illum_reference_diameter_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.1623</span>
     <span class="n">nanoprobe_illuminated_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.20</span>  <span class="c1"># C++ kNanoprobeIlluminatedAreaUm (TEM-mode nanoprobe)</span>
     <span class="n">lowmag_illumination_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>  <span class="c1"># LowMAG condenser setting spreads the beam this much more</span>
+    <span class="c1">#: Intensity zoom (TFS "Intensity Zoom"): in TEM imaging the condenser follows the</span>
+    <span class="c1">#: magnification, so the illuminated area keeps its size relative to the field of</span>
+    <span class="c1">#: view and the dose per detector pixel stays put as the operator zooms. Intensity</span>
+    <span class="c1">#: then sets the beam at `intensity_zoom_reference_mag` (and so at every mag). Off:</span>
+    <span class="c1">#: the dose per pixel goes as 1/mag^2 and zooming out saturates the camera.</span>
+    <span class="n">intensity_zoom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">intensity_zoom_reference_mag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span>
 
     <span class="c1"># ---- aberrations / coherence (twin additions) --------------------------</span>
     <span class="n">cs_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.2</span>

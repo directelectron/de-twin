@@ -822,9 +822,14 @@
                 <span class="n">blanked</span> <span class="o">=</span> <span class="n">flux</span> <span class="ow">is</span> <span class="kc">None</span>
                 <span class="c1"># Noise is seeded by a twin-wide frame counter, not the index within this</span>
                 <span class="c1"># request: repeated acquisitions (live view) must not repeat their noise.</span>
-                <span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">raw</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">expose</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">frame_time</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">ht_kv</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">)</span>
+                <span class="c1"># A request with its own seed is pinned instead: frame i by (seed, i).</span>
+                <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">serial</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span><span class="p">,</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">serial</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+                <span class="n">raw</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">expose</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">frame_time</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span>
+                                                 <span class="n">ht_kv</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
             <span class="n">meta</span> <span class="o">=</span> <span class="n">FrameMeta</span><span class="p">(</span>
                 <span class="n">frame_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
                 <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
@@ -840,6 +845,16 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">sleep_until</span><span class="p">(</span><span class="n">t_start</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">frame_time</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="DigitalTwin.reset_serial">
+<a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.reset_serial">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restart the running frame count that seeds the detector noise, so the next</span>
+<span class="sd">        acquisition's noise is the same as a fresh twin's (see ``AcquisitionRequest.seed``</span>
+<span class="sd">        to pin one acquisition without touching the count)."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_frame_serial</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="DigitalTwin.acquire">
@@ -869,7 +884,8 @@
 
 <span class="sd">        ``exposure_s`` is split into frames at ``fps``, each corrected with</span>
 <span class="sd">        references the twin measures on first use (see :attr:`processor`).</span>
-<span class="sd">        ``units``: "electrons" | "adu" | "raw".</span>
+<span class="sd">        ``units``: "electrons" | "adu" | "raw". ``seed=`` (a request field) pins the</span>
+<span class="sd">        image's noise: the same seed gives the same image whatever came before.</span>
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">frames_for_exposure</span>
 

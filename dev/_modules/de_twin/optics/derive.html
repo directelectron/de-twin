@@ -517,7 +517,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">electron_wavelength_nm</span><span class="p">,</span> <span class="n">focal_spread_nm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpticsState</span>
 
-<span class="n">MAX_RASTER_PIXELS</span> <span class="o">=</span> <span class="mi">2048</span> <span class="o">*</span> <span class="mi">2048</span>
+<span class="c1">#: The default of `OpticsConfig.max_raster_pixels`: the largest raster a TEM image is</span>
+<span class="c1">#: rendered at; a bigger camera frame is upsampled from it. 1024² keeps a re-render (every</span>
+<span class="c1">#: stage move and focus step) well under a second on a 4096² camera, at the cost of detail</span>
+<span class="c1">#: finer than a quarter of its pixels. ``OpticsConfig(max_raster_pixels=0)`` renders at</span>
+<span class="c1">#: the frame's own sampling.</span>
+<span class="n">MAX_RASTER_PIXELS</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
 <span class="n">MIN_RASTER_SIDE</span> <span class="o">=</span> <span class="mi">32</span>
 <span class="n">SAED_RASTER_SIDE</span> <span class="o">=</span> <span class="mi">256</span>
 <span class="n">EDGE_SOFTENING_SIGMA_PX</span> <span class="o">=</span> <span class="mf">0.5</span>
@@ -654,7 +659,8 @@
         <span class="n">raster_nm</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">d_sa_um</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">SAED_RASTER_SIDE</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="p">(</span><span class="n">ow</span> <span class="o">*</span> <span class="n">oh</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_RASTER_PIXELS</span><span class="p">:</span>
+        <span class="n">cap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">"max_raster_pixels"</span><span class="p">,</span> <span class="n">MAX_RASTER_PIXELS</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">cap</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ow</span> <span class="o">*</span> <span class="n">oh</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cap</span><span class="p">:</span>
             <span class="n">d</span> <span class="o">*=</span> <span class="mi">2</span>
         <span class="n">downsample</span> <span class="o">=</span> <span class="n">d</span>
         <span class="n">rx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">MIN_RASTER_SIDE</span><span class="p">,</span> <span class="n">ow</span> <span class="o">//</span> <span class="n">d</span><span class="p">)</span>

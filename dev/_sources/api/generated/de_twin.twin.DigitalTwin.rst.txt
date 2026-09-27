@@ -27,6 +27,7 @@
       ~DigitalTwin.optics
       ~DigitalTwin.raw_frame
       ~DigitalTwin.request
+      ~DigitalTwin.reset_serial
       ~DigitalTwin.safe_dose_e_per_px_s
       ~DigitalTwin.scan_point
       ~DigitalTwin.set_specimen

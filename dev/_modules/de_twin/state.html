@@ -722,6 +722,11 @@
     <span class="n">camera_inserted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">scan</span><span class="p">:</span> <span class="n">ScanRequest</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ScanRequest</span><span class="p">)</span>
     <span class="n">acquisition_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1">#: Counting cameras: read out at 2x the ROI each way (Apollo "Super-resolution").</span>
+    <span class="n">super_resolution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Pins this acquisition's detector noise: frame k is seeded by (seed, k) whatever the</span>
+    <span class="c1">#: twin exposed before. None: the twin's own seed and running frame count.</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">beam_reaches_detector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

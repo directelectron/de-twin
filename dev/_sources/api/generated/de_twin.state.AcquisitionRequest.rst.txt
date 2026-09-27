@@ -35,7 +35,9 @@
       ~AcquisitionRequest.frames_per_buffer
       ~AcquisitionRequest.hw_binning
       ~AcquisitionRequest.hw_roi
+      ~AcquisitionRequest.seed
       ~AcquisitionRequest.shutter_cmd
+      ~AcquisitionRequest.super_resolution
       ~AcquisitionRequest.total_frames
       ~AcquisitionRequest.scan
    

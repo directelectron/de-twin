@@ -633,6 +633,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 
+<span class="c1">#: Read-only property naming the simulator behind the frames (``"de-twin &lt;version&gt;"``), so</span>
+<span class="c1">#: a client can stamp provenance on what it saves. A real DE-Server has no such property.</span>
+<span class="n">SIMULATOR_SOURCE_PROPERTY</span> <span class="o">=</span> <span class="s2">"Simulator Source"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">model_counting</span><span class="p">(</span><span class="n">twin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"hardware_counting"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">request_from_properties</span><span class="p">(</span><span class="n">get</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">camera_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                             <span class="n">sensor_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
                             <span class="n">scan_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -672,7 +681,16 @@
         <span class="n">camera_model</span><span class="o">=</span><span class="n">camera_model</span><span class="p">,</span> <span class="n">exposure_mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">frame_time_s</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">,</span>
         <span class="n">total_frames</span><span class="o">=</span><span class="n">frame_count</span><span class="p">,</span>
         <span class="n">frames_per_buffer</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="s2">"Grabbing - Frames Per Buffer"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">))),</span>
-        <span class="n">hw_roi</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">hw_binning</span><span class="o">=</span><span class="p">(</span><span class="n">bx</span><span class="p">,</span> <span class="n">by</span><span class="p">),</span> <span class="n">scan</span><span class="o">=</span><span class="n">scan</span><span class="p">,</span> <span class="n">acquisition_index</span><span class="o">=</span><span class="n">acquisition_index</span><span class="p">)</span>
+        <span class="n">hw_roi</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">hw_binning</span><span class="o">=</span><span class="p">(</span><span class="n">bx</span><span class="p">,</span> <span class="n">by</span><span class="p">),</span> <span class="n">scan</span><span class="o">=</span><span class="n">scan</span><span class="p">,</span> <span class="n">acquisition_index</span><span class="o">=</span><span class="n">acquisition_index</span><span class="p">,</span>
+        <span class="n">super_resolution</span><span class="o">=</span><span class="n">_super_resolution</span><span class="p">(</span><span class="n">get</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_super_resolution</span><span class="p">(</span><span class="n">get</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""DE-Server's "Centroiding Mode" asks for super-resolution (counting cameras only)."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"super"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="s2">"Centroiding Mode"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - an integrating camera has no such property</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_resample</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -1065,6 +1083,39 @@
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">getter</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">ro</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">DynamicProperty</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">getter</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Instrument"</span><span class="p">))</span>
+        <span class="c1"># Counting cameras: DE-Server's "Centroiding Mode" (Standard | Super-resolution).</span>
+        <span class="c1"># Super-resolution reads out 2x the ROI each way, and the image size says so.</span>
+        <span class="k">if</span> <span class="n">model_counting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centroiding</span> <span class="o">=</span> <span class="s2">"Standard"</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">set_centroiding</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"standard"</span><span class="p">,</span> <span class="s2">"super-resolution"</span><span class="p">):</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"centroiding mode </span><span class="si">%s</span><span class="s2"> not supported"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_centroiding</span> <span class="o">=</span> <span class="s2">"Super-resolution"</span> <span class="k">if</span> <span class="s2">"super"</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"Standard"</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">DynamicProperty</span><span class="p">(</span><span class="s2">"Centroiding Mode"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroiding</span><span class="p">,</span> <span class="n">set_centroiding</span><span class="p">,</span>
+                                      <span class="n">data_type</span><span class="o">=</span><span class="s2">"String"</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="s2">"Set"</span><span class="p">,</span>
+                                      <span class="n">options</span><span class="o">=</span><span class="s2">"'Standard*', 'Super-resolution'"</span><span class="p">,</span>
+                                      <span class="n">default_value</span><span class="o">=</span><span class="s2">"Standard"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Basic"</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span>
+                <span class="n">orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"image_size_</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">_pixels"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">orig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="n">orig</span><span class="o">=</span><span class="n">orig</span><span class="p">):</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_centroiding</span> <span class="o">==</span> <span class="s2">"Super-resolution"</span>
+                                     <span class="ow">and</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hw_bin</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">else</span> <span class="n">n</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">DynamicProperty</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">"Integer"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">orig</span><span class="o">.</span><span class="n">category</span><span class="p">))</span>
+
+        <span class="c1"># Provenance: frames from here are simulated, and by what</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">DynamicProperty</span><span class="p">(</span><span class="n">SIMULATOR_SOURCE_PROPERTY</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"de-twin </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                                  <span class="n">data_type</span><span class="o">=</span><span class="s2">"String"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Twin"</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_holder_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">holder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">holder</span>
@@ -1451,6 +1502,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">twin</span> <span class="o">=</span> <span class="n">twin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_requested_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fake</span> <span class="o">=</span> <span class="n">TwinFakeServer</span><span class="p">(</span><span class="n">twin</span><span class="o">=</span><span class="n">twin</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">pace</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_socketmod</span><span class="o">.</span><span class="n">socket</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1459,7 +1511,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requested_port</span>
+<span class="w">        </span><span class="sd">"""The bound TCP port (cached at `start`: the socket may be closed by now)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span>
 
 <div class="viewcode-block" id="TwinDeapiServer.start">
 <a class="viewcode-back" href="../../../api/generated/de_twin.faces.deapi_server.TwinDeapiServer.html#de_twin.faces.deapi_server.TwinDeapiServer.start">[docs]</a>
@@ -1469,6 +1522,7 @@
         <span class="n">tcp</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requested_port</span><span class="p">))</span>
         <span class="n">tcp</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
         <span class="n">tcp</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tcp</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span> <span class="o">=</span> <span class="n">tcp</span>
         <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_accept_loop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_udp_loop</span><span class="p">):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"TwinDeapi-</span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>

@@ -20,6 +20,7 @@
       ~Detector.expose
       ~Detector.output_shape
       ~Detector.roi
+      ~Detector.super_resolution
    
    
 

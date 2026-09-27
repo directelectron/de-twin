@@ -503,6 +503,15 @@
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+<span class="c1">#: DE-Server gives up on the producer when a frame is ~1 s late (GrabberSim: two frame</span>
+<span class="c1">#: times + 1000 ms) and stops the acquisition. A render can take longer than that — the</span>
+<span class="c1">#: first view of a new magnification, the full render after a drag — so when no new</span>
+<span class="c1">#: frame is ready after this long, the last one is published again.</span>
+<span class="n">KEEPALIVE_S</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="c1">#: A pool nobody has asked for frames for in this long is closed (its thread stops).</span>
+<span class="n">POOL_IDLE_S</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="n">_DONE</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
 
 <div class="viewcode-block" id="ShmFace">
 <a class="viewcode-back" href="../../../api/generated/de_twin.faces.shm_face.ShmFace.html#de_twin.faces.shm_face.ShmFace">[docs]</a>
@@ -513,12 +522,28 @@
 <span class="sd">    first frame (imports, GPU start-up, building the specimen), while DE-Server waits about</span>
 <span class="sd">    one frame time plus a second before it gives up on the acquisition. ``ready`` is set</span>
 <span class="sd">    once the face is warm and serving.</span>
+
+<span class="sd">    Throughput (the corner cut): ``reuse=N`` publishes each rendered frame up to N times,</span>
+<span class="sd">    so a 4096² camera can stream at hundreds of frames per second while the detector</span>
+<span class="sd">    physics renders tens; ``threads`` caps the cores the physics takes. Every frame is a</span>
+<span class="sd">    correct single frame of the current view; what recycling costs is independence, so a</span>
+<span class="sd">    sum of many frames is noisier than N-fold as many would be. ``reuse=1`` (the default)</span>
+<span class="sd">    publishes every frame once.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="ShmFace.__init__">
 <a class="viewcode-back" href="../../../api/generated/de_twin.faces.shm_face.ShmFace.html#de_twin.faces.shm_face.ShmFace.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">DEFAULT_NAME</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">warm_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">DEFAULT_NAME</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">warm_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span> <span class="n">reuse</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pool_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">twin</span> <span class="o">=</span> <span class="n">twin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">reuse</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pool_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">threads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_reused</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool_used</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_frame</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the last frame published, for keep-alives across requests</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pace</span> <span class="o">=</span> <span class="n">pace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warm_up</span> <span class="o">=</span> <span class="n">warm_up</span>
@@ -527,6 +552,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames_published</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keepalives</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">requests_served</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
@@ -544,6 +570,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_pool</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">producer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -585,6 +612,8 @@
             <span class="n">got</span> <span class="o">=</span> <span class="n">pending</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span><span class="o">.</span><span class="n">poll_request</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
             <span class="n">pending</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">got</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_used</span> <span class="o">&gt;</span> <span class="n">POOL_IDLE_S</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_close_pool</span><span class="p">()</span>
                 <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">requests_served</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">try</span><span class="p">:</span>
@@ -593,23 +622,99 @@
                 <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"failed serving request </span><span class="si">%d</span><span class="s2">"</span><span class="p">,</span> <span class="n">got</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_serve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Publish frames for one request; returns a newer request if one pre-empts it."""</span>
+<span class="w">        </span><span class="sd">"""Publish frames for one request; returns a newer request if one pre-empts it.</span>
+
+<span class="sd">        The twin renders on a thread of its own into a small pool (`_FramePool`), so a</span>
+<span class="sd">        slow render does not starve DE-Server: while it runs, the last frame is</span>
+<span class="sd">        republished every `KEEPALIVE_S`. With ``reuse &gt; 1`` the pool also recycles: each</span>
+<span class="sd">        rendered frame may be published up to ``reuse`` times, fresh frames first, so</span>
+<span class="sd">        the stream runs at the frame rate DE-Server asks for rather than at the rate the</span>
+<span class="sd">        detector physics can manage.</span>
+<span class="sd">        """</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">hdr</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">frame_height</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">frame_width</span><span class="p">)</span>
         <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">if</span> <span class="n">h</span><span class="o">.</span><span class="n">bytes_per_pixel</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span>
-        <span class="n">stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">):</span>
-            <span class="k">while</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">wait_slot_free</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="n">recycle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_for</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">recycle</span><span class="p">)</span>
+        <span class="n">frame_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">),</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">request_changed</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">poll_request</span><span class="p">()</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">_fit</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">),</span> <span class="n">request_id</span><span class="o">=</span><span class="n">request_id</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">meta</span><span class="o">.</span><span class="n">frame_index</span><span class="p">,</span>
-                      <span class="n">flags</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">FLAG_BLANKED</span> <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">blanked</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frames_published</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">request_changed</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">poll_request</span><span class="p">()</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+                <span class="n">got</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">KEEPALIVE_S</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">got</span> <span class="ow">is</span> <span class="n">_DONE</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">got</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">got</span>
+                <span class="k">if</span> <span class="n">got</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># nothing rendered for this request yet</span>
+                    <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_frame</span>
+                    <span class="k">if</span> <span class="n">last</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span> <span class="ow">or</span> <span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtype</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">got</span> <span class="o">=</span> <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">),</span> <span class="n">fresh</span> <span class="o">=</span> <span class="n">got</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">fresh</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">recycle</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">keepalives</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">wait_slot_free</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">request_changed</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">poll_request</span><span class="p">()</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">_fit</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="n">request_id</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+                          <span class="n">flags</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">FLAG_BLANKED</span> <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">blanked</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pool_used</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frames_published</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frames_reused</span> <span class="o">+=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">fresh</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">total_frames</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">request</span><span class="o">.</span><span class="n">total_frames</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">recycle</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pace</span><span class="p">:</span>
+                    <span class="n">delay</span> <span class="o">=</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">frame_time</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">delay</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pool_used</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># a one-off pool (scan, pinned seed)</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="ow">is</span> <span class="n">pool</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pool_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">recycle</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_FramePool"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The frame pool for *request*: the running one when the request asks for the</span>
+<span class="sd">        same frames as the last (DE-MC's live view is a string of short acquisitions,</span>
+<span class="sd">        one request each), so its rendered frames, and the keep-alive, carry over;</span>
+<span class="sd">        otherwise a new one. A scan or a pinned seed depends on the frame index, so it</span>
+<span class="sd">        always starts afresh."""</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">or</span> <span class="n">request</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">acquisition_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_key</span> <span class="o">==</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">pool</span><span class="o">.</span><span class="n">alive</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_pool</span><span class="p">()</span>
+        <span class="n">live</span> <span class="o">=</span> <span class="n">key</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">request</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">_FramePool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="p">,</span> <span class="n">live</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool_size</span> <span class="k">if</span> <span class="n">recycle</span> <span class="k">else</span> <span class="mi">2</span><span class="p">),</span>
+                          <span class="n">reuse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reuse</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pace</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">recycle</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_key</span> <span class="o">=</span> <span class="n">pool</span><span class="p">,</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="n">pool</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_close_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_now</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+    <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -620,6 +725,102 @@
     <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">out</span><span class="p">[:</span><span class="n">h</span><span class="p">,</span> <span class="p">:</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">frame</span><span class="p">[:</span><span class="n">h</span><span class="p">,</span> <span class="p">:</span><span class="n">w</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_FramePool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The twin's frames for one request, rendered on a thread of their own.</span>
+
+<span class="sd">    A ring of up to *size* frames of the CURRENT view: when the microscope state of a new</span>
+<span class="sd">    frame differs from the last one's, the older frames are dropped, so a recycled frame</span>
+<span class="sd">    never shows a view the column has left. `take` hands out the oldest frame not yet</span>
+<span class="sd">    published, else (recycling) the least-used one still under *reuse* publications, else</span>
+<span class="sd">    waits; after *keepalive* seconds with nothing new it hands back the last frame</span>
+<span class="sd">    anyway. *threads* caps the numba threads the detector uses (leave cores for the</span>
+<span class="sd">    consumer's own processing).</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reuse</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">threads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">reuse</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Condition</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># [item, uses]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># _DONE or an exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">twin</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="p">,</span> <span class="n">threads</span><span class="p">),</span>
+                                        <span class="n">name</span><span class="o">=</span><span class="s2">"de-twin-shm-render"</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+
+                <span class="n">numba</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">threads</span><span class="p">),</span> <span class="n">numba</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">NUMBA_NUM_THREADS</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - no numba: nothing to cap</span>
+                <span class="k">pass</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">microscope</span> <span class="o">!=</span> <span class="n">state</span><span class="p">:</span>
+                        <span class="n">state</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">microscope</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># a new view: nothing older may be shown</span>
+                    <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                        <span class="k">return</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">item</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>  <span class="c1"># drop the most-used frame</span>
+                        <span class="n">worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">_DONE</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - raised on the publishing thread</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">take</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keepalive</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``((raw, meta), fresh)``, ``_DONE``, an exception, or None (nothing yet)."""</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+        <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">keepalive</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">fresh</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">fresh</span><span class="p">:</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">fresh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">usable</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">usable</span><span class="p">:</span>
+                        <span class="n">e</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">usable</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">return</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">deadline</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>  <span class="c1"># the renderer stops at its next frame; the twin's lock orders them</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
 </pre></div>
 
                 </article>

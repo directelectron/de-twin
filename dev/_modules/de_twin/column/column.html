@@ -868,8 +868,14 @@
 <div class="viewcode-block" id="Column.mag_ladder">
 <a class="viewcode-back" href="../../../api/generated/de_twin.column.Column.html#de_twin.column.Column.mag_ladder">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mag_ladder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Magnifications of the active optics mode (``None`` in TEM diffraction)."""</span>
+<span class="w">        </span><span class="sd">"""Magnifications a ``Magnification`` write can reach from here (``None`` in TEM</span>
+<span class="sd">        diffraction). In TEM imaging that is LowMAG's and MAG1's together: a write</span>
+<span class="sd">        beyond the active mode's ladder crosses into the other (`imaging_mode_for`),</span>
+<span class="sd">        as a real column's mag knob does, so a client stepping this ladder is not</span>
+<span class="sd">        stuck at the top of LowMAG."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">tem_stem</span> <span class="o">==</span> <span class="n">TemStem</span><span class="o">.</span><span class="n">TEM</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fm</span> <span class="o">!=</span> <span class="n">L</span><span class="o">.</span><span class="n">FM_DIFF</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">L</span><span class="o">.</span><span class="n">LOWMAG_MAGS</span> <span class="o">+</span> <span class="n">L</span><span class="o">.</span><span class="n">MAG1_MAGS</span>
             <span class="k">return</span> <span class="n">L</span><span class="o">.</span><span class="n">active_ladders</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fm</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">tem_stem</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
 
 

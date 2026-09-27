@@ -506,6 +506,21 @@
     <span class="n">amplitude_contrast</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.07</span>  <span class="c1"># absorptive part of the amorphous texture (w)</span>
     <span class="n">lattice_fringes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">lattice_phase_rad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>  <span class="c1"># total phase amplitude of resolved lattice fringes</span>
+    <span class="c1">#: TEM imaging renders a view this fraction of the field larger on each side and</span>
+    <span class="c1">#: serves a stage move that stays inside the margin by cropping it: the image moves</span>
+    <span class="c1">#: rigidly with the specimen, so a joystick nudge costs a crop, not a render. 0 off.</span>
+    <span class="n">pan_margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>
+    <span class="c1">#: Interactive use (dragging the stage, zooming): while the view keeps changing, a</span>
+    <span class="c1">#: view the cache cannot crop is rendered at up to ``preview_side`` squared and upsampled</span>
+    <span class="c1">#: (~35-70 ms rather than ~0.3-0.9 s); the first time the same view is asked for</span>
+    <span class="c1">#: again — the next frame after you stop — it is rendered in full. Off by default,</span>
+    <span class="c1">#: so a library caller always gets the full render.</span>
+    <span class="n">interactive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">preview_side</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="c1">#: How long (wall-clock seconds) the view must stay put before it counts as stopped</span>
+    <span class="c1">#: and is rendered in full. Live view asks for several frames per drag step, so</span>
+    <span class="c1">#: "asked for the same view twice" is not "stopped".</span>
+    <span class="n">settle_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">illumination_profile</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># draw the edge of the illuminated disk when it is in view</span>
     <span class="n">texture_seed_salt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x7E57</span>
 
