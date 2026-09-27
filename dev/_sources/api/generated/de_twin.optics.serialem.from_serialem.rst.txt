@@ -1,0 +1,6 @@
+﻿de\_twin.optics.serialem.from\_serialem
+=======================================
+
+.. currentmodule:: de_twin.optics.serialem
+
+.. autofunction:: from_serialem

@@ -10,4 +10,8 @@ deserver
 mirroring
 corrector
 fourd_stem
+beam_tilt_precession
+low_dose
+realistic_column
+serialem
 ```

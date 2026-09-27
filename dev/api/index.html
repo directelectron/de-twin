@@ -466,6 +466,8 @@
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.column.ColumnAdapter.html">de_twin.column.ColumnAdapter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.column.SoapTemChannelClient.html">de_twin.column.SoapTemChannelClient</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.column.corrector.Corrector.html">de_twin.column.corrector.Corrector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.column.lowdose.LowDose.html">de_twin.column.lowdose.LowDose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.column.lowdose.LowDoseArea.html">de_twin.column.lowdose.LowDoseArea</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.aberrations.Aberrations.html">de_twin.optics.aberrations.Aberrations</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -488,6 +490,10 @@
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.derive_optics.html">de_twin.optics.derive_optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.OpticsConfig.html">de_twin.optics.OpticsConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.Calibration.html">de_twin.optics.Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.realism.ColumnRealism.html">de_twin.optics.realism.ColumnRealism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.serialem.ColumnDefinition.html">de_twin.optics.serialem.ColumnDefinition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.serialem.to_serialem.html">de_twin.optics.serialem.to_serialem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.optics.serialem.from_serialem.html">de_twin.optics.serialem.from_serialem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.render.Renderer.html">de_twin.render.Renderer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.render.RenderConfig.html">de_twin.render.RenderConfig</a></li>
 </ul>
@@ -624,6 +630,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector" title="de_twin.column.corrector.Corrector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.corrector.Corrector</span></code></a></p></td>
 <td><p>Probe and/or image corrector of a column.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.column.lowdose.LowDose.html#de_twin.column.lowdose.LowDose" title="de_twin.column.lowdose.LowDose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.lowdose.LowDose</span></code></a></p></td>
+<td><p>The column's low-dose state; <cite>column.Column</cite> owns one and drives it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.column.lowdose.LowDoseArea.html#de_twin.column.lowdose.LowDoseArea" title="de_twin.column.lowdose.LowDoseArea"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.lowdose.LowDoseArea</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.optics.aberrations.Aberrations.html#de_twin.optics.aberrations.Aberrations" title="de_twin.optics.aberrations.Aberrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.aberrations.Aberrations</span></code></a></p></td>
 <td><p>A set of aberration coefficients (complex, nm).</p></td>
 </tr>
@@ -697,6 +709,18 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.optics.Calibration.html#de_twin.optics.Calibration" title="de_twin.optics.Calibration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.Calibration</span></code></a></p></td>
 <td><p>Magnification -&gt; nm/px and camera length -&gt; 1/nm/px, per mag mode.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism" title="de_twin.optics.realism.ColumnRealism"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.realism.ColumnRealism</span></code></a></p></td>
+<td><p>The imperfect geometry of a real column (see the module docstring).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.optics.serialem.ColumnDefinition.html#de_twin.optics.serialem.ColumnDefinition" title="de_twin.optics.serialem.ColumnDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.serialem.ColumnDefinition</span></code></a></p></td>
+<td><p>A column defined by tables (from calibrations) rather than drawn from a seed: the same interface as <a class="reference internal" href="generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism" title="de_twin.optics.realism.ColumnRealism"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnRealism</span></code></a>, so it goes in <code class="docutils literal notranslate"><span class="pre">OpticsConfig(realism=...)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.optics.serialem.to_serialem.html#de_twin.optics.serialem.to_serialem" title="de_twin.optics.serialem.to_serialem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.serialem.to_serialem</span></code></a></p></td>
+<td><p>Write the calibrations SerialEM would measure on a column (and, with <em>properties_path</em>, the camera's <code class="docutils literal notranslate"><span class="pre">RotationAndPixel</span></code> block).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.optics.serialem.from_serialem.html#de_twin.optics.serialem.from_serialem" title="de_twin.optics.serialem.from_serialem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics.serialem.from_serialem</span></code></a></p></td>
+<td><p>A column definition from a microscope's SerialEM calibrations (and, if given, the camera's <code class="docutils literal notranslate"><span class="pre">RotationAndPixel</span></code> lines).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.render.Renderer.html#de_twin.render.Renderer" title="de_twin.render.Renderer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render.Renderer</span></code></a></p></td>
 <td><p></p></td>

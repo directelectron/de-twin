@@ -466,6 +466,8 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.ColumnAdapter.html">de_twin.column.ColumnAdapter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.SoapTemChannelClient.html">de_twin.column.SoapTemChannelClient</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.corrector.Corrector.html">de_twin.column.corrector.Corrector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.lowdose.LowDose.html">de_twin.column.lowdose.LowDose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.lowdose.LowDoseArea.html">de_twin.column.lowdose.LowDoseArea</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.optics.aberrations.Aberrations.html">de_twin.optics.aberrations.Aberrations</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -488,6 +490,10 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.optics.derive_optics.html">de_twin.optics.derive_optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.optics.OpticsConfig.html">de_twin.optics.OpticsConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.optics.Calibration.html">de_twin.optics.Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.optics.realism.ColumnRealism.html">de_twin.optics.realism.ColumnRealism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.optics.serialem.ColumnDefinition.html">de_twin.optics.serialem.ColumnDefinition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.optics.serialem.to_serialem.html">de_twin.optics.serialem.to_serialem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.optics.serialem.from_serialem.html">de_twin.optics.serialem.from_serialem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.render.Renderer.html">de_twin.render.Renderer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.render.RenderConfig.html">de_twin.render.RenderConfig</a></li>
 </ul>
@@ -618,61 +624,64 @@ moved to an empty area), which is what gain references expect.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.beam_on_detector" title="de_twin.twin.DigitalTwin.beam_on_detector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beam_on_detector</span></code></a>(request, state)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.close" title="de_twin.twin.DigitalTwin.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.calibration_truth" title="de_twin.twin.DigitalTwin.calibration_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_truth</span></code></a>([request])</p></td>
+<td><p>What SerialEM's calibrations should find at the column's current state: the true pixel size against the nominal one, the image rotation on the camera, the image-shift matrix, the magnification's image offset, the stage's backlash error and how far the specimen is off eucentric height.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.close" title="de_twin.twin.DigitalTwin.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.datacube" title="de_twin.twin.DigitalTwin.datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code></a>(request)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.datacube" title="de_twin.twin.DigitalTwin.datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code></a>(request)</p></td>
 <td><p>Noiseless 4D-STEM data for the request's scan: float32 (scan ny, nx, Hd, Wd) at the detector's <em>binned</em> output shape, electrons per binned pixel per second (multiply by the dwell time for electrons per pattern).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.flux" title="de_twin.twin.DigitalTwin.flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux</span></code></a>(request[, frame_index, scan_point, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.flux" title="de_twin.twin.DigitalTwin.flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux</span></code></a>(request[, frame_index, scan_point, ...])</p></td>
 <td><p>Noiseless electrons/pixel/second on the ROI, or None if no beam.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frames</span></code></a>(request, *[, pace, stop])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frames</span></code></a>(request, *[, pace, stop])</p></td>
 <td><p>Raw detector frames for <code class="docutils literal notranslate"><span class="pre">request</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ground_truth" title="de_twin.twin.DigitalTwin.ground_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth</span></code></a>([request, as_arrays])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ground_truth" title="de_twin.twin.DigitalTwin.ground_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth</span></code></a>([request, as_arrays])</p></td>
 <td><p>Phase + effective orientation (grain x stage tilt) per STEM scan point, or per raster pixel of a TEM view, for scoring orientation maps (e.g. pyxem against <code class="docutils literal notranslate"><span class="pre">CrystalLibrary.template_library</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ground_truth_ptychography" title="de_twin.twin.DigitalTwin.ground_truth_ptychography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth_ptychography</span></code></a>(request)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ground_truth_ptychography" title="de_twin.twin.DigitalTwin.ground_truth_ptychography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth_ptychography</span></code></a>(request)</p></td>
 <td><p>Ground truth of the coherent 4D-STEM simulation of <code class="docutils literal notranslate"><span class="pre">request</span></code> (to score ptychography / tcBF):</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.holder_state" title="de_twin.twin.DigitalTwin.holder_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">holder_state</span></code></a>([t])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.holder_state" title="de_twin.twin.DigitalTwin.holder_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">holder_state</span></code></a>([t])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.microscope_state" title="de_twin.twin.DigitalTwin.microscope_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">microscope_state</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.microscope_state" title="de_twin.twin.DigitalTwin.microscope_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">microscope_state</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.optics" title="de_twin.twin.DigitalTwin.optics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics</span></code></a>(request[, state])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.optics" title="de_twin.twin.DigitalTwin.optics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics</span></code></a>(request[, state])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.raw_frame" title="de_twin.twin.DigitalTwin.raw_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_frame</span></code></a>([frame_time_s])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.raw_frame" title="de_twin.twin.DigitalTwin.raw_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_frame</span></code></a>([frame_time_s])</p></td>
 <td><p>One raw detector frame (offset, noise, defects and all).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.request" title="de_twin.twin.DigitalTwin.request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request</span></code></a>(**kw)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.request" title="de_twin.twin.DigitalTwin.request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request</span></code></a>(**kw)</p></td>
 <td><p>An AcquisitionRequest for this twin's camera.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.reset_serial" title="de_twin.twin.DigitalTwin.reset_serial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_serial</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.reset_serial" title="de_twin.twin.DigitalTwin.reset_serial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_serial</span></code></a>()</p></td>
 <td><p>Restart the running frame count that seeds the detector noise, so the next acquisition's noise is the same as a fresh twin's (see <code class="docutils literal notranslate"><span class="pre">AcquisitionRequest.seed</span></code> to pin one acquisition without touching the count).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.safe_dose_e_per_px_s" title="de_twin.twin.DigitalTwin.safe_dose_e_per_px_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">safe_dose_e_per_px_s</span></code></a>([fps])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.safe_dose_e_per_px_s" title="de_twin.twin.DigitalTwin.safe_dose_e_per_px_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">safe_dose_e_per_px_s</span></code></a>([fps])</p></td>
 <td><p>A dose rate the detector takes without saturating a frame at <em>fps</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.scan_point" title="de_twin.twin.DigitalTwin.scan_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point</span></code></a>(request, frame_index)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.scan_point" title="de_twin.twin.DigitalTwin.scan_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point</span></code></a>(request, frame_index)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.set_specimen" title="de_twin.twin.DigitalTwin.set_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_specimen</span></code></a>(specimen[, start])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.set_specimen" title="de_twin.twin.DigitalTwin.set_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_specimen</span></code></a>(specimen[, start])</p></td>
 <td><p>Swap the specimen (e.g. a new preset) keeping column/holder/detector.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.snap" title="de_twin.twin.DigitalTwin.snap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code></a>([exposure_s, fps, units])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.snap" title="de_twin.twin.DigitalTwin.snap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code></a>([exposure_s, fps, units])</p></td>
 <td><p>An integrated, dark/gain-corrected image, the way DE-Server delivers one.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.start_on_specimen" title="de_twin.twin.DigitalTwin.start_on_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_on_specimen</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.start_on_specimen" title="de_twin.twin.DigitalTwin.start_on_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_on_specimen</span></code></a>()</p></td>
 <td><p>Point the column at the specimen, as an operator would on loading it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.stem_model" title="de_twin.twin.DigitalTwin.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(request)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.stem_model" title="de_twin.twin.DigitalTwin.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(request)</p></td>
 <td><p>&quot;coherent&quot; or &quot;kinematic&quot;: the STEM model the renderer uses for this request.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.virtual_image" title="de_twin.twin.DigitalTwin.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(request, inner_mrad, outer_mrad)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.virtual_image" title="de_twin.twin.DigitalTwin.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(request, inner_mrad, outer_mrad)</p></td>
 <td><p>STEM virtual detector image for the request's scan (noiseless).</p></td>
 </tr>
 </tbody>
@@ -1005,6 +1014,26 @@ stig) and <code class="docutils literal notranslate"><span class="pre">C1_nm</sp
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.calibration_truth">
+<span class="sig-name descname"><span class="pre">calibration_truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.calibration_truth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.calibration_truth" title="Link to this definition">#</a></dt>
+<dd><p>What SerialEM’s calibrations should find at the column’s current state: the true
+pixel size against the nominal one, the image rotation on the camera, the image-shift
+matrix, the magnification’s image offset, the stage’s backlash error and how far the
+specimen is off eucentric height. For closed-loop tests: calibrate the twin, then
+compare. An ideal column (no <code class="docutils literal notranslate"><span class="pre">OpticsConfig.realism</span></code>) reports the identities.</p>
+<p><code class="docutils literal notranslate"><span class="pre">image_rotation_deg</span></code> is the view’s world -&gt; camera rotation: image features turn by
+minus it in (x right, y down) pixel coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.ground_truth">
 <span class="sig-name descname"><span class="pre">ground_truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_arrays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.ground_truth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.ground_truth" title="Link to this definition">#</a></dt>
 <dd><p>Phase + effective orientation (grain x stage tilt) per STEM scan point, or per raster
@@ -1116,6 +1145,7 @@ or the raw arrays with <code class="docutils literal notranslate"><span class="p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.datacube"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.datacube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.stem_model"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.stem_model()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ground_truth_ptychography"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ground_truth_ptychography()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.calibration_truth"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.calibration_truth()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ground_truth"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ground_truth()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.request"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.request()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.close"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.close()</span></code></a></li>

@@ -566,6 +566,19 @@
     <span class="c1">#: the dose per pixel goes as 1/mag^2 and zooming out saturates the camera.</span>
     <span class="n">intensity_zoom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">intensity_zoom_reference_mag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span>
+    <span class="c1">#: A real column's geometry (image rotation, true pixel size, image-shift matrices,</span>
+    <span class="c1">#: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.</span>
+    <span class="n">realism</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"ColumnRealism"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="OpticsConfig.realistic">
+<a class="viewcode-back" href="../../../api/generated/de_twin.optics.OpticsConfig.html#de_twin.optics.OpticsConfig.realistic">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">realistic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OpticsConfig"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A column as imperfect as a real one (:mod:`de_twin.optics.realism`), reproducibly."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.realism</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnRealism</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">realism</span><span class="o">=</span><span class="n">ColumnRealism</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">),</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
 
     <span class="c1"># ---- aberrations / coherence (twin additions) --------------------------</span>
     <span class="n">cs_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.2</span>

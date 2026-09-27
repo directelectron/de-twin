@@ -52,6 +52,7 @@
       ~MicroscopeState.beam_shift_um
       ~MicroscopeState.beam_tilt_mrad
       ~MicroscopeState.condenser_stig
+      ~MicroscopeState.stage_error_um
       ~MicroscopeState.image_shift_um
       ~MicroscopeState.diffraction_shift_mrad
       ~MicroscopeState.objective_stig

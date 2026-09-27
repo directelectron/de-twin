@@ -16,6 +16,7 @@
       ~DigitalTwin.__init__
       ~DigitalTwin.acquire
       ~DigitalTwin.beam_on_detector
+      ~DigitalTwin.calibration_truth
       ~DigitalTwin.close
       ~DigitalTwin.datacube
       ~DigitalTwin.flux

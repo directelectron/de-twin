@@ -43,6 +43,8 @@ Column and corrector
    column.ColumnAdapter
    column.SoapTemChannelClient
    column.corrector.Corrector
+   column.lowdose.LowDose
+   column.lowdose.LowDoseArea
    optics.aberrations.Aberrations
 
 Specimen and crystals
@@ -89,6 +91,10 @@ Optics and rendering
    optics.derive_optics
    optics.OpticsConfig
    optics.Calibration
+   optics.realism.ColumnRealism
+   optics.serialem.ColumnDefinition
+   optics.serialem.to_serialem
+   optics.serialem.from_serialem
    render.Renderer
    render.RenderConfig
 
