@@ -610,6 +610,12 @@
     <span class="n">beam_shift_um</span><span class="p">:</span> <span class="n">Vec2</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Vec2</span><span class="p">)</span>
     <span class="n">beam_tilt_mrad</span><span class="p">:</span> <span class="n">Vec2</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Vec2</span><span class="p">)</span>
     <span class="n">condenser_stig</span><span class="p">:</span> <span class="n">Vec2</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Vec2</span><span class="p">)</span>
+    <span class="c1"># Precession [twin]: the beam-tilt coils driven round a cone of half-angle</span>
+    <span class="c1"># `precession_mrad` at `precession_hz`; with descan the pattern is brought back.</span>
+    <span class="n">precession_on</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">precession_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="n">precession_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span>
+    <span class="n">precession_descan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Projection</span>
     <span class="n">magnification</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span>

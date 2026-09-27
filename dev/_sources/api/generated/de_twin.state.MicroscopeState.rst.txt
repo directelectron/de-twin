@@ -40,6 +40,10 @@
       ~MicroscopeState.mag_mode
       ~MicroscopeState.magnification
       ~MicroscopeState.op_status
+      ~MicroscopeState.precession_descan
+      ~MicroscopeState.precession_hz
+      ~MicroscopeState.precession_mrad
+      ~MicroscopeState.precession_on
       ~MicroscopeState.probe_mode
       ~MicroscopeState.projection
       ~MicroscopeState.screen_position
