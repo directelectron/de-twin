@@ -593,7 +593,10 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">diffsims.crystallography</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReciprocalLatticeVector</span>
 
         <span class="n">rlv</span> <span class="o">=</span> <span class="n">ReciprocalLatticeVector</span><span class="o">.</span><span class="n">from_min_dspacing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="n">min_dspacing</span><span class="o">=</span><span class="mf">10.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_g_inv_nm</span><span class="p">)</span>
-        <span class="n">rlv</span> <span class="o">=</span> <span class="n">rlv</span><span class="p">[</span><span class="n">rlv</span><span class="o">.</span><span class="n">allowed</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rlv</span> <span class="o">=</span> <span class="n">rlv</span><span class="p">[</span><span class="n">rlv</span><span class="o">.</span><span class="n">allowed</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>  <span class="c1"># primitive hexagonal (graphite): the structure factor decides</span>
+            <span class="k">pass</span>
         <span class="n">rlv</span><span class="o">.</span><span class="n">sanitise_phase</span><span class="p">()</span>
         <span class="n">rlv</span><span class="o">.</span><span class="n">calculate_structure_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scattering_params</span><span class="p">)</span>
         <span class="n">g_a</span> <span class="o">=</span> <span class="n">rlv</span><span class="o">.</span><span class="n">gspacing</span>  <span class="c1"># 1/A</span>

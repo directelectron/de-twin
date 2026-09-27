@@ -50,6 +50,8 @@
       ~RenderConfig.illumination_profile
       ~RenderConfig.intensity_jitter
       ~RenderConfig.interactive
+      ~RenderConfig.lattice_fringe_efficiency
+      ~RenderConfig.lattice_fringe_model
       ~RenderConfig.lattice_fringes
       ~RenderConfig.lattice_phase_rad
       ~RenderConfig.max_g_inv_nm

@@ -505,7 +505,18 @@
     <span class="n">texture_bandlimit_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.07</span>  <span class="c1"># Gaussian sigma: atomic form-factor band limit</span>
     <span class="n">amplitude_contrast</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.07</span>  <span class="c1"># absorptive part of the amorphous texture (w)</span>
     <span class="n">lattice_fringes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">lattice_phase_rad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>  <span class="c1"># total phase amplitude of resolved lattice fringes</span>
+    <span class="c1">#: "kinematic": each resolved beam that reaches the image is a phase grating of its own</span>
+    <span class="c1">#: kinematic strength, a = sqrt(2 f) for a Friedel pair carrying f of the electrons, grown</span>
+    <span class="c1">#: with the thickness (heavy crystals give strong fringes, light ones weak), up to its</span>
+    <span class="c1">#: MAX_FRINGE_BEAMS strongest pairs. "fixed": every crystal's fringes share a total phase</span>
+    <span class="c1">#: `lattice_phase_rad` (the older model).</span>
+    <span class="n">lattice_fringe_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"kinematic"</span>
+    <span class="c1">#: The kinematic amplitude times this: what dynamical scattering (saturation in thick,</span>
+    <span class="c1">#: heavy crystals), vibration, drift and the recording take from the fringes. Calibrated</span>
+    <span class="c1">#: on Ted Pella's lattice images (646 Au [001], 675 Si &lt;011&gt;: fringe contrast 27 % and</span>
+    <span class="c1">#: 34 %, twice the kinematic value).</span>
+    <span class="n">lattice_fringe_efficiency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">lattice_phase_rad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>  <span class="c1"># total phase amplitude of resolved lattice fringes ("fixed")</span>
     <span class="c1">#: TEM imaging renders a view this fraction of the field larger on each side and</span>
     <span class="c1">#: serves a stage move that stays inside the margin by cropping it: the image moves</span>
     <span class="c1">#: rigidly with the specimen, so a joystick nudge costs a crop, not a render. 0 off.</span>
