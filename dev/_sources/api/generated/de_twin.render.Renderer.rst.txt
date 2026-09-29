@@ -20,6 +20,7 @@
       ~Renderer.ground_truth
       ~Renderer.ground_truth_ptychography
       ~Renderer.invalidate
+      ~Renderer.prefetch
       ~Renderer.render
       ~Renderer.scan_point_for
       ~Renderer.stem_model

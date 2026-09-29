@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:19.641** total execution time for 6 files **from auto_examples**:
+**00:47.126** total execution time for 6 files **from auto_examples**:
 
 .. container::
 
@@ -33,20 +33,20 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_plot_detector_references.py` (``plot_detector_references.py``)
-     - 00:13.332
+     - 00:33.501
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_magnification.py` (``plot_magnification.py``)
-     - 00:02.134
+     - 00:04.887
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_tilt_series.py` (``plot_tilt_series.py``)
-     - 00:01.954
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_plot_convergence.py` (``plot_convergence.py``)
-     - 00:00.827
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_plot_focus_ctf.py` (``plot_focus_ctf.py``)
-     - 00:00.814
+     - 00:03.807
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_insitu_heating.py` (``plot_insitu_heating.py``)
-     - 00:00.579
+     - 00:01.962
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_plot_convergence.py` (``plot_convergence.py``)
+     - 00:01.556
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_plot_focus_ctf.py` (``plot_focus_ctf.py``)
+     - 00:01.413
      - 0.0

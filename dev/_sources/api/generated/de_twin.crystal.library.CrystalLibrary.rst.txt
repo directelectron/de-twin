@@ -16,6 +16,8 @@
       ~CrystalLibrary.__init__
       ~CrystalLibrary.excite
       ~CrystalLibrary.extinction_distance_nm
+      ~CrystalLibrary.geometry
+      ~CrystalLibrary.intensity_at
       ~CrystalLibrary.inv_xi
       ~CrystalLibrary.rings
       ~CrystalLibrary.template_library

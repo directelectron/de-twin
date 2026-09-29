@@ -23,6 +23,7 @@
 
    .. autosummary::
    
+      ~RenderConfig.adaptive_margin
       ~RenderConfig.add_descan
       ~RenderConfig.amplitude_contrast
       ~RenderConfig.beam_stop_radius_px
@@ -55,13 +56,20 @@
       ~RenderConfig.lattice_fringes
       ~RenderConfig.lattice_phase_rad
       ~RenderConfig.max_g_inv_nm
+      ~RenderConfig.max_margin_px
+      ~RenderConfig.min_margin_px
       ~RenderConfig.mip_phase
+      ~RenderConfig.pan_cache_size
       ~RenderConfig.pan_margin
       ~RenderConfig.park_on_feature
       ~RenderConfig.phase_texture_scale
+      ~RenderConfig.prefetch
       ~RenderConfig.preview_side
       ~RenderConfig.probe_footprint_blend
+      ~RenderConfig.raster_threads
       ~RenderConfig.refraction_loss
+      ~RenderConfig.reuse_min_overlap
+      ~RenderConfig.reuse_rasters
       ~RenderConfig.scaled_diffraction_saturation
       ~RenderConfig.settle_s
       ~RenderConfig.stem_model

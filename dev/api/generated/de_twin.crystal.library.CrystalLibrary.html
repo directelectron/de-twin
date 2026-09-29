@@ -607,6 +607,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.extinction_distance_nm" title="de_twin.crystal.library.CrystalLibrary.extinction_distance_nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extinction_distance_nm</span></code></a>(hkl, ht_kv, wavelength_nm)</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.geometry" title="de_twin.crystal.library.CrystalLibrary.geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span></code></a>(matrices, wavelength_nm[, ...])</p></td>
+<td><p>(owner, index, gx, gy, s) of the reflections near the Ewald sphere for each crystal-&gt;lab matrix (N, 3, 3) - the orientation-only part of <a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.excite" title="de_twin.crystal.library.CrystalLibrary.excite"><code class="xref py py-meth docutils literal notranslate"><span class="pre">excite()</span></code></a>, sorted by owner.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.intensity_at" title="de_twin.crystal.library.CrystalLibrary.intensity_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intensity_at</span></code></a>(idx, s, thickness_nm, ht_kv, ...)</p></td>
+<td><p>Kinematic fraction <code class="docutils literal notranslate"><span class="pre">(pi</span> <span class="pre">t</span> <span class="pre">/</span> <span class="pre">xi_g)^2</span> <span class="pre">&lt;sinc^2&gt;</span></code> of reflections <code class="docutils literal notranslate"><span class="pre">idx</span></code> at excitation errors <code class="docutils literal notranslate"><span class="pre">s</span></code> and thicknesses <code class="docutils literal notranslate"><span class="pre">thickness_nm</span></code> (all (K,)): the thickness-dependent part of <a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.excite" title="de_twin.crystal.library.CrystalLibrary.excite"><code class="xref py py-meth docutils literal notranslate"><span class="pre">excite()</span></code></a>, element by element.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.inv_xi" title="de_twin.crystal.library.CrystalLibrary.inv_xi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_xi</span></code></a>(ht_kv, wavelength_nm)</p></td>
 <td><p>pi / xi_g in 1/nm (xi_g: kinematic extinction distance).</p></td>
 </tr>
@@ -648,6 +654,42 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.crystal.library.CrystalLibrary.geometry">
+<span class="sig-name descname"><span class="pre">geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength_nm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_mrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/crystal/library.html#CrystalLibrary.geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.crystal.library.CrystalLibrary.geometry" title="Link to this definition">#</a></dt>
+<dd><p>(owner, index, gx, gy, s) of the reflections near the Ewald sphere for each
+crystal-&gt;lab matrix (N, 3, 3) - the orientation-only part of <a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.excite" title="de_twin.crystal.library.CrystalLibrary.excite"><code class="xref py py-meth docutils literal notranslate"><span class="pre">excite()</span></code></a>,
+sorted by owner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wavelength_nm</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>convergence_mrad</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.crystal.library.CrystalLibrary.intensity_at">
+<span class="sig-name descname"><span class="pre">intensity_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness_nm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ht_kv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength_nm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_mrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/crystal/library.html#CrystalLibrary.intensity_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.crystal.library.CrystalLibrary.intensity_at" title="Link to this definition">#</a></dt>
+<dd><p>Kinematic fraction <code class="docutils literal notranslate"><span class="pre">(pi</span> <span class="pre">t</span> <span class="pre">/</span> <span class="pre">xi_g)^2</span> <span class="pre">&lt;sinc^2&gt;</span></code> of reflections <code class="docutils literal notranslate"><span class="pre">idx</span></code> at excitation
+errors <code class="docutils literal notranslate"><span class="pre">s</span></code> and thicknesses <code class="docutils literal notranslate"><span class="pre">thickness_nm</span></code> (all (K,)): the thickness-dependent part
+of <a class="reference internal" href="#de_twin.crystal.library.CrystalLibrary.excite" title="de_twin.crystal.library.CrystalLibrary.excite"><code class="xref py py-meth docutils literal notranslate"><span class="pre">excite()</span></code></a>, element by element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ht_kv</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>wavelength_nm</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>convergence_mrad</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -762,6 +804,8 @@ in the twin’s own convention (pyxem <code class="docutils literal notranslate"
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.__init__"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.inv_xi"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.inv_xi()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.extinction_distance_nm"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.extinction_distance_nm()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.geometry"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.geometry()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.intensity_at"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.intensity_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.excite"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.excite()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.rings"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.rings()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.crystal.library.CrystalLibrary.template_library"><code class="docutils literal notranslate"><span class="pre">CrystalLibrary.template_library()</span></code></a></li>

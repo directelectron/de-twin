@@ -36,6 +36,7 @@
    .. autosummary::
    
       ~Specimen.crystallization_enabled
+      ~Specimen.raster_is_local
       ~Specimen.temperature_c
       ~Specimen.thermal_budget_s
       ~Specimen.time_dependent

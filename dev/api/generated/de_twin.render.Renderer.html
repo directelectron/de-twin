@@ -596,7 +596,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.datacube" title="de_twin.render.Renderer.datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code></a>(optics, *[, time_s, model])</p></td>
 <td><p>Noiseless 4D-STEM data: float32 (scan ny, nx, Hd, Wd) at the <em>binned</em> detector shape, electrons per binned pixel per second.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.field_map" title="de_twin.render.Renderer.field_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map</span></code></a>(optics[, layers, time_s])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.field_map" title="de_twin.render.Renderer.field_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map</span></code></a>(optics[, layers, time_s, store])</p></td>
 <td><p>(FieldMap, token): rasterise only when view / layers / generation / time change.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ground_truth" title="de_twin.render.Renderer.ground_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth</span></code></a>(optics[, time_s])</p></td>
@@ -608,19 +608,22 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.invalidate" title="de_twin.render.Renderer.invalidate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invalidate</span></code></a>()</p></td>
 <td><p>Drop every cached raster, frame and pattern (e.g. after the specimen changed).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.render" title="de_twin.render.Renderer.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a>(optics, *[, frame_index, scan_point, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.prefetch" title="de_twin.render.Renderer.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(optics[, time_s])</p></td>
+<td><p>Render the TEM view <code class="docutils literal notranslate"><span class="pre">optics</span></code> into the caches, off the caller's thread: the padded raster and its field map, so asking for that view later is a crop.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.render" title="de_twin.render.Renderer.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a>(optics, *[, frame_index, scan_point, ...])</p></td>
 <td><p>float32 (ny, nx) = optics.output_shape, electrons / detector pixel / second.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.scan_point_for" title="de_twin.render.Renderer.scan_point_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point_for</span></code></a>(optics[, frame_index, scan_point])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.scan_point_for" title="de_twin.render.Renderer.scan_point_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point_for</span></code></a>(optics[, frame_index, scan_point])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.stem_model" title="de_twin.render.Renderer.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(optics)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.stem_model" title="de_twin.render.Renderer.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(optics)</p></td>
 <td><p>The STEM model used for these optics: &quot;coherent&quot; or &quot;kinematic&quot; (<code class="docutils literal notranslate"><span class="pre">RenderConfig.stem_model</span></code>, with &quot;auto&quot; resolved; see <code class="xref py py-mod docutils literal notranslate"><span class="pre">de_twin.render.coherent</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.virtual_image" title="de_twin.render.Renderer.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(optics, inner_mrad, outer_mrad, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.virtual_image" title="de_twin.render.Renderer.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(optics, inner_mrad, outer_mrad, *)</p></td>
 <td><p>Annular-detector image over the whole scan, float32 (scan ny, nx), electrons per second collected at each probe position.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.warm_up" title="de_twin.render.Renderer.warm_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warm_up</span></code></a>(optics[, max_patterns, budget_s, time_s])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.warm_up" title="de_twin.render.Renderer.warm_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warm_up</span></code></a>(optics[, max_patterns, budget_s, time_s])</p></td>
 <td><p>Pre-render the most used STEM patterns of the current view (C++ WarmUpCache).</p></td>
 </tr>
 </tbody>
@@ -661,8 +664,10 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.render.Renderer.field_map">
-<span class="sig-name descname"><span class="pre">field_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.field_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.field_map" title="Link to this definition">#</a></dt>
-<dd><p>(FieldMap, token): rasterise only when view / layers / generation / time change.</p>
+<span class="sig-name descname"><span class="pre">field_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.field_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.field_map" title="Link to this definition">#</a></dt>
+<dd><p>(FieldMap, token): rasterise only when view / layers / generation / time change.
+<code class="docutils literal notranslate"><span class="pre">store</span></code>: the cache to use (default the renderer’s; previews keep their own, so
+they do not push out the full-resolution field maps a stage move reuses).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -698,6 +703,23 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.prefetch">
+<span class="sig-name descname"><span class="pre">prefetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.prefetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.prefetch" title="Link to this definition">#</a></dt>
+<dd><p>Render the TEM view <code class="docutils literal notranslate"><span class="pre">optics</span></code> into the caches, off the caller’s thread: the padded
+raster and its field map, so asking for that view later is a crop. The heavy work
+runs without the renderer’s lock (a live frame is not held up); only looking up and
+storing take it. Returns whether anything was rendered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -885,6 +907,7 @@ identity where there is no crystal), plus <code class="docutils literal notransl
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.field_map"><code class="docutils literal notranslate"><span class="pre">Renderer.field_map()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.invalidate"><code class="docutils literal notranslate"><span class="pre">Renderer.invalidate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.render"><code class="docutils literal notranslate"><span class="pre">Renderer.render()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.prefetch"><code class="docutils literal notranslate"><span class="pre">Renderer.prefetch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.stem_model"><code class="docutils literal notranslate"><span class="pre">Renderer.stem_model()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.coherent_sampling"><code class="docutils literal notranslate"><span class="pre">Renderer.coherent_sampling()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.datacube"><code class="docutils literal notranslate"><span class="pre">Renderer.datacube()</span></code></a></li>

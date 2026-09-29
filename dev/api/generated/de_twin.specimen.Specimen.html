@@ -616,8 +616,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.overview" title="de_twin.specimen.Specimen.overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overview</span></code></a>([shape])</p></td>
 <td><p>Whole-holder projected-thickness image (DebugOverview), float32 nm, 5 % padding.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.rasterize" title="de_twin.specimen.Specimen.rasterize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rasterize</span></code></a>(view[, layers])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.rasterize" title="de_twin.specimen.Specimen.rasterize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rasterize</span></code></a>(view[, layers, span_px, threads])</p></td>
+<td><p>The specimen on <code class="docutils literal notranslate"><span class="pre">view</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.required_layers" title="de_twin.specimen.Specimen.required_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">required_layers</span></code></a>()</p></td>
 <td><p>Optional FieldMap layers this specimen can fill (descan/strain for FIB lamellae).</p></td>
@@ -640,24 +640,35 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.crystallization_enabled" title="de_twin.specimen.Specimen.crystallization_enabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crystallization_enabled</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.temperature_c" title="de_twin.specimen.Specimen.temperature_c"><code class="xref py py-obj docutils literal notranslate"><span class="pre">temperature_c</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.raster_is_local" title="de_twin.specimen.Specimen.raster_is_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raster_is_local</span></code></a></p></td>
+<td><p>Every raster pixel depends only on where it is and the pixel size, not on the rest of the view, so a raster can be assembled from rasters of its parts (the renderer does that on a stage move; tests/test_render_caches.py checks it).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.temperature_c" title="de_twin.specimen.Specimen.temperature_c"><code class="xref py py-obj docutils literal notranslate"><span class="pre">temperature_c</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.thermal_budget_s" title="de_twin.specimen.Specimen.thermal_budget_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermal_budget_s</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.thermal_budget_s" title="de_twin.specimen.Specimen.thermal_budget_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermal_budget_s</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_dependent" title="de_twin.specimen.Specimen.time_dependent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_dependent</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_dependent" title="de_twin.specimen.Specimen.time_dependent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_dependent</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_index" title="de_twin.specimen.Specimen.time_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_index" title="de_twin.specimen.Specimen.time_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_s" title="de_twin.specimen.Specimen.time_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_s</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.time_s" title="de_twin.specimen.Specimen.time_s"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_s</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="de_twin.specimen.Specimen.raster_is_local">
+<span class="sig-name descname"><span class="pre">raster_is_local</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#de_twin.specimen.Specimen.raster_is_local" title="Link to this definition">#</a></dt>
+<dd><p>Every raster pixel depends only on where it is and the pixel size, not on the rest of
+the view, so a raster can be assembled from rasters of its parts (the renderer does
+that on a stage move; tests/test_render_caches.py checks it).</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.specimen.Specimen.home_um">
 <span class="sig-name descname"><span class="pre">home_um</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.home_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.home_um" title="Link to this definition">#</a></dt>
@@ -783,12 +794,18 @@ time-evolving in-situ scene, and “unresolved fine grains” (powder, 1) elsewh
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.specimen.Specimen.rasterize">
-<span class="sig-name descname"><span class="pre">rasterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.rasterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.rasterize" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-name descname"><span class="pre">rasterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">span_px</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.rasterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.rasterize" title="Link to this definition">#</a></dt>
+<dd><p>The specimen on <code class="docutils literal notranslate"><span class="pre">view</span></code>. <code class="docutils literal notranslate"><span class="pre">span_px</span></code>: the size of the whole view when <code class="docutils literal notranslate"><span class="pre">view</span></code> is
+a piece of one (the scene draws a piece as it draws the whole). <code class="docutils literal notranslate"><span class="pre">threads</span></code> &gt; 1
+rasterises row strips of a large view in parallel (the pixels are local, so the
+strips are the rows of the whole), when numba’s threading layer allows it.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>view</strong> (<em>ViewWindow</em>)</p></li>
 <li><p><strong>layers</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><em>frozenset</em></a>)</p></li>
+<li><p><strong>span_px</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>threads</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -898,6 +915,7 @@ time-evolving in-situ scene, and “unresolved fine grains” (powder, 1) elsewh
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen"><code class="docutils literal notranslate"><span class="pre">Specimen</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.__init__"><code class="docutils literal notranslate"><span class="pre">Specimen.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.raster_is_local"><code class="docutils literal notranslate"><span class="pre">Specimen.raster_is_local</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.home_um"><code class="docutils literal notranslate"><span class="pre">Specimen.home_um()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.set_options"><code class="docutils literal notranslate"><span class="pre">Specimen.set_options()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.specimen.Specimen.time_s"><code class="docutils literal notranslate"><span class="pre">Specimen.time_s</span></code></a></li>
