@@ -17,16 +17,33 @@ import threading
 
 import numpy as np
 
-MAX_BYTES = 768 << 20
+MAX_BYTES = 256 << 20
 MIN_BYTES = 1 << 20  # smaller arrays: plain np.empty
 
 _POOL: list = []
 _LOCK = threading.Lock()
 
 
-def _free(a) -> bool:
-    # references: the pool list, the caller's loop variable, getrefcount's argument
-    return sys.getrefcount(a) <= 3
+def _refs(i: int) -> int:
+    return sys.getrefcount(_POOL[i])
+
+
+# references of a pool entry nothing else holds, as `_refs` counts them (the list, the
+# argument; calibrated: the count differs between Python versions)
+_POOL.append(np.empty(1))
+_FREE_REFS = _refs(0)
+_POOL.clear()
+
+
+def _free(i: int) -> bool:
+    """``_POOL[i]`` is referenced by the pool only (views of it count: they keep it alive)."""
+    return _refs(i) <= _FREE_REFS
+
+
+def idle_bytes() -> int:
+    """Bytes of pooled arrays nothing uses (kept for reuse, at most ``MAX_BYTES``)."""
+    with _LOCK:
+        return sum(_POOL[i].nbytes for i in range(len(_POOL)) if _free(i))
 
 
 def empty(shape, dtype=np.float64) -> np.ndarray:
@@ -38,22 +55,28 @@ def empty(shape, dtype=np.float64) -> np.ndarray:
     if nbytes < MIN_BYTES:
         return np.empty(shape, dtype)
     with _LOCK:
-        for i, a in enumerate(_POOL):
-            if a.shape == shape and a.dtype == dtype and _free(a):
-                _POOL.append(_POOL.pop(i))  # most recently used last
+        for i in range(len(_POOL)):
+            if _POOL[i].shape == shape and _POOL[i].dtype == dtype and _free(i):
+                a = _POOL.pop(i)
+                _POOL.append(a)  # most recently used last
+                a.flags.writeable = True  # a cache may have frozen it while it held it
                 return a
         a = np.empty(shape, dtype)
         a.reshape(-1).view(np.uint8)[::4096] = 0  # fault the pages in here, single-threaded
         _POOL.append(a)
-        total = sum(x.nbytes for x in _POOL if _free(x))
-        i = 0
-        while total > MAX_BYTES and i < len(_POOL):
-            x = _POOL[i]
-            if _free(x) and x is not a:
-                total -= x.nbytes
-                del _POOL[i]
+        # forget the oldest free arrays beyond the budget (in use ones are not the pool's)
+        total = sum(_POOL[k].nbytes for k in range(len(_POOL)) if _free(k))
+        k = 0
+        while total > MAX_BYTES and k < len(_POOL) - 1:
+            if _free(k):
+                total -= _POOL[k].nbytes
+                del _POOL[k]
             else:
-                i += 1
+                k += 1
+        # entries in use are dropped from the list too once it is long: an array a cache
+        # still holds is the cache's, and the pool must not keep it alive after that
+        if len(_POOL) > 256:
+            del _POOL[:len(_POOL) - 256]
         return a
 
 

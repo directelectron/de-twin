@@ -105,8 +105,9 @@ class RenderConfig:
     # t(r) band limit K_t, 1/nm: scattering to |g| <= K_t is coherent, beyond it incoherent. 0 = auto:
     # k_det + alpha/lambda (everything that can reach the detector is coherent)
     coherent_object_bandwidth_inv_nm: float = 0.0
-    coherent_field_max_px: int = 36_000_000  # larger scan fields build transmission tiles per block
-    coherent_cache_mb: int = 512  # computed pattern blocks kept for frame-by-frame rendering
+    coherent_field_max_px: int = 8_000_000  # larger scan fields build transmission tiles per block (~1 GB peak at 8M)
+    coherent_cache_mb: int = 64  # computed pattern blocks kept for frame-by-frame rendering
+    coherent_read_ahead: int = 2  # live 4D-STEM: blocks of the scan computed ahead in the background
 
     # ---- caching --------------------------------------------------------
     fieldmap_cache_size: int = 4

@@ -590,8 +590,14 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
     ny, nx = view.shape
     p_nm = view.pixel_um * 1000.0
     ky = sfft.fftfreq(ny, p_nm).astype(np.float32)[:, None]
-    kx = sfft.fftfreq(nx, p_nm).astype(np.float32)[None, :]
+    kx = sfft.rfftfreq(nx, p_nm).astype(np.float32)[None, :]  # real noise: the half spectrum
     k2 = kx * kx + ky * ky
+    # the mean of the PSD over the full spectrum, from the half one (columns 1..(nx-1)//2
+    # stand for two)
+    cw = np.full(kx.shape[1], 2.0, np.float32)
+    cw[0] = 1.0
+    if nx % 2 == 0:
+        cw[-1] = 1.0
     out = None
     for m, w in weights.items():
         if w is None or not (w > 0).any():
@@ -601,8 +607,11 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
         noise = _world_locked_noise(view, seed, salt)
         psd = np.float32(1.0) / (k2 + np.float32(k0 * k0)) ** 2
         psd[k2 > np.float32(k_max * k_max)] = 0
-        filt = np.sqrt(psd / psd.mean()).astype(np.float32)  # unit-variance white noise stays unit variance
-        field = sfft.ifft2(sfft.fft2(noise, workers=-1) * filt, workers=-1).real.astype(np.float32)
+        mean = float((psd * cw).sum(dtype=np.float64)) / (ny * nx)
+        filt = np.sqrt(psd / np.float32(mean)).astype(np.float32)  # unit-variance white noise stays unit variance
+        spec = sfft.rfft2(noise, workers=-1)
+        spec *= filt
+        field = sfft.irfft2(spec, s=(ny, nx), workers=-1, overwrite_x=True).astype(np.float32, copy=False)
         phi = np.sqrt(w).astype(np.float32) * field
         out = phi if out is None else out + phi
     return out
@@ -666,9 +675,10 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
     mip = None
     loss = None
     taper_px = cfg.edge_taper_nm / p_nm
-    if _fp.AVAILABLE and keep_diffuse is None:
+    if _fp.AVAILABLE:
         return _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_k, kappa,
-                                  inv_dens, p_nm, taper_px, return_contrast, _scratch and not return_contrast)
+                                  inv_dens, p_nm, taper_px, return_contrast, _scratch and not return_contrast,
+                                  keep_diffuse, seed, coherent_k_max)
     if cfg.mip_phase:
         # mean-inner-potential phase with rounded (not ideal-step) edges
         f_t = np.float32(optics.thickness_tilt_factor)
@@ -762,9 +772,13 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
 
 
 def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_k, kappa, inv_dens, p_nm,
-                       taper_px, return_contrast, use_scratch=False):
-    """`transmission_function` (TEM: no coherent diffuse part) through :mod:`.fastpath`."""
+                       taper_px, return_contrast, use_scratch=False, keep_diffuse=None, seed=0,
+                       coherent_k_max=0.0):
+    """`transmission_function` through :mod:`.fastpath` (``keep_diffuse``: the coherent-STEM
+    diffuse part, see there)."""
     ny, nx = fm.material_id.shape
+    has_keep = keep_diffuse is not None
+    kept = np.empty((ny, nx), np.float32) if has_keep else None
     f_t = np.float32(optics.thickness_tilt_factor)
     has_under = fm.under_thickness_nm is not None
     umat = fm.under_material if has_under else fm.material_id
@@ -792,7 +806,15 @@ def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_
     _fp.exit_wave(fm.material_id, fm.thickness_nm, umat, uthick, has_under, f_t, lam_abs, bc.loss, mip,
                   bool(cfg.mip_phase), refraction, inv_gc2,
                   noise if noise is not None else np.zeros((1, 1), np.float32), noise is not None,
-                  amorphous, np.float32(tex_k), mip_v, inv_dens, np.float32(kappa), psi, t_full)
+                  amorphous, np.float32(tex_k), mip_v, inv_dens, np.float32(kappa), psi, t_full,
+                  keep_diffuse if has_keep else np.zeros(1, np.float32), has_keep, DIFFUSE_CUTOFF_LENGTHS,
+                  kept if has_keep else np.zeros((1, 1), np.float32))
+    if has_keep:
+        weights = {int(m): np.where(fm.material_id == m, kept, np.float32(0.0))
+                   for m in np.flatnonzero(np.bincount(fm.material_id.ravel(), minlength=256)) if m != 0}
+        phi_d = diffuse_phase(fm, optics, cfg, seed, weights, coherent_k_max)
+        if phi_d is not None:
+            _fp.mul_phase(psi, phi_d)
     if bc.phase_grating or bc.kinematic or (cfg.lattice_fringes and cfg.lattice_phase_rad > 0):
         lat = lattice_field(fm, optics, bc, t_full)
         if lat is not None:

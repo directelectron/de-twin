@@ -108,7 +108,12 @@ def refraction_qmax(mip, inv_gc2):
 
 @_njit(parallel=True)
 def exit_wave(mat, thick, umat, uthick, has_under, f_t, lam_abs, bragg, mip, has_mip, refraction,
-              inv_gc2, noise, has_noise, amorphous, tex_k, mip_v, inv_dens, kappa, psi, t_out):
+              inv_gc2, noise, has_noise, amorphous, tex_k, mip_v, inv_dens, kappa, psi, t_out,
+              keep, has_keep, cutoff_lengths, kept_out):
+    """``has_keep`` (coherent STEM): the amplitude keeps the diffuse part a band-limited coherent
+    simulation represents, ``I = (T + kept) (1 - bragg)`` with ``kept = (1 - T)
+    exp(-t / (cutoff_lengths Lambda)) keep[m]`` (``T`` of the primary layer), written to
+    ``kept_out``."""
     ny, nx = mat.shape
     one = np.float32(1.0)
     zero = np.float32(0.0)
@@ -120,12 +125,20 @@ def exit_wave(mat, thick, umat, uthick, has_under, f_t, lam_abs, bragg, mip, has
             e = t / lam_abs[m]
             if has_under:
                 e = e + uthick[i, j] * f_t / lam_abs[umat[i, j]]
-            T = np.float32(math.exp(-e))
-            I = T * (one - bragg[i, j])
-            if I < zero:
-                I = zero
-            elif I > one:
-                I = one
+            if has_keep:
+                tl = t / lam_abs[m]
+                T64 = math.exp(-tl)
+                kp = np.float32((1.0 - T64) * math.exp(-tl / cutoff_lengths) * keep[m])
+                kept_out[i, j] = kp
+                I64 = (T64 + kp) * (1.0 - bragg[i, j])
+                I = np.float32(min(max(I64, 0.0), 1.0))
+            else:
+                T = np.float32(math.exp(-e))
+                I = T * (one - bragg[i, j])
+                if I < zero:
+                    I = zero
+                elif I > one:
+                    I = one
             phi = mip[i, j] if has_mip else zero
             amp = np.float32(math.sqrt(I))
             if refraction:
@@ -324,3 +337,14 @@ def ifft2_t(t: np.ndarray, out: np.ndarray | None = None) -> np.ndarray:
     transpose(t, x)
     _rows(x, True)
     return x
+
+
+@_njit(parallel=True)
+def mul_phase(psi, phi):
+    """``psi *= exp(i phi)`` (the factor rounded to complex64 first, like the NumPy form)."""
+    ny, nx = psi.shape
+    for i in _prange(ny):
+        for j in range(nx):
+            p = float(phi[i, j])
+            f = np.complex64(complex(math.cos(p), math.sin(p)))
+            psi[i, j] = psi[i, j] * f

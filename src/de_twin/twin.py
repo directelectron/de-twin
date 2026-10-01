@@ -268,7 +268,8 @@ class DigitalTwin:
             if scan_point is None:
                 scan_point = self.scan_point(request, frame_index)
             img = self.renderer.render(optics, frame_index=frame_index, scan_point=scan_point, time_s=t)
-            if self.renderer.config.prefetch and optics.render_mode == RenderMode.TEM_IMAGING:
+            if self.renderer.config.prefetch and (optics.render_mode == RenderMode.TEM_IMAGING
+                                                  or self.renderer.stem_model(optics) == "coherent"):
                 self._prefetch_next(request, state, t)
             if img.shape != shape:
                 img = _fit(img, shape)

@@ -112,6 +112,68 @@ def test_frame_by_frame_matches_datacube_and_uses_blocks():
     assert r._coherent.blocks_computed == before  # served from the block cache
 
 
+def test_live_scan_reads_ahead_and_matches_the_datacube():
+    """Walking the scan frame by frame computes the next blocks in the background; every frame is
+    the datacube's pattern."""
+    o = stem_optics(scan=(12, 10), defocus_nm=-20.0, probe_ab={"C3": 0.0})
+    spec = SyntheticSpecimen(film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=4,
+                             particles=[_particle(o, 5, 5, 1.0)])
+    cfg = RenderConfig(stem_model="coherent", coherent_max_grid=128)
+    cube = Renderer(spec, cfg).datacube(o)
+    r = Renderer(spec, cfg)
+    for fi in range(120):
+        assert np.array_equal(r.render(o, frame_index=fi), cube[fi // 12, fi % 12])
+
+
+def test_probe_is_kept_across_a_stage_move_and_a_new_scan_step():
+    import dataclasses
+
+    o = stem_optics(scan=(6, 6), defocus_nm=-20.0, probe_ab={"C3": 0.0})
+    r = Renderer(SyntheticSpecimen(film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=4), COH)
+    r.render(o, frame_index=0)
+    p = r._coherent.probe(o)
+    moved = dataclasses.replace(o, view=dataclasses.replace(o.view, center_um=(o.view.center_um[0] + 0.002,
+                                                                               o.view.center_um[1])))
+    r.render(moved, frame_index=0)
+    r.render(stem_optics(scan=(6, 6), step_nm=0.3, defocus_nm=-20.0, probe_ab={"C3": 0.0}), frame_index=0)
+    assert r._coherent.probe(moved) is p and len(r._coherent._probes) == 1
+
+
+def test_a_sparse_scan_is_split_into_small_tiles():
+    """A scan field larger than coherent_field_max_px is never one tile spanning all the points
+    of a block (a coarse scan used to build a tile of the whole row: GBs); the patterns are the
+    per-point ones."""
+    o = stem_optics(scan=(4, 4), step_nm=40.0, defocus_nm=-20.0, probe_ab={"C3": 0.0})
+    spec = SyntheticSpecimen(film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=4,
+                             particles=[_particle(o, 1, 2, 1.0)])
+    limit = 400_000
+    r = Renderer(spec, RenderConfig(stem_model="coherent", coherent_field_max_px=limit))
+    c = r._coherent
+    s = c.sampling(o)
+    pts = c._full_scan_points(o)
+    parts = c._field_views(o, s, pts)
+    assert len(parts) > 1 and all(v.shape[0] * v.shape[1] <= limit for _, v in parts)
+    cube = r.datacube(o)
+    one = Renderer(spec, RenderConfig(stem_model="coherent", coherent_field_max_px=limit))
+    for ix, iy in ((1, 2), (3, 0)):
+        assert np.array_equal(one.render(o, scan_point=(ix, iy)), cube[iy, ix])
+
+
+def test_coherent_prefetch_computes_the_predicted_view():
+    o = stem_optics(scan=(8, 8), defocus_nm=-20.0, probe_ab={"C3": 0.0})
+    o2 = stem_optics(scan=(8, 8), defocus_nm=-25.0, probe_ab={"C3": 0.0})
+    spec = SyntheticSpecimen(film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=4,
+                             particles=[_particle(o, 4, 4, 1.0)])
+    r = Renderer(spec, COH)
+    r.render(o, frame_index=0)
+    assert r.prefetch(o2)
+    before = r._coherent.blocks_computed
+    img = r.render(o2, frame_index=0)
+    assert r._coherent.blocks_computed == before  # the prefetched block
+    assert np.array_equal(img, Renderer(spec, COH).render(o2, frame_index=0))
+    assert not r.prefetch(o2)  # nothing left to do
+
+
 def test_auto_model_selection():
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     r = Renderer(spec)
