@@ -1,1 +1,0 @@
-Calibration standards are narrowed to the ones matched to Ted Pella's images: the grating replicas (607, 607-A, 606, 603, 603-A, 677, 673), gold-shadowed latex (628-B), evaporated aluminium (619) and MoO3 (625). The latex spheres, biological, holey-film, lattice and MAG*I*CAL standards are removed, with the materials only they used.
