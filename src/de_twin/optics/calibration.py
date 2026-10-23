@@ -44,7 +44,7 @@ CL_LADDER_MM = (20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 5
                 1000, 1200, 1500, 2000)
 
 
-def _norm(name: str) -> str:
+def _alphanumeric_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", str(name).lower())
 
 
@@ -190,12 +190,12 @@ class Calibration:
         cands = self._candidates(tem_stem, want_cl)
         if not cands:
             return None
-        mode = _norm(state.mag_mode)
+        mode = _alphanumeric_key(state.mag_mode)
         aliases = _MODE_ALIASES.get(mode, (mode,))
         mag = float(state.magnification)
         for alias in aliases:
             for p in cands:
-                if _norm(p.name) == alias:
+                if _alphanumeric_key(p.name) == alias:
                     if want_cl or _lookup(p.mags, mag, self.tolerance) is not _MISSING:
                         return p
         # Diffraction: the TEM Diff project regardless of the imaging mode name
@@ -263,9 +263,9 @@ class Calibration:
         cands = self._candidates(1, want_cl=False)
         if not cands:
             return 0.0
-        mode = _norm(state.mag_mode)
+        mode = _alphanumeric_key(state.mag_mode)
         mag = float(state.magnification)
-        proj = next((p for p in cands if _norm(p.name) in _MODE_ALIASES.get(mode, (mode,))), None)
+        proj = next((p for p in cands if _alphanumeric_key(p.name) in _MODE_ALIASES.get(mode, (mode,))), None)
         proj = proj or next((p for p in cands
                              if _lookup(p.mags, mag, self.tolerance) is not _MISSING), None)
         if proj is None:
@@ -284,10 +284,10 @@ class Calibration:
             return None
         if mode is None:
             return cands[0]
-        m = _norm(mode)
+        m = _alphanumeric_key(mode)
         for alias in _MODE_ALIASES.get(m, (m,)):
             for p in cands:
-                if _norm(p.name) == alias:
+                if _alphanumeric_key(p.name) == alias:
                     return p
         return None
 

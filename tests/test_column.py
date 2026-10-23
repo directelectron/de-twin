@@ -91,7 +91,7 @@ def test_stem_rules(col):
     with pytest.raises(ColumnRefused):
         col.set("SubMode", 0)  # MAG1 has no STEM project
     col.set("SubMode", 4)
-    assert col.get("CameraLength") in ladders.STEM_CAMLENGTHS_CM
+    assert col.state().camera_length_mm in ladders.STEM_CAMERA_LENGTHS_MM
     col.set("Magnification", 1.1e6)
     assert col.get("Magnification") == 1.0e6 or col.get("Magnification") == 1.2e6
 
@@ -264,3 +264,10 @@ def test_column_adapter_duck_type(col, clock):
     assert ad.screen_positions() == {"up": 0, "down": 1}
     ad.stop()
     ad.close()
+
+
+def test_ladders_are_lists_and_camera_lengths_are_millimeters(col):
+    assert col.cl_ladder() == []  # no camera length in TEM imaging
+    col.set("ProjectionMode", 2)
+    assert col.mag_ladder() == []  # no magnification in TEM diffraction
+    assert col.cl_ladder()[0] == 15.0 and col.cl_ladder()[-1] == 4000.0

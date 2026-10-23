@@ -45,9 +45,7 @@ class OpticsConfig:
     stem_default_convergence_mrad: float = 10.0  # STEM alpha when the column reports 0
     probe_d0_nm: float = 0.0  # >0 overrides the d0(probe mode, spot) table
 
-    # ---- physical dose model (see beam.py) --------------------------------
-    dose_model: str = "physical"  # "physical" | "legacy" (C++ counts/s * (3/spot)^2)
-    legacy_dose_rate_counts_per_s: float = 4000.0
+    # ---- dose model (see beam.py) --------------------------------
     reference_current_pa: float = 600.0  # TEM-mode probe current at the reference spot
     reference_spot: int = 3
     spot_exponent: float = 2.0  # I ~ (ref/spot)^exponent (C++ law)

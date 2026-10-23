@@ -938,16 +938,6 @@ def expand_binned(pat: np.ndarray, optics) -> np.ndarray:
     return out
 
 
-def resample_object(obj: np.ndarray, dx_nm: float, new_dx_nm: float) -> np.ndarray:
-    """Fourier-resample a complex object to a coarser pixel (band-limited; same field of view)."""
-    ny, nx = obj.shape
-    my, mx = int(round(ny * dx_nm / new_dx_nm)), int(round(nx * dx_nm / new_dx_nm))
-    F = sfft.fftshift(sfft.fft2(obj, workers=-1))
-    cy, cx = ny // 2, nx // 2
-    G = F[cy - my // 2:cy - my // 2 + my, cx - mx // 2:cx - mx // 2 + mx]
-    return (sfft.ifft2(sfft.ifftshift(G), workers=-1) * (my * mx) / (ny * nx)).astype(np.complex64)
-
-
 def choose_model(optics, cfg, sampling_fn: Callable[[], Sampling]) -> str:
     """``RenderConfig.stem_model`` resolved for these optics ("coherent" | "kinematic")."""
     m = str(cfg.stem_model).lower()

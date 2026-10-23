@@ -9,7 +9,8 @@ import math
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..hashing import splitmix64_kernel
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -20,12 +21,7 @@ except Exception:  # noqa: BLE001
     AVAILABLE = False
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, fastmath=True, nogil=True, **kw)
+_njit = numba_jit
 
 
 _prange = nb.prange if AVAILABLE else range
@@ -209,10 +205,7 @@ def _sites_nb(seed, i0, i1, j0, j1, jitter, out_x, out_y, out_h):
     for j in range(j0, j1 + 1):
         for i in range(i0, i1 + 1):
             z = seed ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15)) ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
-            z = z + np.uint64(0x9E3779B97F4A7C15)
-            z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
-            z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
-            z = z ^ (z >> np.uint64(31))
+            z = splitmix64_kernel(z)
             fx = float((z >> np.uint64(11)) & np.uint64(0xFFFFF)) / 1048576.0
             fy = float((z >> np.uint64(31)) & np.uint64(0xFFFFF)) / 1048576.0
             out_x[k] = i + 0.5 + jitter * (fx - 0.5)

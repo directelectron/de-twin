@@ -9,10 +9,12 @@ the reference and the fallback (``AVAILABLE`` False without numba); tests compar
 from __future__ import annotations
 
 import math
+from functools import partial
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..hashing import splitmix64_kernel
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -22,12 +24,7 @@ except Exception:  # noqa: BLE001
     AVAILABLE = False
 
 
-def njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, nogil=True, error_model="numpy", **kw)
+njit = partial(numba_jit, fastmath=False, error_model="numpy")
 
 
 prange = nb.prange if AVAILABLE else range
@@ -145,17 +142,9 @@ def rint(x):
 
 
 @njit()
-def _sm(z):
-    z = z + np.uint64(0x9E3779B97F4A7C15)
-    z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
-    z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
-    return z ^ (z >> np.uint64(31))
-
-
-@njit()
 def grain_from_hash(material, h, gpm):
     """`fieldmap.grain_id_from_hash` for one hash: hash_seed(h, GRAIN, 0)."""
-    k = _sm(_sm(_sm(_sm(h) ^ np.uint64(6)) ^ np.uint64(0)) ^ np.uint64(0))
+    k = splitmix64_kernel(splitmix64_kernel(splitmix64_kernel(splitmix64_kernel(h) ^ np.uint64(6)) ^ np.uint64(0)) ^ np.uint64(0))
     return np.int32(material * gpm + np.int64(k % np.uint64(gpm)))
 
 

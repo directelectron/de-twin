@@ -49,27 +49,31 @@ class TestCoils:
         assert h == pytest.approx(31.5 * 2.0 / 64) and v == pytest.approx(-31.5 * 2.0 / 64)
 
 
-def _optics(scan):
-    s = MicroscopeState()
-    s.tem_stem = TemStem.STEM
-    s.camera_length_mm = 13.0
-    s.convergence_semi_angle_mrad = 10.0
-    rq = AcquisitionRequest(hw_roi=Roi(1920, 1920, 256, 256), hw_binning=(2, 2), scan=scan)
-    return derive_optics(s, rq, StubCamera(), Calibration.default(), OpticsConfig())
+@pytest.fixture
+def make_scan_optics():
+    def build(scan):
+        state = MicroscopeState()
+        state.tem_stem = TemStem.STEM
+        state.camera_length_mm = 13.0
+        state.convergence_semi_angle_mrad = 10.0
+        request = AcquisitionRequest(hw_roi=Roi(1920, 1920, 256, 256), hw_binning=(2, 2), scan=scan)
+        return derive_optics(state, request, StubCamera(), Calibration.default(), OpticsConfig())
+
+    return build
 
 
 class TestOptics:
-    def test_the_default_range_scans_the_calibrated_field(self):
-        o = _optics(_scan(size=(16, 16), step_um=0.0008))
+    def test_the_default_range_scans_the_calibrated_field(self, make_scan_optics):
+        o = make_scan_optics(_scan(size=(16, 16), step_um=0.0008))
         assert o.view.pixel_um == pytest.approx(0.0008)
-        base = _optics(_scan(size=(16, 16), step_um=0.0008, voltage_h=(-1.0, 1.0)))
+        base = make_scan_optics(_scan(size=(16, 16), step_um=0.0008, voltage_h=(-1.0, 1.0)))
         assert o.view.center_um == base.view.center_um
 
-    def test_each_point_lands_where_its_voltages_say(self):
+    def test_each_point_lands_where_its_voltages_say(self, make_scan_optics):
         scan = _scan(size=(16, 16), step_um=0.0008, voltage_h=(-0.3, 0.5), voltage_v=(-0.6, 0.2),
                      pixel_offset=(1.25, -2.0), rotation_deg=30.0, flip=(False, True))
-        o = _optics(scan)
-        reference = _optics(_scan(size=(16, 16), step_um=0.0008))
+        o = make_scan_optics(scan)
+        reference = make_scan_optics(_scan(size=(16, 16), step_um=0.0008))
         nm_per_v = o.extras["scan_nm_per_volt"]
         assert nm_per_v == pytest.approx(0.8 * 16 / 2.0)
         x0, y0 = reference.view.center_um  # the optic axis: zero volts
@@ -78,13 +82,13 @@ class TestOptics:
             wx, wy = o.view.pixel_to_world(np.array([row]), np.array([col]))
             assert (wx[0], wy[0]) == pytest.approx((x0 + h * nm_per_v / 1000, y0 + v * nm_per_v / 1000))
 
-    def test_the_probe_sees_the_specimen_the_offset_moved_it_to(self):
+    def test_the_probe_sees_the_specimen_the_offset_moved_it_to(self, make_scan_optics):
         from de_twin.render import RenderConfig, Renderer
         from de_twin.render.testing import Particle, SyntheticSpecimen
 
         scan = _scan(size=(16, 16), step_um=0.0008)
-        o = _optics(scan)
-        moved = _optics(dataclasses.replace(scan, pixel_offset=(3.0, 0.0)))
+        o = make_scan_optics(scan)
+        moved = make_scan_optics(dataclasses.replace(scan, pixel_offset=(3.0, 0.0)))
         particles = []
         for col, row in ((7, 5), (11, 9)):  # on the points the moved probe reaches from (4, 5), (8, 9)
             x, y = o.view.pixel_to_world(row, col)

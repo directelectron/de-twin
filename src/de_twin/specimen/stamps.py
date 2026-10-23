@@ -24,7 +24,8 @@ from pathlib import Path
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..hashing import splitmix64_kernel
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -181,19 +182,11 @@ def period_px() -> float:
 
 # ------------------------------------------------------------------ placement
 def _hash(seed, i, j):
-    z = (np.uint64(seed) ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
-         ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))) + np.uint64(0x9E3779B97F4A7C15)
-    z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
-    z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
-    return z ^ (z >> np.uint64(31))
+    return splitmix64_kernel(np.uint64(seed) ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
+                             ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F)))
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, fastmath=True, nogil=True, **kw)
+_njit = numba_jit
 
 
 _prange = nb.prange if AVAILABLE else range

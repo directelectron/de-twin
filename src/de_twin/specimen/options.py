@@ -216,9 +216,9 @@ class SpecimenConfig:
     name: str = ""  # preset / pattern name it came from (informational)
 
     def __post_init__(self):
-        self.holder = _norm(self.holder)
-        self.preparation = _norm(self.preparation)
-        self.film = _norm(self.film)
+        self.holder = _snake_case_name(self.holder)
+        self.preparation = _snake_case_name(self.preparation)
+        self.film = _snake_case_name(self.film)
         if self.holder not in HOLDERS:
             raise ValueError(f"holder must be one of {HOLDERS}, got {self.holder!r}")
         if self.preparation not in PREPARATIONS:
@@ -244,7 +244,7 @@ class SpecimenConfig:
         return copy.deepcopy(self)
 
 
-def _norm(s: str) -> str:
+def _snake_case_name(s: str) -> str:
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
 
 

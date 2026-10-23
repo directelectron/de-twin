@@ -33,7 +33,8 @@ import math
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..hashing import mix64, mix64_int
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -51,18 +52,11 @@ GAMMA_LUT_N = 256
 NORMALS = 1 << 22
 _MASK = NORMALS - 1
 
-_M1 = 0xBF58476D1CE4E5B9
-_M2 = 0x94D049BB133111EB
 _GOLD = 0x9E3779B97F4A7C15
 _U53 = 1.0 / 9007199254740994.0
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, fastmath=True, nogil=True, **kw)  # nogil: other threads (publishing) run meanwhile
+_njit = numba_jit
 
 
 _TABLE = None
@@ -126,10 +120,7 @@ def deposit(lam, p0, adu, k, key, S, table, zstart, lut):
             i = base + c
             if L < cut:
                 # SplitMix64 of the pixel's counter -> a uniform in (0, 1)
-                x = key + np.uint64(i) * np.uint64(_GOLD)
-                x = (x ^ (x >> np.uint64(30))) * np.uint64(_M1)
-                x = (x ^ (x >> np.uint64(27))) * np.uint64(_M2)
-                x = x ^ (x >> np.uint64(31))
+                x = mix64(key + np.uint64(i) * np.uint64(_GOLD))
                 u = np.float32(((x >> np.uint64(11)) + np.uint64(1)) * _U53)
                 p = pr[c]
                 f = p
@@ -278,22 +269,15 @@ def finish(x, vmax, bx, by, out):
     return sats.sum()
 
 
-def _mix_py(x: int) -> int:
-    m = (1 << 64) - 1
-    x = (x ^ (x >> 30)) * _M1 & m
-    x = (x ^ (x >> 27)) * _M2 & m
-    return x ^ (x >> 31)
-
-
 def frame_key(seed: int, frame_index: int, stage: int) -> int:
     """The counter key of one frame's stage."""
     k = ((int(seed) & 0xFFFFFFFF) << 32) ^ ((int(frame_index) & 0xFFFFFFF) << 4) ^ (stage & 0xF)
-    return _mix_py(k)
+    return mix64_int(k)
 
 
 def offsets(key: int) -> tuple[int, int]:
     """This frame's two starting points in the normal table (gamma, read noise)."""
-    return int(_mix_py(key ^ 0xA5A5) % NORMALS), int(_mix_py(key ^ 0x5A5A) % NORMALS)
+    return int(mix64_int(key ^ 0xA5A5) % NORMALS), int(mix64_int(key ^ 0x5A5A) % NORMALS)
 
 
 # ---------------------------------------------------------------- counting cameras
@@ -360,10 +344,7 @@ def count(mean, p0, key, table, zstart, cap, inv_nb, vmax, out, xout, to_float):
             if L > 0:
                 i = base + c
                 if L < cut:
-                    x = key + np.uint64(i) * np.uint64(_GOLD)
-                    x = (x ^ (x >> np.uint64(30))) * np.uint64(_M1)
-                    x = (x ^ (x >> np.uint64(27))) * np.uint64(_M2)
-                    x = x ^ (x >> np.uint64(31))
+                    x = mix64(key + np.uint64(i) * np.uint64(_GOLD))
                     u = np.float32(((x >> np.uint64(11)) + np.uint64(1)) * _U53)
                     p = pr[c]
                     f = p
@@ -421,10 +402,7 @@ def count_super(mean, p0, key, table, zstart, cap, vmax, out):
             i = base + c
             n = 0
             if L < cut:
-                x = key + np.uint64(i) * np.uint64(_GOLD)
-                x = (x ^ (x >> np.uint64(30))) * np.uint64(_M1)
-                x = (x ^ (x >> np.uint64(27))) * np.uint64(_M2)
-                x = x ^ (x >> np.uint64(31))
+                x = mix64(key + np.uint64(i) * np.uint64(_GOLD))
                 u = np.float32(((x >> np.uint64(11)) + np.uint64(1)) * _U53)
                 p = pr[c]
                 f = p
@@ -441,10 +419,7 @@ def count_super(mean, p0, key, table, zstart, cap, vmax, out):
                 n = cap
             if n == 0:
                 continue
-            y = sub + np.uint64(i) * np.uint64(_GOLD)
-            y = (y ^ (y >> np.uint64(30))) * np.uint64(_M1)
-            y = (y ^ (y >> np.uint64(27))) * np.uint64(_M2)
-            y = y ^ (y >> np.uint64(31))
+            y = mix64(sub + np.uint64(i) * np.uint64(_GOLD))
             for j in range(n):
                 q = int((y >> np.uint64((2 * j) & 63)) & np.uint64(3))
                 row = o0 if (q >> 1) == 0 else o1

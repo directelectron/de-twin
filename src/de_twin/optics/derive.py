@@ -330,10 +330,6 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     else:
         pattern_e_s = beam_e_s
         dose = pattern_e_s / float(ow * oh)
-    if cfg.dose_model == "legacy":
-        spot = state.spot_size if state.spot_size > 0 else 3
-        dose = cfg.legacy_dose_rate_counts_per_s * (3.0 / spot) ** 2
-        pattern_e_s = dose * ow * oh if mode != RenderMode.TEM_IMAGING else 0.0
 
     # Park position (world um) for the parked probe / explicit park request
     park = None

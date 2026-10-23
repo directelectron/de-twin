@@ -329,7 +329,7 @@ class Renderer:
             return last[2]  # the same view again: every frame of an exposure
         view = optics.view
         base = dataclasses.replace(optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0))
-        key = (base, self.config.tem_model, gen, tkey)
+        key = (base, gen, tkey)
         img = self._crop_pan(key, view)
         if img is None and self.config.interactive:
             import time as _time
@@ -378,7 +378,7 @@ class Renderer:
             beam_offset_px=tuple(v / f for v in getattr(optics, "beam_offset_px", (0.0, 0.0))))
         pbase = dataclasses.replace(poptics, view=dataclasses.replace(pview, center_um=(0.0, 0.0)),
                                     beam_offset_px=(0.0, 0.0))
-        pkey = ("preview", pbase, self.config.tem_model, gen, tkey)
+        pkey = ("preview", pbase, gen, tkey)
         img = self._crop_pan(pkey, pview, "_pan_previews")
         if img is None:
             pad_optics, shift = self._padded_optics(poptics)
@@ -547,7 +547,7 @@ class Renderer:
         view = optics.view
         base = dataclasses.replace(optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)),
                                    beam_offset_px=(0.0, 0.0))
-        key = (base, self.config.tem_model, gen, tkey)
+        key = (base, gen, tkey)
         poptics, shift = self._padded_optics(optics)
         fkey = (poptics.view, frozenset(TEM_LAYERS), gen, tkey)
         with self._lock:
@@ -599,7 +599,7 @@ class Renderer:
             return self._render_tem_panned(optics, time_s)
         if mode == RenderMode.TEM_IMAGING:
             fm, token = self.field_map(optics, TEM_LAYERS, time_s)
-            fkey = (token, optics, self.config.tem_model)
+            fkey = (token, optics)
             if self._frame is not None and self._frame[0] == fkey:
                 self.frames_from_cache += 1
                 return self._frame[1]

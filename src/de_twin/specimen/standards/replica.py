@@ -23,16 +23,16 @@ is carbon-equivalent thickness, and the relief shading still shows.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
 
 from ...hashing import SeedKind, hash_seed, normal_from_hash, splitmix64, uniform_from_hash
 from ..fieldmap import grain_id_from_hash
-from ..geometry import NM_PER_UM, JitteredLattice
+from ..geometry import NM_PER_UM
 from ..materials import MaterialId, absorption_lengths_nm
-from ..noise import LACUNARITY, FastLattice, cells, fbm
+from ..noise import LACUNARITY, cells, fbm
 from .. import raster_nb as _rnb
 from ..fieldmap import GRAINS_PER_MATERIAL
 from ..structures import _claim, _owner_pixels, _resolved
@@ -497,7 +497,7 @@ class ShadowedReplicaStructure(StandardStructure):
         islands = self.metal_nm > 0 and _resolved(self.island_nm / NM_PER_UM, ctx)
         tile = self.tile()
         ux, uy = self.u
-        sin_e, cos_e, tan_e = math.sin(self.elev), math.cos(self.elev), math.tan(self.elev)
+        sin_e, cos_e = math.sin(self.elev), math.cos(self.elev)
         if _rnb.AVAILABLE and (rough or self.crumple_nm > 0):
             self._fill_fast(ctx, owner, seed, px, mean_c, flat, rough, islands, tile)
             ctx.stats["fast_fills"] = ctx.stats.get("fast_fills", 0) + 1

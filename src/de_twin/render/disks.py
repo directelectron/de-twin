@@ -13,7 +13,7 @@ import math
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -28,12 +28,7 @@ except Exception:  # noqa: BLE001 - numba missing: stamping remains
 BAND = 5.0
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, fastmath=True, nogil=True, **kw)  # nogil: other threads (publishing) run meanwhile
+_njit = numba_jit
 
 
 @_njit(parallel=True)

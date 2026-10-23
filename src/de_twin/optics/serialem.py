@@ -46,7 +46,7 @@ from typing import Optional
 
 import numpy as np
 
-from .realism import ColumnRealism
+from .realism import ColumnRealism, DefocusAndTruth
 
 #: The beam tilt (mrad) and defocus points of the focus calibration written out.
 FOCUS_CAL_TILT_MRAD = 3.0
@@ -93,7 +93,7 @@ def _probe(twin_probe: int) -> int:
 
 
 # ------------------------------------------------------------------ the column definition
-class ColumnDefinition:
+class ColumnDefinition(DefocusAndTruth):
     """A column defined by tables (from calibrations) rather than drawn from a seed: the same
     interface as :class:`~de_twin.optics.realism.ColumnRealism`, so it goes in
     ``OpticsConfig(realism=...)``.
@@ -167,21 +167,6 @@ class ColumnDefinition:
     def is_astig_nm(self, isx_um: float, isy_um: float) -> complex:
         return self.is_astig_nm_per_um * complex(isx_um, isy_um)
 
-    def defocus_scale(self, defocus_um: float) -> float:
-        return 1.0 + self.hd_scale_per_um * abs(float(defocus_um))
-
-    def defocus_rotation_rad(self, defocus_um: float) -> float:
-        return math.radians(self.hd_rotation_deg_per_um * float(defocus_um))
-
-    def truth(self, mag_mode, mag: float) -> dict:
-        return {
-            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, mag)),
-            "pixel_scale": self.pixel_scale(mag_mode, mag),
-            "is_matrix_um_per_unit": self.is_matrix(mag_mode, mag).tolist(),
-            "mag_offset_um": self.mag_offset_um(mag_mode, mag),
-            "backlash_um": self.backlash_um,
-            "bs_matrix_um_per_unit": self.bs_matrix().tolist(),
-        }
 
 
 # ------------------------------------------------------------------ twin -> SerialEM
@@ -288,7 +273,7 @@ def to_serialem(realism, camera, calibrations_path, properties_path=None, *,
 
 
 # ------------------------------------------------------------------ SerialEM -> column
-def _floats(parts):
+def _to_floats(parts):
     return [float(v) for v in parts]
 
 
@@ -342,26 +327,26 @@ def from_serialem(calibrations_path, properties_path=None, *, camera, mag_table:
                     p = lines[i].split()
                     i += 1
                     if int(p[1]) == camera_index:
-                        is_cam[int(p[0])] = np.array(_floats(p[2:6])).reshape(2, 2)
+                        is_cam[int(p[0])] = np.array(_to_floats(p[2:6])).reshape(2, 2)
             elif key == "StageToCameraMatrix" and int(parts[2]) == camera_index:
-                stage_cam[int(parts[1])] = np.array(_floats(parts[3:7])).reshape(2, 2)
+                stage_cam[int(parts[1])] = np.array(_to_floats(parts[3:7])).reshape(2, 2)
             elif key == "ImageShiftOffsets":
                 for _ in range(int(parts[1])):
                     p = lines[i].split()
                     i += 1
                     if int(p[1]) == 0:
-                        offsets[int(p[0])] = np.array(_floats(p[2:4]))
+                        offsets[int(p[0])] = np.array(_to_floats(p[2:4]))
             elif key == "BeamShiftCalibration" and len(parts) >= 6:
-                bs_rows.append((int(parts[1]), np.array(_floats(parts[2:6])).reshape(2, 2)))
+                bs_rows.append((int(parts[1]), np.array(_to_floats(parts[2:6])).reshape(2, 2)))
             elif key == "CrossoverIntensity" and len(parts) >= 3:
                 spot = int(parts[1])
-                vals = _floats(parts[2:4])
+                vals = _to_floats(parts[2:4])
                 if vals[0]:
                     cross[(spot, 1)] = vals[0]
                 if len(vals) > 1 and vals[1]:
                     cross[(spot, 0)] = vals[1]
             elif key == "HighFocusMagCal":
-                hf.append(_floats(parts[3:7]))  # defocus, intensity, scale, rotation
+                hf.append(_to_floats(parts[3:7]))  # defocus, intensity, scale, rotation
             elif key == "FocusCalibration":
                 i += int(parts[6])
             elif key == "STEMfocusVersusZ":

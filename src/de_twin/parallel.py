@@ -25,3 +25,19 @@ def _parallel_is_thread_safe() -> bool:
 
 #: Pass as ``parallel=`` in place of True.
 PARALLEL = _parallel_is_thread_safe()
+
+
+def numba_jit(*, fastmath: bool = True, **options):
+    """``numba.njit`` with the twin's defaults; the identity decorator without numba.
+
+    Kernels cache their compilation, release the GIL (so the publishing thread runs
+    meanwhile) and take ``parallel=True`` only where :data:`PARALLEL` allows it.
+    ``fastmath`` is on unless a kernel needs strict IEEE results.
+    """
+    try:
+        import numba
+    except Exception:  # noqa: BLE001 - without numba the NumPy fallback runs
+        return lambda function: function
+    if options.get("parallel"):
+        options["parallel"] = PARALLEL
+    return numba.njit(cache=True, nogil=True, fastmath=fastmath, **options)

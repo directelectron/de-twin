@@ -22,7 +22,7 @@ import math
 import numpy as np
 
 from ..crystal.library import S_TAPER_INV_NM, S_WINDOW_INV_NM, _sinc2_antiderivative
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 _X0 = 64.0  # |x| beyond this: the asymptotic series
 _H = 1.0 / 256.0  # Hermite node spacing
@@ -90,9 +90,9 @@ def _table_py(starts, kx, s, ga, taper, outm, tvals, total, pout):
 
 
 if AVAILABLE:
-    _F = nb.njit(cache=True, nogil=True)(_F_py)
+    _F = numba_jit(fastmath=False)(_F_py)
     _prange = nb.prange
-    _table = nb.njit(cache=True, nogil=True, parallel=PARALLEL)(_table_py)
+    _table = numba_jit(fastmath=False, parallel=True)(_table_py)
 else:  # pragma: no cover - the pure-Python loop is slow; the renderer then keeps its memo
     _F = _F_py
     _prange = range
