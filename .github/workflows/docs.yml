@@ -20,6 +20,7 @@ jobs:
   build:
     name: Build docs
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,6 +49,7 @@ jobs:
     name: Deploy docs
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name != 'pull_request'
     # All deploys push to gh-pages: queue them rather than race.
     concurrency:
