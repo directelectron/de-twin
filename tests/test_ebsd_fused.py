@@ -22,15 +22,21 @@ DWELL = 0.125e-3
 
 
 def _twin(specimen="EBSD duplex steel", seed=1, **geom):
-    twin = DigitalTwin(specimen, camera="DESim", seed=seed, clock=ManualClock(),
-                     detector_overrides={"gain_mode": "low"})
+    twin = DigitalTwin(
+        specimen, camera="DESim", seed=seed, clock=ManualClock(), detector_overrides={"gain_mode": "low"}
+    )
     twin.configure_ebsd(beam_kv=KV, probe_current_na=100.0, **geom)
     return twin
 
 
 def _scan(twin, nx=24, ny=16, step=0.5, **request_fields):
-    return twin.request(hw_binning=(2, 2), frame_time_s=DWELL, total_frames=nx * ny,
-                      scan=ScanRequest(enabled=True, size=(nx, ny), step_um=step, dwell_s=DWELL), **request_fields)
+    return twin.request(
+        hw_binning=(2, 2),
+        frame_time_s=DWELL,
+        total_frames=nx * ny,
+        scan=ScanRequest(enabled=True, size=(nx, ny), step_um=step, dwell_s=DWELL),
+        **request_fields,
+    )
 
 
 def _general(twin, request, monkeypatch):
@@ -112,9 +118,15 @@ def test_noise_statistics_match_the_general_path(monkeypatch):
         return a.reshape(32, 16, 32, 16).mean(axis=(1, 3))
 
     def stack(seed):
-        request = twin.request(hw_binning=(2, 2), frame_time_s=DWELL, total_frames=n, seed=seed,
-                         scan=ScanRequest(enabled=True, size=(8, 8), step_um=0.5, dwell_s=DWELL, park=True,
-                                          park_position=(5, 3)))
+        request = twin.request(
+            hw_binning=(2, 2),
+            frame_time_s=DWELL,
+            total_frames=n,
+            seed=seed,
+            scan=ScanRequest(
+                enabled=True, size=(8, 8), step_um=0.5, dwell_s=DWELL, park=True, park_position=(5, 3)
+            ),
+        )
         total, squares, block_means, samples = np.zeros((512, 512)), np.zeros((512, 512)), [], []
         for raw, _ in twin.frames(request):
             x = raw.astype(np.float64)
@@ -125,7 +137,7 @@ def test_noise_statistics_match_the_general_path(monkeypatch):
         mean = total / n
         noise = np.array(samples) - np.mean(samples, axis=0)
         correlations = [np.corrcoef(a, b)[0, 1] for a, b in itertools.pairwise(noise)]
-        return mean, squares / n - mean ** 2, np.array(block_means), correlations
+        return mean, squares / n - mean**2, np.array(block_means), correlations
 
     _fused_mean, fused_var, fused_blocks, correlations = stack(11)
     monkeypatch.setenv("DE_TWIN_FUSED_EBSD", "0")
@@ -168,8 +180,15 @@ def test_a_steered_scan_publishes_where_the_voltages_put_the_beam():
     tag = f"{os.getpid()}_{uuid.uuid4().hex[:6]}"
     scan_name, frame_name = f"DE_ScanOutputFused_{tag}", f"DE_ExternalFramesFused_{tag}"
     twin = _twin()
-    geometry = S.ScanGeometry(size=(16, 16), voltage_h=(-1.0, 1.0), voltage_v=(-1.0, 1.0), rotation_deg=0.0,
-                              flip=(False, False), points_per_frame=1.0, total_points=100_000)
+    geometry = S.ScanGeometry(
+        size=(16, 16),
+        voltage_h=(-1.0, 1.0),
+        voltage_v=(-1.0, 1.0),
+        rotation_deg=0.0,
+        flip=(False, False),
+        points_per_frame=1.0,
+        total_points=100_000,
+    )
     scan = ScanRequest(enabled=True, size=geometry.size)
     targets = [(2, 3), (13, 9), (7, 14)]
     writer = S.ScanOutputWriter(scan_name)
@@ -179,14 +198,22 @@ def test_a_steered_scan_publishes_where_the_voltages_put_the_beam():
         writer.begin(geometry)
         for x, y in targets:
             writer.write(np.tile(point_volts(scan, x, y), (40, 1)))
-        consumer.begin(frame_shape=(512, 512), binning=(2, 2), sensor_shape=(1024, 1024),
-                       frame_time_s=DWELL, total_frames=120, scan_size=geometry.size)
+        consumer.begin(
+            frame_shape=(512, 512),
+            binning=(2, 2),
+            sensor_shape=(1024, 1024),
+            frame_time_s=DWELL,
+            total_frames=120,
+            scan_size=geometry.size,
+        )
         frames = [consumer.read(timeout=300)[0].astype(np.float64) for _ in range(120)]
     finally:
         face.stop()
         consumer.close()
         writer.close()
-    request = twin.request(hw_binning=(2, 2), frame_time_s=DWELL, scan=ScanRequest(enabled=True, size=(16, 16)))
+    request = twin.request(
+        hw_binning=(2, 2), frame_time_s=DWELL, scan=ScanRequest(enabled=True, size=(16, 16))
+    )
     source = twin.ebsd_frame_source(request)
     lam = source.means([y * 16 + x for x, y in targets]).reshape(3, -1)
     lam -= lam.mean(axis=1, keepdims=True)
@@ -210,8 +237,12 @@ def test_twin_frames_through_a_steered_point_list_are_made_one_at_a_time():
 
     twin = _twin()
     wanted = Wanted()
-    request = twin.request(hw_binning=(2, 2), frame_time_s=DWELL, total_frames=0,
-                     scan=ScanRequest(enabled=True, size=(8, 8), step_um=0.5, dwell_s=DWELL, points=wanted))
+    request = twin.request(
+        hw_binning=(2, 2),
+        frame_time_s=DWELL,
+        total_frames=0,
+        scan=ScanRequest(enabled=True, size=(8, 8), step_um=0.5, dwell_s=DWELL, points=wanted),
+    )
     it = twin.frames(request)
     _, meta = next(it)
     assert meta.scan_point == (1, 1)

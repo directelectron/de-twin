@@ -246,7 +246,9 @@ class PropertiesMixin:
             )
         )
         self._put(
-            DynamicProperty("Simulator EBSD Master Pattern File", lambda: "", set_master_file, category="Simulator")
+            DynamicProperty(
+                "Simulator EBSD Master Pattern File", lambda: "", set_master_file, category="Simulator"
+            )
         )
         self._put(
             DynamicProperty(

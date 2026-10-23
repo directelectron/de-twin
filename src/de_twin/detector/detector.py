@@ -478,7 +478,9 @@ class Detector:
             key=key,
             shape=(oh, ow),
             gain=np.ascontiguousarray(gain, np.float32).ravel(),
-            offset=(np.asarray(offset, np.float32) + np.float32(model.dark_current_adu_per_s * exposure)).ravel(),
+            offset=(
+                np.asarray(offset, np.float32) + np.float32(model.dark_current_adu_per_s * exposure)
+            ).ravel(),
             hot_ptr=np.cumsum(hot_ptr),
             hot_col=cols.astype(np.int64),
             hot_val=hot[rows, cols],

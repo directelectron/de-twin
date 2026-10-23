@@ -30,15 +30,24 @@ KV = 20.0
 
 
 def twin() -> DigitalTwin:
-    tw = DigitalTwin("EBSD duplex steel", camera="DESim", seed=1, clock=ManualClock(),
-                     detector_overrides={"gain_mode": "low"})
+    tw = DigitalTwin(
+        "EBSD duplex steel",
+        camera="DESim",
+        seed=1,
+        clock=ManualClock(),
+        detector_overrides={"gain_mode": "low"},
+    )
     tw.configure_ebsd(beam_kv=KV, probe_current_na=100.0)
     return tw
 
 
 def request(tw, frames=0, size=(256, 256)):
-    return tw.request(hw_binning=(2, 2), frame_time_s=DWELL, total_frames=frames,
-                      scan=ScanRequest(enabled=True, size=size, step_um=0.5, dwell_s=DWELL))
+    return tw.request(
+        hw_binning=(2, 2),
+        frame_time_s=DWELL,
+        total_frames=frames,
+        scan=ScanRequest(enabled=True, size=size, step_um=0.5, dwell_s=DWELL),
+    )
 
 
 def per_call(function, n=200, reps=5) -> float:
@@ -77,15 +86,33 @@ def general(tw, n):
         m = det.model
         k = 1.0 / max(m.adu_cv, 1e-3) ** 2
         lut, table, adu = fast.gamma_lut(k), fast.normal_table(), det._adu_at(KV)
-        dep = per_call(lambda i: fast.deposit(lam, p0, adu, k, np.uint64(fast.frame_key(1, i, 1)), S, table, 1234 * i,
-                                              lut))
+        dep = per_call(
+            lambda i: fast.deposit(
+                lam, p0, adu, k, np.uint64(fast.frame_key(1, i, 1)), S, table, 1234 * i, lut
+            )
+        )
         det._build_maps()
         gain, off = det._binned_maps(det.roi(req), 2, 2)
         raw = np.empty((512, 512), np.uint16)
         hot = np.zeros((512, 512), np.float32)
-        ana = per_call(lambda i: fast.analog_out(S, True, m.charge_spread_at(KV) / 2, 0.25, gain, off, 0.0,
-                                                 m.read_noise_adu / 2, 1.0, table, 777 * i, hot, float(m.max_value),
-                                                 raw))
+        ana = per_call(
+            lambda i: fast.analog_out(
+                S,
+                True,
+                m.charge_spread_at(KV) / 2,
+                0.25,
+                gain,
+                off,
+                0.0,
+                m.read_noise_adu / 2,
+                1.0,
+                table,
+                777 * i,
+                hot,
+                float(m.max_value),
+                raw,
+            )
+        )
         exp = per_call(lambda i: det.expose(flux, DWELL, req, i, ht_kv=KV, means=means))
         slot = np.empty(512 * 512, np.uint16)
         cp = per_call(lambda i: np.copyto(slot, raw.reshape(-1)), n=1000)
@@ -121,7 +148,9 @@ def fused(tw, n):
             if len(pending) == in_flight:
                 pending.popleft().wait()
             ks = [(i * per_job * 37 + b) % 65536 for b in range(per_job)]
-            pending.append(source.submit(workers, ring[i % len(ring)], ks, 1, range(i * per_job, (i + 1) * per_job)))
+            pending.append(
+                source.submit(workers, ring[i % len(ring)], ks, 1, range(i * per_job, (i + 1) * per_job))
+            )
         for job in pending:
             job.wait()
 
@@ -183,13 +212,24 @@ def face(tw, n, *, steered, copy):
     scan_name, frame_name = f"DE_ScanOutputBench_{tag}", f"DE_ExternalFramesBench_{tag}"
     writer = S.ScanOutputWriter(scan_name) if steered else None
     if steered:
-        g = S.ScanGeometry(size=(256, 256), voltage_h=(-1.0, 1.0), voltage_v=(-1.0, 1.0), rotation_deg=0.0,
-                           flip=(False, False), points_per_frame=1.0, total_points=256 * 256)
+        g = S.ScanGeometry(
+            size=(256, 256),
+            voltage_h=(-1.0, 1.0),
+            voltage_v=(-1.0, 1.0),
+            rotation_deg=0.0,
+            flip=(False, False),
+            points_per_frame=1.0,
+            total_points=256 * 256,
+        )
         writer.begin(g)
         scan = ScanRequest(enabled=True, size=g.size)
         writer.write(np.array([point_volts(scan, i % 256, i // 256) for i in range(256 * 256)]))  # a raster
-    reader = subprocess.Popen([sys.executable, "-c", CONSUMER, frame_name, str(n), "1" if copy else "0"],
-                              stdout=subprocess.PIPE, text=True, env=os.environ.copy())
+    reader = subprocess.Popen(
+        [sys.executable, "-c", CONSUMER, frame_name, str(n), "1" if copy else "0"],
+        stdout=subprocess.PIPE,
+        text=True,
+        env=os.environ.copy(),
+    )
     f = ShmFace(tw, name=frame_name, scan_output=scan_name, pace=False, warm_up=False).start()
     try:
         out, _ = reader.communicate(timeout=3600)

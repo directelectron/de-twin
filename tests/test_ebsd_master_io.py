@@ -63,7 +63,9 @@ def test_emsoft_round_trip_reproduces_the_kinematic_patterns(tmp_path):
     path = tmp_path / "Ni-master-20kV.h5"
     write_emsoft(path, _kinematic_north(twin), energies=[KV], space_group=225, lattice=NI_LATTICE)
     master = twin.set_master_pattern("Nickel", path)
-    assert master.kv == KV and master.south is None and master.cube.shape[0] == 3  # recognised as centrosymmetric
+    assert (
+        master.kv == KV and master.south is None and master.cube.shape[0] == 3
+    )  # recognised as centrosymmetric
     assert master.symmetry_error < 0.05 and master.nbytes < 3e6
     assert _same(reference, _raws(twin, request))
     # forced through both hemispheres (six cube faces): the same patterns
@@ -86,7 +88,9 @@ def test_southern_hemisphere_is_read_where_emsoft_puts_it():
     spot /= np.linalg.norm(spot)
     d = kernels.lambert_directions(n) * np.array([1.0, 1.0, -1.0])  # southern directions of each node
     south += 4.0 * np.exp(-(1.0 - d @ spot) / 0.002)  # ~4 deg spot
-    master = twin.set_master_pattern("Nickel", np.stack([north, south]), hemisphere="both", kv=KV, validate=False)
+    master = twin.set_master_pattern(
+        "Nickel", np.stack([north, south]), hemisphere="both", kv=KV, validate=False
+    )
     assert master.south is not None
     o = twin.optics(request)
     r = twin.renderer.ebsd

@@ -102,8 +102,18 @@ def _exp(x, bits, scale, n):
         t = x[i]
         k = np.floor(t * log2e + half)
         r = (t - k * hi) - k * lo
-        p = ((((((F32(_EXP_C[0]) * r + F32(_EXP_C[1])) * r + F32(_EXP_C[2])) * r + F32(_EXP_C[3])) * r
-                + F32(_EXP_C[4])) * r + F32(_EXP_C[5])) * r + F32(_EXP_C[6])) * r + F32(_EXP_C[7])
+        p = (
+            (
+                (
+                    (((F32(_EXP_C[0]) * r + F32(_EXP_C[1])) * r + F32(_EXP_C[2])) * r + F32(_EXP_C[3])) * r
+                    + F32(_EXP_C[4])
+                )
+                * r
+                + F32(_EXP_C[5])
+            )
+            * r
+            + F32(_EXP_C[6])
+        ) * r + F32(_EXP_C[7])
         x[i] = p
         bits[i] = (np.int32(k) + np.int32(127)) << np.int32(23)
     for i in range(n):
@@ -216,9 +226,48 @@ def _gather(bank, n, offset, scale, q, tx, ty, value):
 
 
 @numba_jit(error_model="numpy")
-def _project_row(i, bank, n, face0, full, offs, scales, M1, M2, w2, x0, y0, dd, c, e, p1, p2, g1,
-                 ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb, iota, lob, bits, bitsf, ex, bgf, value,
-                 val2, q, tx, ty, lam):
+def _project_row(
+    i,
+    bank,
+    n,
+    face0,
+    full,
+    offs,
+    scales,
+    M1,
+    M2,
+    w2,
+    x0,
+    y0,
+    dd,
+    c,
+    e,
+    p1,
+    p2,
+    g1,
+    ox,
+    oy,
+    bx,
+    by,
+    normal,
+    forward,
+    lobe,
+    kappa,
+    vmf,
+    t_nb,
+    iota,
+    lob,
+    bits,
+    bitsf,
+    ex,
+    bgf,
+    value,
+    val2,
+    q,
+    tx,
+    ty,
+    lam,
+):
     """Row *i* of a point's pattern as Poisson means (``lam``, electrons per grid pixel in the
     frame); returns their sum. ``kernels.render`` with ``ss = 1``."""
     w = lam.shape[0]
@@ -275,14 +324,38 @@ def _project_row(i, bank, n, face0, full, offs, scales, M1, M2, w2, x0, y0, dd, 
     # the master pattern and the band modulation
     accumulator = 0.0
     if g1 >= 0:
-        _nodes(n, face0[p1], full[p1], M1[0, 0] * X0 + M1[0, 1] * Y + M1[0, 2] * dd, M1[0, 0] * bx,
-               M1[1, 0] * X0 + M1[1, 1] * Y + M1[1, 2] * dd, M1[1, 0] * bx,
-               M1[2, 0] * X0 + M1[2, 1] * Y + M1[2, 2] * dd, M1[2, 0] * bx, iota, q, tx, ty)
+        _nodes(
+            n,
+            face0[p1],
+            full[p1],
+            M1[0, 0] * X0 + M1[0, 1] * Y + M1[0, 2] * dd,
+            M1[0, 0] * bx,
+            M1[1, 0] * X0 + M1[1, 1] * Y + M1[1, 2] * dd,
+            M1[1, 0] * bx,
+            M1[2, 0] * X0 + M1[2, 1] * Y + M1[2, 2] * dd,
+            M1[2, 0] * bx,
+            iota,
+            q,
+            tx,
+            ty,
+        )
         _gather(bank, n, offs[p1], scales[p1], q, tx, ty, value)
         if w2 > 0.0:
-            _nodes(n, face0[p2], full[p2], M2[0, 0] * X0 + M2[0, 1] * Y + M2[0, 2] * dd, M2[0, 0] * bx,
-                   M2[1, 0] * X0 + M2[1, 1] * Y + M2[1, 2] * dd, M2[1, 0] * bx,
-                   M2[2, 0] * X0 + M2[2, 1] * Y + M2[2, 2] * dd, M2[2, 0] * bx, iota, q, tx, ty)
+            _nodes(
+                n,
+                face0[p2],
+                full[p2],
+                M2[0, 0] * X0 + M2[0, 1] * Y + M2[0, 2] * dd,
+                M2[0, 0] * bx,
+                M2[1, 0] * X0 + M2[1, 1] * Y + M2[1, 2] * dd,
+                M2[1, 0] * bx,
+                M2[2, 0] * X0 + M2[2, 1] * Y + M2[2, 2] * dd,
+                M2[2, 0] * bx,
+                iota,
+                q,
+                tx,
+                ty,
+            )
             _gather(bank, n, offs[p2], scales[p2], q, tx, ty, val2)
             wa = F32(1.0 - w2)
             wb = F32(w2)
@@ -376,8 +449,28 @@ def _deposit_row(r, lam, S, so, adu, k, key, table, zstart, lane, ln, bits, bits
 
 
 @numba_jit(error_model="numpy")
-def _analog_row(q, S, su, sr, sd, a, inv_nb, gain, offb, hot_ptr, hot_col, hot_val, sigma, scale, vmax,
-                table, nstart, v, out, o0):
+def _analog_row(
+    q,
+    S,
+    su,
+    sr,
+    sd,
+    a,
+    inv_nb,
+    gain,
+    offb,
+    hot_ptr,
+    hot_col,
+    hot_val,
+    sigma,
+    scale,
+    vmax,
+    table,
+    nstart,
+    v,
+    out,
+    o0,
+):
     """``detector.fast.analog_out`` for row *q* (the deposits of rows q-1, q, q+1): charge
     sharing, gain, offset + dark, hot pixels, read noise, clip, round, into ``out[o0:o0+w]``.
     Returns the clipped-pixel count."""
@@ -405,15 +498,22 @@ def _analog_row(q, S, su, sr, sd, a, inv_nb, gain, offb, hot_ptr, hot_col, hot_v
     if a > 0 and w > 2:
         for c in range(1, w - 1):
             cu = U64(c)
-            y = (a32 * (v[c - 1] + v[c + 1] + v[c] * ca) * inb * gain[m0 + cu] + offb[m0 + cu]
-                 + s32 * table[z0 + cu]) * sc
+            y = (
+                a32 * (v[c - 1] + v[c + 1] + v[c] * ca) * inb * gain[m0 + cu]
+                + offb[m0 + cu]
+                + s32 * table[z0 + cu]
+            ) * sc
             sat += 1 if y >= vm else 0
             out[oo + cu] = np.uint16(min(max(y, zero), vm) + half)
         sat += _analog_pixel(0, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo)
-        sat += _analog_pixel(w - 1, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo)
+        sat += _analog_pixel(
+            w - 1, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo
+        )
     else:
         for c in range(w):
-            sat += _analog_pixel(c, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo)
+            sat += _analog_pixel(
+                c, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo
+            )
     for hh in range(hot_ptr[q], hot_ptr[q + 1]):  # hot pixels: again, with their dark current
         c = hot_col[hh]
         cu = U64(c)
@@ -446,10 +546,63 @@ def _analog_pixel(c, v, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0
 
 
 @numba_jit(error_model="numpy")
-def _band(b, r0, r1, d32, dui, bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2, mix, contrast, es,
-          finv, has_f, dx, dy, pc_lin, s2dT, ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb,
-          h, gain, offb, hot_ptr, hot_col, hot_val, adu, k, a, inv_nb, sigma, scale, vmax, table,
-          ks, keys, zstarts, nstarts, out, offsets):
+def _band(
+    b,
+    r0,
+    r1,
+    d32,
+    dui,
+    bank,
+    bank_n,
+    face0,
+    full,
+    offs,
+    scales,
+    matrices,
+    o1,
+    o2,
+    ph1,
+    ph2,
+    mix,
+    contrast,
+    es,
+    finv,
+    has_f,
+    dx,
+    dy,
+    pc_lin,
+    s2dT,
+    ox,
+    oy,
+    bx,
+    by,
+    normal,
+    forward,
+    lobe,
+    kappa,
+    vmf,
+    t_nb,
+    h,
+    gain,
+    offb,
+    hot_ptr,
+    hot_col,
+    hot_val,
+    adu,
+    k,
+    a,
+    inv_nb,
+    sigma,
+    scale,
+    vmax,
+    table,
+    ks,
+    keys,
+    zstarts,
+    nstarts,
+    out,
+    offsets,
+):
     """Rows r0 .. r1 of frame b (see :func:`raw_frames`), in the scratch ``d32``, ``dui``.
     Returns (electrons, clipped pixels).
 
@@ -460,32 +613,33 @@ def _band(b, r0, r1, d32, dui, bank, bank_n, face0, full, offs, scales, matrices
     W = d32.shape[0] // _ROWS32  # scratch row length (>= w)
     iota = d32[0:W]  # (W >= w and >= the lobe's anchors)
     iw = d32[0:w]
-    ex = d32[W:W + w]
-    bgf = d32[2 * W:2 * W + w]
-    value = d32[3 * W:3 * W + w]
-    val2 = d32[4 * W:4 * W + w]
-    tx = d32[5 * W:5 * W + w]
-    ty = d32[6 * W:6 * W + w]
-    lam = d32[7 * W:7 * W + w]
-    vrow = d32[8 * W:8 * W + w]
-    S3 = d32[9 * W:12 * W]
-    lu = d32[12 * W:13 * W]
-    lp = d32[13 * W:14 * W]
-    lf = d32[14 * W:15 * W]
-    lcnt = d32[15 * W:16 * W]
-    ln = d32[16 * W:17 * W]
-    lob = d32[17 * W:17 * W + na]
-    Ls = d32[18 * W:19 * W]
+    ex = d32[W : W + w]
+    bgf = d32[2 * W : 2 * W + w]
+    value = d32[3 * W : 3 * W + w]
+    val2 = d32[4 * W : 4 * W + w]
+    tx = d32[5 * W : 5 * W + w]
+    ty = d32[6 * W : 6 * W + w]
+    lam = d32[7 * W : 7 * W + w]
+    vrow = d32[8 * W : 8 * W + w]
+    S3 = d32[9 * W : 12 * W]
+    lu = d32[12 * W : 13 * W]
+    lp = d32[13 * W : 14 * W]
+    lf = d32[14 * W : 15 * W]
+    lcnt = d32[15 * W : 16 * W]
+    ln = d32[16 * W : 17 * W]
+    lob = d32[17 * W : 17 * W + na]
+    Ls = d32[18 * W : 19 * W]
     q = dui[0:w]
-    lane = dui[W:2 * W]
-    bits = dui[2 * W:3 * W].view(np.int32)
-    bitsf = dui[2 * W:3 * W].view(np.float32)
+    lane = dui[W : 2 * W]
+    bits = dui[2 * W : 3 * W].view(np.int32)
+    bitsf = dui[2 * W : 3 * W].view(np.float32)
     for j in range(W):
         iota[j] = F32(j)
     M1 = np.zeros((3, 3))
     M2 = np.zeros((3, 3))
-    w2, x0, y0, dd, c, e, p1, p2, g1 = _point(ks[b], matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f,
-                                              dx, dy, pc_lin, s2dT, M1, M2)
+    w2, x0, y0, dd, c, e, p1, p2, g1 = _point(
+        ks[b], matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f, dx, dy, pc_lin, s2dT, M1, M2
+    )
     one = F32(1.0)
     zero = F32(0.0)
     half = F32(0.5)
@@ -537,7 +691,9 @@ def _band(b, r0, r1, d32, dui, bank, bank_n, face0, full, offs, scales, matrices
         if kappa > 0.0:  # the lobe is smooth: exact every LOBE_STEP pixels, linear between
             yf = F32(Y * forward[1] + dd * forward[2])
             for ia in range(na):
-                Xa = min(Xa0 + iota[ia] * astep, alast)  # (iota: a float index converts without a scalar step)
+                Xa = min(
+                    Xa0 + iota[ia] * astep, alast
+                )  # (iota: a float index converts without a scalar step)
                 lob[ia] = kf * ((Xa * f0 + yf) / math.sqrt(Xa * Xa + yy) - one)
             _exp(lob, bits, bitsf, na)
             for ia in range(w // LOBE_STEP):
@@ -563,14 +719,38 @@ def _band(b, r0, r1, d32, dui, bank, bank_n, face0, full, offs, scales, matrices
             bgf[j] = fb if rn > zero else zero
         rd = 0.0
         if g1 >= 0:  # the master pattern and the band modulation
-            _nodes(bank_n, face0[p1], full[p1], M1[0, 0] * X0 + M1[0, 1] * Y + M1[0, 2] * dd, M1[0, 0] * bx,
-                   M1[1, 0] * X0 + M1[1, 1] * Y + M1[1, 2] * dd, M1[1, 0] * bx,
-                   M1[2, 0] * X0 + M1[2, 1] * Y + M1[2, 2] * dd, M1[2, 0] * bx, iw, q, tx, ty)
+            _nodes(
+                bank_n,
+                face0[p1],
+                full[p1],
+                M1[0, 0] * X0 + M1[0, 1] * Y + M1[0, 2] * dd,
+                M1[0, 0] * bx,
+                M1[1, 0] * X0 + M1[1, 1] * Y + M1[1, 2] * dd,
+                M1[1, 0] * bx,
+                M1[2, 0] * X0 + M1[2, 1] * Y + M1[2, 2] * dd,
+                M1[2, 0] * bx,
+                iw,
+                q,
+                tx,
+                ty,
+            )
             _gather(bank, bank_n, offs[p1], scales[p1], q, tx, ty, value)
             if w2 > 0.0:
-                _nodes(bank_n, face0[p2], full[p2], M2[0, 0] * X0 + M2[0, 1] * Y + M2[0, 2] * dd, M2[0, 0] * bx,
-                       M2[1, 0] * X0 + M2[1, 1] * Y + M2[1, 2] * dd, M2[1, 0] * bx,
-                       M2[2, 0] * X0 + M2[2, 1] * Y + M2[2, 2] * dd, M2[2, 0] * bx, iw, q, tx, ty)
+                _nodes(
+                    bank_n,
+                    face0[p2],
+                    full[p2],
+                    M2[0, 0] * X0 + M2[0, 1] * Y + M2[0, 2] * dd,
+                    M2[0, 0] * bx,
+                    M2[1, 0] * X0 + M2[1, 1] * Y + M2[1, 2] * dd,
+                    M2[1, 0] * bx,
+                    M2[2, 0] * X0 + M2[2, 1] * Y + M2[2, 2] * dd,
+                    M2[2, 0] * bx,
+                    iw,
+                    q,
+                    tx,
+                    ty,
+                )
                 _gather(bank, bank_n, offs[p2], scales[p2], q, tx, ty, val2)
                 for j in range(w):
                     value[j] = wa * value[j] + wb * val2[j]
@@ -671,17 +851,24 @@ def _band(b, r0, r1, d32, dui, bank, bank_n, face0, full, offs, scales, matrices
             if a > 0 and w > 2:
                 for cc in range(1, w - 1):
                     cu = U64(cc)
-                    y = (a32 * (vrow[cc - 1] + vrow[cc + 1] + vrow[cc] * ca) * inb * gain[m0 + cu] + offb[m0 + cu]
-                         + s32 * table[z0 + cu]) * sc
+                    y = (
+                        a32 * (vrow[cc - 1] + vrow[cc + 1] + vrow[cc] * ca) * inb * gain[m0 + cu]
+                        + offb[m0 + cu]
+                        + s32 * table[z0 + cu]
+                    ) * sc
                     sat += 1 if y >= vm else 0
                     out[oo + cu] = np.uint16(min(max(y, zero), vm) + half)
-                sat += _analog_pixel(0, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo)
-                sat += _analog_pixel(w - 1, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out,
-                                     oo)
+                sat += _analog_pixel(
+                    0, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo
+                )
+                sat += _analog_pixel(
+                    w - 1, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo
+                )
             else:
                 for cc in range(w):
-                    sat += _analog_pixel(cc, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero,
-                                         out, oo)
+                    sat += _analog_pixel(
+                        cc, vrow, a, inv_nb, gain, offb, sigma, scale, vmax, table, m0, z0, zero, out, oo
+                    )
             for hh in range(hot_ptr[qr], hot_ptr[qr + 1]):  # hot pixels: again, with their dark current
                 cc = hot_col[hh]
                 y = _analog_value(cc, vrow, a, inv_nb, gain, offb, sigma, scale, table, m0, z0, hot_val[hh])
@@ -697,10 +884,63 @@ def _vmf(kappa: float) -> float:
 
 
 @numba_jit(error_model="numpy", parallel=True)
-def raw_frames(bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f,
-               dx, dy, pc_lin, s2dT, ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb,
-               height, gain, offb, hot_ptr, hot_col, hot_val, adu, k, a, inv_nb, sigma, scale, vmax, table,
-               ks, keys, zstarts, nstarts, band, out, offsets, dose, sats, s32, su32):
+def raw_frames(
+    bank,
+    bank_n,
+    face0,
+    full,
+    offs,
+    scales,
+    matrices,
+    o1,
+    o2,
+    ph1,
+    ph2,
+    mix,
+    contrast,
+    es,
+    finv,
+    has_f,
+    dx,
+    dy,
+    pc_lin,
+    s2dT,
+    ox,
+    oy,
+    bx,
+    by,
+    normal,
+    forward,
+    lobe,
+    kappa,
+    vmf,
+    t_nb,
+    height,
+    gain,
+    offb,
+    hot_ptr,
+    hot_col,
+    hot_val,
+    adu,
+    k,
+    a,
+    inv_nb,
+    sigma,
+    scale,
+    vmax,
+    table,
+    ks,
+    keys,
+    zstarts,
+    nstarts,
+    band,
+    out,
+    offsets,
+    dose,
+    sats,
+    s32,
+    su32,
+):
     """Raw frames of scan points ``ks`` (flat), frame b into ``out[offsets[b] : + h * w]`` (a
     flat uint16 array: a batch, or shared-memory slots), on numba's threads. ``bank``: the
     master cube maps, flat, faces ``bank_n`` square. ``keys``, ``zstarts``, ``nstarts``: each
@@ -716,34 +956,223 @@ def raw_frames(bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, p
         bi = task - b * nbands
         r0 = bi * band
         tid = nb.get_thread_id()
-        accumulator, sat = _band(b, r0, min(r0 + band, height), s32[tid], su32[tid], bank, bank_n, face0, full, offs,
-                         scales, matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f, dx, dy, pc_lin, s2dT,
-                         ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb, height, gain, offb, hot_ptr,
-                         hot_col, hot_val, adu, k, a, inv_nb, sigma, scale, vmax, table, ks, keys, zstarts,
-                         nstarts, out, offsets)
+        accumulator, sat = _band(
+            b,
+            r0,
+            min(r0 + band, height),
+            s32[tid],
+            su32[tid],
+            bank,
+            bank_n,
+            face0,
+            full,
+            offs,
+            scales,
+            matrices,
+            o1,
+            o2,
+            ph1,
+            ph2,
+            mix,
+            contrast,
+            es,
+            finv,
+            has_f,
+            dx,
+            dy,
+            pc_lin,
+            s2dT,
+            ox,
+            oy,
+            bx,
+            by,
+            normal,
+            forward,
+            lobe,
+            kappa,
+            vmf,
+            t_nb,
+            height,
+            gain,
+            offb,
+            hot_ptr,
+            hot_col,
+            hot_val,
+            adu,
+            k,
+            a,
+            inv_nb,
+            sigma,
+            scale,
+            vmax,
+            table,
+            ks,
+            keys,
+            zstarts,
+            nstarts,
+            out,
+            offsets,
+        )
         dose[b, bi] = accumulator
         sats[b, bi] = sat
 
 
 @numba_jit(error_model="numpy")
-def raw_frames_serial(bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2, mix, contrast, es, finv,
-                      has_f, dx, dy, pc_lin, s2dT, ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb,
-                      height, gain, offb, hot_ptr, hot_col, hot_val, adu, k, a, inv_nb, sigma, scale, vmax, table,
-                      ks, keys, zstarts, nstarts, out, offsets, dose, sats, d32, dui):
+def raw_frames_serial(
+    bank,
+    bank_n,
+    face0,
+    full,
+    offs,
+    scales,
+    matrices,
+    o1,
+    o2,
+    ph1,
+    ph2,
+    mix,
+    contrast,
+    es,
+    finv,
+    has_f,
+    dx,
+    dy,
+    pc_lin,
+    s2dT,
+    ox,
+    oy,
+    bx,
+    by,
+    normal,
+    forward,
+    lobe,
+    kappa,
+    vmf,
+    t_nb,
+    height,
+    gain,
+    offb,
+    hot_ptr,
+    hot_col,
+    hot_val,
+    adu,
+    k,
+    a,
+    inv_nb,
+    sigma,
+    scale,
+    vmax,
+    table,
+    ks,
+    keys,
+    zstarts,
+    nstarts,
+    out,
+    offsets,
+    dose,
+    sats,
+    d32,
+    dui,
+):
     """:func:`raw_frames` on the calling thread, whole frames, in its own scratch ``d32``,
     ``dui`` (one array each of :func:`scratch`'s lists); ``dose``, ``sats``: ``(B,)``."""
     for b in range(ks.shape[0]):
-        accumulator, sat = _band(b, 0, height, d32, dui, bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2,
-                         mix, contrast, es, finv, has_f, dx, dy, pc_lin, s2dT, ox, oy, bx, by, normal, forward, lobe,
-                         kappa, vmf, t_nb, height, gain, offb, hot_ptr, hot_col, hot_val, adu, k, a, inv_nb,
-                         sigma, scale, vmax, table, ks, keys, zstarts, nstarts, out, offsets)
+        accumulator, sat = _band(
+            b,
+            0,
+            height,
+            d32,
+            dui,
+            bank,
+            bank_n,
+            face0,
+            full,
+            offs,
+            scales,
+            matrices,
+            o1,
+            o2,
+            ph1,
+            ph2,
+            mix,
+            contrast,
+            es,
+            finv,
+            has_f,
+            dx,
+            dy,
+            pc_lin,
+            s2dT,
+            ox,
+            oy,
+            bx,
+            by,
+            normal,
+            forward,
+            lobe,
+            kappa,
+            vmf,
+            t_nb,
+            height,
+            gain,
+            offb,
+            hot_ptr,
+            hot_col,
+            hot_val,
+            adu,
+            k,
+            a,
+            inv_nb,
+            sigma,
+            scale,
+            vmax,
+            table,
+            ks,
+            keys,
+            zstarts,
+            nstarts,
+            out,
+            offsets,
+        )
         dose[b] = accumulator
         sats[b] = sat
 
 
 @numba_jit(error_model="numpy", parallel=True)
-def means(bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f,
-          dx, dy, pc_lin, s2dT, ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb, ks, lam):
+def means(
+    bank,
+    bank_n,
+    face0,
+    full,
+    offs,
+    scales,
+    matrices,
+    o1,
+    o2,
+    ph1,
+    ph2,
+    mix,
+    contrast,
+    es,
+    finv,
+    has_f,
+    dx,
+    dy,
+    pc_lin,
+    s2dT,
+    ox,
+    oy,
+    bx,
+    by,
+    normal,
+    forward,
+    lobe,
+    kappa,
+    vmf,
+    t_nb,
+    ks,
+    lam,
+):
     """The Poisson means :func:`raw_frames` draws from, ``lam[b]`` for scan point ``ks[b]``
     (``kernels.render``'s ``lam`` with ``ss = 1``)."""
     B, h, w = lam.shape
@@ -753,14 +1182,54 @@ def means(bank, bank_n, face0, full, offs, scales, matrices, o1, o2, ph1, ph2, m
         r = task - b * h
         M1 = np.zeros((3, 3))
         M2 = np.zeros((3, 3))
-        w2, x0, y0, dd, c, e, p1, p2, g1 = _point(ks[b], matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f,
-                                                  dx, dy, pc_lin, s2dT, M1, M2)
+        w2, x0, y0, dd, c, e, p1, p2, g1 = _point(
+            ks[b], matrices, o1, o2, ph1, ph2, mix, contrast, es, finv, has_f, dx, dy, pc_lin, s2dT, M1, M2
+        )
         iota = np.arange(w).astype(np.float32)
         lob = np.empty(na, np.float32)
         bits = np.empty(na, np.int32)
         bitsf = bits.view(np.float32)
         f32 = np.empty((6, w), np.float32)
         q = np.empty(w, np.uint32)
-        _project_row(r, bank, bank_n, face0, full, offs, scales, M1, M2, w2, x0, y0, dd, c, e, p1, p2, g1,
-                     ox, oy, bx, by, normal, forward, lobe, kappa, vmf, t_nb, iota, lob, bits, bitsf, f32[0], f32[1], f32[2],
-                     f32[3], q, f32[4], f32[5], lam[b, r])
+        _project_row(
+            r,
+            bank,
+            bank_n,
+            face0,
+            full,
+            offs,
+            scales,
+            M1,
+            M2,
+            w2,
+            x0,
+            y0,
+            dd,
+            c,
+            e,
+            p1,
+            p2,
+            g1,
+            ox,
+            oy,
+            bx,
+            by,
+            normal,
+            forward,
+            lobe,
+            kappa,
+            vmf,
+            t_nb,
+            iota,
+            lob,
+            bits,
+            bitsf,
+            f32[0],
+            f32[1],
+            f32[2],
+            f32[3],
+            q,
+            f32[4],
+            f32[5],
+            lam[b, r],
+        )

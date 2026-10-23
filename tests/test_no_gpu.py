@@ -61,8 +61,9 @@ CUDA_ERROR_NOT_INITIALIZED = 3
 def test_a_twin_serving_ebsd_frames_never_initialises_cuda():
     env = {k: v for k, v in os.environ.items() if k not in ("NUMBA_DISABLE_CUDA", "DE_TWIN_ALLOW_CUDA")}
     name = f"DE_ExternalFramesNoGpu_{os.getpid()}_{uuid.uuid4().hex[:6]}"
-    run = subprocess.run([sys.executable, "-c", SCRIPT, name], capture_output=True, text=True,
-                         env=env, timeout=600)
+    run = subprocess.run(
+        [sys.executable, "-c", SCRIPT, name], capture_output=True, text=True, env=env, timeout=600
+    )
     assert run.returncode == 0, run.stderr[-3000:]
     out = json.loads(run.stdout.strip().splitlines()[-1])
     assert out["frames"] == 16

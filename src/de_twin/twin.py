@@ -268,8 +268,17 @@ class DigitalTwin:
         img, _ = self._flux(request, frame_index, scan_point, state=state, optics=optics, time_s=time_s)
         return img
 
-    def _flux(self, request, frame_index=0, scan_point=None, *, state=None, optics=None, time_s=None,
-              frame_time_s: float | None = None):
+    def _flux(
+        self,
+        request,
+        frame_index=0,
+        scan_point=None,
+        *,
+        state=None,
+        optics=None,
+        time_s=None,
+        frame_time_s: float | None = None,
+    ):
         """``(flux, means)``: ``means`` (the detector's Poisson means, see ``Detector.expose``) when
         the renderer made them on the way (an EBSD frame with ``frame_time_s``), else None. That
         flux is a reused buffer, valid until the next frame."""
@@ -402,8 +411,9 @@ class DigitalTwin:
                     optics = self.optics(request, state)
             with self.lock:
                 holder_state = self.holder_state(t)
-                flux, means = self._flux(request, i, state=state, optics=optics, time_s=t,
-                                         frame_time_s=frame_time)
+                flux, means = self._flux(
+                    request, i, state=state, optics=optics, time_s=t, frame_time_s=frame_time
+                )
                 blanked = flux is None
                 # Noise is seeded by a twin-wide frame counter, not the index within this
                 # request: repeated acquisitions (live view) must not repeat their noise.
@@ -442,8 +452,9 @@ class DigitalTwin:
             self._frame_serial += 1
         return serial, self.detector.seed
 
-    def ebsd_frame_source(self, request: AcquisitionRequest, *, state: MicroscopeState | None = None,
-                          optics=None):
+    def ebsd_frame_source(
+        self, request: AcquisitionRequest, *, state: MicroscopeState | None = None, optics=None
+    ):
         """An :class:`~de_twin.ebsd.framesource.EbsdFrameSource` making *request*'s EBSD camera
         frames in one fused CPU pass each, at the column's current state (or *state*,
         *optics*); None when its frames are not that path (not an EBSD camera frame, the beam
@@ -464,8 +475,9 @@ class DigitalTwin:
                 return None
             if self.flood_for_gain and request.exposure_mode in (ExposureMode.GAIN, ExposureMode.VACUUM):
                 return None
-            exposure = self.detector.grid_exposure(max(float(request.frame_time_s), 1e-6), request,
-                                                   ht_kv=state.ht_kv)
+            exposure = self.detector.grid_exposure(
+                max(float(request.frame_time_s), 1e-6), request, ht_kv=state.ht_kv
+            )
             if exposure is None:
                 return None
             grid = self.renderer.ebsd.grid(optics)
@@ -528,7 +540,7 @@ class DigitalTwin:
                     next_frame += count
                     jobs_submitted += 1
                 _first, count, slot, batch = pending.popleft()
-                (electrons, _), = batch.wait()
+                ((electrons, _),) = batch.wait()
                 chunk = ring[slot]
                 for in_batch in range(count):
                     if stop is not None and stop.is_set():
@@ -645,21 +657,37 @@ class DigitalTwin:
             geometry = geometry.replace(**fields)
         with self.lock:
             self.optics_config.ebsd = geometry
-            if (beam_kv is None and geometry.enabled and getattr(self, "_own_column", False)
-                    and not 5.0 <= float(self.column.state().ht_kv) <= 30.0):
+            if (
+                beam_kv is None
+                and geometry.enabled
+                and getattr(self, "_own_column", False)
+                and not 5.0 <= float(self.column.state().ht_kv) <= 30.0
+            ):
                 beam_kv = 20.0
             if beam_kv is not None:
                 if not getattr(self, "_own_column", False):
-                    raise ValueError("beam_kv sets the twin's own column's HT; a supplied column's is "
-                                     "the operator's")
+                    raise ValueError(
+                        "beam_kv sets the twin's own column's HT; a supplied column's is the operator's"
+                    )
                 # Choosing the SEM's energy builds the instrument; the column's operator guard
                 # on HT (allow_ht) is for remote control, so go round it here.
                 self.column._set_local("HighTension", float(beam_kv) * 1000.0)
         return geometry
 
-    def set_master_pattern(self, phase, source, *, energy_kv: float | None = None, kv: float | None = None,
-                           projection: str | None = None, hemisphere: str | None = None, energies=None,
-                           weights=None, centrosymmetric: bool | None = None, validate: bool = True):
+    def set_master_pattern(
+        self,
+        phase,
+        source,
+        *,
+        energy_kv: float | None = None,
+        kv: float | None = None,
+        projection: str | None = None,
+        hemisphere: str | None = None,
+        energies=None,
+        weights=None,
+        centrosymmetric: bool | None = None,
+        validate: bool = True,
+    ):
         """Use your own EBSD master pattern for ``phase`` instead of the kinematic one, and return
         it (a :class:`~de_twin.ebsd.MasterPattern`; ``nbytes``, ``symmetry_error``).
 
@@ -844,13 +872,23 @@ class DigitalTwin:
             step = gt["view"].pixel_um
             y, x = np.mgrid[0:ny, 0:nx] * step
             pc = gt["pattern_centre"].reshape(-1, 3)
-            return CrystalMap(Rotation(gt["quaternion"].reshape(-1, 4)),
-                              np.where(gid >= 0, mat.astype(int), -1),
-                              x=x.ravel(), y=y.ravel(),
-                              phase_list=PhaseList([phase_for(i) for i in ids], ids=ids) if ids else None,
-                              prop={"grain_id": gid, "band_contrast": gt["band_contrast"].ravel(),
-                                    "quality": gt["quality"].ravel(), "mix": gt["mix"].ravel(),
-                                    "pcx": pc[:, 0], "pcy": pc[:, 1], "pcz": pc[:, 2]}, scan_unit="um")
+            return CrystalMap(
+                Rotation(gt["quaternion"].reshape(-1, 4)),
+                np.where(gid >= 0, mat.astype(int), -1),
+                x=x.ravel(),
+                y=y.ravel(),
+                phase_list=PhaseList([phase_for(i) for i in ids], ids=ids) if ids else None,
+                prop={
+                    "grain_id": gid,
+                    "band_contrast": gt["band_contrast"].ravel(),
+                    "quality": gt["quality"].ravel(),
+                    "mix": gt["mix"].ravel(),
+                    "pcx": pc[:, 0],
+                    "pcy": pc[:, 1],
+                    "pcz": pc[:, 2],
+                },
+                scan_unit="um",
+            )
         gid, mat = gt["grain_id"].ravel(), gt["material_id"].ravel()
         ids = [int(i) for i in np.unique(mat[gid >= 0])]
         ny, nx = gt["grain_id"].shape

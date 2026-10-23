@@ -724,7 +724,9 @@ class Renderer:
         """``(flux, means)`` of an EBSD camera frame (see ``EbsdRenderer.render_frame``)."""
         with self._lock:
             ix, iy = resolve_scan_point(optics, scan_point, frame_index, self.specimen, self.config)
-            return self.ebsd.render_frame(self.specimen, optics, ix, iy, t_nb, *self._ebsd_source(optics, time_s))
+            return self.ebsd.render_frame(
+                self.specimen, optics, ix, iy, t_nb, *self._ebsd_source(optics, time_s)
+            )
 
     def ebsd_plan(self, optics, time_s: float):
         """The EBSD scan's per-point plan (``EbsdRenderer.plan``) at the current specimen."""

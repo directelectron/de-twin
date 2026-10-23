@@ -90,8 +90,10 @@ class Workers:
     def __init__(self, threads: int | None = None):
         self.threads = int(threads or default_threads())
         self._jobs: queue.SimpleQueue = queue.SimpleQueue()
-        self._threads = [threading.Thread(target=self._run, name=f"de-twin-frames-{i}", daemon=True)
-                         for i in range(self.threads)]
+        self._threads = [
+            threading.Thread(target=self._run, name=f"de-twin-frames-{i}", daemon=True)
+            for i in range(self.threads)
+        ]
         for t in self._threads:
             t.start()
 

@@ -65,14 +65,54 @@ class EbsdFrameSource:
         self.sensor_pixels = h * w * round(1.0 / exposure.inv_nb)
         lobe, kappa = float(plan.lobe), float(plan.kappa)
         self._projection = (
-            np.ascontiguousarray(plan.bank).ravel(), int(plan.bank.shape[1]), plan.face0, plan.full, plan.offsets,
-            plan.scales, plan.matrices, plan.o1, plan.o2, plan.ph1, plan.ph2, plan.mix, plan.contrast, plan.es,
-            plan.finv, bool(plan.has_f), plan.dx, plan.dy, plan.pc_lin, plan.s2dT, float(ox), float(oy),
-            float(bx), float(by), plan.normal, plan.forward, lobe, kappa, K._vmf(kappa), float(exposure.t_nb))
+            np.ascontiguousarray(plan.bank).ravel(),
+            int(plan.bank.shape[1]),
+            plan.face0,
+            plan.full,
+            plan.offsets,
+            plan.scales,
+            plan.matrices,
+            plan.o1,
+            plan.o2,
+            plan.ph1,
+            plan.ph2,
+            plan.mix,
+            plan.contrast,
+            plan.es,
+            plan.finv,
+            bool(plan.has_f),
+            plan.dx,
+            plan.dy,
+            plan.pc_lin,
+            plan.s2dT,
+            float(ox),
+            float(oy),
+            float(bx),
+            float(by),
+            plan.normal,
+            plan.forward,
+            lobe,
+            kappa,
+            K._vmf(kappa),
+            float(exposure.t_nb),
+        )
         e = exposure
-        self._detector = (h, e.gain, e.offset, e.hot_ptr, e.hot_col, e.hot_val, float(e.adu), float(e.k),
-                          float(e.a), float(e.inv_nb), float(e.sigma), float(e.scale), float(e.vmax),
-                          _extended(e.table))
+        self._detector = (
+            h,
+            e.gain,
+            e.offset,
+            e.hot_ptr,
+            e.hot_col,
+            e.hot_val,
+            float(e.adu),
+            float(e.k),
+            float(e.a),
+            float(e.inv_nb),
+            float(e.sigma),
+            float(e.scale),
+            float(e.vmax),
+            _extended(e.table),
+        )
 
     # ------------------------------------------------------------------ noise
     def noise(self, seed: int, serials) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -86,7 +126,9 @@ class EbsdFrameSource:
         return keys, zs, ns
 
     # ------------------------------------------------------------------ frames
-    def render_into(self, local: dict, out: np.ndarray, ks, seed: int, serials) -> tuple[np.ndarray, np.ndarray]:
+    def render_into(
+        self, local: dict, out: np.ndarray, ks, seed: int, serials
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Frames of flat scan points *ks* with noise (seed, serials[i]) into ``out[i]`` (a
         (>= len(ks), h, w) uint16 array), on the calling thread, in scratch kept in *local*.
         Returns (electrons, clipped pixels) per frame."""
@@ -101,8 +143,20 @@ class EbsdFrameSource:
         keys, zs, ns = self.noise(seed, serials)
         dose = np.zeros(n)
         sats = np.zeros(n, np.int64)
-        K.raw_frames_serial(*self._projection, *self._detector, ks, keys, zs, ns, out.reshape(-1),
-                            np.arange(n, dtype=np.int64) * (h * w), dose, sats, d32, dui)
+        K.raw_frames_serial(
+            *self._projection,
+            *self._detector,
+            ks,
+            keys,
+            zs,
+            ns,
+            out.reshape(-1),
+            np.arange(n, dtype=np.int64) * (h * w),
+            dose,
+            sats,
+            d32,
+            dui,
+        )
         return dose, sats
 
     def render_one(self, local: dict, out: np.ndarray, k: int, seed: int, serial: int) -> tuple[float, int]:
@@ -114,8 +168,9 @@ class EbsdFrameSource:
         """Frames of flat scan points *ks* into ``out[i]`` (a (>= len(ks), h, w) uint16 array)
         as one job for *workers* (:class:`de_twin.workers.Workers`), the interpreter taken once
         for them all; returns its `Batch`, whose one result is (electrons, clipped) per frame."""
-        return workers.submit(self.render_into, [(out, np.asarray(ks, np.int64), int(seed),
-                                                  np.asarray(serials, np.int64))])
+        return workers.submit(
+            self.render_into, [(out, np.asarray(ks, np.int64), int(seed), np.asarray(serials, np.int64))]
+        )
 
     def render(self, ks, seed: int, serials, out: np.ndarray | None = None, band: int | None = None):
         """Frames of flat scan points *ks* in one call on numba's threads, a band of rows a task
@@ -134,8 +189,21 @@ class EbsdFrameSource:
         dose = np.zeros((B, nbands))
         sats = np.zeros((B, nbands), np.int64)
         s32, su32 = _parallel_scratch(w)
-        K.raw_frames(*self._projection, *self._detector, ks, keys, zs, ns, band, out.reshape(-1),
-                     np.arange(B, dtype=np.int64) * h * w, dose, sats, s32, su32)
+        K.raw_frames(
+            *self._projection,
+            *self._detector,
+            ks,
+            keys,
+            zs,
+            ns,
+            band,
+            out.reshape(-1),
+            np.arange(B, dtype=np.int64) * h * w,
+            dose,
+            sats,
+            s32,
+            su32,
+        )
         return out, dose.sum(axis=1), sats.sum(axis=1)
 
     def means(self, ks) -> np.ndarray:
