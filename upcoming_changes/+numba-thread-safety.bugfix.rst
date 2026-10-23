@@ -1,1 +1,0 @@
-The twin no longer aborts on macOS when two threads render at once (a prefetch alongside a live frame, say). numba's only threading layer there, the workqueue, aborts the process when two threads launch a parallel kernel together, so on it the kernels are compiled serial; each still releases the GIL, and the twin's own threads run them side by side.

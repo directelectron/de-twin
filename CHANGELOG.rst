@@ -10,6 +10,84 @@ Fragment files in ``upcoming_changes/`` are assembled into this file by
 
 .. towncrier release notes start
 
+0.3.0 (2026-10-23)
+==================
+
+API and Behaviour Changes
+-------------------------
+
+- Magnification and camera-length ladders are one type, ``de_twin.column.ladders.Ladder``,
+  which carries both rules for picking the nearest rung (``snap_linear`` for the column's
+  detents, ``snap_logarithmic`` for calibration tables). ``Column.mag_ladder()``,
+  ``Column.cl_ladder()``, ``Calibration.mag_ladder()`` and ``Calibration.cl_ladder()`` return it,
+  and the calibration's built-in tables moved to ``de_twin.column.ladders``.
+- ``Column.mag_ladder()`` and ``Column.cl_ladder()`` now return lists, empty when the mode has
+  no such ladder (they returned ``None``), and ``cl_ladder()`` is in millimeters like
+  ``Calibration.cl_ladder()`` (it was centimeters). In ``de_twin.column.ladders``,
+  ``DIFF_CAMLENGTHS_CM`` and ``STEM_CAMLENGTHS_CM`` became ``DIFF_CAMERA_LENGTHS_MM`` and
+  ``STEM_CAMERA_LENGTHS_MM``. The ``CameraLength`` property is still centimeters, as on the
+  DE-TEM-Channel protocol.
+
+
+New Features
+------------
+
+- A scan follows DE-Server's timing for coil changes: it runs a repeat at a time, and a pixel
+  offset (or voltage, rotation or flip) written mid-scan reaches the beam one
+  ``Scan - Output Buffer (milliseconds)`` later, on a repeat boundary, as the new DE-Server
+  property queues it. The offset is clamped to half the scan's voltage range, inside the scan
+  card's +-10 V. ``get_gpu_frames()`` now maps the twin's own frames out of GPU memory, through
+  DE-Server's GPU frame sharing protocol, instead of deapi's simulated stand-in.
+
+  The shared-memory face keeps up with a fast camera: with ``reuse``, a full frame pool is a
+  library that is picked from rather than rendered into, re-rendered when the column moves, and
+  frames go to DE-Server a batch at a time. Its C++ reader yields instead of sleeping for the
+  first few ms of a wait. A 256x256 stream reaches about 27,000 frames a second, from 580.
+
+  In a scan, the shared-memory face follows DE-Server's scan coil voltages (``DE_ScanOutput``,
+  which DE-Server's scan simulator writes as a scan card would be written): each frame is
+  rendered where its point's voltages put the beam, so a pixel offset, an XY array or drift
+  correction moves the beam with DE-Server's output-buffer latency. A probe held on one point
+  is rendered ``pool_size`` times and then picked from (about 25,000 frames a second at 256x256).
+- Calibration standards now cover the Ted Pella TEM/STEM catalogue: diffraction and lattice standards (619 evaporated Al, 625 MoO3 laths tied to their crystal axis, 646 oriented Au foil, 645 graphitized carbon black, 675 MAG*I*CAL), resolution standards (612 catalase, 608 ferritin, 613 Au and 611 Pt/Ir on holey carbon, 609 holey carbon, 638 combined), and the 610 latex catalogue with the certified nanosphere standards. New materials: graphite, MoO3, SiGe, uranyl stain, ferrihydrite; an ``oriented`` grain texture.
+- Calibration standards: the Ted Pella TEM calibration specimens as presets ("Ted Pella 607-A - ..."), grouped in ``CALIBRATION_STANDARDS`` with their published numbers in ``specimen.standards.PRODUCTS``. Shadowed replicas (607, 607-A, 606, 603, 603-A, 677, 673, 628-B) are conformal carbon films shadowed with metal at an angle (embossed at low magnification, a nanocrystalline island film with dense and sparse regions and soft shadows at high magnification); 610 latex spheres in eight sizes.
+- Faster live-view re-renders on a magnification step or a stage move: the Bragg excitation is computed once per grain and thickness and kept across views, a stage move beyond the pan margin rasterises only the strips of specimen it brings into view (``RenderConfig.reuse_rasters``), large rasters are rasterised in parallel strips (``RenderConfig.raster_threads``), and the exit wave, crops and upsampling are threaded or numba-compiled. Padded TEM rasters now sit on a world-fixed pixel lattice, with sub-pixel view offsets applied as a phase ramp and crops interpolated to a fraction of a pixel (a move inside the margin was rounded to whole raster pixels). ``de-twin serve --interactive`` turns on the fast previews for a live view.
+- STEM scans now follow DE-Server's scan coil voltages: ``Scan - Voltage H/V Min/Max`` is the
+  field the full scan grid spans (a smaller range zooms in, moving it pans), and
+  ``Scan - Pixel Offset X/Y`` moves the probe by whole or fractional scan points. ``Scan - Rotation``
+  and ``Scan - Flip Horizontally/Vertically`` turn and mirror the grid. A live scan
+  (``start_acquisition(0)``) picks up offset, voltage, rotation and flip changes at its next
+  repetition, so a client can move the probe, correct drift, or pan and zoom while it scans.
+- Specimen field maps can carry an amorphous layer under the primary material (``under_material``, ``under_thickness_nm``: a support film under particles, stain around protein); the renderer adds its absorption, phase, amorphous texture and diffuse scattering. New ``specimen.stamps``: organic shapes precomputed once (Cahn-Hilliard phase-separation tiles shipped as signed distances, 3D diffusion-limited aggregates) and placed fast in numba with exact coverage; ``specimen.spheres``: binned sphere sets (chords, tops, cast shadows).
+- TEM lattice fringes are kinematic by default (``RenderConfig.lattice_fringe_model="kinematic"``): each resolved beam passing the objective aperture is a phase grating of its own kinematic strength, grown with thickness, times ``lattice_fringe_efficiency`` (0.5, calibrated on Ted Pella lattice images). The previous fixed amplitude (``"fixed"``, ``lattice_phase_rad``) gave every crystal the same weak fringes.
+
+
+Bug Fixes
+---------
+
+- The twin no longer aborts on macOS when two threads render at once (a prefetch alongside a live frame, say). numba's only threading layer there, the workqueue, aborts the process when two threads launch a parallel kernel together, so on it the kernels are compiled serial; each still releases the GIL, and the twin's own threads run them side by side.
+
+
+Removals
+--------
+
+- Calibration standards are narrowed to the ones matched to Ted Pella's images: the grating replicas (607, 607-A, 606, 603, 603-A, 677, 673), gold-shadowed latex (628-B), evaporated aluminium (619) and MoO3 (625). The latex spheres, biological, holey-film, lattice and MAG*I*CAL standards are removed, with the materials only they used.
+- The ``legacy`` TEM imaging model and the ``legacy`` dose model are removed. The physical
+  models were already the defaults and are now the only ones, so ``RenderConfig.tem_model``,
+  ``OpticsConfig.dose_model`` and ``OpticsConfig.legacy_dose_rate_counts_per_s`` no longer exist.
+- The optics state no longer has ``blur_sigma_px``, ``fresnel_gain``, ``fresnel_sign`` or
+  ``fresnel_sigma_px``; only the removed legacy TEM renderer used them.
+
+
+Maintenance
+-----------
+
+- Structural cleanup with no change to rendered output: one shared numba kernel decorator
+  (``de_twin.parallel.numba_jit``) replaces the per-module copies, the column-realism classes
+  share their derived values, and unused helpers (``log_snap``, ``resample_object``,
+  ``upsample2x``, ``point_in_polygon``, ``AmorphousStructure``) are removed.
+
+
 0.2.0 (2026-09-27)
 ==================
 
