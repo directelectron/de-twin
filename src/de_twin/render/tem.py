@@ -43,13 +43,18 @@ from scipy import fft as sfft
 
 from ..optics.physics import interaction_constant
 from ..optics.state import image_aberrations_of
-from ..specimen.materials import (MATERIALS, absorption_lengths_nm,
-                                  material_array)
+from ..specimen.materials import MATERIALS, absorption_lengths_nm, material_array
 from . import fastpath as _fp
 from .samples import DIFFUSE_CUTOFF_LENGTHS
-from .util import (chi_and_gradient, disk_profile, gaussian_filter_threaded, parallel_rows, upsample_to,
-                   world_normal_noise)
-from .tem_contrast import (amplitude_rows, bragg_contrast, lattice_field)
+from .tem_contrast import amplitude_rows, bragg_contrast, lattice_field
+from .util import (
+    chi_and_gradient,
+    disk_profile,
+    gaussian_filter_threaded,
+    parallel_rows,
+    upsample_to,
+    world_normal_noise,
+)
 
 
 # ------------------------------------------------------------- physical
@@ -57,8 +62,8 @@ class TransferCache:
     """Caches for the wave-optical model: exit-wave spectra and transfer functions."""
 
     def __init__(self, size: int = 4):
-        self.spectra: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
-        self.transfer: "OrderedDict[tuple, np.ndarray | None]" = OrderedDict()
+        self.spectra: OrderedDict[tuple, np.ndarray] = OrderedDict()
+        self.transfer: OrderedDict[tuple, np.ndarray | None] = OrderedDict()
         self.size = size
 
     def _put(self, d, k, v):
@@ -201,7 +206,7 @@ def texture_noise(optics, config, seed: int, _scratch: bool = False) -> np.ndarr
     """World-locked unit white noise on the raster, band-limited by the atomic form factor."""
     view = optics.view
     p_nm = view.pixel_um * 1000.0
-    salt = config.texture_seed_salt ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
+    salt = config.texture_seed_salt ^ (round(math.log2(max(p_nm, 1e-6)) * 64) & 0xFFFF)
     noise = _world_locked_noise(view, seed, salt, _scratch)
     sb = config.texture_bandlimit_nm / p_nm
     if sb > 0.3:
@@ -235,7 +240,7 @@ def diffuse_phase(fm, optics, config, seed: int, weights: dict, k_max: float) ->
         if w is None or not (w > 0).any():
             continue
         k0 = screening_angle_mrad(m, optics.wavelength_nm) / (1000.0 * optics.wavelength_nm)
-        salt = (config.texture_seed_salt * 31 + 7919 * int(m)) ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
+        salt = (config.texture_seed_salt * 31 + 7919 * int(m)) ^ (round(math.log2(max(p_nm, 1e-6)) * 64) & 0xFFFF)
         noise = _world_locked_noise(view, seed, salt)
         psd = np.float32(1.0) / (k2 + np.float32(k0 * k0)) ** 2
         psd[k2 > np.float32(k_max * k_max)] = 0

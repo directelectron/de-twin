@@ -28,9 +28,18 @@ from scipy import ndimage
 from ..hashing import SeedKind, hash_seed, uniform_from_hash
 from ..specimen.materials import MATERIALS
 from ..state import RenderMode
-from .diffraction import (CRYSTAL_BINS, THICKNESS_BIN_NM, DiffractionCache, PatternOptions, annulus_fractions,
-                          bucket_patterns, crystal_bin_for, diffuse_annulus_fraction, render_diffuse,
-                          render_pattern)
+from .diffraction import (
+    CRYSTAL_BINS,
+    THICKNESS_BIN_NM,
+    DiffractionCache,
+    PatternOptions,
+    annulus_fractions,
+    bucket_patterns,
+    crystal_bin_for,
+    diffuse_annulus_fraction,
+    render_diffuse,
+    render_pattern,
+)
 from .samples import Samples, describe
 from .util import shift_bilinear
 
@@ -82,10 +91,10 @@ def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, conf
             pos = getattr(f, "center_um", None) or (getattr(f, "x_um", None), getattr(f, "y_um", None))
             if f is not None and pos[0] is not None:
                 r, c = optics.view.world_to_pixel(pos[0], pos[1])
-                r, c = int(round(float(r))), int(round(float(c)))
+                r, c = round(float(r)), round(float(c))
                 if 0 <= c < nx and 0 <= r < ny:
                     return c, r
-        except Exception:  # noqa: BLE001 - a missing/odd feature API just parks on the axis
+        except Exception:
             pass
     return nx // 2, ny // 2
 
@@ -95,7 +104,7 @@ def _blend_samples(optics, ix, iy, enabled: bool):
     off = float(optics.extras.get("probe_blend_offset_px", 0.0))
     if not enabled or optics.scan_step_um <= 0 or off < BLEND_MIN_OFFSET_PX:
         return [(ix, iy, 1.0)]
-    o = int(round(off))
+    o = round(off)
     pts = [(ix, iy, BLEND_CENTRE_WEIGHT), (ix - o, iy, BLEND_ARM_WEIGHT), (ix + o, iy, BLEND_ARM_WEIGHT),
            (ix, iy - o, BLEND_ARM_WEIGHT), (ix, iy + o, BLEND_ARM_WEIGHT)]
     return [(int(np.clip(x, 0, nx - 1)), int(np.clip(y, 0, ny - 1)), wt) for x, y, wt in pts]
@@ -113,7 +122,7 @@ class StemRenderer:
         self.cache = cache
         self.config = config
         self.seed = seed
-        self._tables: "OrderedDict[tuple, StemTables]" = OrderedDict()
+        self._tables: OrderedDict[tuple, StemTables] = OrderedDict()
 
     def tables(self, fm, fm_token, optics, grains, crystallinity) -> StemTables:
         key = (fm_token, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
@@ -181,7 +190,7 @@ class StemRenderer:
             out += np.float32(wt) * self._pattern(tab, k, optics, grains)
         for m, wt in dterms.items():
             key = ("diffuse", m, (h, w), optics.recip_pixel_inv_nm, optics.ht_kv)
-            out += np.float32(wt) * self.cache.get(key, lambda _k: render_diffuse(m, (h, w), optics))
+            out += np.float32(wt) * self.cache.get(key, lambda _k, m=m: render_diffuse(m, (h, w), optics))
 
         # descan (instrument ramp + layer) and strain, about the pattern centre
         dx = dy = 0.0
@@ -222,7 +231,7 @@ class StemRenderer:
             sig = sig + s.under_w * dfrac[s.under_mat]
         sig = sig.astype(np.float32)
         if len(_blend_samples(optics, 0, 0, self.config.probe_footprint_blend)) > 1:
-            o = int(round(float(optics.extras.get("probe_blend_offset_px", 0.0))))
+            o = round(float(optics.extras.get("probe_blend_offset_px", 0.0)))
             p = np.pad(sig, o, mode="edge")
             ny, nx = sig.shape
             sig = (BLEND_CENTRE_WEIGHT * p[o:o + ny, o:o + nx]

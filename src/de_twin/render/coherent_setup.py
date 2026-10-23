@@ -5,17 +5,17 @@ from __future__ import annotations
 import dataclasses
 import math
 from dataclasses import dataclass
-from typing import Optional
+
 import numpy as np
 from scipy import fft as sfft
+
 from ..optics.state import probe_aberrations_of
 from ..specimen.fieldmap import ViewWindow
 from ..specimen.materials import MATERIALS, absorption_lengths_nm
-from .diffraction import (screening_angle_mrad,
-                          thickness_bin_for)
+from . import stem_nb as _snb
+from .diffraction import screening_angle_mrad, thickness_bin_for
 from .samples import DIFFUSE_CUTOFF_LENGTHS
 from .tem import transmission_function
-from . import stem_nb as _snb
 from .util import chi_and_gradient
 
 FIELD_MARGIN_PX = 64  # transmission tiles are built this much larger (edge filters, texture band limit)
@@ -52,7 +52,7 @@ class Sampling:
 
     @property
     def oversampling(self) -> int:
-        return int(round(self.sub[0] * math.gcd(*self.binning) / self.binning[0]))
+        return round(self.sub[0] * math.gcd(*self.binning) / self.binning[0])
 
     @property
     def det_recip_px(self) -> tuple[float, float]:
@@ -108,7 +108,7 @@ def plan_sampling(optics, config) -> Sampling:
     sig_s = optics.source_size_nm / 2.3548
     w_req = 2.0 * (1.1 * r_geo + config.coherent_probe_tail * lam / max(alpha, 1e-6) + 3.0 * sig_s)
     dk1 = recip * g
-    m = max(1, int(math.ceil(w_req * dk1 - 1e-9)))
+    m = max(1, math.ceil(w_req * dk1 - 1e-9))
 
     # no wrap-around onto the detector: exit-wave frequencies reach ka + K_t (K_t: the object's
     # band limit, enforced on the transmission tile), aliased ones land at k - 2 k_nyq
@@ -119,7 +119,7 @@ def plan_sampling(optics, config) -> Sampling:
     def grid(m):
         dk = dk1 / m
         fx, fy = m * bx // g, m * by // g
-        n = int(math.ceil(2.0 * k_nyq / dk)) + 2
+        n = math.ceil(2.0 * k_nyq / dk) + 2
         n = max(n, hd * fy, wd * fx)
         n = sfft.next_fast_len(n + (n & 1))
         while n & 1:
@@ -178,7 +178,7 @@ def _ramp(n: int, eps: float) -> np.ndarray:
     return np.exp(-2j * math.pi * eps * np.arange(n) / n).astype(np.complex64)
 
 
-def build_probe(optics, config, s: Optional[Sampling] = None, *, center_px=None) -> Probe:
+def build_probe(optics, config, s: Sampling | None = None, *, center_px=None) -> Probe:
     s = s or plan_sampling(optics, config)
     lam = optics.wavelength_nm
     n, dk, ka = s.n, s.dk, s.k_alpha
@@ -280,7 +280,7 @@ def build_probe(optics, config, s: Optional[Sampling] = None, *, center_px=None)
 class Tile:
     view: ViewWindow  # fine grid, rotation 0, lab-aligned (x = detector columns)
     t: np.ndarray  # (Ny, Nx) complex64 transmission
-    bragg: Optional[np.ndarray]  # (Ny, Nx) float32 T x Bragg loss (None: no crystal in the tile)
+    bragg: np.ndarray | None  # (Ny, Nx) float32 T x Bragg loss (None: no crystal in the tile)
     gid: np.ndarray  # (Ny, Nx) int32 own grain (-1 none)
     tbin: np.ndarray  # (Ny, Nx) int16 thickness bin
     mat: np.ndarray  # (Ny, Nx) uint8
@@ -295,10 +295,10 @@ def field_view(xs_um, ys_um, s: Sampling, like: ViewWindow, margin_px: int = FIE
     cb, ca = max(like.cos_beta, 0.1), max(like.cos_alpha, 0.1)
     px_x, px_y = dx_um / cb, dx_um / ca  # world pitch of a lab pixel
     half = s.n // 2 + margin_px
-    c0 = int(math.floor(float(np.min(xs_um)) / px_x)) - half
-    c1 = int(math.ceil(float(np.max(xs_um)) / px_x)) + half
-    r0 = int(math.floor(float(np.min(ys_um)) / px_y)) - half
-    r1 = int(math.ceil(float(np.max(ys_um)) / px_y)) + half
+    c0 = math.floor(float(np.min(xs_um)) / px_x) - half
+    c1 = math.ceil(float(np.max(xs_um)) / px_x) + half
+    r0 = math.floor(float(np.min(ys_um)) / px_y) - half
+    r1 = math.ceil(float(np.max(ys_um)) / px_y) + half
     nx, ny = c1 - c0 + 1, r1 - r0 + 1
     cx = (c0 - 0.5 + nx / 2.0) * px_x
     cy = (r0 - 0.5 + ny / 2.0) * px_y

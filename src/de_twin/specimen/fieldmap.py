@@ -9,7 +9,6 @@ holder/preparation geometry directly.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -122,18 +121,18 @@ class FieldMap:
     material_id: np.ndarray  # (ny, nx) uint8, MaterialId
     thickness_nm: np.ndarray  # (ny, nx) float32 projected thickness (not tilt-corrected)
     grain_id: np.ndarray  # (ny, nx) int32, -1 = no grain / amorphous
-    descan: Optional[np.ndarray] = None  # (2, ny, nx) float32
-    strain: Optional[np.ndarray] = None  # (3, ny, nx) float32
+    descan: np.ndarray | None = None  # (2, ny, nx) float32
+    strain: np.ndarray | None = None  # (3, ny, nx) float32
     # An amorphous layer in the same column as the primary material (a support film under
     # particles, stain around protein, ...): its absorption, phase and diffuse scattering add
     # to the primary's. None when the scene has none.
-    under_material: Optional[np.ndarray] = None  # (ny, nx) uint8
-    under_thickness_nm: Optional[np.ndarray] = None  # (ny, nx) float32
+    under_material: np.ndarray | None = None  # (ny, nx) uint8
+    under_thickness_nm: np.ndarray | None = None  # (ny, nx) float32
     generation: int = 0  # bumps whenever content changes (cache key)
     time_s: float = 0.0  # scene time the raster represents
 
     @classmethod
-    def empty(cls, view: ViewWindow, layers: frozenset[str] | set[str] = frozenset()) -> "FieldMap":
+    def empty(cls, view: ViewWindow, layers: frozenset[str] | set[str] = frozenset()) -> FieldMap:
         ny, nx = view.shape
         fm = cls(
             view=view,
@@ -163,10 +162,10 @@ class GrainTable:
 
     quaternions: np.ndarray  # (N, 4) float64, orix Rotation data
     nucleation_u: np.ndarray  # (N,) float32 uniform in [0, 1) (in-situ crystallisation)
-    _matrices: Optional[np.ndarray] = field(default=None, repr=False, compare=False)
+    _matrices: np.ndarray | None = field(default=None, repr=False, compare=False)
 
     @classmethod
-    def generate(cls, seed: int, textures: tuple = (), overrides: tuple = ()) -> "GrainTable":
+    def generate(cls, seed: int, textures: tuple = (), overrides: tuple = ()) -> GrainTable:
         """Draw every grain from ``rng_for(seed, GRAIN, id)``. ``textures`` is a tuple of
         ``(material_id, Texture)`` (default: uniform random), ``overrides`` a tuple of
         ``(grain_id, Texture)`` for individual grains (e.g. a single-crystal lamella matrix)."""

@@ -31,7 +31,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -150,7 +150,7 @@ def _coverage_table():
 
 def _level_offset(c: np.ndarray):
     """The family level and threshold offset that give coverage `c` per pixel."""
-    tiles, cov = phase_tiles()
+    _tiles, cov = phase_tiles()
     half = int(np.argmin(np.abs(cov - LABYRINTH)))
     levels, table = _coverage_table()
     lv = np.interp(np.clip(c, cov[1], cov[half]), cov[1:half + 1], np.arange(1, half + 1, dtype=np.float64))
@@ -220,7 +220,7 @@ def field1(xk, yk, levk, tiles, seed, px_per_um, cells_per_um, sharp):
     fx = cx - 0.5 - ci
     fy = cy - 0.5 - cj
     lv = min(max(levk, 0.0), nlev - 1.0)
-    l0 = int(math.floor(lv))
+    l0 = math.floor(lv)
     l1 = min(l0 + 1, nlev - 1)
     tl = lv - l0
     acc = 0.0
@@ -262,7 +262,7 @@ def field(seed: int, x_um, y_um, feature_um: float, coverage=0.5, cell_features:
     to the region's edge. Up to half coverage the shapes are droplets merging into worms;
     above, the labyrinth dilates and its channels thin. Cells `cell_features` features
     across each use their own tile and orientation."""
-    tiles, cov = phase_tiles()
+    tiles, _cov = phase_tiles()
     x = np.ascontiguousarray(x_um, np.float64).ravel()
     y = np.ascontiguousarray(y_um, np.float64).ravel()
     shape = np.shape(x_um)

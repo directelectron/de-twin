@@ -27,8 +27,8 @@ import math
 import threading
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Optional
 
 import numpy as np
 from scipy import ndimage
@@ -62,7 +62,7 @@ class PatternOptions:
     max_g_inv_nm: float = 25.0
 
     @classmethod
-    def from_config(cls, config) -> "PatternOptions":
+    def from_config(cls, config) -> PatternOptions:
         return cls(bool(config.film_halo), bool(config.scaled_diffraction_saturation), float(config.max_g_inv_nm))
 
 
@@ -171,7 +171,7 @@ def tilt_samples(optics, n_cone: int = 24) -> list:
         return [((bx, by), 1.0, (0.0, 0.0))]
     arc = float(getattr(optics, "precession_arc_rad", 2.0 * math.pi))
     phase = float(getattr(optics, "precession_phase_rad", 0.0))
-    n = n_cone if arc >= 2.0 * math.pi else max(2, int(math.ceil(n_cone * arc / (2.0 * math.pi))))
+    n = n_cone if arc >= 2.0 * math.pi else max(2, math.ceil(n_cone * arc / (2.0 * math.pi)))
     step = min(arc, 2.0 * math.pi) / n
     lam = optics.wavelength_nm
     descan = bool(getattr(optics, "precession_descan", True))
@@ -245,7 +245,7 @@ def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
 #: Pattern sets per precession tilt, so a frame that covers part of the cone re-weights
 #: cached tilts instead of exciting every grain again (two full cones' worth).
 CONE_CACHE_SIZE = 48
-_CONE_CACHE: "OrderedDict[tuple, tuple]" = OrderedDict()
+_CONE_CACHE: OrderedDict[tuple, tuple] = OrderedDict()
 
 
 def _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt_rad) -> PatternSet:
@@ -325,7 +325,7 @@ def blur_sigma_px(disk_radius_px: float) -> float:
                          MAX_BLUR_SIGMA_PX))
 
 
-_RADIUS_CACHE: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+_RADIUS_CACHE: OrderedDict[tuple, np.ndarray] = OrderedDict()
 
 
 def radius_map(shape: tuple[int, int], cx: float, cy: float) -> np.ndarray:
@@ -353,7 +353,7 @@ def stamp_disks(out: np.ndarray, x, y, w, radius: float, sigma: float) -> None:
     weight over the infinite plane (what falls off the detector is lost). Vectorised."""
     h, wd = out.shape
     half = radius + 4.0 * sigma + 1.0
-    n = int(math.ceil(2.0 * half)) + 1
+    n = math.ceil(2.0 * half) + 1
     x, y, w = (np.asarray(v, np.float64) for v in (x, y, w))
     on = (w != 0) & (x + half > 0) & (y + half > 0) & (x - half < wd) & (y - half < h)
     x, y, w = x[on], y[on], w[on]
@@ -395,7 +395,7 @@ def _merge(rows: np.ndarray) -> np.ndarray:
 def splat_blur(shape, x, y, w, sigma: float) -> np.ndarray:
     """Bilinear splat of point weights, blurred by a Gaussian (sum kept, off-detector lost)."""
     h, wd = shape
-    pad = int(math.ceil(4 * sigma)) + 2
+    pad = math.ceil(4 * sigma) + 2
     img = np.zeros((h + 2 * pad, wd + 2 * pad), np.float64)  # margin: spots just off the edge
     ix, iy = np.floor(x).astype(np.int64), np.floor(y).astype(np.int64)
     fx, fy = x - ix, y - iy
@@ -423,7 +423,7 @@ def _ring_table(rings_px: list, rmax: float, step: float = 0.25):
 
 
 def render_pattern(p: Pattern, shape: tuple[int, int], recip_px: float, disk_radius_px: float,
-                   center: Optional[tuple[float, float]] = None, diffuse=(),
+                   center: tuple[float, float] | None = None, diffuse=(),
                    mrad_per_px: float = 0.0) -> np.ndarray:
     """Draw a pattern at a detector geometry. Components integrate to their weights.
 
@@ -464,7 +464,7 @@ def screening_angle_mrad(material_id: int, wavelength_nm: float) -> float:
 
 
 def render_diffuse(material_id: int, shape: tuple[int, int], optics,
-                   center: Optional[tuple[float, float]] = None) -> np.ndarray:
+                   center: tuple[float, float] | None = None) -> np.ndarray:
     """Normalised (plane integral 1) screened-Rutherford background:
     p(theta) = theta0^2 / (pi (theta^2 + theta0^2)^2) per mrad^2."""
     h, w = int(shape[0]), int(shape[1])
@@ -550,7 +550,7 @@ class DiffractionCache:
     rendered outside the lock."""
 
     def __init__(self, budget_mb: int = 256):
-        self._lru: "OrderedDict[object, np.ndarray]" = OrderedDict()
+        self._lru: OrderedDict[object, np.ndarray] = OrderedDict()
         self._lock = threading.RLock()
         self.stats = DiffractionCacheStats(budget_bytes=max(1, int(budget_mb)) * 1024 * 1024)
 

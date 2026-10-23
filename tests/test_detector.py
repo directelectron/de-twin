@@ -6,10 +6,10 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.detector import CAMERAS, Detector, camera
 from de_twin.state import AcquisitionRequest, Roi
-from perf_budget import budget
 
 
 def req(**kw) -> AcquisitionRequest:

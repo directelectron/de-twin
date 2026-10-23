@@ -14,7 +14,6 @@ import os
 import struct
 import sys
 import time
-from typing import Optional
 
 import numpy as np
 
@@ -130,7 +129,7 @@ class FrameProducer(_Mapping):
     def acquiring(self) -> bool:
         return bool(self.hdr.acquiring)
 
-    def poll_request(self, timeout: float = 0.0) -> Optional[tuple[int, AcquisitionRequest]]:
+    def poll_request(self, timeout: float = 0.0) -> tuple[int, AcquisitionRequest] | None:
         """A new acquisition request as ``(request_id, AcquisitionRequest)``, or None."""
         deadline = time.monotonic() + timeout
         while True:
@@ -217,8 +216,8 @@ class FrameConsumer(_Mapping):
         self.request_id = 0
 
     def begin(self, *, frame_shape: tuple[int, int], bytes_per_pixel: int = 2,
-              sensor_shape: Optional[tuple[int, int]] = None, exposure_mode: ExposureMode = ExposureMode.NORMAL,
-              frame_time_s: float = 0.01, total_frames: int = 0, roi: Optional[Roi] = None,
+              sensor_shape: tuple[int, int] | None = None, exposure_mode: ExposureMode = ExposureMode.NORMAL,
+              frame_time_s: float = 0.01, total_frames: int = 0, roi: Roi | None = None,
               binning: tuple[int, int] = (1, 1), scan_size: tuple[int, int] = (0, 0),
               frames_per_scan_point: int = 1) -> int:
         h = self.hdr
@@ -232,7 +231,7 @@ class FrameConsumer(_Mapping):
         h.bin_x, h.bin_y = binning
         h.scan_width, h.scan_height = scan_size
         h.frames_per_scan_point = frames_per_scan_point
-        h.frame_time_ns = int(round(frame_time_s * 1e9))
+        h.frame_time_ns = round(frame_time_s * 1e9)
         h.total_frames = total_frames
         h.read_count = h.write_count
         h.acquiring = 1
@@ -240,7 +239,7 @@ class FrameConsumer(_Mapping):
         h.request_id = self.request_id
         return self.request_id
 
-    def read(self, timeout: float = 1.0, out: Optional[np.ndarray] = None) -> tuple[np.ndarray, dict]:
+    def read(self, timeout: float = 1.0, out: np.ndarray | None = None) -> tuple[np.ndarray, dict]:
         """The next frame of the current request, as ``(pixels, slot header)``. With *out*
         (of the frame's size and dtype) the pixels are copied into it, as DE-Server copies
         into its own buffers, instead of into a new array."""

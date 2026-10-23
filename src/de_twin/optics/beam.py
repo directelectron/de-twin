@@ -111,7 +111,7 @@ def _intensity_zoom(state: MicroscopeState, config: OpticsConfig) -> bool:
         from ..state import Projection, TemStem
 
         return state.tem_stem == TemStem.TEM and state.projection == Projection.IMAGING
-    except Exception:  # noqa: BLE001 - an odd state: no zoom
+    except Exception:
         return False
 
 

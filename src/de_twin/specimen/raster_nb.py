@@ -20,7 +20,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 

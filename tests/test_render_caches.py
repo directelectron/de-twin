@@ -473,7 +473,6 @@ def test_the_transposed_ffts_are_scipys():
 def test_the_fast_imaging_is_the_double_precision_image(name, mag, defocus):
     """float32 kernels and transposed single-precision FFTs against the NumPy exit wave with
     complex128 FFTs on the same raster: 1e-5 RMS."""
-    import dataclasses
 
     from scipy import fft as sfft
 

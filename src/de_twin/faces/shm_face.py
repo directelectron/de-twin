@@ -19,7 +19,6 @@ import logging
 import threading
 import time
 from collections import OrderedDict
-from typing import Optional
 
 import numpy as np
 
@@ -58,11 +57,11 @@ class ShmFace:
     """
 
     def __init__(self, twin, name: str = L.DEFAULT_NAME, pace: bool = True, warm_up: bool = True,
-                 *, reuse: int = 1, pool_size: int = 16, threads: Optional[int] = None,
+                 *, reuse: int = 1, pool_size: int = 16, threads: int | None = None,
                  scan_output: str = S.DEFAULT_NAME):
         self.twin = twin
         self.scan_output_name = scan_output
-        self._scan_output: Optional[S.ScanOutputReader] = None
+        self._scan_output: S.ScanOutputReader | None = None
         self.reuse = max(1, int(reuse))
         self.pool_size = int(pool_size)
         self.threads = threads
@@ -77,12 +76,12 @@ class ShmFace:
         self.ready = threading.Event()
         self.producer = None
         self._stop = threading.Event()
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self.frames_published = 0
         self.keepalives = 0
         self.requests_served = 0
 
-    def start(self) -> "ShmFace":
+    def start(self) -> ShmFace:
         self._thread = threading.Thread(target=self._run, name="de-twin-shm", daemon=True)
         self._thread.start()
         return self
@@ -211,7 +210,7 @@ class ShmFace:
                 if self._pool is pool:
                     self._pool = None
 
-    def _coils(self) -> Optional[S.ScanOutputReader]:
+    def _coils(self) -> S.ScanOutputReader | None:
         """DE-Server's scan output, once its scan simulator has made one."""
         if self._scan_output is None:
             try:
@@ -262,7 +261,7 @@ class ShmFace:
         finally:
             library.close()
 
-    def _pool_for(self, request, recycle: bool) -> "_FramePool":
+    def _pool_for(self, request, recycle: bool) -> _FramePool:
         """The frame pool for *request*: the running one when the request asks for the
         same frames as the last (DE-MC's live view is a string of short acquisitions,
         one request each), so its rendered frames, and the keep-alive, carry over;
@@ -319,7 +318,7 @@ class _FramePool:
     """
 
     def __init__(self, twin, request, *, size: int, reuse: int, pace: bool,
-                 threads: Optional[int] = None):
+                 threads: int | None = None):
         self.size = int(size)
         self.reuse = max(1, int(reuse))
         self._cond = threading.Condition()
@@ -337,7 +336,7 @@ class _FramePool:
                 import numba
 
                 numba.set_num_threads(max(1, min(int(threads), numba.config.NUMBA_NUM_THREADS)))
-            except Exception:  # noqa: BLE001 - no numba: nothing to cap
+            except Exception:
                 pass
         state = None
         # A scan's frames depend on their index, so only a fixed view is re-rendered from
@@ -371,7 +370,7 @@ class _FramePool:
                             del self._ring[worst]
                         self._cond.notify_all()
             end = _DONE
-        except Exception as e:  # noqa: BLE001 - raised on the publishing thread
+        except Exception as e:
             end = e
         with self._cond:
             self._end = end
@@ -470,7 +469,7 @@ class _PointLibrary:
         self.size = int(size)
         self._request = request
         self._wanted = _Wanted()
-        self._frames: "OrderedDict[tuple[int, int], list]" = OrderedDict()  # point -> [items, next]
+        self._frames: OrderedDict[tuple[int, int], list] = OrderedDict()  # point -> [items, next]
         self._bytes = 0
         self._render = None
         self._scan_id = None

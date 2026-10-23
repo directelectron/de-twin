@@ -1,7 +1,14 @@
 import numpy as np
 import pytest
 
-from de_twin.specimen import MaterialId, Specimen, SpecimenConfig, ViewWindow, advance_thermal_budget, from_name
+from de_twin.specimen import (
+    MaterialId,
+    Specimen,
+    SpecimenConfig,
+    ViewWindow,
+    advance_thermal_budget,
+    from_name,
+)
 from de_twin.specimen.materials import GRAINS_PER_MATERIAL
 from de_twin.state import HolderState
 

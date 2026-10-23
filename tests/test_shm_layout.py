@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import subprocess
 import sys
 from pathlib import Path
@@ -30,7 +31,7 @@ CPP_TO_PY = {
 def test_fields_do_not_overlap():
     for fields, total in ((L.HEADER, L.HEADER_BYTES), (L.SLOT, L.SLOT_HEADER_BYTES)):
         spans = sorted((f.offset, f.offset + f.size, f.name) for f in fields.values())
-        for (a0, a1, an), (b0, b1, bn) in zip(spans, spans[1:]):
+        for (a0, a1, an), (b0, b1, bn) in itertools.pairwise(spans):
             assert a1 <= b0, f"{an} overlaps {bn}"
         assert spans[-1][1] <= total
 

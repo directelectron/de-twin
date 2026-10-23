@@ -15,7 +15,6 @@ low-dose calibration (aligning View to Record, setting the area offsets) measure
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Optional
 
 AREAS = ("Search", "View", "Focus", "Record")
 
@@ -124,7 +123,7 @@ def area_from_state(s) -> LowDoseArea:
                        (float(s.beam_shift_um.x), float(s.beam_shift_um.y)))
 
 
-def normalise_area(name) -> Optional[str]:
+def normalise_area(name) -> str | None:
     n = str(name).strip().lower()
     for a in AREAS:
         if a.lower() == n or (a == "Record" and n in ("exposure", "record")):

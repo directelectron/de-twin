@@ -16,8 +16,14 @@ from collections import OrderedDict
 import numpy as np
 
 from ..specimen.materials import MATERIALS
-from .diffraction import (THICKNESS_BIN_NM, Pattern, PatternOptions, bucket_patterns, render_pattern,
-                          screening_angle_mrad)
+from .diffraction import (
+    THICKNESS_BIN_NM,
+    Pattern,
+    PatternOptions,
+    bucket_patterns,
+    render_pattern,
+    screening_angle_mrad,
+)
 from .samples import describe
 from .util import shift_bilinear
 
@@ -83,8 +89,8 @@ PRECESSION_CACHE_BYTES = 256 * 1024 * 1024
 class SaedRenderer:
     def __init__(self, config):
         self.config = config
-        self._composites: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
-        self._tilts: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+        self._composites: OrderedDict[tuple, np.ndarray] = OrderedDict()
+        self._tilts: OrderedDict[tuple, np.ndarray] = OrderedDict()
         self.exact_grains = 0
 
     def render(self, fm, fm_token, optics, grains, crystallinity) -> np.ndarray:

@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
+
 import numpy as np
+
 from ..optics.aberrations import TERMS, Aberrations
 from ..optics.physics import electron_wavelength_nm
-
 
 # ---------------------------------------------------------------------------
 # CEOS constants
@@ -317,7 +318,7 @@ class _Drift:
         if not self.names:
             return {}
         x = max(0.0, (float(t) - self.t0) / self.step)
-        k = int(math.floor(x))
+        k = math.floor(x)
         while self._k < k:  # advance in chunks
             n = min(k - self._k, 100_000)
             inc = self._increments(n)

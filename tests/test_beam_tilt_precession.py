@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 import pytest
+from test_render_diffraction import AU0, OPTICS, _saed_optics, bragg_spots
 
 from de_twin.clock import ManualClock
 from de_twin.column import Column
@@ -14,10 +15,8 @@ from de_twin.render import Renderer
 from de_twin.render.diffraction import beam_tilt_rotation, bucket_patterns, tilt_samples
 from de_twin.render.renderer import _precession_frame
 from de_twin.render.testing import SyntheticSpecimen, on_zone_grains
-from de_twin.specimen.materials import GRAINS_PER_MATERIAL, MaterialId
+from de_twin.specimen.materials import MaterialId
 from de_twin.state import Vec2
-
-from test_render_diffraction import AU0, OPTICS, _saed_optics, bragg_spots
 
 G200 = 2.0 / 0.4078
 LAM = OPTICS.wavelength_nm
@@ -40,10 +39,13 @@ def _pattern(zone=(0, 0, 1), t=20.0, **kw):
 def test_a_beam_tilted_by_the_bragg_angle_towards_minus_g_excites_g():
     lib = library_for(int(MaterialId.GOLD), 25.0)
     theta_b = LAM * G200 / 2.0  # rad
-    m = np.eye(3)[None]
+    np.eye(3)[None]
     j = int(np.argmin(np.abs(lib.g[:, 0] - G200) + np.abs(lib.g[:, 1]) + np.abs(lib.g[:, 2])))  # +g = (200)
-    s = lambda tilt: float((lambda gl: 1 / LAM - math.sqrt(1 / LAM ** 2 - gl[0] ** 2 - gl[1] ** 2) - gl[2])(
-        beam_tilt_rotation(tilt) @ lib.g[j]))
+
+    def s(tilt):
+        gl = beam_tilt_rotation(tilt) @ lib.g[j]
+        return float(1 / LAM - math.sqrt(1 / LAM ** 2 - gl[0] ** 2 - gl[1] ** 2) - gl[2])
+
     assert abs(s((0.0, 0.0))) > 1e-3
     assert s((-theta_b, 0.0)) == pytest.approx(0.0, abs=1e-6), "towards -g: +g on the sphere"
     assert abs(s((+theta_b, 0.0))) > abs(s((0.0, 0.0))), "towards +g: further off"
@@ -119,9 +121,9 @@ def test_column_precession_properties():
 
 def test_precession_leaves_the_tem_image_cache_alone():
     """Precession changes diffraction, not the image: TEM frames still come from the cache."""
-    from de_twin.render.testing import StubCamera
-
     from test_render_diffraction import _gold_specimen
+
+    from de_twin.render.testing import StubCamera
 
     r = Renderer(_gold_specimen())
     from de_twin.optics import Calibration, OpticsConfig, derive_optics

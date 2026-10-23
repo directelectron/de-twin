@@ -10,8 +10,16 @@ import pytest
 
 from de_twin.optics import Calibration, OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.diffraction import (DiffractionCache, Pattern, PatternOptions, amorphous_fraction,
-                                        annulus_fraction, bucket_patterns, powder_pattern, render_pattern)
+from de_twin.render.diffraction import (
+    DiffractionCache,
+    Pattern,
+    PatternOptions,
+    amorphous_fraction,
+    annulus_fraction,
+    bucket_patterns,
+    powder_pattern,
+    render_pattern,
+)
 from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen, on_zone_grains
 from de_twin.specimen.materials import GRAINS_PER_MATERIAL, MaterialId
 from de_twin.state import AcquisitionRequest, MicroscopeState, Projection, Vec2
@@ -226,7 +234,7 @@ def test_saed_au_ring_ratio():
 
 
 def test_saed_folds_excess_grains_into_powder(monkeypatch):
-    import de_twin.render.saed as saed
+    from de_twin.render import saed
     o = _saed_optics(120.0)
     spec = _gold_specimen()
     exact = Renderer(spec).render(o)

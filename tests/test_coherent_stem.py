@@ -7,8 +7,8 @@ import math
 
 import numpy as np
 import pytest
-
 from coherent_helpers import stem_optics
+
 from de_twin.clock import ManualClock
 from de_twin.render import RenderConfig, Renderer
 from de_twin.render.testing import Particle, SyntheticSpecimen

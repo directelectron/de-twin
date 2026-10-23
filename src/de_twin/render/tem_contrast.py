@@ -6,13 +6,15 @@ import math
 import threading
 from collections import OrderedDict
 from dataclasses import dataclass
+
 import numpy as np
+
 from ..crystal import effective_matrices, library_for
 from ..hashing import SeedKind, hash_seed, uniform_from_hash
-from ..specimen.materials import (GRAINS_PER_MATERIAL, absorption_lengths_nm)
+from ..specimen.materials import GRAINS_PER_MATERIAL, absorption_lengths_nm
 from . import fastpath as _fp
 from .diffraction import MAX_THICKNESS_BIN, THICKNESS_BIN_NM, bragg_fraction, thickness_bin_for
-from .util import (parallel_rows, pool)
+from .util import parallel_rows, pool
 
 LATTICE_MIN_SAMPLES = 2.25
 FRINGE_BEAM_FRACTION = 0.02  # a beam carrying this fraction of the electrons gives full-strength fringes
@@ -129,7 +131,7 @@ class _BraggMemo:
         return np.array([self.pair[k][0] for k in keys], np.float64)
 
 
-_BRAGG_MEMOS: "OrderedDict[tuple, _BraggMemo]" = OrderedDict()
+_BRAGG_MEMOS: OrderedDict[tuple, _BraggMemo] = OrderedDict()
 #: Tilt / beam states whose Bragg tables are kept (a tilt series back and forth, a wobbler):
 #: ~1 MB each per crystalline material.
 BRAGG_TABLES_KEPT = 16

@@ -24,18 +24,16 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
 from ...hashing import SeedKind, hash_seed, normal_from_hash, splitmix64, uniform_from_hash
-from ..fieldmap import grain_id_from_hash
+from .. import raster_nb as _rnb
+from .. import replica_nb as _replica_nb
+from ..fieldmap import GRAINS_PER_MATERIAL, grain_id_from_hash
 from ..geometry import NM_PER_UM
 from ..materials import MaterialId, absorption_lengths_nm
 from ..noise import LACUNARITY, cells, fbm
-from .. import raster_nb as _rnb
-from .. import replica_nb as _replica_nb
-from ..fieldmap import GRAINS_PER_MATERIAL
 from ..structures import _claim, _owner_pixels, _resolved
 from .common import StandardStructure
 
@@ -117,7 +115,7 @@ class WaffleGrating:
     def __init__(self, period_um: float, depth_nm: float = 30.0, line_fraction: float = 0.22,
                  ramp_nm: float = 25.0, edge_nm: float = 5.0, edge_corr_nm: float = 60.0,
                  wavy_nm: float = 15.0, wavy_um: float = 1.5, defects: float = 0.0,
-                 both: bool = True, trench: bool = False, back_ramp_nm: Optional[float] = None):
+                 both: bool = True, trench: bool = False, back_ramp_nm: float | None = None):
         self.P, self.depth, self.w = float(period_um), float(depth_nm), float(line_fraction)
         self.ramp, self.edge, self.edge_corr = ramp_nm / NM_PER_UM, edge_nm / NM_PER_UM, edge_corr_nm / NM_PER_UM
         # a ruled master's lines are sawtooth: a steep front wall (+x / +y side, `ramp_nm`
@@ -179,7 +177,7 @@ class ReliefTile:
 
     N = 384
 
-    def __init__(self, relief: "WaffleGrating", elev: float, to_source: tuple, penumbra: float):
+    def __init__(self, relief: WaffleGrating, elev: float, to_source: tuple, penumbra: float):
         from scipy import ndimage
 
         n, P = self.N, relief.P
@@ -266,12 +264,12 @@ class ShadowedReplicaStructure(StandardStructure):
 
     required_layers = frozenset()
 
-    def __init__(self, relief: Optional[WaffleGrating], base_nm: float = 20.0,
+    def __init__(self, relief: WaffleGrating | None, base_nm: float = 20.0,
                  rough_nm: float = 3.0, rough_um: float = 0.06, crumple_nm: float = 12.0,
                  crumple_um: float = 0.3, metal: int = MaterialId.GOLD, metal_nm: float = 6.0,
                  elevation_deg: float = 25.0, azimuth_deg: float = 45.0, island_nm: float = 9.0,
                  coverage: float = 0.65, grain_nm: float = 2.2, shadow_leak: float = 0.12,
-                 spheres: Optional[LatexSpheres] = None, sphere_material: int = MaterialId.PROTEIN,
+                 spheres: LatexSpheres | None = None, sphere_material: int = MaterialId.PROTEIN,
                  spheres_shadowed: bool = True):
         self.relief = relief
         self.base, self.rough_nm, self.rough_um = float(base_nm), float(rough_nm), float(rough_um)
@@ -339,7 +337,7 @@ class ShadowedReplicaStructure(StandardStructure):
         rj = 1.0 + sp.sigma_frac * np.clip(normal_from_hash(hs[present]), -3.0, 3.0)
         return SphereSet(xs[present], ys[present], R0 * rj)
 
-    def tile(self) -> Optional[ReliefTile]:
+    def tile(self) -> ReliefTile | None:
         if self.relief is None:
             return None
         if getattr(self, "_tile", None) is None:
@@ -367,7 +365,7 @@ class ShadowedReplicaStructure(StandardStructure):
         """`fill` through the numba kernel (:func:`..replica_nb.replica_block`): the same
         per-pixel arithmetic, in parallel rows."""
         from ..noise import fbm_params
-        from ..stamps import LABYRINTH, _OFFSETS, _coverage_table, period_px_cached, phase_tiles
+        from ..stamps import _OFFSETS, LABYRINTH, _coverage_table, period_px_cached, phase_tiles
 
         b = owner.bounds
         win = ctx.window(b.xmin, b.ymin, b.xmax, b.ymax)

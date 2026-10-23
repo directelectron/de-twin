@@ -18,7 +18,8 @@ Differences from a bare Column, all taken from those modules:
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 from .column import Column
 from .errors import ColumnRefused
@@ -85,14 +86,14 @@ class ColumnAdapter:
         for cb in list(self._move_observers):
             try:
                 cb(float(x), float(y))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("stage-move observer failed")
 
     def _notify_set(self, prop: str, value: Any) -> None:
         for cb in list(self._set_observers):
             try:
                 cb(str(prop), value)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("column-set observer failed")
 
     # --------------------------------------------------------------- stage
@@ -109,7 +110,7 @@ class ColumnAdapter:
             self.column.set_stage(x=x, y=y)
         except ColumnRefused:
             raise
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             raise ColumnRefused(str(e)) from None
         self.column.wait_idle()
         self._notify_moved(x, y)
@@ -159,7 +160,7 @@ class ColumnAdapter:
                     pass
             return out
 
-    def screen_positions(self, observed: Optional[int] = None) -> dict[str, int]:
+    def screen_positions(self, observed: int | None = None) -> dict[str, int]:
         if observed is None:
             observed = self.get("ScreenPosition")
         return screen_positions(self.column.instrument_type, observed)

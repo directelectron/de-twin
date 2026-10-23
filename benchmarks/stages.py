@@ -15,9 +15,9 @@ import argparse
 import time
 from collections import defaultdict
 
-import de_twin.render.tem as tem
 import de_twin.render.util as tem_util
 from de_twin.clock import ManualClock
+from de_twin.render import tem
 from de_twin.specimen.model import Specimen
 from de_twin.twin import DigitalTwin
 

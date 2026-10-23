@@ -15,17 +15,27 @@ from __future__ import annotations
 
 import functools
 import math
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
 from ..hashing import SeedKind, hash_seed, mix_cell, splitmix64, uniform_from_hash
-from .fieldmap import LAYER_DESCAN, LAYER_STRAIN, grain_id_from_hash
-from .geometry import (ANALYTIC_CELL_MIN_PX, NM_PER_UM, BlockHit, JitteredLattice, inside_rough_ellipse,
-                       lognormal_from_hash, rough_ellipse_signed_dist, smoothstep, value_noise,
-                       value_noise_separable, ROUGH_PEAK)
-from .materials import MaterialId, absorption_lengths_nm
 from . import raster_nb as _rnb
+from .fieldmap import LAYER_DESCAN, LAYER_STRAIN, grain_id_from_hash
+from .geometry import (
+    ANALYTIC_CELL_MIN_PX,
+    NM_PER_UM,
+    ROUGH_PEAK,
+    BlockHit,
+    JitteredLattice,
+    inside_rough_ellipse,
+    lognormal_from_hash,
+    rough_ellipse_signed_dist,
+    smoothstep,
+    value_noise,
+    value_noise_separable,
+)
+from .materials import MaterialId, absorption_lengths_nm
 from .raster import Owner, RasterContext, Shape
 
 U64 = np.uint64
@@ -45,7 +55,7 @@ class _Block:
     ``mask`` is ``None`` for a fully covered block, else the 2-D inside mask of the window.
     """
 
-    __slots__ = ("flat", "X", "Y", "lx", "ly", "win", "mask")
+    __slots__ = ("X", "Y", "flat", "lx", "ly", "mask", "win")
 
     def __init__(self, flat, X, Y, lx, ly, win, mask):
         self.flat, self.X, self.Y, self.lx, self.ly, self.win, self.mask = flat, X, Y, lx, ly, win, mask

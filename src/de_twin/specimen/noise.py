@@ -19,7 +19,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001 - numba missing: the NumPy path
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -217,8 +217,7 @@ def cell1(xv, yv, seed, merge, jitter):
             if u < merge:
                 continue  # the two islands have coalesced
             t = ((xv - 0.5 * (sx + bx)) * mx + (yv - 0.5 * (sy + by)) * my) / L
-            if -t < gap:
-                gap = -t
+            gap = min(gap, -t)
     return math.sqrt(best), gap, bh
 
 

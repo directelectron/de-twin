@@ -52,7 +52,7 @@ def connect_holder(spec=None, *, clock=None, strict: bool = False, **kwargs):
             except AttributeError:
                 pass
             return follower
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             if strict:
                 raise
             reason = (f"impulsePy is not installed ({e})" if isinstance(e, ImportError)
@@ -63,6 +63,13 @@ def connect_holder(spec=None, *, clock=None, strict: bool = False, **kwargs):
 
 
 __all__ = [
-    "Reading", "NoHolder", "SimHeatingHolder", "ImpulseFollower", "connect_holder",
-    "HeaterUnavailable", "ChannelUnsupported", "DEFAULT_TOLERANCE_C", "DEFAULT_RAMP_RATE",
+    "DEFAULT_RAMP_RATE",
+    "DEFAULT_TOLERANCE_C",
+    "ChannelUnsupported",
+    "HeaterUnavailable",
+    "ImpulseFollower",
+    "NoHolder",
+    "Reading",
+    "SimHeatingHolder",
+    "connect_holder",
 ]

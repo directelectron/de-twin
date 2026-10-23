@@ -244,7 +244,7 @@ def _autopilot_on_path() -> bool:
     try:
         import de_automate.impulse  # noqa: F401
         return True
-    except Exception:  # noqa: BLE001
+    except Exception:
         return False
 
 
@@ -260,7 +260,6 @@ def test_a_hanging_impulsepy_import_times_out(monkeypatch):
         def find_spec(self, name, path=None, target=None):
             if name == "impulsePy":
                 release.wait(10)
-            return None
 
     finder = Hang()
     monkeypatch.setattr(sys, "meta_path", [finder] + sys.meta_path)

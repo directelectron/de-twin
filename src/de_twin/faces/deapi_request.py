@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import bisect
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
+
 from ..state import AcquisitionRequest, ExposureMode, Roi, ScanRequest
 from .deapi_protocol import EXPOSURE_MODES, _to_bool
-
 
 #: Read-only property naming the simulator behind the frames (``"de-twin <version>"``), so
 #: a client can stamp provenance on what it saves. A real DE-Server has no such property.
@@ -17,7 +18,7 @@ def _super_resolution(get: Callable[[str], Any]) -> bool:
     """DE-Server's "Centroiding Mode" asks for super-resolution (counting cameras only)."""
     try:
         return "super" in str(get("Centroiding Mode") or "").lower()
-    except Exception:  # noqa: BLE001 - an integrating camera has no such property
+    except Exception:
         return False
 
 
@@ -104,7 +105,7 @@ class _CoilTimeline:
 
 def request_from_properties(get: Callable[[str], Any], camera_model: str,
                             sensor_shape: tuple[int, int], *,
-                            scan_points: Optional[list] = None,
+                            scan_points: list | None = None,
                             acquisition_index: int = 0) -> AcquisitionRequest:
     """Map deapi / DE-Server property values to an AcquisitionRequest.
 

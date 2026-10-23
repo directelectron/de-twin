@@ -136,23 +136,8 @@ def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_tw
 def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define(tmp_path):
     cal = tmp_path / "cal.txt"
     props = tmp_path / "props.txt"
-    cal.write_text("\n".join([
-        "SerialEMCalibrations",
-        "StageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000",
-        "StageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000",
-        "CrossoverIntensity 3 0.42",  # microprobe only
-        "BeamShiftCalibration 0.5 0 0 0.5",  # an old form without a mag index
-        "BeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000",
-        "ImageShiftMatrix 1",
-        "14 0 2 0 0 2   20000",
-        "FocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000",
-        "-1 1 1",
-        "1 -1 -1",
-    ]) + "\n")
-    props.write_text("\n".join([
-        "CameraProperties 1", "RotationAndPixel 14 999 45 0.1", "EndCameraProperties",
-        "CameraProperties 0", "RotationAndPixel 14 999 999 0", "EndCameraProperties",
-    ]) + "\n")
+    cal.write_text("SerialEMCalibrations\nStageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n14 0 2 0 0 2   20000\nFocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1" + "\n")
+    props.write_text("CameraProperties 1\nRotationAndPixel 14 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel 14 999 999 0\nEndCameraProperties" + "\n")
     d = from_serialem(cal, props, camera=CAMERA)
     mag = 20000.0
     assert d.rotation_rad("MAG1", mag) == pytest.approx(0.0, abs=1e-9), "999: from the stage matrix"

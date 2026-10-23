@@ -28,7 +28,7 @@ def _auto_stem_model_is_kinematic_for_legacy_tests(request, monkeypatch):
         return original(optics, config, sampling_fn)
 
     monkeypatch.setattr(coherent, "choose_model", choose)
-    import de_twin.render.renderer as renderer
+    from de_twin.render import renderer
 
     monkeypatch.setattr(renderer, "choose_model", choose)
     yield

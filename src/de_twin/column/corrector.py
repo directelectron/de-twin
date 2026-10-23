@@ -41,14 +41,61 @@ import json
 import math
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any
 
 import numpy as np
 
 from ..optics.aberrations import NAMES, TERMS, Aberrations
-from .ceos import (DONE, FAILED, IDLE, IMAGE_PORT, PROBE_PORT, RUNNING, CEOS_ORDER, CONFIG_DEFAULTS, CORRECT_ERRORS, CORRECT_ERRORS_DEFAULT, COUPLING, CorrectorError, DETUNE_HT, DETUNE_MODE, DRIFT_RATES, IMAGE_SIGMA_NM, IMAGE_SIGMA_REL, MEASUREMENT_RANGE_M, MeasurementResult, PROTOCOL_VERSION, SELECT_ERROR_SCALE, TABLEAU_RINGS, TABLEAU_TYPES, TILT_CAL_ERROR, TILT_JITTER_MRAD, T_ALIGNMENT, T_CONFIG, T_CORRECT, T_MEASURE_C1A1, T_READBACK, T_RECONNECT, T_TABLEAU_OVERHEAD, T_TABLEAU_PER_IMAGE, _Drift, _design_rows, _params, _random_coeff, _round, _server_error, _symmetry, format_aberration_set, induced_c1a1, native_aberrations, pi4_angle_mrad, tableau_tilts, tuned_residual)
-
+from .ceos import (
+    CEOS_ORDER,
+    CONFIG_DEFAULTS,
+    CORRECT_ERRORS,
+    CORRECT_ERRORS_DEFAULT,
+    COUPLING,
+    DETUNE_HT,
+    DETUNE_MODE,
+    DONE,
+    DRIFT_RATES,
+    FAILED,
+    IDLE,
+    IMAGE_PORT,
+    IMAGE_SIGMA_NM,
+    IMAGE_SIGMA_REL,
+    MEASUREMENT_RANGE_M,
+    PROBE_PORT,
+    PROTOCOL_VERSION,
+    RUNNING,
+    SELECT_ERROR_SCALE,
+    T_ALIGNMENT,
+    T_CONFIG,
+    T_CORRECT,
+    T_MEASURE_C1A1,
+    T_READBACK,
+    T_RECONNECT,
+    T_TABLEAU_OVERHEAD,
+    T_TABLEAU_PER_IMAGE,
+    TABLEAU_RINGS,
+    TABLEAU_TYPES,
+    TILT_CAL_ERROR,
+    TILT_JITTER_MRAD,
+    CorrectorError,
+    MeasurementResult,
+    _design_rows,
+    _Drift,
+    _params,
+    _random_coeff,
+    _round,
+    _server_error,
+    _symmetry,
+    format_aberration_set,
+    induced_c1a1,
+    native_aberrations,
+    pi4_angle_mrad,
+    tableau_tilts,
+    tuned_residual,
+)
 
 # ---------------------------------------------------------------------------
 # One CEOS server
@@ -70,10 +117,10 @@ class CorrectorUnit:
 
     def __init__(self, side: str, *, seed: int = 0, clock: Callable[[], float],
                  lock: threading.RLock, tuned: bool = True, ht_kv: float = 200.0,
-                 drift_rates: Optional[dict[str, float]] = None, drift_step_s: float = 1.0,
-                 operator: Optional[Callable[[str], tuple[float, complex]]] = None,
-                 beam_check: Optional[Callable[[str], Optional[str]]] = None,
-                 label: Optional[Callable[[], str]] = None, host: str = "127.0.0.1"):
+                 drift_rates: dict[str, float] | None = None, drift_step_s: float = 1.0,
+                 operator: Callable[[str], tuple[float, complex]] | None = None,
+                 beam_check: Callable[[str], str | None] | None = None,
+                 label: Callable[[], str] | None = None, host: str = "127.0.0.1"):
         if side not in ("probe", "image"):
             raise ValueError("side must be 'probe' or 'image'")
         self.side = side
@@ -118,17 +165,17 @@ class CorrectorUnit:
         self.last_result = ""
         self.alignment_file = ""
         self.aberrations: list[tuple[str, tuple[float, float]]] = []  # last measurement, CEOS
-        self.last_measurement: Optional[MeasurementResult] = None
+        self.last_measurement: MeasurementResult | None = None
         self.soc: dict[str, complex] = {}  # state of correction, nm (rad for WD)
         self.config = dict(CONFIG_DEFAULTS)
         self.wd = 0j  # true corrector beam tilt (rad)
         self.beam_tilt_commanded = 0j
         self.beam_tilt_known = False
-        self._pending: Optional[_Pending] = None
+        self._pending: _Pending | None = None
         self.history: list[tuple[float, str, bool]] = []
 
     # ------------------------------------------------------------ aberrations
-    def residual(self, t: Optional[float] = None) -> Aberrations:
+    def residual(self, t: float | None = None) -> Aberrations:
         """Ground truth: native + corrector offset + drift at time ``t`` (default now)."""
         with self.lock:
             self._advance()
@@ -137,7 +184,7 @@ class CorrectorUnit:
     def _residual(self, t: float) -> Aberrations:
         return self.native + self.offset + self._drift.at(t)
 
-    def total(self, t: Optional[float] = None) -> Aberrations:
+    def total(self, t: float | None = None) -> Aberrations:
         """What a measurement sees: residual + the operator's focus (C1) and stig (A1)."""
         with self.lock:
             t = self._now() if t is None else t
@@ -230,7 +277,7 @@ class CorrectorUnit:
             self._pending = _Pending(op, self._now() + float(duration), run)
             return True, ""
 
-    def wait(self, timeout: Optional[float] = None, sleeper: Optional[Callable[[float], None]] = None) -> int:
+    def wait(self, timeout: float | None = None, sleeper: Callable[[float], None] | None = None) -> int:
         """Wait (on the clock) until the running command finishes. Returns the state."""
         start = self._now()
         while True:
@@ -282,7 +329,7 @@ class CorrectorUnit:
 
     def simulate_measurement(self, kind: str = "tableau", tab: str = "Standard",
                              angle_mrad: float = 0.0, max_fit: str = "",
-                             t: Optional[float] = None) -> "MeasurementResult | str":
+                             t: float | None = None) -> MeasurementResult | str:
         """Run the tableau / C1A1 analysis on the current aberrations (no side effects
         other than the measurement noise stream). Returns a result or an error string."""
         t = self._now() if t is None else t
@@ -312,8 +359,7 @@ class CorrectorUnit:
             if abs(c1) > rng_c1 or abs(a1) > rng_a1:
                 lost += 1
                 if i == 0:
-                    return "aberrations out of the measurement range (C1/A1 > %.3g m)" % (
-                        MEASUREMENT_RANGE_M["C1"])
+                    return "aberrations out of the measurement range (C1/A1 > {:.3g} m)".format(MEASUREMENT_RANGE_M["C1"])
                 continue
             s_c1 = math.hypot(IMAGE_SIGMA_NM, IMAGE_SIGMA_REL * abs(c1))
             s_a1 = math.hypot(IMAGE_SIGMA_NM, IMAGE_SIGMA_REL * abs(a1)) / math.sqrt(2.0)
@@ -348,8 +394,8 @@ class CorrectorUnit:
             images=n_img, images_lost=lost, t_start=t, t_done=t, side=self.side, names=names)
 
     # correctAberration ------------------------------------------------------
-    def post_correct(self, name: str, value: Optional[complex] = None,
-                     target: Optional[complex] = None, select: str = "",
+    def post_correct(self, name: str, value: complex | None = None,
+                     target: complex | None = None, select: str = "",
                      *, beam_tilt_managed: bool = False) -> tuple[bool, str]:
         """``value`` / ``target`` in nm (rad for WD); None = omitted."""
         if not name:
@@ -518,12 +564,12 @@ class Corrector:
     """
 
     def __init__(self, kind: str = "probe", *, clock=None, seed: int = 0, tuned: bool = True,
-                 ht_kv: float = 200.0, lock: Optional[threading.RLock] = None,
-                 drift_rates: Optional[dict[str, float]] = None, drift_step_s: float = 1.0,
-                 operator: Optional[Callable[[str], tuple[float, complex]]] = None,
-                 beam_check: Optional[Callable[[str], Optional[str]]] = None,
-                 label: Optional[Callable[[], str]] = None, served: Optional[str] = None,
-                 sleeper: Optional[Callable[[float], None]] = None):
+                 ht_kv: float = 200.0, lock: threading.RLock | None = None,
+                 drift_rates: dict[str, float] | None = None, drift_step_s: float = 1.0,
+                 operator: Callable[[str], tuple[float, complex]] | None = None,
+                 beam_check: Callable[[str], str | None] | None = None,
+                 label: Callable[[], str] | None = None, served: str | None = None,
+                 sleeper: Callable[[float], None] | None = None):
         kind = normalize_kind(kind)
         if kind == "none":
             raise ValueError("Corrector needs kind 'probe', 'image' or 'both'")
@@ -531,7 +577,7 @@ class Corrector:
         self.lock = lock or threading.RLock()
         if clock is None:
             t0 = time.perf_counter()
-            clock = lambda: time.perf_counter() - t0  # noqa: E731
+            clock = lambda: time.perf_counter() - t0
         elif not callable(clock) or hasattr(clock, "now"):
             sleeper = sleeper or getattr(clock, "sleep", None)
             clock = clock.now
@@ -552,7 +598,7 @@ class Corrector:
     def served(self) -> CorrectorUnit:
         return self.units[self.served_side]
 
-    def unit(self, side: Optional[str] = None) -> CorrectorUnit:
+    def unit(self, side: str | None = None) -> CorrectorUnit:
         side = side or self.served_side
         if side not in self.units:
             raise CorrectorError(f"no {side} corrector on this column (fitted: {self.kind})")
@@ -567,18 +613,18 @@ class Corrector:
             return {}
         return dict(self.units[side].residual().coeffs)
 
-    def get(self, side: Optional[str] = None) -> Aberrations:
+    def get(self, side: str | None = None) -> Aberrations:
         """Ground-truth residual of a side (nm)."""
         return self.unit(side).residual()
 
-    def set(self, name: str, value_nm: complex, side: Optional[str] = None) -> None:
+    def set(self, name: str, value_nm: complex, side: str | None = None) -> None:
         """Set a residual coefficient exactly (an ideal correction; tests / scenarios)."""
         self.unit(side).set_residual(name, value_nm)
 
-    def pi4_angle_mrad(self, side: Optional[str] = None) -> float:
+    def pi4_angle_mrad(self, side: str | None = None) -> float:
         return pi4_angle_mrad(self.get(side), self.ht_kv)
 
-    def status(self, side: Optional[str] = None) -> int:
+    def status(self, side: str | None = None) -> int:
         return self.unit(side).status()
 
     @property
@@ -592,7 +638,7 @@ class Corrector:
         return u.beam_tilt_commanded.real, u.beam_tilt_commanded.imag, u.beam_tilt_known
 
     def set_beam_tilt(self, x_rad: float, y_rad: float, relative: bool = True,
-                      side: Optional[str] = None) -> None:
+                      side: str | None = None) -> None:
         completed, _, why = self.unit(side).set_beam_tilt(x_rad, y_rad, relative, wait_s=5.0,
                                                           sleeper=self._sleeper)
         if not completed:
@@ -612,7 +658,7 @@ class Corrector:
             raise CorrectorError(u.last_error or "the corrector command failed")
 
     def measure(self, tab_type: str = "Standard", angle_mrad: float = 0.0, max_fit: str = "",
-                side: Optional[str] = None) -> MeasurementResult:
+                side: str | None = None) -> MeasurementResult:
         """Acquire a tableau (``"Fast"``/``"Standard"``/``"Enhanced"``) or, with
         ``tab_type="C1A1"``, a single C1/A1 measurement. Blocks on the clock (a
         ManualClock is advanced). Raises :class:`CorrectorError` on failure."""
@@ -625,8 +671,8 @@ class Corrector:
         assert u.last_measurement is not None
         return u.last_measurement
 
-    def correct(self, name: str, fraction: float = 1.0, *, side: Optional[str] = None,
-                select: str = "", value_nm: Optional[complex] = None) -> Aberrations:
+    def correct(self, name: str, fraction: float = 1.0, *, side: str | None = None,
+                select: str = "", value_nm: complex | None = None) -> Aberrations:
         """Correct ``fraction`` of the corrector's current estimate of ``name`` (from the
         last measurement / state of correction), i.e. CEOS ``correctAberration`` with
         ``target = (1 - fraction) * estimate``. Returns the new ground-truth residual."""
@@ -637,16 +683,16 @@ class Corrector:
         self._finish(u, u.post_correct(name, value=value_nm, target=target, select=select))
         return u.residual()
 
-    def save_alignment(self, side: Optional[str] = None) -> str:
+    def save_alignment(self, side: str | None = None) -> str:
         u = self.unit(side)
         self._finish(u, u.post_fetch_alignment())
         return u.alignment_file
 
-    def load_alignment(self, data: str, side: Optional[str] = None) -> None:
+    def load_alignment(self, data: str, side: str | None = None) -> None:
         u = self.unit(side)
         self._finish(u, u.post_put_alignment(data))
 
-    def wait(self, timeout: Optional[float] = None, side: Optional[str] = None) -> int:
+    def wait(self, timeout: float | None = None, side: str | None = None) -> int:
         return self.unit(side).wait(timeout, self._sleeper)
 
     # ------------------------------------------------------------ column events

@@ -21,7 +21,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -39,10 +39,8 @@ def _tbin(t):
     r = math.floor(x + 0.5)
     if r - x == 0.5 and r % 2.0 != 0.0:
         r -= 1.0
-    if r < 0.0:
-        r = 0.0
-    if r > 250.0:
-        r = 250.0
+    r = max(r, 0.0)
+    r = min(r, 250.0)
     return int(r)
 
 
@@ -62,8 +60,7 @@ def bragg_pixels(grain_id, material_id, thickness, f_t, n, nb_, gpm, gid, pix, m
                     tb = _tbin(np.float64(np.float32(thickness[i, j]) * f_t))
                     gid[i, j] = g
                     pix[i, j] = g * nb_ + tb
-                    if tb > maxbin[c, g]:
-                        maxbin[c, g] = tb
+                    maxbin[c, g] = max(maxbin[c, g], tb)
                 else:
                     gid[i, j] = -1
                     pix[i, j] = -1
@@ -100,8 +97,7 @@ def refraction_qmax(mip, inv_gc2):
             gy = np.float32(0.5) * (mip[i + 1, j] - mip[i - 1, j]) if 0 < i < ny - 1 else np.float32(0.0)
             gx = np.float32(0.5) * (mip[i, j + 1] - mip[i, j - 1]) if 0 < j < nx - 1 else np.float32(0.0)
             q = (gx * gx + gy * gy) * inv_gc2
-            if q > m:
-                m = q
+            m = max(m, q)
         rowmax[i] = m
     return rowmax.max()
 

@@ -7,11 +7,27 @@ from pathlib import Path
 
 import pytest
 
-from de_twin.optics import (Calibration, OpticsConfig, beam_current_pa, electron_wavelength_nm, illuminated_diameter_um, interaction_constant,
-                            track_live_view)
+from de_twin.optics import (
+    Calibration,
+    OpticsConfig,
+    beam_current_pa,
+    electron_wavelength_nm,
+    illuminated_diameter_um,
+    interaction_constant,
+    track_live_view,
+)
 from de_twin.render.testing import StubCamera
-from de_twin.state import (AcquisitionRequest, ExposureMode, MicroscopeState, ProbeMode, Projection,
-                           RenderMode, Roi, TemStem, Vec2)
+from de_twin.state import (
+    AcquisitionRequest,
+    ExposureMode,
+    MicroscopeState,
+    ProbeMode,
+    Projection,
+    RenderMode,
+    Roi,
+    TemStem,
+    Vec2,
+)
 
 DE16 = StubCamera()
 MAG_YAML = Path(r"C:\direct_electron\virtual-specimen\configurations")

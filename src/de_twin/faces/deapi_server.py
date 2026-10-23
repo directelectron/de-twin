@@ -57,14 +57,36 @@ import sys
 import threading
 import time
 import traceback
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
 from ..state import AcquisitionRequest
-from .deapi_acquisition import (_Acquisition, _convert, _resample)
-from .deapi_request import (OUTPUT_BUFFER_PROPERTY, SCAN_COIL_PROPERTIES, SCAN_FLIP_PROPERTIES, SIMULATOR_SOURCE_PROPERTY, model_counting, request_from_properties)
-from .deapi_protocol import (DEFAULT_EXPOSURE_S, GET_GPU_FRAMES, GET_PROPERTY_SPECIFICATIONS, GPU_BUFFER_FRAMES, PIXEL_DTYPES, SET_HW_ROI, SET_SCAN_ROI, SET_SCAN_SIZE, SET_SCAN_XY_ARRAY, TEMPERATURE_PROP, _PROJECT_NAMES, _property_key, _to_bool)
+from .deapi_acquisition import _Acquisition, _convert, _resample
+from .deapi_protocol import (
+    _PROJECT_NAMES,
+    DEFAULT_EXPOSURE_S,
+    GET_GPU_FRAMES,
+    GET_PROPERTY_SPECIFICATIONS,
+    GPU_BUFFER_FRAMES,
+    PIXEL_DTYPES,
+    SET_HW_ROI,
+    SET_SCAN_ROI,
+    SET_SCAN_SIZE,
+    SET_SCAN_XY_ARRAY,
+    TEMPERATURE_PROP,
+    _property_key,
+    _to_bool,
+)
+from .deapi_request import (
+    OUTPUT_BUFFER_PROPERTY,
+    SCAN_COIL_PROPERTIES,
+    SCAN_FLIP_PROPERTIES,
+    SIMULATOR_SOURCE_PROPERTY,
+    model_counting,
+    request_from_properties,
+)
 
 try:  # deapi is an optional dependency of the twin
     from deapi.buffer_protocols import pb
@@ -99,9 +121,9 @@ def _sends_scan_pattern_index(server_version: str) -> bool:
 class DynamicProperty(Property):  # type: ignore[misc]
     """A property whose value is computed (and optionally applied) by callables."""
 
-    def __init__(self, name: str, getter: Callable[[], Any], setter: Optional[Callable[[Any], None]] = None,
+    def __init__(self, name: str, getter: Callable[[], Any], setter: Callable[[Any], None] | None = None,
                  *, data_type: str = "String", category: str = "Twin", options: str = "",
-                 value_type: Optional[str] = None, default_value: str = "", server=None):
+                 value_type: str | None = None, default_value: str = "", server=None):
         super().__init__(name=name, value="", data_type=data_type, category=category,
                          value_type=value_type or ("ReadOnly" if setter is None else "AllowAll"),
                          options=options, default_value=default_value, server=server)
@@ -112,7 +134,7 @@ class DynamicProperty(Property):  # type: ignore[misc]
     def value(self):
         v = self._getter()
         if self.data_type == "Integer":
-            return str(int(round(float(v))))
+            return str(round(float(v)))
         if self.data_type == "Float":
             return str(float(v))
         return str(v)
@@ -140,7 +162,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
     twin = None
     pace = True
 
-    def __init__(self, dataset: str = "grains", socket=None, *, twin=None, pace: Optional[bool] = None,
+    def __init__(self, dataset: str = "grains", socket=None, *, twin=None, pace: bool | None = None,
                  default_fps: float = 40.0):
         if pb is None:
             raise ImportError("TwinFakeServer needs the deapi package")
@@ -150,10 +172,10 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             raise ValueError("TwinFakeServer needs a twin (pass twin= or set TwinFakeServer.twin)")
         if pace is not None:
             self.pace = pace
-        self._acq: Optional[_Acquisition] = None
+        self._acq: _Acquisition | None = None
         self._acq_count = 0
         self._shared_frames = None  # de_twin.faces.gpu_frames.SharedFrames, made on first attach
-        self._scan_points: Optional[list] = None
+        self._scan_points: list | None = None
         self._specimen_name = ""
         self._mask_cache: dict = {}
         self._cmd_lock = threading.RLock()
@@ -217,18 +239,18 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         # A 0.5 s exposure to begin with, not one frame: a DE frame is sparse by
         # design (a pixel holds a few electrons), and an image is the sum of frames
         # over the exposure. One frame per image reads as pure noise.
-        self._frame_count = max(1, int(round(DEFAULT_EXPOSURE_S * self._fps)))
+        self._frame_count = max(1, round(DEFAULT_EXPOSURE_S * self._fps))
 
         def set_fps(value):
             exposure = self._frame_count / self._fps
             self._fps = min(max(float(value), 0.06), 1e6)
-            self._frame_count = max(1, int(round(exposure * self._fps)))
+            self._frame_count = max(1, round(exposure * self._fps))
 
         def set_count(value):
             self._frame_count = max(1, int(float(value)))
 
         def set_exposure(value):
-            self._frame_count = max(1, int(round(float(value) * self._fps)))
+            self._frame_count = max(1, round(float(value) * self._fps))
 
         self._put(DynamicProperty("Frames Per Second", lambda: self._fps, set_fps, data_type="Float",
                                   value_type="Range", options="0.06, 1000000.0, '0.06 - 1000000.0'",
@@ -295,21 +317,21 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             for name in (f"Hardware Binning {axis}", f"Binning {axis}"):
                 try:
                     b *= float(self[name] or 1)
-                except Exception:  # noqa: BLE001 - property not present
+                except Exception:
                     pass
             return b
 
         def pixel_nm(axis="X"):
             try:
                 px = float(self.twin.calibration.specimen_pixel_nm(st(), self.twin.detector.model))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 return -1.0
             return px * binning(axis)
 
         def recip_px():
             try:
                 return float(self.twin.calibration.recip_pixel_inv_nm(st(), self.twin.detector.model))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 return -1.0
 
         ro = [
@@ -676,7 +698,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             if callable(vi) and acq.request.scan.enabled:
                 try:
                     return np.asarray(vi(acq.request, 50.0, 200.0), np.float32), acq.count, eppix
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     log.info("twin.virtual_image failed (%s); using mask 0", exc)
             if acq.virtual is not None:
                 return acq.virtual[0].copy(), acq.count, eppix
@@ -828,7 +850,7 @@ class TwinDeapiServer:
         self._port = int(port)
         self.fake = TwinFakeServer(twin=twin, pace=pace)
         self._stop = threading.Event()
-        self._tcp: Optional[_socketmod.socket] = None
+        self._tcp: _socketmod.socket | None = None
         self._threads: list[threading.Thread] = []
 
     @property
@@ -836,7 +858,7 @@ class TwinDeapiServer:
         """The bound TCP port (cached at `start`: the socket may be closed by now)."""
         return self._port
 
-    def start(self) -> "TwinDeapiServer":
+    def start(self) -> TwinDeapiServer:
         tcp = _socketmod.socket(_socketmod.AF_INET, _socketmod.SOCK_STREAM)
         tcp.setsockopt(_socketmod.SOL_SOCKET, _socketmod.SO_REUSEADDR, 1)
         tcp.bind((self.host, self._requested_port))
@@ -891,7 +913,7 @@ class TwinDeapiServer:
             while not self._stop.is_set():
                 try:
                     message, addr = udp.recvfrom(64)
-                except (_socketmod.timeout, OSError):
+                except (TimeoutError, OSError):
                     continue
                 if message.startswith(b"PyClientStopAcq"):
                     self.fake.stop()
@@ -901,7 +923,7 @@ class TwinDeapiServer:
         while not self._stop.is_set():
             try:
                 conn, _ = self._tcp.accept()
-            except (_socketmod.timeout, OSError):
+            except (TimeoutError, OSError):
                 continue
             conn.settimeout(None)
             t = threading.Thread(target=self._serve_conn, args=(conn,), daemon=True,
@@ -925,7 +947,7 @@ class TwinDeapiServer:
                             conn.sendall(r)
                 except (ConnectionResetError, ConnectionAbortedError, OSError):
                     return
-                except Exception:  # noqa: BLE001
+                except Exception:
                     traceback.print_exc(file=sys.stderr)
                     return
 

@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Optional
 
 import numpy as np
 
@@ -44,10 +43,10 @@ class Crystal:
     space_group: int = 0
     lattice: tuple = ()
     atoms: tuple = ()
-    cif: Optional[str] = None
+    cif: str | None = None
 
     @classmethod
-    def cubic(cls, element: str, space_group: int, a_nm: float) -> "Crystal":
+    def cubic(cls, element: str, space_group: int, a_nm: float) -> Crystal:
         return cls(space_group, (a_nm, a_nm, a_nm, 90.0, 90.0, 90.0), ((element, 0.0, 0.0, 0.0),))
 
 
@@ -60,7 +59,7 @@ class Material:
     z_eff: float  # atomic number for the screened-Rutherford diffuse background
     mean_inner_potential_v: float
     scatterer_density_nm3: float  # atoms / nm^3 (amorphous phase-texture strength)
-    crystal: Optional[Crystal] = None
+    crystal: Crystal | None = None
     debye_waller_a2: float = 0.0  # B in Angstrom^2
     # Amorphous halo rings (g in 1/nm, weight). For crystalline materials these
     # describe the glassy/amorphous state used by in-situ crystallisation.

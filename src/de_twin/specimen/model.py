@@ -5,15 +5,14 @@ from __future__ import annotations
 import dataclasses
 import functools
 import math
-from typing import Optional
 
 import numpy as np
 
 from ..state import HolderState
+from . import raster_nb as _raster_nb
 from .fieldmap import OPTIONAL_LAYERS, FieldMap, GrainTable, ViewWindow
 from .materials import MaterialId
 from .options import CLEARS_POPULATION, NON_REGENERATING, SpecimenConfig
-from . import raster_nb as _raster_nb
 from .raster import RasterContext, rasterize_scene
 from .scene import Feature, Scene
 
@@ -27,7 +26,7 @@ def _numba_threadsafe() -> bool:
     a parallel kernel has run (then the first raster is serial)."""
     try:
         import numba
-    except Exception:  # noqa: BLE001 - no numba: the NumPy paths
+    except Exception:
         return True
     try:
         return numba.threading_layer() in ("omp", "tbb")
@@ -115,12 +114,12 @@ class Specimen:
     #: that on a stage move; tests/test_render_caches.py checks it).
     raster_is_local = True
 
-    def __init__(self, config: Optional[SpecimenConfig] = None):
+    def __init__(self, config: SpecimenConfig | None = None):
         self.config = (config or SpecimenConfig()).copy()
         self.options = self.config.resolved_options()
         self._build()
         self._time_s = 0.0
-        self._last_update_s: Optional[float] = None
+        self._last_update_s: float | None = None
         self._budget_s = 0.0
         self._temperature_c = self.options.specimen_temperature_c
         self._generation = 0
@@ -152,7 +151,7 @@ class Specimen:
         area = next((a for a in ordered if usable(a)), ordered[0])
         try:
             clusters = list(scene._clusters(area, resident_ok=False))
-        except Exception:  # noqa: BLE001 - a preparation without clusters
+        except Exception:
             clusters = []
         if clusters:
             best = max(clusters, key=lambda c: (c.count, -math.hypot(c.center[0] - area.center[0],
@@ -183,7 +182,7 @@ class Specimen:
 
     @property
     def time_index(self) -> int:
-        return int(math.floor(self._time_s / self.options.time_step_s + 1e-9)) if self._time_s > 0 else 0
+        return math.floor(self._time_s / self.options.time_step_s + 1e-9) if self._time_s > 0 else 0
 
     @property
     def thermal_budget_s(self) -> float:
@@ -202,7 +201,7 @@ class Specimen:
     def time_dependent(self) -> bool:
         return self.scene.time_dependent
 
-    def update(self, time_s: float, holder: Optional[HolderState] = None) -> None:
+    def update(self, time_s: float, holder: HolderState | None = None) -> None:
         """Advance the scene clock to ``time_s`` and integrate the thermal budget.
 
         The temperature is ``holder.temperature_c`` when a holder state is given (and is not a
@@ -254,7 +253,7 @@ class Specimen:
         """Optional FieldMap layers this specimen can fill (descan/strain for FIB lamellae)."""
         return frozenset(self.scene.required_layers)
 
-    def rasterize(self, view: ViewWindow, layers: frozenset = frozenset(), *, span_px: Optional[int] = None,
+    def rasterize(self, view: ViewWindow, layers: frozenset = frozenset(), *, span_px: int | None = None,
                   threads: int = 1) -> FieldMap:
         """The specimen on ``view``. ``span_px``: the size of the whole view when ``view`` is
         a piece of one (the scene draws a piece as it draws the whole). ``threads`` > 1
@@ -357,7 +356,7 @@ class Specimen:
     def features(self) -> list[Feature]:
         return self.scene.features()
 
-    def nearest_feature(self, x_um: float, y_um: float) -> Optional[Feature]:
+    def nearest_feature(self, x_um: float, y_um: float) -> Feature | None:
         return self.scene.nearest_feature(float(x_um), float(y_um))
 
     def overview(self, shape=(1024, 1024)) -> np.ndarray:

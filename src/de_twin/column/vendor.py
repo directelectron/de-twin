@@ -6,7 +6,6 @@ from ..state import ProbeMode
 from . import ladders as L
 from .errors import ColumnRefused
 
-
 # ---------------------------------------------------------------------------
 # Vendor enumerations
 # ---------------------------------------------------------------------------

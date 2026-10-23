@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Optional
 
 import numpy as np
 
@@ -43,7 +42,7 @@ class SyntheticSpecimen:
     particles: list = field(default_factory=list)  # Particle
     seed: int = 42
     crystallinity_value: float = 1.0
-    grains: Optional[GrainTable] = None
+    grains: GrainTable | None = None
     generation: int = 0
     rasterize_calls: int = 0
 
@@ -107,7 +106,7 @@ def _cached_grains(seed: int) -> GrainTable:
 
 
 # ----------------------------------------------------------- analysis helpers
-def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: Optional[float] = None,
+def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: float | None = None,
                           half_width_deg: float = 15.0, nbins: int = 256):
     """(k [1/nm], radially averaged |FFT|^2), optionally within a +-sector (mod 180 deg)."""
     a = np.asarray(img, np.float64)

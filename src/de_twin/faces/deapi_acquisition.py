@@ -9,8 +9,10 @@ import time
 import traceback
 from collections import deque
 from dataclasses import replace
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
+
 import numpy as np
+
 from ..state import AcquisitionRequest, ExposureMode
 from .deapi_protocol import GPU_BUFFER_FRAMES, GPU_PUBLISH_S, PIXEL_DTYPES
 from .deapi_request import _CoilTimeline, queued_scan_points, scan_coil_settings
@@ -48,7 +50,7 @@ def _convert(img: np.ndarray, pixel_format: int) -> np.ndarray:
 class _Acquisition:
     """One start_acquisition: frames rendered by a background thread."""
 
-    def __init__(self, server: "TwinFakeServer", request: AcquisitionRequest, n_acq: int,
+    def __init__(self, server: TwinFakeServer, request: AcquisitionRequest, n_acq: int,
                  movie: bool):
         self.request = request
         # 0 acquisitions = repeat until stopped (live view), as DE-Server does
@@ -57,14 +59,14 @@ class _Acquisition:
         self.movie = movie
         self.stop = threading.Event()
         self.cond = threading.Condition()
-        self.last: Optional[np.ndarray] = None
+        self.last: np.ndarray | None = None
         self.last_meta = None
-        self.sum: Optional[np.ndarray] = None
+        self.sum: np.ndarray | None = None
         self.count = 0
         self.index = 0  # acquisition index within n_acq
         self.movie_frames: deque = deque()
         self.movie_next = 0
-        self.error: Optional[str] = None
+        self.error: str | None = None
         self.refs = None
         self.done = False
         self.started = time.time()
@@ -79,7 +81,7 @@ class _Acquisition:
         self._server = server
         self.thread = threading.Thread(target=self._run, name="TwinFakeServer-acq", daemon=True)
 
-    def start(self) -> "_Acquisition":
+    def start(self) -> _Acquisition:
         self.thread.start()
         return self
 
@@ -135,7 +137,7 @@ class _Acquisition:
                     break
             self._share_gpu_frames()
             self._store_references()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             self.error = f"{type(exc).__name__}: {exc}"
             log.error("twin acquisition failed:\n%s", traceback.format_exc())
         finally:

@@ -40,7 +40,6 @@ import math
 import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 
 import numpy as np
 
@@ -51,7 +50,7 @@ from .models import CameraModel, camera
 _BAND_PIXELS = 1 << 18  # ~1 MB of float32 per scratch array per band
 _POISSON_INV_CUT = 12.0  # below this mean: exact inversion sampling
 _POISSON_GAUSS_CUT = 40.0  # at or above this mean: rounded Gaussian
-_POOL: Optional[ThreadPoolExecutor] = None
+_POOL: ThreadPoolExecutor | None = None
 _POOL_LOCK = threading.Lock()
 
 
@@ -64,7 +63,7 @@ def _pool() -> ThreadPoolExecutor:
     return _POOL
 
 
-def _binning(request: Optional[AcquisitionRequest]) -> tuple[int, int]:
+def _binning(request: AcquisitionRequest | None) -> tuple[int, int]:
     """(bx, by) from ``request.hw_binning`` (DE-Server DeSize order: w, h)."""
     if request is None or request.hw_binning is None:
         return 1, 1
@@ -80,7 +79,7 @@ class Detector:
     ``expose`` is serialised by an internal lock (it reuses buffers).
     """
 
-    def __init__(self, model: "CameraModel | str" = "DE16", seed: int = 0, *,
+    def __init__(self, model: CameraModel | str = "DE16", seed: int = 0, *,
                  ht_kv: float = 300.0, **overrides):
         model = camera(model)
         if overrides:
@@ -94,14 +93,14 @@ class Detector:
         self.ht_kv = float(ht_kv)
         self._maps_built = False
         self._binned_cache: dict = {}
-        self._S: Optional[np.ndarray] = None  # reused deposit buffer
+        self._S: np.ndarray | None = None  # reused deposit buffer
         self._lock = threading.Lock()
 
     def __repr__(self) -> str:
         return f"Detector({self.model.name!r}, seed={self.seed}, ht_kv={self.ht_kv})"
 
     # ------------------------------------------------------------ geometry
-    def roi(self, request: Optional[AcquisitionRequest] = None) -> Roi:
+    def roi(self, request: AcquisitionRequest | None = None) -> Roi:
         """Resolved hardware ROI: the requested ROI clamped to the sensor (0 size = full).
 
         No DE alignment is re-applied: DE-Server sends an already aligned ROI and
@@ -117,18 +116,18 @@ class Detector:
         h = int(r.h) if int(r.h) > 0 else H - y
         return Roi(x, y, max(1, min(w, W - x)), max(1, min(h, H - y)))
 
-    def output_shape(self, request: Optional[AcquisitionRequest] = None) -> tuple[int, int]:
+    def output_shape(self, request: AcquisitionRequest | None = None) -> tuple[int, int]:
         """(h, w) of the hardware frame: ROI, then binning (integer division, like DE-Server);
         twice that each way for a super-resolution counting frame."""
         h, w = self._grid_shape(request)
         return (2 * h, 2 * w) if self.super_resolution(request) else (h, w)
 
-    def _grid_shape(self, request: Optional[AcquisitionRequest] = None) -> tuple[int, int]:
+    def _grid_shape(self, request: AcquisitionRequest | None = None) -> tuple[int, int]:
         r = self.roi(request)
         bx, by = _binning(request)
         return max(1, r.h // by), max(1, r.w // bx)
 
-    def super_resolution(self, request: Optional[AcquisitionRequest] = None) -> bool:
+    def super_resolution(self, request: AcquisitionRequest | None = None) -> bool:
         """Whether *request* reads this camera out at super-resolution: a counting camera,
         asked for it, unbinned (binning and super-resolution do not combine)."""
         return bool(request is not None and getattr(request, "super_resolution", False)
@@ -175,9 +174,9 @@ class Detector:
         rng = rng_for(self.seed, SeedKind.BAD_PIXELS, 0)
         bad = np.zeros((H, W), bool)
         n = H * W
-        n_hot = int(round(m.hot_pixel_fraction * n))
-        n_dead = int(round(m.dead_pixel_fraction * n))
-        n_cols = int(round(m.bad_column_fraction * W))
+        n_hot = round(m.hot_pixel_fraction * n)
+        n_dead = round(m.dead_pixel_fraction * n)
+        n_cols = round(m.bad_column_fraction * W)
         picks = (rng.choice(n, size=n_hot + n_dead, replace=False) if n_hot + n_dead
                  else np.zeros(0, np.int64))
         hot_idx, dead_idx = picks[:n_hot], picks[n_hot:]
@@ -234,7 +233,7 @@ class Detector:
         d[self._hot_y, self._hot_x] += self._hot_rate * np.float32(exposure_s)
         return d
 
-    def expected_dark(self, exposure_s: float, request: Optional[AcquisitionRequest] = None) -> np.ndarray:
+    def expected_dark(self, exposure_s: float, request: AcquisitionRequest | None = None) -> np.ndarray:
         """Noise-free expected dark frame (float64, output shape); integrating cameras."""
         r = self.roi(request)
         bx, by = _binning(request)
@@ -243,7 +242,7 @@ class Detector:
         d = np.clip(d, 0, self.model.max_value)
         return d.reshape(oh, by, ow, bx).mean(axis=(1, 3), dtype=np.float64)
 
-    def expected_gain(self, request: Optional[AcquisitionRequest] = None) -> np.ndarray:
+    def expected_gain(self, request: AcquisitionRequest | None = None) -> np.ndarray:
         """Gain map binned to the output shape (float64)."""
         r = self.roi(request)
         bx, by = _binning(request)
@@ -252,9 +251,9 @@ class Detector:
         return g.reshape(oh, by, ow, bx).mean(axis=(1, 3), dtype=np.float64)
 
     # --------------------------------------------------------------- expose
-    def expose(self, flux, exposure_s: float, request: Optional[AcquisitionRequest] = None,
-               frame_index: int = 0, *, ht_kv: Optional[float] = None,
-               seed: Optional[int] = None) -> tuple[np.ndarray, dict]:
+    def expose(self, flux, exposure_s: float, request: AcquisitionRequest | None = None,
+               frame_index: int = 0, *, ht_kv: float | None = None,
+               seed: int | None = None) -> tuple[np.ndarray, dict]:
         """Simulate one raw frame.
 
         ``flux``: electrons / sensor pixel / second, a float array of the ROI
@@ -362,7 +361,7 @@ class Detector:
         }
         return out, info
 
-    def _expose_fast(self, ctx: "_Ctx", gh: int, gw: int) -> tuple[float, int]:
+    def _expose_fast(self, ctx: _Ctx, gh: int, gw: int) -> tuple[float, int]:
         """One integrating frame through the fused numba kernels (`detector.fast`).
         Returns ``(dose, saturated pixels)`` like the band workers do."""
         from . import fast
@@ -402,12 +401,12 @@ class Detector:
         sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
         return float(dose), int(sat)
 
-    def _expose_counting_fast(self, ctx: "_Ctx", gh: int, gw: int, sr: bool) -> tuple[float, int]:
+    def _expose_counting_fast(self, ctx: _Ctx, gh: int, gw: int, sr: bool) -> tuple[float, int]:
         """One counting frame through the numba kernels (`fast.count`, `fast.count_super`)."""
         from . import fast
 
         m = ctx.model
-        ncyc = max(1, int(round(ctx.t / m.full_frame_time_s)))
+        ncyc = max(1, round(ctx.t / m.full_frame_time_s))
         cap = ncyc * ctx.nb
         mean, p0, dose = self._counting_means(ctx, gh, gw, ncyc)
         table = fast.normal_table()
@@ -428,7 +427,7 @@ class Detector:
         sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
         return dose, int(sat)
 
-    def _counting_means(self, ctx: "_Ctx", gh: int, gw: int, ncyc: int):
+    def _counting_means(self, ctx: _Ctx, gh: int, gw: int, ncyc: int):
         """Each pixel's mean counts per frame and exp(-mean), made once per exposure."""
         from . import fast
 
@@ -477,7 +476,7 @@ class Detector:
         self._means = (key, owner, lam, p0, float(dose))
         return lam, p0, float(dose)
 
-    def _hot_grid(self, ctx: "_Ctx", gh: int, gw: int) -> np.ndarray:
+    def _hot_grid(self, ctx: _Ctx, gh: int, gw: int) -> np.ndarray:
         """The hot pixels' ADU for this exposure as a grid (zero almost everywhere),
         reused between frames of the same geometry and exposure."""
         key = (gh, gw, float(ctx.t), float(ctx.scale), ctx.hy.tobytes(), ctx.hx.tobytes())
@@ -633,7 +632,7 @@ class _Ctx:
         rng = self._rng(i, 3)
         gain = self.gain[r0:r1]
         h, w = gain.shape
-        ncyc = max(1, int(round(self.t / m.full_frame_time_s)))
+        ncyc = max(1, round(self.t / m.full_frame_time_s))
         dose = 0.0
         p = _buf("p_c", (h, w))
         if self.flux is not None:
@@ -688,7 +687,7 @@ def _buf(name: str, shape, dtype=np.float32) -> np.ndarray:
     return flat[:size].reshape(shape)
 
 
-def _poisson(rng: np.random.Generator, lam: np.ndarray, out: Optional[np.ndarray] = None) -> np.ndarray:
+def _poisson(rng: np.random.Generator, lam: np.ndarray, out: np.ndarray | None = None) -> np.ndarray:
     """Poisson draws as float32 (see module docstring for the regimes)."""
     if out is None:
         out = np.empty(lam.shape, np.float32)
@@ -708,7 +707,7 @@ def _poisson(rng: np.random.Generator, lam: np.ndarray, out: Optional[np.ndarray
     return out
 
 
-def _poisson_inversion(rng: np.random.Generator, lam: np.ndarray, out: Optional[np.ndarray]) -> np.ndarray:
+def _poisson_inversion(rng: np.random.Generator, lam: np.ndarray, out: np.ndarray | None) -> np.ndarray:
     """Exact inversion sampler N = #{k >= 1 : U > F(k-1)}; compacts the still-active set."""
     shape, size = lam.shape, lam.size
     lam = lam.reshape(-1)

@@ -19,17 +19,21 @@ moves the opposite way.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 import numpy as np
 
 from ..specimen.fieldmap import ViewWindow
 from ..state import AcquisitionRequest, MicroscopeState, Projection, RenderMode, TemStem
-from .beam import (beam_electrons_per_s, current_density_e_per_nm2_s, illuminated_diameter_um,
-                   illumination_semi_angle_mrad, probe_d0_nm)
+from .aberrations import Aberrations, uncorrected
+from .beam import (
+    beam_electrons_per_s,
+    current_density_e_per_nm2_s,
+    illuminated_diameter_um,
+    illumination_semi_angle_mrad,
+    probe_d0_nm,
+)
 from .calibration import Calibration
 from .config import OpticsConfig
-from .aberrations import Aberrations, uncorrected
 from .physics import electron_wavelength_nm, focal_spread_nm
 from .scan_coils import nm_per_volt, scan_coils
 from .state import OpticsState
@@ -76,7 +80,7 @@ def _output_geometry(request: AcquisitionRequest, camera) -> tuple[tuple[int, in
     return (h, w), (x + w / 2.0 - sw / 2.0, y + h / 2.0 - sh / 2.0)
 
 
-def _tem_imaging(state: MicroscopeState, mode: Optional[RenderMode] = None) -> bool:
+def _tem_imaging(state: MicroscopeState, mode: RenderMode | None = None) -> bool:
     """TEM imaging: by the render mode when it is known (a 4D-STEM request on a column that
     reports TEM is a scan), else by the column's state."""
     if mode is not None:
@@ -85,7 +89,7 @@ def _tem_imaging(state: MicroscopeState, mode: Optional[RenderMode] = None) -> b
 
 
 def _shift_terms(state: MicroscopeState, config: OpticsConfig,
-                 mode: Optional[RenderMode] = None) -> tuple[float, float]:
+                 mode: RenderMode | None = None) -> tuple[float, float]:
     """Everything but the stage that moves the view centre (before the flips), um:
     image shift (through the column's image-shift matrix), beam shift, the displacement of a
     tilted specimen that is off eucentric height, and the magnification's image offset."""
@@ -120,7 +124,7 @@ def _beam_shift_world(state: MicroscopeState, config: OpticsConfig) -> tuple[flo
 
 
 def view_center_um(state: MicroscopeState, config: OpticsConfig,
-                   mode: Optional[RenderMode] = None) -> tuple[float, float]:
+                   mode: RenderMode | None = None) -> tuple[float, float]:
     sx = -1.0 if config.flip_x else 1.0
     sy = -1.0 if config.flip_y else 1.0
     ox, oy, _ = config.stage_offset_um
@@ -133,7 +137,7 @@ def view_center_um(state: MicroscopeState, config: OpticsConfig,
 
 
 def stage_for_view_center(center_um: tuple[float, float], state: MicroscopeState,
-                          config: OpticsConfig, mode: Optional[RenderMode] = None) -> tuple[float, float]:
+                          config: OpticsConfig, mode: RenderMode | None = None) -> tuple[float, float]:
     """The stage (x, y) µm that puts specimen point *center_um* on axis, with the column's
     current image and beam shifts — the inverse of :func:`view_center_um`."""
     sx = -1.0 if config.flip_x else 1.0
@@ -266,7 +270,7 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         beam_offset_px = (float(c1 - c0), float(r1 - r0))
 
     # Focus
-    ox, oy, oz = config.stage_offset_um
+    _ox, _oy, oz = config.stage_offset_um
     defocus_um = (state.defocus_um + config.defocus_offset_um
                   + (state.stage.z_um + oz - config.eucentric_height_um))
     theta_ill_mrad = illumination_semi_angle_mrad(state, config)

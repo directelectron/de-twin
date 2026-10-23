@@ -6,11 +6,17 @@ import math
 
 import numpy as np
 import pytest
+from coherent_helpers import stem_optics
+from reconstruction import (
+    epie,
+    object_on_grid,
+    phase_correlation,
+    probe_from_aberrations,
+    probe_modes_on_grid,
+    tcbf,
+)
 from scipy.ndimage import gaussian_filter, map_coordinates
 
-from coherent_helpers import stem_optics
-from reconstruction import (epie, object_on_grid, phase_correlation, probe_from_aberrations,
-                              probe_modes_on_grid, tcbf)
 from de_twin.render import RenderConfig, Renderer
 from de_twin.render.testing import Particle, SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
@@ -108,7 +114,7 @@ def test_tcbf_image_beats_single_pixel_and_plain_bf(tcbf_data):
         assert res.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)
         cx, cy = res.center_px
         c_tcbf.append(corr(res.image))
-        c_single.append(abs(corr(noisy[:, :, int(round(cy)), int(round(cx + 0.5 * res.radius_px))])))
+        c_single.append(abs(corr(noisy[:, :, round(cy), round(cx + 0.5 * res.radius_px)])))
         c_bf.append(abs(corr(res.bf_image)))
     c_tcbf = np.median(c_tcbf)
     assert c_tcbf > 0.35
@@ -169,7 +175,7 @@ def test_ptychography_known_probe_with_counting_noise(ptycho_data):
 
 
 def test_ptychography_mixed_state_recovers_the_phase(ptycho_data):
-    o, data, gt, obj, pos, mask = ptycho_data
+    _o, data, gt, obj, pos, mask = ptycho_data
     s = gt["sampling"]
     n = data.shape[-1]
     modes, weights = probe_modes_on_grid(gt, (n, n))

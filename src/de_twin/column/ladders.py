@@ -16,7 +16,6 @@ triples that exist in mag.yaml can be reached; see :func:`active_ladders`.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 FM_MAG1 = 0
 FM_MAG2 = 1
@@ -131,7 +130,7 @@ ALPHA_TABLE_MRAD = (
 STEM_ALPHA_TABLE_MRAD = (5.0, 10.0, 15.0, 22.0, 30.0)
 
 
-def active_ladders(function_mode: int, tem_stem: int) -> tuple[Optional[Ladder], Optional[Ladder]]:
+def active_ladders(function_mode: int, tem_stem: int) -> tuple[Ladder | None, Ladder | None]:
     """(magnifications, camera lengths in mm) live in one optics mode.
 
     ``None`` means the mode has no such ladder: no magnification in TEM

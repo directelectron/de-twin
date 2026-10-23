@@ -141,7 +141,7 @@ class CameraModel:
         a = self.charge_spread * (self.reference_ht_kv / max(float(ht_kv), 20.0)) ** 0.3
         return float(min(a, 0.25))
 
-    def with_(self, **changes) -> "CameraModel":
+    def with_(self, **changes) -> CameraModel:
         return dataclasses.replace(self, **changes)
 
 
@@ -153,9 +153,9 @@ def _loglog_extrapolate(kv, adu, ht):
 
 
 def _adele(name, de_model, *, sat=2192, aliases=(), **overrides) -> CameraModel:
-    base = dict(sensor_shape=(4096, 4096), pixel_um=6.5, bit_depth=12, bytes_per_pixel=2,
-                sensor_family="ADELE", full_frame_time_s=10.821e-3, saturation_adu=sat,
-                supports_hw_roi_x=True)
+    base = {"sensor_shape": (4096, 4096), "pixel_um": 6.5, "bit_depth": 12, "bytes_per_pixel": 2,
+                "sensor_family": "ADELE", "full_frame_time_s": 10.821e-3, "saturation_adu": sat,
+                "supports_hw_roi_x": True}
     base.update(overrides)
     return CameraModel(name=name, de_model=de_model, aliases=aliases, **base)
 
@@ -216,7 +216,7 @@ for _m in _MODELS:
         _LOOKUP.setdefault(_key.lower().replace("-", "").replace(" ", ""), _m)
 
 
-def camera(name: "str | CameraModel") -> CameraModel:
+def camera(name: str | CameraModel) -> CameraModel:
     """Look up a camera model by name, alias or DE-Server enum name (case-insensitive)."""
     if isinstance(name, CameraModel):
         return name

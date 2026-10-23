@@ -17,11 +17,13 @@ separated and unknown keys answered empty. DE-Server's client
 
 from __future__ import annotations
 
+import math
 import re
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import Any, Iterable, Optional
+from collections.abc import Iterable
+from typing import Any
 from xml.sax.saxutils import escape
 
 NAMESPACE = "http://tempuri.org/ns.xsd"
@@ -90,7 +92,7 @@ def fmt_value(value: Any) -> str:
     if isinstance(value, int):
         return str(value)
     if isinstance(value, float):
-        if value != value:
+        if math.isnan(value):
             return "NaN"
         if value in (float("inf"), float("-inf")):
             return "INF" if value > 0 else "-INF"
@@ -145,7 +147,7 @@ def parse_body(xml: str | bytes) -> tuple[str, dict[str, str]]:
     return _local(op.tag), fields
 
 
-def split_batch(response: str, total: int) -> Optional[list[str]]:
+def split_batch(response: str, total: int) -> list[str] | None:
     """Split an executeBatchCommands answer exactly as DE-Server does.
 
     DE-Server's ``split`` only produces fields when a comma is present and then
@@ -175,7 +177,7 @@ def _num(text: str):
 #        | ("props", kx, ky) | ("stage", index) | ("stage_all",) | ("string", method)
 #   set: ("value", method, arg) | ("pair", method) | ("stage", axis) | ("stage_all",)
 #        | ("aperture", kind)
-PROPERTIES: dict[str, tuple[Optional[tuple], Optional[tuple], Optional[str]]] = {
+PROPERTIES: dict[str, tuple[tuple | None, tuple | None, str | None]] = {
     "Magnification": (("batch", "PROJ_Magnification"), ("value", "setMagnification", "mag"), "Magnification"),
     "MagnificationIndex": (None, ("value", "setMagnificationIndex", "idx"), "Magnification"),
     "CameraLength": (("batch", "PROJ_CameraLength"), ("value", "setCameraLength", "cl-cm"), "CameraLength"),
@@ -255,10 +257,7 @@ class SoapTemChannelClient:
                 text = resp.read()
         except urllib.error.HTTPError as exc:  # gSOAP answers faults with HTTP 500
             text = exc.read()
-            try:
-                parse_body(text)
-            except SoapError:
-                raise
+            parse_body(text)  # a SOAP fault body raises its own error
             raise SoapError(f"{method}: HTTP {exc.code}") from None
         except OSError as exc:
             raise SoapError(f"{method} failed: {exc}") from None
@@ -414,8 +413,8 @@ class SoapTemChannelClient:
         return self._ok("correctorAcquireTableau", tabType=tab_type, angle=float(angle_mrad),
                         maxFit=max_fit)
 
-    def corrector_correct(self, name: str, value: Optional[tuple[float, float]] = None,
-                          target: Optional[tuple[float, float]] = None, select: str = "",
+    def corrector_correct(self, name: str, value: tuple[float, float] | None = None,
+                          target: tuple[float, float] | None = None, select: str = "",
                           wait_ms: int = 0) -> bool:
         """``correctorCorrectAberration``. ``value`` None = the corrector's own estimate,
         ``target`` None = zero. With ``wait_ms`` > 0, True means *completed*."""

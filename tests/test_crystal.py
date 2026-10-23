@@ -11,9 +11,15 @@ import pytest
 from orix.quaternion import Rotation
 from orix.vector import Vector3d
 
-from de_twin.crystal import (crystal_to_lab, effective_matrices, library_for, phase_for, quat_to_matrix,
-                             rotation_from_crystal_to_lab, stage_matrix)
-from de_twin.crystal.orientation import align
+from de_twin.crystal import (
+    crystal_to_lab,
+    effective_matrices,
+    library_for,
+    phase_for,
+    quat_to_matrix,
+    rotation_from_crystal_to_lab,
+    stage_matrix,
+)
 from de_twin.render.diffraction import bragg_fraction, bucket_patterns
 from de_twin.render.testing import Particle, SyntheticSpecimen, on_zone_grains
 from de_twin.specimen import Specimen, from_name
@@ -140,8 +146,8 @@ def test_thin_film_has_a_111_fibre_texture():
 
 # ------------------------------------------------------------- phases
 def test_phases_and_cif_registration(tmp_path):
-    from de_twin.crystal import phases
     from de_twin.crystal import library as library_mod
+    from de_twin.crystal import phases
 
     au = phase_for(AU)
     assert len(au.structure) == 4 and au.space_group.number == 225  # full unit cell

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
 from ..state import Vec2
 from . import ladders as L
 from .errors import ColumnRefused
+
 if TYPE_CHECKING:
     from .column import Column
-from .vendor import (probe_mode_to_raw, screen_to_raw, submode_to_raw)
+from .vendor import probe_mode_to_raw, screen_to_raw, submode_to_raw
 
 #: Beam tilt: DE-TEM-Channel's range is the normalised [-1, 1]; one unit is this many mrad.
 BEAM_TILT_MRAD_PER_UNIT = 10.0

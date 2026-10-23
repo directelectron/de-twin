@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import math
+
 import numpy as np
+
 from .raster_nb import ELLIPSE, FLAT, RECT, RING, ROUGH_ELLIPSE, SPHERICAL, njit, prange
+
 try:
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 

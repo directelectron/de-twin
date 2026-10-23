@@ -79,13 +79,24 @@ import logging
 import math
 import threading
 import time
-from typing import Any, Callable, Iterable, Optional
+from collections.abc import Callable, Iterable
+from typing import Any
 
 from ..state import MicroscopeState, ProbeMode, Projection, StagePosition, TemStem, Vec2
 from . import ladders as L
-from .vendor import (function_mode_from_name, is_jeol, is_tfs, jeol_row, probe_mode_from_raw, screen_from_raw, screen_to_raw, submode_from_raw, submode_to_raw)
+from .errors import ColumnRefused
 from .properties import BEAM_TILT_MRAD_PER_UNIT, DIFF_SHIFT_MRAD_PER_UNIT, GETTERS, SETTERS, STAGE_AXES
-from .errors import (ColumnRefused)
+from .vendor import (
+    function_mode_from_name,
+    is_jeol,
+    is_tfs,
+    jeol_row,
+    probe_mode_from_raw,
+    screen_from_raw,
+    screen_to_raw,
+    submode_from_raw,
+    submode_to_raw,
+)
 
 log = logging.getLogger(__name__)
 
@@ -138,17 +149,17 @@ class Column:
 
     def __init__(
         self,
-        state: Optional[MicroscopeState] = None,
+        state: MicroscopeState | None = None,
         *,
         clock=None,
-        instrument_type: Optional[str] = None,
+        instrument_type: str | None = None,
         allow_ht: bool = False,
         stage_speed_um_s: float = L.STAGE_SPEED_UM_PER_S,
         tilt_speed_deg_s: float = L.TILT_SPEED_DEG_PER_S,
         stage_limits: Iterable[float] = L.STAGE_LIMITS,
-        corrector: Optional[str] = None,
+        corrector: str | None = None,
         seed: int = 0,
-        corrector_options: Optional[dict] = None,
+        corrector_options: dict | None = None,
     ):
         self.lock = threading.RLock()
         self.clock = clock
@@ -168,7 +179,7 @@ class Column:
             fm = L.FM_LOWMAG
         self._fm = fm
         self._last_imaging_fm = fm if fm != L.FM_DIFF else L.FM_MAG1
-        self._convergence_explicit: Optional[float] = (
+        self._convergence_explicit: float | None = (
             float(s.convergence_semi_angle_mrad) if s.convergence_semi_angle_mrad > 0 else None)
         pos = [s.stage.x_um, s.stage.y_um, s.stage.z_um, s.stage.alpha_deg, s.stage.beta_deg]
         self._stage_start = list(pos)
@@ -229,7 +240,7 @@ class Column:
         stig = s.condenser_stig if side == "probe" else s.objective_stig
         return c1, complex(stig.x * 1000.0, stig.y * 1000.0)
 
-    def _corrector_beam_check(self, side: str) -> Optional[str]:
+    def _corrector_beam_check(self, side: str) -> str | None:
         """Why a corrector measurement cannot acquire now (None = it can)."""
         s = self._s
         if not s.ht_on or not s.column_valves_open or s.beam_blanked:
@@ -258,7 +269,7 @@ class Column:
         for cb in list(self._callbacks):
             try:
                 cb(name, value)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("column on_change callback failed")
 
     # ---------------------------------------------------------------- time
@@ -483,7 +494,7 @@ class Column:
             self.set("StagePosition", axes)
 
     def move_stage(self, x=None, y=None, z=None, alpha=None, beta=None, *, wait: bool = True,
-                   timeout: Optional[float] = None) -> bool:
+                   timeout: float | None = None) -> bool:
         self.set_stage(x=x, y=y, z=z, alpha=alpha, beta=beta)
         return self.wait_idle(timeout) if wait else True
 
@@ -524,7 +535,7 @@ class Column:
             self._move_t0 = self._now()
             self._last_op_state = 4
 
-    def wait_idle(self, timeout: Optional[float] = None) -> bool:
+    def wait_idle(self, timeout: float | None = None) -> bool:
         """Block until the stage has arrived. Uses ``clock.sleep`` when the clock
         has one, so a ``ManualClock`` is simply advanced. ``timeout`` in clock seconds."""
         start = self._now()
@@ -723,8 +734,8 @@ class Column:
         return dict(zip(STAGE_AXES, self._stage_now))
 
     # ---- extras for MirrorColumn ----
-    def _apply_state(self, s: MicroscopeState, *, op_state: Optional[int] = None,
-                     extra: Optional[dict] = None, convergence_explicit: Optional[float] = None) -> list[str]:
+    def _apply_state(self, s: MicroscopeState, *, op_state: int | None = None,
+                     extra: dict | None = None, convergence_explicit: float | None = None) -> list[str]:
         """Replace the whole state (no dynamics, no refusals). Returns changed names."""
         with self.lock:
             before = self.values()

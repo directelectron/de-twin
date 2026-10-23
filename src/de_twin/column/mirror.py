@@ -18,20 +18,20 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, Optional
+from typing import Any
 
 from ..state import MicroscopeState, ProbeMode, Projection, StagePosition, TemStem, Vec2
 from . import ladders as L
 from .column import Column
 from .errors import ColumnRefused
 from .properties import BEAM_TILT_MRAD_PER_UNIT, DIFF_SHIFT_MRAD_PER_UNIT
-from .vendor import is_tfs, probe_mode_from_raw, screen_from_raw
 from .soap import BATCH_KEYS, SoapError, SoapTemChannelClient
+from .vendor import is_tfs, probe_mode_from_raw, screen_from_raw
 
 log = logging.getLogger(__name__)
 
 
-def _f(values: dict, key: str) -> Optional[float]:
+def _f(values: dict, key: str) -> float | None:
     v = values.get(key, "")
     if v is None or str(v).strip() == "":
         return None
@@ -41,12 +41,12 @@ def _f(values: dict, key: str) -> Optional[float]:
         return None
 
 
-def _i(values: dict, key: str) -> Optional[int]:
+def _i(values: dict, key: str) -> int | None:
     v = _f(values, key)
     return None if v is None else int(v)
 
 
-def _parse_semicolon_floats(values: dict, key: str, n: int) -> Optional[list[float]]:
+def _parse_semicolon_floats(values: dict, key: str, n: int) -> list[float] | None:
     raw = values.get(key, "")
     if not raw:
         return None
@@ -60,7 +60,7 @@ def _parse_semicolon_floats(values: dict, key: str, n: int) -> Optional[list[flo
 
 def state_from_batch(
     values: dict[str, str],
-    prev: Optional[MicroscopeState] = None,
+    prev: MicroscopeState | None = None,
     *,
     camera_length_unit: str = "cm",
 ) -> tuple[MicroscopeState, dict[str, Any]]:
@@ -104,7 +104,7 @@ def state_from_batch(
     sub = _i(values, "PROJ_SubMode")
     if sub is not None:
         info["raw_sub_mode"] = sub
-    fm: Optional[int] = None
+    fm: int | None = None
     if mode == 2:
         fm = L.FM_DIFF
     elif sub is not None:
@@ -217,7 +217,7 @@ class MirrorColumn(Column):
         *,
         clock=None,
         period_s: float = 0.5,
-        client: Optional[SoapTemChannelClient] = None,
+        client: SoapTemChannelClient | None = None,
         timeout: float = 5.0,
         start: bool = True,
         strict: bool = False,
@@ -227,7 +227,7 @@ class MirrorColumn(Column):
     ):
         self.corrector_every = int(corrector_every)
         self.corrector_info: dict = {}
-        self._corrector_supported: Optional[bool] = None
+        self._corrector_supported: bool | None = None
         super().__init__(clock=clock, stage_speed_um_s=float("inf"), tilt_speed_deg_s=float("inf"),
                          stage_limits=(1e9,) * 5)
         self.client = client or SoapTemChannelClient(host, port, timeout=timeout)
@@ -236,14 +236,14 @@ class MirrorColumn(Column):
         self.poll_intensity = poll_intensity
         self.camera_length_unit = camera_length_unit
         self.connected = False
-        self.last_error: Optional[str] = None
+        self.last_error: str | None = None
         self.polls = 0
         self._stop = threading.Event()
-        self._thread: Optional[threading.Thread] = None
-        self._supported: Optional[list[str]] = None
+        self._thread: threading.Thread | None = None
+        self._supported: list[str] | None = None
         try:
             self.poll()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             if strict:
                 raise
             log.warning("MirrorColumn: first poll of %s:%s failed: %s", self.host, self.port, exc)
@@ -307,7 +307,7 @@ class MirrorColumn(Column):
                 pass
         return self.state()
 
-    def poll_corrector(self) -> Optional[tuple[str, list]]:
+    def poll_corrector(self) -> tuple[str, list] | None:
         """Read the channel's corrector: ``(side, [(name, (x_m, y_m)), ...])``,
         ``("none", [])`` when it has none, None when the channel lacks the operations."""
         try:
@@ -347,13 +347,13 @@ class MirrorColumn(Column):
         while not self._stop.wait(self.period_s):
             try:
                 self.poll()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 self.connected = False
                 if str(exc) != self.last_error:
                     log.warning("MirrorColumn poll failed: %s", exc)
                 self.last_error = str(exc)
 
-    def start(self) -> "MirrorColumn":
+    def start(self) -> MirrorColumn:
         if self._thread is None or not self._thread.is_alive():
             self._stop.clear()
             self._thread = threading.Thread(target=self._loop, name="MirrorColumn-poll", daemon=True)
@@ -397,7 +397,7 @@ class MirrorColumn(Column):
             raise ColumnRefused(f"DE-TEM-Channel refused {name}={value!r}")
         try:
             self.poll()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.debug("post-set poll failed: %s", exc)
         try:
             readback = self.get(name)
@@ -411,10 +411,10 @@ class MirrorColumn(Column):
         finally:
             try:
                 self.poll()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
 
-    def wait_idle(self, timeout: Optional[float] = 30.0) -> bool:
+    def wait_idle(self, timeout: float | None = 30.0) -> bool:
         """Poll until the channel's OP_Status is no longer Running (wall-clock timeout)."""
         import time as _time
 
@@ -422,7 +422,7 @@ class MirrorColumn(Column):
         while True:
             try:
                 self.poll()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             if getattr(self, "_remote_op", None) != 1:
                 return True

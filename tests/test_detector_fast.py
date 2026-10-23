@@ -1,6 +1,5 @@
 """The fused numba detector: the numpy path's physics, a fraction of its time."""
 
-import os
 
 import numpy as np
 import pytest

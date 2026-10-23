@@ -9,6 +9,7 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.clock import ManualClock
 from de_twin.column import Column
@@ -20,7 +21,6 @@ from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen, on_z
 from de_twin.specimen import Specimen, from_name
 from de_twin.specimen.materials import GRAINS_PER_MATERIAL, MaterialId
 from de_twin.state import AcquisitionRequest, MicroscopeState, Projection, Roi, TemStem
-from perf_budget import budget
 
 CAM = StubCamera(sensor_shape=(1024, 1024))
 AU = MaterialId.GOLD
@@ -109,7 +109,7 @@ def test_cbed_disks_separate_when_alpha_is_below_half_the_bragg_angle():
         y, x = np.indices(img.shape)
         ring = np.abs(np.hypot(x - cx, y - cy) * mpp - theta_111) < 0.3
         iy, ix = np.unravel_index(np.argmax(np.where(ring, img, 0)), img.shape)
-        mid = img[int(round((iy + cy) / 2)), int(round((ix + cx) / 2))]  # half-way to the direct disk
+        mid = img[round((iy + cy) / 2), round((ix + cx) / 2)]  # half-way to the direct disk
         if overlap:
             assert mid > 0.5 * img[int(cy), int(cx)]  # the disks overlap (2 alpha > theta_111)
         else:

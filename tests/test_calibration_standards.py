@@ -9,10 +9,16 @@ import numpy as np
 import pytest
 
 from de_twin.specimen import CALIBRATION_STANDARDS, from_name
-from de_twin.specimen.materials import MaterialId
-from de_twin.specimen.standards import (PRODUCTS, ShadowedReplicaStructure, WaffleGrating, build_structure,
-                                        island_film, preset_name)
 from de_twin.specimen.fieldmap import ViewWindow
+from de_twin.specimen.materials import MaterialId
+from de_twin.specimen.standards import (
+    PRODUCTS,
+    ShadowedReplicaStructure,
+    WaffleGrating,
+    build_structure,
+    island_film,
+    preset_name,
+)
 
 
 @pytest.fixture
@@ -155,7 +161,7 @@ def test_shadowing_coats_the_facing_side_and_leaves_a_shadow_behind_a_ridge():
                       both=False)
     s = ShadowedReplicaStructure(g, rough_nm=0.0, crumple_nm=0.0, azimuth_deg=0.0, elevation_deg=25.0)
     x = np.linspace(0.0, 1.0, 2001)
-    h, gx, gy, lit = s.tile().sample(x, np.full_like(x, 0.3))
+    _h, gx, _gy, lit = s.tile().sample(x, np.full_like(x, 0.3))
     # the ridge spans [0.4, 0.6] um; its shadow falls on x < 0.4 (the source is at +x)
     assert np.all(lit[(x > 0.372) & (x < 0.393)] < 0.1)
     assert np.all(lit[(x > 0.1) & (x < 0.3)] > 0.99)

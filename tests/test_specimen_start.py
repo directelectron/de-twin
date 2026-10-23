@@ -19,7 +19,7 @@ SUBTLE = {"Apoferritin in ice", "PN junction lamella", "Strained inclusion lamel
 
 
 def _repeat_corr(tw, seconds=0.5):
-    req = tw.request(frame_time_s=0.025, total_frames=int(round(seconds / 0.025)))
+    req = tw.request(frame_time_s=0.025, total_frames=round(seconds / 0.025))
     a = tw.processor.acquire(req, units="electrons")
     b = tw.processor.acquire(req, units="electrons")
     a0, b0 = a - a.mean(), b - b.mean()

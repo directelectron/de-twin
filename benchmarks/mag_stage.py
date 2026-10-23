@@ -17,8 +17,8 @@ import pstats
 import time
 from collections import defaultdict
 
-import de_twin.render.tem as tem
 from de_twin.clock import ManualClock
+from de_twin.render import tem
 from de_twin.render.config import RenderConfig
 from de_twin.specimen.model import Specimen
 from de_twin.twin import DigitalTwin

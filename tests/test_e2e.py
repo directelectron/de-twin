@@ -10,10 +10,10 @@ from scipy.ndimage import gaussian_filter
 
 deapi = pytest.importorskip("deapi")
 
-from de_twin.column.soap import SoapTemChannelClient  # noqa: E402
-from de_twin.faces.deapi_server import TwinDeapiServer  # noqa: E402
-from de_twin.faces.temchannel_soap import TemChannelServer  # noqa: E402
-from de_twin.twin import DigitalTwin  # noqa: E402
+from de_twin.column.soap import SoapTemChannelClient
+from de_twin.faces.deapi_server import TwinDeapiServer
+from de_twin.faces.temchannel_soap import TemChannelServer
+from de_twin.twin import DigitalTwin
 
 
 def xcorr_shift(a, b):

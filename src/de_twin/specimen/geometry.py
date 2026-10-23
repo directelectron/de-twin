@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -33,18 +32,18 @@ class AABB:
     ymax: float
 
     @classmethod
-    def from_center_half(cls, cx, cy, hx, hy) -> "AABB":
+    def from_center_half(cls, cx, cy, hx, hy) -> AABB:
         return cls(cx - hx, cy - hy, cx + hx, cy + hy)
 
     @classmethod
-    def from_center_radius(cls, cx, cy, r) -> "AABB":
+    def from_center_radius(cls, cx, cy, r) -> AABB:
         return cls(cx - r, cy - r, cx + r, cy + r)
 
     @property
     def empty(self) -> bool:
         return self.xmax < self.xmin or self.ymax < self.ymin
 
-    def intersects(self, o: "AABB") -> bool:
+    def intersects(self, o: AABB) -> bool:
         if self.empty or o.empty:
             return False
         return self.xmin <= o.xmax and self.xmax >= o.xmin and self.ymin <= o.ymax and self.ymax >= o.ymin
@@ -52,10 +51,10 @@ class AABB:
     def contains(self, x, y):
         return (x >= self.xmin) & (x <= self.xmax) & (y >= self.ymin) & (y <= self.ymax)
 
-    def pad(self, m: float) -> "AABB":
+    def pad(self, m: float) -> AABB:
         return AABB(self.xmin - m, self.ymin - m, self.xmax + m, self.ymax + m)
 
-    def expand(self, o: "AABB") -> "AABB":
+    def expand(self, o: AABB) -> AABB:
         return AABB(min(self.xmin, o.xmin), min(self.ymin, o.ymin), max(self.xmax, o.xmax), max(self.ymax, o.ymax))
 
     @property
@@ -145,8 +144,8 @@ class LatticeHit:
     sy: np.ndarray
     d2: np.ndarray  # squared distance to the site, um^2
     h: np.ndarray  # uint64 cell hash
-    site: Optional[np.ndarray] = None  # index into grid_h (block evaluation only)
-    grid_h: Optional[np.ndarray] = None  # hashes of every site of the evaluated grid
+    site: np.ndarray | None = None  # index into grid_h (block evaluation only)
+    grid_h: np.ndarray | None = None  # hashes of every site of the evaluated grid
 
     def per_site(self, func) -> np.ndarray:
         """``func(cell_hash)`` per pixel, evaluated once per site when a site grid is available."""
@@ -154,7 +153,7 @@ class LatticeHit:
             return np.asarray(func(self.grid_h)).take(self.site)
         return np.asarray(func(self.h))
 
-    def masked(self, m) -> "LatticeHit":
+    def masked(self, m) -> LatticeHit:
         return LatticeHit(self.i[m], self.j[m], self.sx[m], self.sy[m], self.d2[m], self.h[m],
                           None if self.site is None else self.site[m], self.grid_h)
 
@@ -257,7 +256,7 @@ class JitteredLattice:
         central half of their cells (jitter 0.25) the nearest site always lies in the 2x2 block
         of cells on the point's side of its cell (verified against the 3x3 search on 5x10^7
         random and adversarial points)."""
-        SX, SY, _HH, imin, jmin, W, x0, y0 = grid
+        SX, SY, _HH, _imin, _jmin, W, x0, y0 = grid
         L = self.cell_um
         u = (np.asarray(x, np.float64) - x0) * (1.0 / L)
         v = (np.asarray(y, np.float64) - y0) * (1.0 / L)
@@ -315,7 +314,7 @@ class JitteredLattice:
         from . import raster_nb as _rnb
 
         if _rnb.AVAILABLE:
-            SX, SY, _HH, imin, jmin, gw, x0, y0 = grid
+            SX, SY, _HH, _imin, _jmin, gw, x0, y0 = grid
             out = np.empty((H, Wd), np.int32)
             _rnb.block_labels(np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]), ox, oy, r0, r1, c0,
                               c1, s, nr_n, nc_n, SX, SY, float(x0), float(y0), float(self.cell_um), int(gw),
@@ -341,7 +340,7 @@ class JitteredLattice:
             lab[tr, tc] = self._label(X, Y, grid)
         return lab, grid
 
-    def nearest_block(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> "BlockHit":
+    def nearest_block(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> BlockHit:
         lab, grid = self.block_labels(ctx, r0, r1, c0, c1, offset)
         X, Y = ctx.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
         shape = lab.shape
@@ -351,12 +350,12 @@ class JitteredLattice:
 class BlockHit:
     """Lazy nearest-site result: per-pixel site labels into a small site table."""
 
-    __slots__ = ("site", "grid", "X", "Y")
+    __slots__ = ("X", "Y", "grid", "site")
 
     def __init__(self, site, grid, X, Y):
         self.site, self.grid, self.X, self.Y = site, grid, X, Y
 
-    def masked(self, m) -> "BlockHit":
+    def masked(self, m) -> BlockHit:
         return BlockHit(self.site[m], self.grid, self.X[m], self.Y[m])
 
     @property

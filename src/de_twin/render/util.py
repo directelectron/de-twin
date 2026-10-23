@@ -52,8 +52,8 @@ try:  # numba: the cubic resampling kernel (NumPy fallback below)
                     for b in range(4):
                         row += wc[b] * src[i + a, j + b]
                     acc += wr[a] * row
-                out[i, j] = acc if acc > 0.0 else 0.0
-except Exception:  # noqa: BLE001
+                out[i, j] = max(0.0, acc)
+except Exception:
     _cubic_nb = None
 
 
@@ -203,7 +203,7 @@ def _add_shifted(out, a, sx, sy, w):
 #: World noise tiles kept (64 kB each): a stage move or a re-render of the same place
 #: reads the tiles it has drawn before instead of drawing them again.
 NOISE_TILES_KEPT = 1024
-_NOISE_TILES: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+_NOISE_TILES: OrderedDict[tuple, np.ndarray] = OrderedDict()
 _NOISE_LOCK = threading.Lock()
 
 
@@ -253,7 +253,7 @@ def world_normal_noise(ix0: int, iy0: int, ny: int, nx: int, seed: int, salt: in
     return out
 
 
-_DISKS: "OrderedDict[tuple, np.ndarray | None]" = OrderedDict()
+_DISKS: OrderedDict[tuple, np.ndarray | None] = OrderedDict()
 
 
 def disk_profile(shape: tuple[int, int], cx: float, cy: float, radius: float,

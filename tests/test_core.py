@@ -1,12 +1,11 @@
 import numpy as np
-import pytest
+from perf_budget import budget
 
 from de_twin.clock import Clock, ManualClock
 from de_twin.hashing import SeedKind, hash_seed, mix_cell, rng_for, splitmix64, uniform_from_hash
 from de_twin.specimen.fieldmap import GrainTable, ViewWindow
 from de_twin.specimen.materials import MATERIALS, MaterialId
 from de_twin.state import AcquisitionRequest, ExposureMode
-from perf_budget import budget
 
 
 def test_splitmix64_reference_value():

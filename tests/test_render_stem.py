@@ -7,13 +7,13 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.optics import OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
 from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
 from de_twin.state import AcquisitionRequest, MicroscopeState, RenderMode, Roi, TemStem
-from perf_budget import budget
 
 CAM = StubCamera()  # DE16, 256^2 ROI at the sensor centre
 NSCAN = 32

@@ -150,7 +150,7 @@ def test_nearest_cluster_feature_on_mesh():
 
 def test_bounds_and_overview_extent():
     s = Specimen(from_name("Dense Au on holey C"))
-    xmin, ymin, xmax, ymax = s.bounds_um()
+    xmin, _ymin, xmax, _ymax = s.bounds_um()
     assert xmin == pytest.approx(-1525.0) and xmax == pytest.approx(1525.0)
     ov = s.overview((64, 64))
     assert ov[0, 0] == 0 and ov[32, 32] >= 0

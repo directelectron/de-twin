@@ -26,7 +26,7 @@ def served():
 
 
 def test_frames_arrive_in_order(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), frame_time_s=0.01, total_frames=10)
     frames = [consumer.read(timeout=10) for _ in range(10)]
     assert [h["frame_index"] for _, h in frames] == list(range(10))
@@ -36,7 +36,7 @@ def test_frames_arrive_in_order(served):
 
 
 def test_dark_request_produces_blanked_frames(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), total_frames=3, exposure_mode=ExposureMode.DARK)
     for _ in range(3):
         frame, info = consumer.read(timeout=10)
@@ -45,7 +45,7 @@ def test_dark_request_produces_blanked_frames(served):
 
 
 def test_new_request_preempts_live_stream(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), total_frames=0)  # live: until told otherwise
     for _ in range(3):
         consumer.read(timeout=10)
@@ -161,7 +161,7 @@ def test_a_view_change_drops_recycled_frames():
     pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.01), size=4, reuse=100,
                       pace=False)
     try:
-        (item, fresh) = pool.take(10)
+        (item, _fresh) = pool.take(10)
         x0 = item[1].microscope.stage.x_um
         twin.column.move_stage(x=x0 + 1.0)
         twin.column.state()  # the stage settles on the manual clock
@@ -169,7 +169,7 @@ def test_a_view_change_drops_recycled_frames():
 
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
-            (item, fresh) = pool.take(10)
+            (item, _fresh) = pool.take(10)
             if item[1].microscope.stage.x_um != x0:
                 break
         # from here on, only the new view comes back, fresh or recycled

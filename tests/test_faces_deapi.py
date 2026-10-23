@@ -10,13 +10,13 @@ import pytest
 deapi = pytest.importorskip("deapi")
 pytestmark = pytest.mark.deapi
 
-from de_twin.clock import Clock  # noqa: E402
-from de_twin.column import Column  # noqa: E402
-from de_twin.faces.deapi_protocol import TEMPERATURE_PROP  # noqa: E402
-from de_twin.faces.deapi_request import request_from_properties  # noqa: E402
-from de_twin.faces.deapi_server import TwinDeapiServer  # noqa: E402
-from de_twin.holder import NoHolder  # noqa: E402
-from de_twin.state import ExposureMode, FrameMeta, RenderMode, Roi  # noqa: E402
+from de_twin.clock import Clock
+from de_twin.column import Column
+from de_twin.faces.deapi_protocol import TEMPERATURE_PROP
+from de_twin.faces.deapi_request import request_from_properties
+from de_twin.faces.deapi_server import TwinDeapiServer
+from de_twin.holder import NoHolder
+from de_twin.state import ExposureMode, FrameMeta, RenderMode, Roi
 
 
 class StubDetector:
@@ -110,7 +110,7 @@ def _acquire(client, frame_type="singleframe_integrated", n=1):
     deadline = time.time() + 10
     while client.acquiring and time.time() < deadline:
         time.sleep(0.01)
-    img, pixel_format, attrs, hist = client.get_result(frame_type)
+    img, _pixel_format, attrs, _hist = client.get_result(frame_type)
     return img, attrs
 
 
@@ -229,7 +229,7 @@ def test_movie_buffer_has_real_frames(client):
     info = client.get_movie_buffer_info()
     frames = []
     while True:
-        status, total, n, buf = client.get_movie_buffer(
+        status, _total, n, buf = client.get_movie_buffer(
             None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer)
         if status.name != "OK":
             break
@@ -364,7 +364,7 @@ def test_real_twin_if_available():
 
         twin = DigitalTwin(camera="DE16")
         twin.detector.output_shape(twin.request())
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         pytest.skip(f"DigitalTwin not ready: {exc}")
     with TwinDeapiServer(twin, port=0, pace=False) as srv:
         c = deapi.Client()

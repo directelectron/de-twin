@@ -29,7 +29,6 @@ import os
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 from scipy.special import sici
@@ -82,7 +81,7 @@ class CrystalLibrary:
     """Reciprocal lattice + kinematic ``|F|^2`` of one phase, computed once."""
 
     def __init__(self, phase, *, max_g_inv_nm: float = MAX_G_INV_NM, debye_waller_a2: float = 0.0,
-                 scattering_params: str = "lobato", cache_dir: Optional[str] = None):
+                 scattering_params: str = "lobato", cache_dir: str | None = None):
         self.phase = phase
         self.max_g_inv_nm = float(max_g_inv_nm)
         self.debye_waller_a2 = float(debye_waller_a2)
@@ -238,8 +237,8 @@ class CrystalLibrary:
                                            max_excitation_error=max_excitation_error, with_direct_beam=False)
 
 
-@functools.lru_cache(maxsize=None)
-def library_for(material_id: int, max_g_inv_nm: float = MAX_G_INV_NM) -> Optional[CrystalLibrary]:
+@functools.cache
+def library_for(material_id: int, max_g_inv_nm: float = MAX_G_INV_NM) -> CrystalLibrary | None:
     """Cached library of a material (``None`` for amorphous materials)."""
     from ..specimen.materials import material
     from .phases import phase_for

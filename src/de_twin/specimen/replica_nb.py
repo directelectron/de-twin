@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import math
+
 import numpy as np
+
 from .raster_nb import add_thickness1, add_under1, grain_from_hash, level_offset1, njit, prange
+
 try:
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -63,7 +66,7 @@ def field1_fast(xk, yk, levk, tiles, seed, px_per_um, cells_per_um):
     fx = cx - 0.5 - ci
     fy = cy - 0.5 - cj
     lv = min(max(levk, 0.0), nlev - 1.0)
-    l0 = int(math.floor(lv))
+    l0 = math.floor(lv)
     l1 = min(l0 + 1, nlev - 1)
     tl = lv - l0
     acc = 0.0
@@ -128,10 +131,8 @@ def level_offset_fast(c, lut_c, lut_lev, lut_off):
     n = lut_c.shape[0]
     x = (c - lut_c[0]) / (lut_c[n - 1] - lut_c[0]) * (n - 1)
     i = int(x)
-    if i < 0:
-        i = 0
-    if i > n - 2:
-        i = n - 2
+    i = max(i, 0)
+    i = min(i, n - 2)
     t = x - i
     lev = lut_lev[i] if t < 0.5 else lut_lev[i + 1]
     return lev, lut_off[i] + (lut_off[i + 1] - lut_off[i]) * t

@@ -35,7 +35,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -53,8 +53,7 @@ def _F_py(x, FT, DT):
     else:
         u = ax / _H
         i = int(u)
-        if i > FT.shape[0] - 2:
-            i = FT.shape[0] - 2
+        i = min(i, FT.shape[0] - 2)
         t = u - i
         t2 = t * t
         t3 = t2 * t

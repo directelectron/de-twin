@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import dataclasses
-
 import math
 import threading
-from typing import Iterator, Optional, Union
+from collections.abc import Iterator
 
 import numpy as np
 
@@ -52,23 +51,24 @@ class DigitalTwin:
 
     def __init__(
         self,
-        specimen: Union[str, object] = "Dense Au on holey C",
-        camera: Union[str, object] = "DE16",
+        specimen: str | object = "Dense Au on holey C",
+        camera: str | object = "DE16",
         *,
         column=None,
-        corrector: Optional[str] = None,
-        holder: Union[str, object, None] = None,
+        corrector: str | None = None,
+        holder: str | object | None = None,
         seed: int = 0,
         calibration=None,
         optics_config=None,
         render_config=None,
-        clock: Optional[Clock] = None,
+        clock: Clock | None = None,
         flood_for_gain: bool = True,
-        detector_overrides: Optional[dict] = None,
+        detector_overrides: dict | None = None,
         start_on_specimen: bool = True,
     ):
         from .column import Column
-        from .detector import Detector, camera as camera_by_name
+        from .detector import Detector
+        from .detector import camera as camera_by_name
         from .holder import connect_holder
         from .optics import Calibration, OpticsConfig
         from .render import Renderer
@@ -116,7 +116,7 @@ class DigitalTwin:
     def microscope_state(self) -> MicroscopeState:
         return self.column.state()
 
-    def holder_state(self, t: Optional[float] = None) -> HolderState:
+    def holder_state(self, t: float | None = None) -> HolderState:
         t = self.clock.now() if t is None else t
         state = getattr(self.holder, "state", None)
         return state(t) if callable(state) else HolderState(t_s=t)
@@ -212,7 +212,7 @@ class DigitalTwin:
             self.start_on_specimen()
 
     # ---------------------------------------------------------------- optics
-    def optics(self, request: AcquisitionRequest, state: Optional[MicroscopeState] = None):
+    def optics(self, request: AcquisitionRequest, state: MicroscopeState | None = None):
         from .optics import derive_optics
 
         state = state or self.column.state()
@@ -231,11 +231,9 @@ class DigitalTwin:
             return False
         if state.beam_blanked or not state.column_valves_open or not state.ht_on:
             return False
-        if state.screen_position != 0:  # screen down intercepts the beam
-            return False
-        return True
+        return state.screen_position == 0  # screen down intercepts the beam
 
-    def scan_point(self, request: AcquisitionRequest, frame_index: int) -> Optional[tuple[int, int]]:
+    def scan_point(self, request: AcquisitionRequest, frame_index: int) -> tuple[int, int] | None:
         scan = request.scan
         if not scan.enabled:
             return None
@@ -255,12 +253,12 @@ class DigitalTwin:
         self,
         request: AcquisitionRequest,
         frame_index: int = 0,
-        scan_point: Optional[tuple[int, int]] = None,
+        scan_point: tuple[int, int] | None = None,
         *,
-        state: Optional[MicroscopeState] = None,
+        state: MicroscopeState | None = None,
         optics=None,
-        time_s: Optional[float] = None,
-    ) -> Optional[np.ndarray]:
+        time_s: float | None = None,
+    ) -> np.ndarray | None:
         """Noiseless electrons/pixel/second on the ROI, or None if no beam."""
         with self.lock:
             t = self.clock.now() if time_s is None else time_s
@@ -338,7 +336,7 @@ class DigitalTwin:
         request: AcquisitionRequest,
         *,
         pace: bool = False,
-        stop: Optional[threading.Event] = None,
+        stop: threading.Event | None = None,
     ) -> Iterator[tuple[np.ndarray, FrameMeta]]:
         """Raw detector frames for ``request``.
 
@@ -481,7 +479,7 @@ class DigitalTwin:
             optics, t = self._optics_with_specimen_at_now(request)
             return self.renderer.ground_truth_ptychography(optics, time_s=t)
 
-    def calibration_truth(self, request: Optional[AcquisitionRequest] = None) -> dict:
+    def calibration_truth(self, request: AcquisitionRequest | None = None) -> dict:
         """What SerialEM's calibrations should find at the column's current state: the true
         pixel size against the nominal one, the image rotation on the camera, the image-shift
         matrix, the magnification's image offset, the stage's backlash error and how far the
@@ -526,7 +524,7 @@ class DigitalTwin:
             out["is_astig_nm_per_is_um"] = (a.real, a.imag)
         return out
 
-    def ground_truth(self, request: Optional[AcquisitionRequest] = None, *, as_arrays: bool = False):
+    def ground_truth(self, request: AcquisitionRequest | None = None, *, as_arrays: bool = False):
         """Phase + effective orientation (grain x stage tilt) per STEM scan point, or per raster
         pixel of a TEM view, for scoring orientation maps (e.g. pyxem against
         ``CrystalLibrary.template_library``). An orix ``CrystalMap`` (phase id = material id,
@@ -584,4 +582,4 @@ def _fit(img: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     return (out / (zy * zx)).astype(np.float32)
 
 
-__all__ = ["DigitalTwin", "AcquisitionRequest", "ExposureMode", "Projection", "TemStem"]
+__all__ = ["AcquisitionRequest", "DigitalTwin", "ExposureMode", "Projection", "TemStem"]

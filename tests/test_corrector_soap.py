@@ -83,7 +83,7 @@ def test_replay_recorded_corrector_envelopes(corrector):
         assert got_el == want_el, (req_path, got_el, want_el)
         assert list(got) == list(want), (req_path, list(got), list(want))
         for tag, recorded in want.items():
-            assert re.search(r"<%s[^>]*>(.*?)</%s>" % (tag, tag), xml, re.S), (req_path, tag)
+            assert re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", xml, re.DOTALL), (req_path, tag)
             if recorded not in ("", None) and tag != "r":
                 float(got[tag])
         replayed.add(os.path.basename(req_path).split(".")[1])
@@ -92,7 +92,7 @@ def test_replay_recorded_corrector_envelopes(corrector):
 
 # ------------------------------------------------------------------ round trip
 def test_soap_round_trip_through_the_client(corrected):
-    col, srv, c = corrected
+    col, _srv, c = corrected
     assert c.corrector_present()
     assert c.corrector_status() == 0
     info = c.corrector_info()
@@ -129,7 +129,7 @@ def test_soap_round_trip_through_the_client(corrected):
 
 
 def test_soap_beam_tilt_config_and_alignment(corrected):
-    col, srv, c = corrected
+    col, _srv, c = corrected
     assert c.get_corrector_beam_tilt() == (0.0, 0.0, False)
     assert c.set_corrector_beam_tilt(1e-4, 0.0, relative=True, wait_ms=2000)
     assert c.set_corrector_beam_tilt(0.0, 2e-4, relative=True, wait_ms=2000)

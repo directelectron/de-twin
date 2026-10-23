@@ -22,7 +22,6 @@ import math
 import time
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Optional
 
 import numpy as np
 
@@ -86,7 +85,7 @@ class Owner:
 class PrimitiveSet:
     """Struct-of-arrays store of rasterisable primitives (the C++ ``Primitive`` vector)."""
 
-    def __init__(self, n: int = 0, structures: Optional[list] = None, **arrays):
+    def __init__(self, n: int = 0, structures: list | None = None, **arrays):
         self.n = int(n)
         for k, dt in _FIELDS.items():
             if k in arrays:
@@ -106,7 +105,7 @@ class PrimitiveSet:
 
     @classmethod
     def make(cls, cx, cy, rx, ry, *, rot=0.0, shape=Shape.ELLIPSE, bounds=None, bound_r=None,
-             structures=None, **extra_fields) -> "PrimitiveSet":
+             structures=None, **extra_fields) -> PrimitiveSet:
         cx = np.atleast_1d(np.asarray(cx, np.float64))
         n = cx.size
         cy = np.broadcast_to(np.asarray(cy, np.float64), (n,))
@@ -128,7 +127,7 @@ class PrimitiveSet:
     def __len__(self) -> int:
         return self.n
 
-    def take(self, idx) -> "PrimitiveSet":
+    def take(self, idx) -> PrimitiveSet:
         idx = np.asarray(idx)
         out = PrimitiveSet.__new__(PrimitiveSet)
         for k in _FIELDS:
@@ -139,7 +138,7 @@ class PrimitiveSet:
         return out
 
     @staticmethod
-    def concat(sets: list["PrimitiveSet"]) -> "PrimitiveSet":
+    def concat(sets: list[PrimitiveSet]) -> PrimitiveSet:
         sets = [s for s in sets if s is not None and s.n > 0]
         out = PrimitiveSet(0)
         if not sets:
@@ -185,8 +184,8 @@ class RasterContext:
 
     BLOCK_PIXELS = 1 << 17
 
-    def __init__(self, view: ViewWindow, layers=frozenset(), grains: Optional[GrainTable] = None,
-                 time_index: int = 0, lod_threshold_px: float = 0.5, span_px: Optional[int] = None):
+    def __init__(self, view: ViewWindow, layers=frozenset(), grains: GrainTable | None = None,
+                 time_index: int = 0, lod_threshold_px: float = 0.5, span_px: int | None = None):
         self.view = view
         self.ny, self.nx = int(view.shape[0]), int(view.shape[1])
         #: The size (pixels) of the view this raster is part of: what the scene's populate /
@@ -224,8 +223,8 @@ class RasterContext:
         else:
             self.strain = None
         self.stats = {"considered": 0, "culled": 0, "dust": 0, "drawn": 0, "structures": 0}
-        self.under_material: Optional[np.ndarray] = None
-        self.under_thick: Optional[np.ndarray] = None
+        self.under_material: np.ndarray | None = None
+        self.under_thick: np.ndarray | None = None
 
     # -- coordinates --------------------------------------------------------------------------
     def world(self, rows, cols):
@@ -255,10 +254,10 @@ class RasterContext:
         r, c = self.to_pixel(xs, ys)
         if not (np.all(np.isfinite(r)) and np.all(np.isfinite(c))):
             return None
-        r0 = max(0, int(math.floor(r.min())) - slack)
-        r1 = min(self.ny, int(math.ceil(r.max())) + slack + 1)
-        c0 = max(0, int(math.floor(c.min())) - slack)
-        c1 = min(self.nx, int(math.ceil(c.max())) + slack + 1)
+        r0 = max(0, math.floor(r.min()) - slack)
+        r1 = min(self.ny, math.ceil(r.max()) + slack + 1)
+        c0 = max(0, math.floor(c.min()) - slack)
+        c1 = min(self.nx, math.ceil(c.max()) + slack + 1)
         if r1 <= r0 or c1 <= c0:
             return None
         return r0, r1, c0, c1
@@ -434,7 +433,7 @@ def curtain_table(seed: int) -> np.ndarray:
     return np.abs(np.sin(2.0 * np.pi * CURTAIN_FREQUENCY * u[:, None] + phase[None, :])).mean(1)
 
 
-def _local_frame(ctx: "RasterContext", P: PrimitiveSet, sel, rows, cols):
+def _local_frame(ctx: RasterContext, P: PrimitiveSet, sel, rows, cols):
     """Normalised, un-rotated primitive-frame coordinates as affine outer sums."""
     ang = -P.rot[sel]
     c = np.cos(ang)
@@ -509,7 +508,7 @@ def _thickness(P: PrimitiveSet, sel, profile: int, lx, ly, r2, curtain_depth: fl
 LARGE_WINDOW_PX = 48
 
 
-def _affine_coeffs(ctx: "RasterContext", P: PrimitiveSet, i: int):
+def _affine_coeffs(ctx: RasterContext, P: PrimitiveSet, i: int):
     """(A0, Ac, Ar, B0, Bc, Br): lx = A0 + Ac*col + Ar*row, ly = B0 + Bc*col + Br*row."""
     ang = -float(P.rot[i])
     c, s = math.cos(ang), math.sin(ang)
@@ -521,7 +520,7 @@ def _affine_coeffs(ctx: "RasterContext", P: PrimitiveSet, i: int):
             iry * (s * dx0 + c * dy0), iry * (s * ctx.axc + c * ctx.ayc), iry * (s * ctx.axr + c * ctx.ayr))
 
 
-def row_spans(ctx: "RasterContext", coeffs, shape: int, r0: int, r1: int):
+def row_spans(ctx: RasterContext, coeffs, shape: int, r0: int, r1: int):
     """Exact per-row column spans of pixel centres inside a rect (|lx|,|ly| <= 1) or ellipse.
 
     Returns ``(rows, lo, hi)`` with inclusive integer bounds (``hi < lo`` = empty row).

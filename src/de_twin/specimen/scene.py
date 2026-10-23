@@ -15,7 +15,6 @@ import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -42,7 +41,7 @@ class Feature:
     radius_um: float = 0.0
     area_index: int = -1
     post_index: int = -1
-    kind: Optional[str] = None  # BulkSampleKind name for a lamella, else None
+    kind: str | None = None  # BulkSampleKind name for a lamella, else None
     weight: int = 1  # particle count of a cluster
     label: str = ""
 
@@ -59,7 +58,7 @@ class Scene:
         self.per_post: list[Preparation] = []
         if config.holder == "fib_liftout" and config.preparation == "bulk":
             self.per_post = [BulkSamplePreparation(p.bulk_kind, p.matrix_material, opts) for p in self.holder.posts]
-        self._aggregates: Optional[PrimitiveSet] = None  # one row per placement area, built lazily
+        self._aggregates: PrimitiveSet | None = None  # one row per placement area, built lazily
         self._resident: OrderedDict[int, Batch] = OrderedDict()
         self._resident_bytes = 0
         self._query_lock = threading.RLock()
@@ -170,7 +169,7 @@ class Scene:
         return out
 
     # -- features -------------------------------------------------------------------------------
-    def _choose_area(self, x: float, y: float) -> Optional[PlacementArea]:
+    def _choose_area(self, x: float, y: float) -> PlacementArea | None:
         areas = self.holder.areas
         if not areas:
             return None
@@ -218,7 +217,7 @@ class Scene:
         return Feature(center_um=area.center, radius_um=area.half_span, area_index=area.index,
                        post_index=area.post_index, kind=kind, weight=1, label=label)
 
-    def nearest_feature(self, x: float, y: float) -> Optional[Feature]:
+    def nearest_feature(self, x: float, y: float) -> Feature | None:
         lam = self.holder.lamellae
         if self.holder_kind == "fib_liftout" and lam:
             d = [math.hypot(l.center[0] - x, l.center[1] - y) for l in lam]

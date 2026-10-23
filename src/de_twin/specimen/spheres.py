@@ -16,7 +16,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -29,8 +29,8 @@ _prange = nb.prange if AVAILABLE else range
 
 @_njit()
 def _bin_of(x, y, x0, y0, inv, nx, ny):
-    i = int(math.floor((x - x0) * inv))
-    j = int(math.floor((y - y0) * inv))
+    i = math.floor((x - x0) * inv)
+    j = math.floor((y - y0) * inv)
     if i < 0 or j < 0 or i >= nx or j >= ny:
         return -1
     return j * nx + i
@@ -51,8 +51,7 @@ def top_chord1(xk, yk, cx, cy, r, start, members, x0, y0, inv, nx, ny):
             if d2 > 0.0:
                 half = math.sqrt(d2)
                 c += 2.0 * half
-                if r[s] + half > t:
-                    t = r[s] + half
+                t = max(t, r[s] + half)
     return t, c
 
 
@@ -98,8 +97,7 @@ def _top_chord_nb(x, y, cx, cy, r, start, members, x0, y0, inv, nx, ny, top, cho
                 if d2 > 0.0:
                     half = math.sqrt(d2)
                     c += 2.0 * half
-                    if r[s] + half > t:
-                        t = r[s] + half
+                    t = max(t, r[s] + half)
         top[k] = t
         chord[k] = c
 
@@ -151,15 +149,15 @@ class SphereSet:
         rm = float(self.r.max())
         self.x0 = float(self.cx.min()) - rm
         self.y0 = float(self.cy.min()) - rm
-        self.nx = int(math.floor((float(self.cx.max()) + rm - self.x0) / self.bin)) + 1
-        self.ny = int(math.floor((float(self.cy.max()) + rm - self.y0) / self.bin)) + 1
+        self.nx = math.floor((float(self.cx.max()) + rm - self.x0) / self.bin) + 1
+        self.ny = math.floor((float(self.cy.max()) + rm - self.y0) / self.bin) + 1
         # every bin a sphere overlaps lists it
         lists = []
         for s in range(n):
-            i0 = int(math.floor((self.cx[s] - self.r[s] - self.x0) / self.bin))
-            i1 = int(math.floor((self.cx[s] + self.r[s] - self.x0) / self.bin))
-            j0 = int(math.floor((self.cy[s] - self.r[s] - self.y0) / self.bin))
-            j1 = int(math.floor((self.cy[s] + self.r[s] - self.y0) / self.bin))
+            i0 = math.floor((self.cx[s] - self.r[s] - self.x0) / self.bin)
+            i1 = math.floor((self.cx[s] + self.r[s] - self.x0) / self.bin)
+            j0 = math.floor((self.cy[s] - self.r[s] - self.y0) / self.bin)
+            j1 = math.floor((self.cy[s] + self.r[s] - self.y0) / self.bin)
             for j in range(max(j0, 0), min(j1, self.ny - 1) + 1):
                 for i in range(max(i0, 0), min(i1, self.nx - 1) + 1):
                     lists.append((j * self.nx + i, s))
@@ -216,8 +214,8 @@ def _sites_nb(seed, i0, i1, j0, j1, jitter, out_x, out_y, out_h):
 
 def lattice_sites(seed: int, cell_um: float, x0: float, y0: float, x1: float, y1: float, jitter: float = 0.4):
     """The jittered-lattice sites (x um, y um, hash) of every cell overlapping [x0, x1] x [y0, y1]."""
-    i0, i1 = int(math.floor(x0 / cell_um)), int(math.floor(x1 / cell_um))
-    j0, j1 = int(math.floor(y0 / cell_um)), int(math.floor(y1 / cell_um))
+    i0, i1 = math.floor(x0 / cell_um), math.floor(x1 / cell_um)
+    j0, j1 = math.floor(y0 / cell_um), math.floor(y1 / cell_um)
     n = (i1 - i0 + 1) * (j1 - j0 + 1)
     xs, ys, hs = np.empty(n), np.empty(n), np.empty(n, np.uint64)
     _sites_nb(np.uint64(int(seed) & 0xFFFFFFFFFFFFFFFF), i0, i1, j0, j1, float(jitter), xs, ys, hs)

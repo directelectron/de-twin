@@ -173,7 +173,7 @@ def test_backlash_depends_on_the_approach_direction(make_realistic_twin):
     ea = tw.calibration_truth()["stage_error_um"]
     tw.column.move_stage(x=x + 1.0)
     tw.column.move_stage(x=x)  # approached from above
-    b = _img(tw)
+    _img(tw)
     eb = tw.calibration_truth()["stage_error_um"]
     backlash = tw.optics_config.realism.backlash_um
     assert eb[0] - ea[0] == pytest.approx(backlash)

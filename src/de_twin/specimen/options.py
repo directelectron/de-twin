@@ -30,7 +30,7 @@ from __future__ import annotations
 import copy
 import dataclasses
 from dataclasses import dataclass, field, fields
-from typing import Any, Optional
+from typing import Any
 
 HOLDERS = ("mesh_grid", "waffle_grid", "fib_liftout", "insitu_heating_chip")
 PREPARATIONS = ("nanoparticles", "proteins", "thin_film", "bulk", "time_evolving", "cross_grating",
@@ -118,7 +118,7 @@ class SpecimenOptions:
                               "used whole seconds of acquisition time, or the scan repeat).")
 
     # -- in-situ crystallisation (thermal budget) ------------------------------------------------
-    in_situ_crystallization: Optional[bool] = _opt(None, doc="Per-grain glassy->crystalline model; "
+    in_situ_crystallization: bool | None = _opt(None, doc="Per-grain glassy->crystalline model; "
                                                    "None = on for the in-situ heating chip only.")
     nucleation_start_s: float = _opt(25.0, 0.0, 3600.0, "Thermal budget at which the first grain nucleates.")
     nucleation_end_s: float = _opt(75.0, 0.0, 3600.0, "Thermal budget at which the last grain nucleates.")
@@ -140,7 +140,7 @@ class SpecimenOptions:
 
     # ------------------------------------------------------------------------------------------
     @classmethod
-    def from_dict(cls, values: Optional[dict] = None) -> "SpecimenOptions":
+    def from_dict(cls, values: dict | None = None) -> SpecimenOptions:
         """Build from a (possibly partial) dict; unknown keys raise, numbers are clamped to range."""
         opts = cls()
         for k, v in (values or {}).items():
@@ -162,7 +162,7 @@ class SpecimenOptions:
         elif isinstance(f.default, bool) or f.default is None:
             value = None if value is None else bool(value)
         elif isinstance(f.default, int):
-            value = int(round(float(value)))
+            value = round(float(value))
         else:
             value = float(value)
         if isinstance(value, (int, float)) and not isinstance(value, bool):
@@ -176,7 +176,7 @@ class SpecimenOptions:
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
 
-    def replace(self, **changes) -> "SpecimenOptions":
+    def replace(self, **changes) -> SpecimenOptions:
         out = copy.deepcopy(self)
         for k, v in changes.items():
             out.set(k, v)
@@ -235,12 +235,12 @@ class SpecimenConfig:
             return self.film
         return DEFAULT_FILM.get((self.holder, self.preparation), "holey")
 
-    def with_options(self, **changes) -> "SpecimenConfig":
+    def with_options(self, **changes) -> SpecimenConfig:
         out = copy.deepcopy(self)
         out.options.update(changes)
         return out
 
-    def copy(self) -> "SpecimenConfig":
+    def copy(self) -> SpecimenConfig:
         return copy.deepcopy(self)
 
 
@@ -272,44 +272,44 @@ _PATTERN_TABLE = (
 # top of the defaults. The (holder, preparation) pairing is the pattern each preset was designed
 # for (PHASE5_DESIGN 7.1 "intended preset").
 _PRESET_TABLE: dict[str, tuple[str, str, str, dict]] = {
-    "Sparse Au on holey C": ("mesh_grid", "nanoparticles", "holey", dict(
-        film_thickness_nm=0.0, particle_density_per_um2=6.0, particle_median_diameter_nm=22.0,
-        particle_size_sigma_log=0.75, clustered_fraction=0.35, cluster_density_per_um2=0.02,
-        cluster_radius_um=0.80, dose_rate_counts_per_s=4000.0)),
-    "Dense Au on holey C": ("mesh_grid", "nanoparticles", "holey", dict(
-        film_thickness_nm=0.0, particle_density_per_um2=24.0, particle_median_diameter_nm=24.0,
-        particle_size_sigma_log=0.80, clustered_fraction=0.35, cluster_density_per_um2=0.06,
-        cluster_radius_um=0.45, dose_rate_counts_per_s=4000.0)),
-    "Au clusters on lacey C": ("mesh_grid", "nanoparticles", "lacey", dict(
-        film_thickness_nm=0.0, particle_density_per_um2=14.0, particle_median_diameter_nm=16.0,
-        particle_size_sigma_log=0.70, clustered_fraction=0.85, cluster_density_per_um2=0.05,
-        cluster_radius_um=0.25, dose_rate_counts_per_s=6000.0)),
+    "Sparse Au on holey C": ("mesh_grid", "nanoparticles", "holey", {
+        "film_thickness_nm": 0.0, "particle_density_per_um2": 6.0, "particle_median_diameter_nm": 22.0,
+        "particle_size_sigma_log": 0.75, "clustered_fraction": 0.35, "cluster_density_per_um2": 0.02,
+        "cluster_radius_um": 0.80, "dose_rate_counts_per_s": 4000.0}),
+    "Dense Au on holey C": ("mesh_grid", "nanoparticles", "holey", {
+        "film_thickness_nm": 0.0, "particle_density_per_um2": 24.0, "particle_median_diameter_nm": 24.0,
+        "particle_size_sigma_log": 0.80, "clustered_fraction": 0.35, "cluster_density_per_um2": 0.06,
+        "cluster_radius_um": 0.45, "dose_rate_counts_per_s": 4000.0}),
+    "Au clusters on lacey C": ("mesh_grid", "nanoparticles", "lacey", {
+        "film_thickness_nm": 0.0, "particle_density_per_um2": 14.0, "particle_median_diameter_nm": 16.0,
+        "particle_size_sigma_log": 0.70, "clustered_fraction": 0.85, "cluster_density_per_um2": 0.05,
+        "cluster_radius_um": 0.25, "dose_rate_counts_per_s": 6000.0}),
     "Custom": ("mesh_grid", "nanoparticles", "auto", {}),
-    "Apoferritin in ice": ("mesh_grid", "proteins", "vitreous_ice", dict(
-        film_thickness_nm=0.0, ice_thickness_nm=60.0, protein_diameter_nm=12.0,
-        protein_density_per_um2=2000.0, negative_stain_fraction=0.0, dose_fading_per_step=0.0,
-        dose_rate_counts_per_s=6000.0, start_defocus_um=-1.5)),
-    "Negative stain on carbon": ("mesh_grid", "proteins", "continuous", dict(
-        film_thickness_nm=12.0, ice_thickness_nm=60.0, protein_diameter_nm=18.0,
-        protein_density_per_um2=900.0, negative_stain_fraction=0.9, dose_fading_per_step=0.0,
-        dose_rate_counts_per_s=4000.0)),
-    "Cross grating 2160 l/mm": ("mesh_grid", "cross_grating", "none", dict()),
-    "Au thin film 20 nm": ("mesh_grid", "thin_film", "continuous", dict(
-        deposited_film_thickness_nm=20.0, grain_size_nm=30.0, pinhole_fraction=0.02,
-        crack_density_per_um=0.0, thin_film_material="gold")),
-    "Al thin film 100 nm": ("waffle_grid", "thin_film", "continuous", dict(
-        deposited_film_thickness_nm=100.0, grain_size_nm=250.0, pinhole_fraction=0.05,
-        crack_density_per_um=0.05, thin_film_material="aluminum")),
-    "Steel lamella with carbides": ("fib_liftout", "bulk", "none", dict(
-        fib_post_sample="precipitate_matrix", lamella_thickness_nm=100.0)),
-    "PN junction lamella": ("fib_liftout", "bulk", "none", dict(
-        fib_post_sample="pn_junction", lamella_thickness_nm=100.0, junction_descan_x_px=2.0,
-        junction_descan_y_px=4.0, junction_width_frac=0.60)),
-    "Strained inclusion lamella": ("fib_liftout", "bulk", "none", dict(
-        fib_post_sample="strained_inclusion", lamella_thickness_nm=100.0, strain_magnitude=0.02)),
-    "Droplet crystallization": ("insitu_heating_chip", "nanoparticles", "auto", dict(
-        particle_density_per_um2=60.0, nucleation_sites_per_window=8, growth_rate_nm_per_step=100.0,
-        drift_per_step_x_nm=0.0, drift_per_step_y_nm=0.0)),
+    "Apoferritin in ice": ("mesh_grid", "proteins", "vitreous_ice", {
+        "film_thickness_nm": 0.0, "ice_thickness_nm": 60.0, "protein_diameter_nm": 12.0,
+        "protein_density_per_um2": 2000.0, "negative_stain_fraction": 0.0, "dose_fading_per_step": 0.0,
+        "dose_rate_counts_per_s": 6000.0, "start_defocus_um": -1.5}),
+    "Negative stain on carbon": ("mesh_grid", "proteins", "continuous", {
+        "film_thickness_nm": 12.0, "ice_thickness_nm": 60.0, "protein_diameter_nm": 18.0,
+        "protein_density_per_um2": 900.0, "negative_stain_fraction": 0.9, "dose_fading_per_step": 0.0,
+        "dose_rate_counts_per_s": 4000.0}),
+    "Cross grating 2160 l/mm": ("mesh_grid", "cross_grating", "none", {}),
+    "Au thin film 20 nm": ("mesh_grid", "thin_film", "continuous", {
+        "deposited_film_thickness_nm": 20.0, "grain_size_nm": 30.0, "pinhole_fraction": 0.02,
+        "crack_density_per_um": 0.0, "thin_film_material": "gold"}),
+    "Al thin film 100 nm": ("waffle_grid", "thin_film", "continuous", {
+        "deposited_film_thickness_nm": 100.0, "grain_size_nm": 250.0, "pinhole_fraction": 0.05,
+        "crack_density_per_um": 0.05, "thin_film_material": "aluminum"}),
+    "Steel lamella with carbides": ("fib_liftout", "bulk", "none", {
+        "fib_post_sample": "precipitate_matrix", "lamella_thickness_nm": 100.0}),
+    "PN junction lamella": ("fib_liftout", "bulk", "none", {
+        "fib_post_sample": "pn_junction", "lamella_thickness_nm": 100.0, "junction_descan_x_px": 2.0,
+        "junction_descan_y_px": 4.0, "junction_width_frac": 0.60}),
+    "Strained inclusion lamella": ("fib_liftout", "bulk", "none", {
+        "fib_post_sample": "strained_inclusion", "lamella_thickness_nm": 100.0, "strain_magnitude": 0.02}),
+    "Droplet crystallization": ("insitu_heating_chip", "nanoparticles", "auto", {
+        "particle_density_per_um2": 60.0, "nucleation_sites_per_window": 8, "growth_rate_nm_per_step": 100.0,
+        "drift_per_step_x_nm": 0.0, "drift_per_step_y_nm": 0.0}),
 }
 
 # LegacyAlias.cpp: legacy name -> (pattern, preset, forced post sample, force descan).
@@ -369,7 +369,7 @@ PATTERNS: dict[str, SpecimenConfig] = _build_patterns()
 LEGACY_ALIASES: tuple[str, ...] = tuple(a[0] for a in _LEGACY_ALIASES)
 
 
-def from_name(name: str, seed: Optional[int] = None) -> SpecimenConfig:
+def from_name(name: str, seed: int | None = None) -> SpecimenConfig:
     """Look up a preset, test pattern or legacy alias by name (case-insensitive).
 
     Pattern names may omit the ``"Virtual Specimen - "`` prefix. Returns a fresh copy.

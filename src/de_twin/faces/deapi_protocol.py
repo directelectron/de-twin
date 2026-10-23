@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from typing import Any
-import numpy as np
-from ..state import ExposureMode
 
+import numpy as np
+
+from ..state import ExposureMode
 
 EXPOSURE_MODES = {
     "dark": ExposureMode.DARK, "trial": ExposureMode.TRIAL, "gain": ExposureMode.GAIN,

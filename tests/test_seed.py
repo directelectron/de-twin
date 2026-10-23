@@ -3,7 +3,6 @@
 import numpy as np
 
 
-
 def _frames(tw, **kw):
     req = tw.request(total_frames=3, **kw)
     return [raw for raw, _ in tw.frames(req)]

@@ -30,7 +30,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -146,10 +146,8 @@ def _tbin(t):
     r = math.floor(x + 0.5)
     if r - x == 0.5 and r % 2.0 != 0.0:
         r -= 1.0
-    if r < 0.0:
-        r = 0.0
-    if r > 250.0:
-        r = 250.0
+    r = max(r, 0.0)
+    r = min(r, 250.0)
     return r
 
 
@@ -185,8 +183,7 @@ def tile_maps(mat, thick, f_t, lam, has_under, umat, uthick, cutoff, fb, keep_on
                 if m != 0:
                     v = dw * fb[m]
                     dmaps[slot[m], i, j] = v
-                    if v > dmax[i, slot[m]]:
-                        dmax[i, slot[m]] = v
+                    dmax[i, slot[m]] = max(dmax[i, slot[m]], v)
                 if has_under and um != 0:
                     dmaps[slot[um], i, j] += uw * fb[um]
             tbin[i, j] = np.int16(_tbin(t))

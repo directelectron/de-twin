@@ -22,14 +22,20 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
-from ..column.ladders import (DEFAULT_CAMERA_LENGTHS_MM, DEFAULT_LOWMAG_MAGS, DEFAULT_SAMAG_MAGS, DEFAULT_STEM_MAGS,
-                              MAG1_MAGS, Ladder)
+from ..column.ladders import (
+    DEFAULT_CAMERA_LENGTHS_MM,
+    DEFAULT_LOWMAG_MAGS,
+    DEFAULT_SAMAG_MAGS,
+    DEFAULT_STEM_MAGS,
+    MAG1_MAGS,
+    Ladder,
+)
 from ..state import MicroscopeState
 from .physics import electron_wavelength_nm
+
 
 def _alphanumeric_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", str(name).lower())
@@ -85,8 +91,8 @@ def _lookup(table: dict, key: float, rel_tol: float):
 class Calibration:
     """Magnification -> nm/px and camera length -> 1/nm/px, per mag mode."""
 
-    def __init__(self, projects: list[MagProject], *, reference_pixel_um: Optional[float] = None,
-                 ht_scale: Optional[dict] = None, tolerance: float = 0.005,
+    def __init__(self, projects: list[MagProject], *, reference_pixel_um: float | None = None,
+                 ht_scale: dict | None = None, tolerance: float = 0.005,
                  stem_scan_span_v: float = 1.0, stem_fov_nm_at_1x: float = 1.28e8,
                  name: str = "custom"):
         self.projects = list(projects)
@@ -101,8 +107,8 @@ class Calibration:
 
     # ------------------------------------------------------------------ io
     @classmethod
-    def from_mag_yaml(cls, path, *, reference_pixel_um: Optional[float] = None,
-                      ht_table=None, tolerance: float = 0.005) -> "Calibration":
+    def from_mag_yaml(cls, path, *, reference_pixel_um: float | None = None,
+                      ht_table=None, tolerance: float = 0.005) -> Calibration:
         """Load a DE-Server ``mag.yaml`` (tabs tolerated) and optionally an ``ht_table_*.yaml``."""
         text = Path(path).read_text(encoding="utf-8", errors="replace").replace("\t", "    ")
         data = yaml.safe_load(text) or []
@@ -139,7 +145,7 @@ class Calibration:
         return out
 
     @classmethod
-    def default(cls, post_magnification: float = 1.0) -> "Calibration":
+    def default(cls, post_magnification: float = 1.0) -> Calibration:
         """Built-in JEOL-like ladders, computed geometrically.
 
         Tables are nm per 1-um pixel (``1000 / (mag * post_magnification)``) and
@@ -166,13 +172,11 @@ class Calibration:
         for p in self.projects:
             if p.tem_stem != tem_stem:
                 continue
-            if want_cl and p.cam_lengths_cm:
-                out.append(p)
-            elif not want_cl and p.mags:
+            if want_cl and p.cam_lengths_cm or not want_cl and p.mags:
                 out.append(p)
         return out
 
-    def project_for(self, state: MicroscopeState, want_cl: bool = False) -> Optional[MagProject]:
+    def project_for(self, state: MicroscopeState, want_cl: bool = False) -> MagProject | None:
         tem_stem = int(state.tem_stem)
         cands = self._candidates(tem_stem, want_cl)
         if not cands:
@@ -182,9 +186,10 @@ class Calibration:
         mag = float(state.magnification)
         for alias in aliases:
             for p in cands:
-                if _alphanumeric_key(p.name) == alias:
-                    if want_cl or _lookup(p.mags, mag, self.tolerance) is not _MISSING:
-                        return p
+                if _alphanumeric_key(p.name) == alias and (
+                    want_cl or _lookup(p.mags, mag, self.tolerance) is not _MISSING
+                ):
+                    return p
         # Diffraction: the TEM Diff project regardless of the imaging mode name
         if want_cl:
             if tem_stem == 0:
@@ -265,7 +270,7 @@ class Calibration:
         return float(v) * self.stem_scan_span_v / n * self._ht(state, "stem_virt")
 
     # -------------------------------------------------------------- ladders
-    def _mode_project(self, mode: Optional[str], tem_stem: int = 0) -> Optional[MagProject]:
+    def _mode_project(self, mode: str | None, tem_stem: int = 0) -> MagProject | None:
         cands = self._candidates(tem_stem, want_cl=False)
         if not cands:
             return None
@@ -281,7 +286,7 @@ class Calibration:
     def mag_modes(self, tem_stem: int = 0) -> list[str]:
         return [p.name for p in self._candidates(tem_stem, want_cl=False)]
 
-    def mag_ladder(self, mode: Optional[str] = "MAG1", tem_stem: int = 0) -> Ladder:
+    def mag_ladder(self, mode: str | None = "MAG1", tem_stem: int = 0) -> Ladder:
         p = self._mode_project(mode, tem_stem)
         return Ladder(sorted(p.mags)) if p else Ladder()
 
@@ -293,7 +298,7 @@ class Calibration:
             return Ladder()
         return Ladder(sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm))
 
-    def snap_mag(self, mode: Optional[str], mag: float, tem_stem: int = 0) -> float:
+    def snap_mag(self, mode: str | None, mag: float, tem_stem: int = 0) -> float:
         return self.mag_ladder(mode, tem_stem).snap_logarithmic(mag)
 
     def snap_cl(self, cl_mm: float, tem_stem: int = 0) -> float:

@@ -14,7 +14,6 @@ from __future__ import annotations
 import math
 import warnings
 from dataclasses import dataclass, replace
-from typing import Optional
 
 import numpy as np
 
@@ -29,7 +28,7 @@ def _key(request: AcquisitionRequest, roi) -> tuple:
 @dataclass
 class References:
     dark: np.ndarray  # mean dark frame (ADU), output shape
-    gain: Optional[np.ndarray]  # flat-field, normalised to mean 1 (None = not acquired)
+    gain: np.ndarray | None  # flat-field, normalised to mean 1 (None = not acquired)
     n_dark: int
     n_gain: int
     frame_time_s: float
@@ -53,7 +52,7 @@ class Processor:
             acc = raw.astype(np.float64) if acc is None else acc + raw
         return (acc / n).astype(np.float32)
 
-    def lookup(self, request: AcquisitionRequest) -> Optional[References]:
+    def lookup(self, request: AcquisitionRequest) -> References | None:
         """Stored references matching ``request`` (no acquisition)."""
         return self._refs.get(_key(request, self.twin.detector.roi(request)))
 
@@ -77,11 +76,11 @@ class Processor:
         refs.gain, refs.n_gain = np.clip(flood / mean, 0.05, None).astype(np.float32), n_frames
         return refs
 
-    def take_dark(self, request: AcquisitionRequest, n_frames: Optional[int] = None) -> References:
+    def take_dark(self, request: AcquisitionRequest, n_frames: int | None = None) -> References:
         n = n_frames or self.dark_frames
         return self.store_dark(request, self._mean(request, ExposureMode.DARK, n), n)
 
-    def take_gain(self, request: AcquisitionRequest, n_frames: Optional[int] = None) -> References:
+    def take_gain(self, request: AcquisitionRequest, n_frames: int | None = None) -> References:
         n = n_frames or self.gain_frames
         self.references(request, gain=False)
         flood = self._mean(request, ExposureMode.GAIN, n)
@@ -91,7 +90,7 @@ class Processor:
                           f"saturation {sat}); lower the dose or frame time", RuntimeWarning, stacklevel=2)
         return self.store_gain(request, flood, n)
 
-    def synthesize_gain(self, request: AcquisitionRequest, dose_e_per_px: Optional[float] = None) -> References:
+    def synthesize_gain(self, request: AcquisitionRequest, dose_e_per_px: float | None = None) -> References:
         """A well-dosed gain reference without simulating hundreds of flood frames.
 
         A good gain reference integrates thousands of electrons per pixel, which
@@ -165,5 +164,5 @@ class Processor:
 def frames_for_exposure(exposure_s: float, fps: float) -> tuple[float, int]:
     """(frame_time_s, n_frames) that integrate ``exposure_s`` at ``fps``."""
     frame_time = 1.0 / fps
-    n = max(1, int(math.ceil(exposure_s * fps - 1e-9)))
+    n = max(1, math.ceil(exposure_s * fps - 1e-9))
     return min(frame_time, exposure_s), n

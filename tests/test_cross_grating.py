@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from de_twin.clock import ManualClock
 from de_twin.specimen.materials import MaterialId

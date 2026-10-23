@@ -49,9 +49,10 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, ClassVar
 
 from ..column.column import Column
 from ..column.errors import ColumnRefused
@@ -102,15 +103,15 @@ class TemChannelServer:
 
     def __init__(self, column: Column, host: str = "0.0.0.0", port: int = 5002, *,
                  enforce_service_ranges: bool = True, log_requests: bool = False,
-                 corrector_side: Optional[str] = None):
+                 corrector_side: str | None = None):
         self.column = column
         self.corrector_side = corrector_side
         self.host = host
         self._requested_port = int(port)
         self.enforce_service_ranges = enforce_service_ranges
         self.log_requests = log_requests
-        self._httpd: Optional[ThreadingHTTPServer] = None
-        self._thread: Optional[threading.Thread] = None
+        self._httpd: ThreadingHTTPServer | None = None
+        self._thread: threading.Thread | None = None
         self._ops_lock = threading.Lock()
         self._ops: dict[int, int] = {}
         self._global_op = OP_IDLE
@@ -130,7 +131,7 @@ class TemChannelServer:
         host = "127.0.0.1" if self.host in ("0.0.0.0", "") else self.host
         return f"http://{host}:{self.port}/"
 
-    def start(self) -> "TemChannelServer":
+    def start(self) -> TemChannelServer:
         if self._httpd is not None:
             return self
         server = self
@@ -138,7 +139,7 @@ class TemChannelServer:
         class Handler(BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
 
-            def log_message(self, fmt, *args):  # noqa: N802
+            def log_message(self, fmt, *args):
                 if server.log_requests:
                     log.info("%s - %s", self.address_string(), fmt % args)
 
@@ -168,12 +169,12 @@ class TemChannelServer:
                 self.wfile.write(data)
                 self.close_connection = True
 
-            def do_POST(self):  # noqa: N802
+            def do_POST(self):
                 body = self._read_body()
                 code, text = server.handle(body)
                 self._send(code, text)
 
-            def do_GET(self):  # noqa: N802
+            def do_GET(self):
                 if "wsdl" in self.path.lower():
                     for p in WSDL_CANDIDATES:
                         if p.exists():
@@ -202,7 +203,7 @@ class TemChannelServer:
             self._thread.join(timeout=5)
             self._thread = None
 
-    def __enter__(self) -> "TemChannelServer":
+    def __enter__(self) -> TemChannelServer:
         return self.start()
 
     def __exit__(self, *exc) -> None:
@@ -222,7 +223,7 @@ class TemChannelServer:
                                        f"not recognized", "SOAP-ENV:Client")
         try:
             element, out = handler(fields)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.exception("SOAP %s failed", op)
             return 500, fault_envelope(f"{op}: {exc}", "SOAP-ENV:Server")
         return 200, envelope(element, out)
@@ -259,7 +260,7 @@ class TemChannelServer:
                     return OP_RUNNING
             return self._ops.get(op_id, OP_IDLE)
 
-    def _set(self, op_key: Optional[str], fn: Callable[[], Any], *, stage_mask: int = 0) -> tuple[str, list]:
+    def _set(self, op_key: str | None, fn: Callable[[], Any], *, stage_mask: int = 0) -> tuple[str, list]:
         try:
             fn()
             ok = True
@@ -510,7 +511,7 @@ class TemChannelServer:
             if u is None:
                 return ok(False)
             w = wait_ms(f)
-            completed, still_running, why = u.set_beam_tilt(
+            completed, still_running, _why = u.set_beam_tilt(
                 _as_float(f, "x"), _as_float(f, "y"), _as_int(f, "relative") != 0,
                 wait_s=w / 1000.0, sleeper=sleeper())
             return ok(still_running if w == 0 else completed)
@@ -559,7 +560,7 @@ class TemChannelServer:
         }
 
     # ------------------------------------------------------------ getProperty
-    _PROPERTY_OPS = {
+    _PROPERTY_OPS: ClassVar[dict] = {
         "BeamBlank": "BEAMBLANK", "SpotSize": "SPOTSIZE", "Defocus": "DEFOCUS",
         "ScreenPosition": "SCREENPOSITION", "ColumnValvesOpen": "COLUMNVALVES",
         "ProjectionMode": "PROJECTIONMODE", "TemStemMode": "TEMSTEMMODE", "StageMode": "STAGEMODE",
@@ -584,11 +585,11 @@ class TemChannelServer:
                   "DiffractionFocus", "ScanRotation", "StageX", "StageY", "StageZ", "StageA",
                   "StageB"}
         if key in ints:
-            return "%d" % int(g(key))
+            return f"{int(g(key))}"
         if key in floats:
-            return "%.6g" % float(g(key))
+            return f"{float(g(key)):.6g}"
         if key == "ConvergenceAngle":
-            return "%.3f" % float(g("ConvergenceAngle"))
+            return "{:.3f}".format(float(g("ConvergenceAngle")))
         if key in ("VacuumGauges", "CryoInfo", "AutoloaderInfo"):
             return ""  # JEOL-shaped: no gauges/dewar/autoloader strings
         if key == "InstrumentType":
@@ -596,7 +597,7 @@ class TemChannelServer:
         for base in ("GunShift", "GunTilt", "ImageShift", "DiffractionShift", "BeamShift"):
             if key in (base + "X", base + "Y"):
                 v = g(base)
-                return "%.6g" % float(v[0] if key.endswith("X") else v[1])
+                return "{:.6g}".format(float(v[0] if key.endswith("X") else v[1]))
         return ""
 
     def _get_property(self, fields: dict) -> tuple[str, list]:
@@ -668,7 +669,7 @@ class TemChannelServer:
         if key == "ILLUM_ProbeMode":
             return str(int(g("ProbeMode")))
         if key == "ILLUM_ConvergenceAngle":
-            return "%.3f" % float(g("ConvergenceAngle"))
+            return "{:.3f}".format(float(g("ConvergenceAngle")))
         if key == "ILLUM_AlphaSelector":
             return str(int(g("AlphaSelector")))
         if key == "ILLUM_CondenserApertureIndex":

@@ -91,23 +91,40 @@ snap to the simulation grid (``dx``, ~0.02-0.05 nm; the true positions used are 
 
 from __future__ import annotations
 
-
 import math
 import threading
 from collections import OrderedDict
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import numpy as np
 from scipy import fft as sfft
 
 from ..optics.state import probe_aberrations_of
 from ..specimen.materials import GRAINS_PER_MATERIAL, MATERIALS
-from .diffraction import (THICKNESS_BIN_NM, Pattern, PatternOptions, PatternSet, annulus_fractions,
-                          bucket_patterns, diffuse_annulus_fraction, render_pattern, screening_angle_mrad)
-from .stem import _tilt_key, resolve_scan_point
 from . import stem_nb as _snb
+from .coherent_setup import (
+    Probe,
+    Sampling,
+    Tile,
+    _placement,
+    build_probe,
+    build_tile,
+    field_view,
+    plan_sampling,
+)
+from .diffraction import (
+    THICKNESS_BIN_NM,
+    Pattern,
+    PatternOptions,
+    PatternSet,
+    annulus_fractions,
+    bucket_patterns,
+    diffuse_annulus_fraction,
+    render_pattern,
+    screening_angle_mrad,
+)
+from .stem import _tilt_key, resolve_scan_point
 from .util import pool, shift_bilinear
-from .coherent_setup import (Probe, Sampling, Tile, _placement, build_probe, build_tile, field_view, plan_sampling)
 
 BLOCK_WORK = 4e8  # n^2 log2(n) x modes per block of scan points (~ 32 points of a 576^2, 4-mode grid)
 
@@ -124,10 +141,10 @@ class CoherentStem:
         self.config = config
         self.seed = seed
         self._lock = threading.RLock()  # the caches below; the read-ahead thread shares them
-        self._probes: "OrderedDict[tuple, Probe]" = OrderedDict()
-        self._samplings: "OrderedDict[tuple, Sampling]" = OrderedDict()
-        self._tiles: "OrderedDict[tuple, Tile]" = OrderedDict()
-        self._blocks: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+        self._probes: OrderedDict[tuple, Probe] = OrderedDict()
+        self._samplings: OrderedDict[tuple, Sampling] = OrderedDict()
+        self._tiles: OrderedDict[tuple, Tile] = OrderedDict()
+        self._blocks: OrderedDict[tuple, np.ndarray] = OrderedDict()
         self._inflight: dict = {}  # block key -> Future of the read-ahead computing it
         self._ahead = None  # single-thread executor of the read-ahead
         self._block_bytes = 0
@@ -173,7 +190,7 @@ class CoherentStem:
                     self._samplings.popitem(last=False)
             return hit
 
-    def probe(self, optics, build: bool = True) -> Optional[Probe]:
+    def probe(self, optics, build: bool = True) -> Probe | None:
         key = (self._probe_key(optics), self._cfg_key())
         with self._lock:
             p = self._probes.get(key)
@@ -249,7 +266,7 @@ class CoherentStem:
             return largest(lambda r: px(r, nx) <= limit, ny), nx
         return 1, largest(lambda c: px(1, c) <= limit, nx)
 
-    def _tile(self, ctx, optics, s: Sampling, view, build: bool = True) -> Optional[Tile]:
+    def _tile(self, ctx, optics, s: Sampling, view, build: bool = True) -> Tile | None:
         fm, token = ctx.field_map(view)
         key = (token, view, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
                optics.convergence_mrad, self.seed, self._cfg_key())
@@ -494,7 +511,7 @@ class CoherentStem:
         return pats, anns, bragg_w, keys, diffuse, shifts
 
     # ------------------------------------------------------ add-on patterns
-    def _bragg_pattern(self, ctx, optics, s: Sampling, key, center_b) -> Optional[np.ndarray]:
+    def _bragg_pattern(self, ctx, optics, s: Sampling, key, center_b) -> np.ndarray | None:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
         ck = ("coh-bragg", key, (hd, wd), rb, round(center_b[0], 3), round(center_b[1], 3), s.object_bandwidth,
@@ -652,7 +669,7 @@ class CoherentStem:
         if blk is None and fut is not None:
             try:
                 blk = fut.result()  # being read ahead: wait for it (it takes no lock we hold)
-            except Exception:  # noqa: BLE001 - compute it here instead
+            except Exception:
                 blk = None
         if blk is None:
             with self._lock:  # a new view: what is read ahead for another one is not wanted
@@ -718,7 +735,7 @@ class CoherentStem:
             self._store(key, blk)
             fut.set_result(blk)
             return True
-        except BaseException as e:  # noqa: BLE001 - the waiting render thread computes it itself
+        except BaseException as e:
             fut.set_exception(e)
             raise
         finally:
@@ -859,7 +876,7 @@ def choose_model(optics, config, sampling_fn: Callable[[], Sampling]) -> str:
         return m
     try:
         s = sampling_fn()
-    except Exception:  # noqa: BLE001 - degenerate geometry: fall back to the robust model
+    except Exception:
         return "kinematic"
     if s.truncated or s.n > config.coherent_max_grid:
         return "kinematic"

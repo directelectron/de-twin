@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -51,7 +50,7 @@ def _prepare(datacube, center):
     if center is None:
         center = (qx // 2, qy // 2)
     cx, cy = center
-    ix, iy = int(math.floor(cx)), int(math.floor(cy))
+    ix, iy = math.floor(cx), math.floor(cy)
     ex, ey = cx - ix, cy - iy
     amps = np.roll(amps, (-iy, -ix), axis=(1, 2))
     # model FFT index i must represent k = (i - e) dk: multiply the exit wave by exp(+2 pi i e j / N)
@@ -61,8 +60,8 @@ def _prepare(datacube, center):
 
 
 def epie(datacube: np.ndarray, positions_px: np.ndarray, probe: np.ndarray, *,
-         object_shape: Optional[tuple[int, int]] = None, iterations: int = 30, alpha: float = 1.0,
-         beta: float = 0.0, beta_start: int = 5, center: Optional[tuple[float, float]] = None,
+         object_shape: tuple[int, int] | None = None, iterations: int = 30, alpha: float = 1.0,
+         beta: float = 0.0, beta_start: int = 5, center: tuple[float, float] | None = None,
          seed: int = 0, dx_nm: float = 0.0, mode_weights=None, rpie: float = 1.0) -> PtychoResult:
     """Extended ptychographic iterative engine, optionally mixed-state (several probe modes).
 
@@ -141,7 +140,7 @@ def probe_modes_on_grid(gt: dict, shape: tuple[int, int]) -> tuple[np.ndarray, n
         F = np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(m), norm="ortho"))
         if abs(ratio - round(ratio)) > 1e-6:
             raise ValueError("detector pixel is not an integer number of simulation pixels")
-        r = int(round(ratio))
+        r = round(ratio)
         c = n // 2
         # detector k grid: k = (i - Q/2) dk_det for i in 0..Q-1 -> simulation index c + (i - Q/2) r
         iy = c + (np.arange(qy) - qy // 2) * r
@@ -155,7 +154,7 @@ def probe_modes_on_grid(gt: dict, shape: tuple[int, int]) -> tuple[np.ndarray, n
     return np.array(out), np.asarray(gt["mode_weights"], float)
 
 
-def align_phase(recon: np.ndarray, truth: np.ndarray, mask: Optional[np.ndarray] = None) -> tuple:
+def align_phase(recon: np.ndarray, truth: np.ndarray, mask: np.ndarray | None = None) -> tuple:
     """(recon x exp(-i c), c, (dy, dx)): remove the constant phase ``c`` (and report the integer
     global shift that best aligns recon onto truth)."""
     a = np.asarray(recon)
@@ -171,7 +170,7 @@ def align_phase(recon: np.ndarray, truth: np.ndarray, mask: Optional[np.ndarray]
     return a * np.exp(-1j * c), c, (int(dy), int(dx))
 
 
-def phase_correlation(recon: np.ndarray, truth: np.ndarray, mask: Optional[np.ndarray] = None) -> float:
+def phase_correlation(recon: np.ndarray, truth: np.ndarray, mask: np.ndarray | None = None) -> float:
     """Pearson correlation of the phases inside ``mask`` after removing the constant phase
     offset (phases taken relative to the truth's mean phase, so they do not wrap)."""
     a, _, _ = align_phase(recon, truth, mask)

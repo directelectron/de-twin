@@ -4,7 +4,7 @@ cell, and grain orientations tied to an in-plane angle."""
 from __future__ import annotations
 
 import math
-from typing import Iterator
+from collections.abc import Iterator
 
 import numpy as np
 
@@ -50,7 +50,7 @@ def cells_near(lx, ly, cell_um: float, reach_um: float) -> Iterator[tuple[int, i
             yield i, j
 
 
-def cell_rng(seed: int, salt: int, i: int, j: int) -> "CellRng":
+def cell_rng(seed: int, salt: int, i: int, j: int) -> CellRng:
     return CellRng(int(hash_seed(seed, SeedKind.STRUCTURE, (i * 73856093) ^ (j * 19349663), salt)))
 
 

@@ -8,7 +8,7 @@ render-side ones live in :class:`de_twin.render.RenderConfig`).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from ..state import ProbeMode, RenderMode
 
@@ -31,7 +31,7 @@ class OpticsConfig:
     eucentric_height_um: float = 0.0
     flip_x: bool = False
     flip_y: bool = False
-    render_mode_override: Optional[RenderMode] = None  # None = Auto
+    render_mode_override: RenderMode | None = None  # None = Auto
     #: The largest raster a TEM image is rendered at (pixels); a bigger frame is upsampled
     #: from it (`OpticsState.raster_downsample` says by how much). 0 renders at the
     #: frame's own sampling: what a CTF or MTF measurement needs, since an upsampled frame
@@ -82,10 +82,10 @@ class OpticsConfig:
     intensity_zoom_reference_mag: float = 20000.0
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
-    realism: Optional[ColumnRealism] = None
+    realism: ColumnRealism | None = None
 
     @classmethod
-    def realistic(cls, seed: int = 0, **overrides) -> "OpticsConfig":
+    def realistic(cls, seed: int = 0, **overrides) -> OpticsConfig:
         """A column as imperfect as a real one (:mod:`de_twin.optics.realism`), reproducibly."""
         from .realism import ColumnRealism
 

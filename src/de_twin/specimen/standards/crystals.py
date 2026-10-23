@@ -8,7 +8,7 @@ import numpy as np
 
 from ..materials import MaterialId
 from ..structures import _claim, _owner_pixels, _resolved
-from .common import StandardStructure, structure_seed, angle_grain, angle_overrides, cell_rng, cells_near
+from .common import StandardStructure, angle_grain, angle_overrides, cell_rng, cells_near, structure_seed
 from .replica import carbon_equivalent
 
 

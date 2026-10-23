@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -22,10 +21,18 @@ from .holders import Holder, PlacementArea
 from .materials import MaterialId, material
 from .options import SpecimenOptions
 from .raster import MAX_FACETS, Layer, PrimitiveSet, Profile, Shape
-from .structures import (JunctionStructure, MultilayerStructure, PrecipitatesStructure,
-                         ProteinFieldStructure, StrainFieldStructure, ThinFilmStructure,
-                         TimeEvolvingStructure, VoronoiGrainsStructure, protein_mean_thickness_nm,
-                         thin_film_mean_thickness_nm)
+from .structures import (
+    JunctionStructure,
+    MultilayerStructure,
+    PrecipitatesStructure,
+    ProteinFieldStructure,
+    StrainFieldStructure,
+    ThinFilmStructure,
+    TimeEvolvingStructure,
+    VoronoiGrainsStructure,
+    protein_mean_thickness_nm,
+    thin_film_mean_thickness_nm,
+)
 
 BOUNDING_SLACK = 1.15
 FACET_JITTER = 0.12
@@ -56,7 +63,7 @@ class Batch:
 
 
 def _rect_prim(area: PlacementArea, thickness, material_id, seed, *, rotation=0.0, grain=-1,
-               structure: Optional[object] = None, aggregate=False, layer=Layer.PREPARATION) -> PrimitiveSet:
+               structure: object | None = None, aggregate=False, layer=Layer.PREPARATION) -> PrimitiveSet:
     hx, hy = abs(area.half[0]), abs(area.half[1])
     return PrimitiveSet.make(area.center[0], area.center[1], hx, hy, rot=rotation, shape=Shape.RECT,
                              thickness=thickness, profile=Profile.FLAT, layer=layer, material=material_id,
@@ -317,7 +324,7 @@ class CrossGratingPreparation(Preparation):
     kind = "cross_grating"
 
     def __init__(self, lines_per_mm: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5,
-                 metal: Optional[int] = MaterialId.PLATINUM, metal_nm: float = 2.0,
+                 metal: int | None = MaterialId.PLATINUM, metal_nm: float = 2.0,
                  elevation_deg: float = 30.0, azimuth_deg: float = 45.0):
         self.period_um = 1000.0 / max(float(lines_per_mm), 1e-6)
         self.base, self.depth, self.w = float(base_nm), float(depth_nm), float(line_fraction)

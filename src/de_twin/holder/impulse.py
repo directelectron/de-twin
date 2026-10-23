@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from typing import Any, Optional
+from typing import Any
 
 from ..state import HolderState
 from .base import DEFAULT_RAMP_RATE, ChannelUnsupported, Reading, clock_fn
@@ -20,7 +20,7 @@ from .base import DEFAULT_RAMP_RATE, ChannelUnsupported, Reading, clock_fn
 log = logging.getLogger(__name__)
 
 
-def _field(data: Any, *names: str) -> Optional[float]:
+def _field(data: Any, *names: str) -> float | None:
     """First of ``names`` the sample carries (attribute or key), as a float."""
     for name in names:
         value = getattr(data, name, None)
@@ -41,7 +41,7 @@ _IMPORT: dict = {}
 _IMPORT_LOCK = threading.Lock()
 
 
-def import_impulse(timeout_s: Optional[float] = None):
+def import_impulse(timeout_s: float | None = None):
     """``impulsePy``, imported on a thread of its own: a TimeoutError rather than a hang
     when Impulse is not running. An import still stuck from an earlier call fails at once
     (a second import would only queue behind it on the import lock)."""
@@ -58,7 +58,7 @@ def import_impulse(timeout_s: Optional[float] = None):
             def run():
                 try:
                     result["module"] = importlib.import_module("impulsePy")
-                except BaseException as e:  # noqa: BLE001 - re-raised on the caller's thread
+                except BaseException as e:
                     result["error"] = e
                 finally:
                     done.set()
@@ -90,7 +90,7 @@ class ImpulseFollower:
         self._now = clock_fn(clock)
         self._lock = threading.RLock()
         self._target = float("nan")
-        self._bias_target: Optional[float] = None
+        self._bias_target: float | None = None
         self.channels = ("temperature",) + (("bias",) if getattr(impulse, "bias", None) is not None else ())
 
     def _channel(self, name: str):
@@ -107,7 +107,7 @@ class ImpulseFollower:
     def busy(self) -> bool:
         try:
             return bool(self._impulse.heat.busy)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             log.debug("heat.busy failed: %s", e)
             return False
 
@@ -123,7 +123,7 @@ class ImpulseFollower:
             try:
                 with self._lock:
                     bias_data = self._impulse.bias.data.getLastData()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log.debug("bias.getLastData failed: %s", e)
             else:
                 bv = _field(bias_data, "voltage", "measuredVoltage", "bias")
@@ -146,8 +146,8 @@ class ImpulseFollower:
             else:
                 self._target = float(value)
 
-    def ramp(self, value: float, *, rate_c_per_s: Optional[float] = None,
-             seconds: Optional[float] = None, channel: str = "temperature") -> None:
+    def ramp(self, value: float, *, rate_c_per_s: float | None = None,
+             seconds: float | None = None, channel: str = "temperature") -> None:
         with self._lock:
             module = self._channel(channel)
             if seconds and seconds > 0 and not rate_c_per_s:
@@ -163,13 +163,13 @@ class ImpulseFollower:
         with self._lock:
             try:
                 self._impulse.heat.stopRamp()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log.warning("stopRamp failed: %s", e)
 
     def flag(self, text: str) -> None:
         try:
             self._impulse.heat.data.setFlag(str(text))
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             log.debug("setFlag(%r) failed: %s", text, e)
 
     def describe(self) -> str:
@@ -181,7 +181,7 @@ class ImpulseFollower:
         def _wait() -> None:
             try:
                 self._impulse.waitForControl()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log.warning("waitForControl failed: %s", e)
             finally:
                 done.set()
@@ -189,7 +189,7 @@ class ImpulseFollower:
         threading.Thread(target=_wait, daemon=True, name="impulse-control").start()
         return done.wait(timeout_s)
 
-    def state(self, t: Optional[float] = None) -> HolderState:
+    def state(self, t: float | None = None) -> HolderState:
         """The holder's latest sample as a HolderState (``t`` only stamps it)."""
         r = self.read()
         if t is None:
@@ -205,5 +205,5 @@ class ImpulseFollower:
     def close(self) -> None:
         try:
             self._impulse.disconnect()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             log.debug("impulse disconnect failed: %s", e)

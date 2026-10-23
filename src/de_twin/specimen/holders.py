@@ -23,15 +23,20 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
 from ..hashing import SeedKind, hash_seed, rng_for, uniform_from_hash
-from .geometry import (AABB, NM_PER_UM, polygon_mask_rows, rotated_rect_half_extent, value_noise,
-                       value_noise_separable)
 from . import raster_nb as _rnb
-from .geometry import _separable_noise_tables
+from .geometry import (
+    AABB,
+    NM_PER_UM,
+    _separable_noise_tables,
+    polygon_mask_rows,
+    rotated_rect_half_extent,
+    value_noise,
+    value_noise_separable,
+)
 from .materials import MaterialId
 from .options import SpecimenOptions
 from .raster import Layer, PrimitiveSet, Profile, Shape, iter_patches
@@ -184,7 +189,7 @@ class PlacementArea:
     film_broken: bool = False
     film_thickness_nm: float = 0.0
     post_index: int = -1
-    feature_kind: Optional[int] = None  # BulkSampleKind index for lamellae
+    feature_kind: int | None = None  # BulkSampleKind index for lamellae
 
     @property
     def half_span(self) -> float:
@@ -329,7 +334,7 @@ class Holder:
         self._usable2 = usable ** 2
         self._noise_scale = NM_PER_UM / f.granularity_correlation_nm if f.granularity_correlation_nm > 0 else 0.0
 
-        span = int(math.ceil(m.disk_radius_um / m.pitch_um)) + 2
+        span = math.ceil(m.disk_radius_um / m.pitch_um) + 2
         self._cell_origin = -span
         self._cell_count = 2 * span + 1
         self._cell_area = np.full((self._cell_count, self._cell_count), -1, np.int32)

@@ -222,7 +222,7 @@ def _de_microscope():
         sys.path.insert(0, DE_MICROSCOPE)
     try:
         import de_microscope
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         pytest.skip(f"de_microscope not importable: {exc}")
     return de_microscope
 
@@ -236,7 +236,7 @@ def test_de_microscope_client(server, column):
             continue
         try:
             scope[name]
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             errors[name] = exc
     assert not errors, errors
     assert scope["InstrumentType"] == "JEOL"
@@ -297,7 +297,7 @@ def test_replay_recorded_samples(column):
         assert list(got) == list(want), (req_path, list(got), list(want))
         for tag, recorded in want.items():
             # the regex extraction de_microscope uses finds every recorded tag
-            assert re.search(r"<%s[^>]*>(.*?)</%s>" % (tag, tag), xml, re.S), (req_path, tag)
+            assert re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", xml, re.DOTALL), (req_path, tag)
             if recorded not in ("", None) and tag != "r":
                 float(got[tag])  # numeric where the sample is numeric
         replayed += 1

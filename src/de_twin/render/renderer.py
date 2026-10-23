@@ -22,7 +22,6 @@ import itertools
 import math
 import threading
 from collections import OrderedDict
-from typing import Optional
 
 import numpy as np
 
@@ -107,7 +106,7 @@ def _pad_len(n: int, margin: float, margin_px: int | None = None) -> int:
     a fast FFT length."""
     from scipy.fft import next_fast_len
 
-    p = n + 2 * (int(margin_px) if margin_px is not None else int(round(margin * n)))
+    p = n + 2 * (int(margin_px) if margin_px is not None else round(margin * n))
     while next_fast_len(p) != p:
         p += 2
     return p
@@ -123,7 +122,7 @@ GUARD_LEVELS_PX = (64, 128, 256, 512)
 #: guard: <5e-4 RMS at 3k-25k, <1e-3 to 100k; see tests/test_render_caches.py).
 GUARD_LEAK = 1e-4
 GUARD_FACTOR = 1.3
-_SPREAD_CACHE: "OrderedDict[tuple, float]" = OrderedDict()
+_SPREAD_CACHE: OrderedDict[tuple, float] = OrderedDict()
 _RADII: dict = {}
 
 
@@ -200,7 +199,7 @@ def _crop(raster, center_um, view):
     oc, orow = _lattice(view, *center_um)
     fc = (px - nx) / 2 + (lc - oc)
     fr = (py - ny) / 2 + (lr - orow)
-    c0, r0 = int(round(fc)), int(round(fr))
+    c0, r0 = round(fc), round(fr)
     if r0 < 0 or c0 < 0 or r0 + ny > py or c0 + nx > px:
         return None
     if abs(fc - c0) < SUBPIXEL_TOLERANCE_PX and abs(fr - r0) < SUBPIXEL_TOLERANCE_PX:
@@ -218,22 +217,22 @@ def _crop(raster, center_um, view):
 
 
 class Renderer:
-    def __init__(self, specimen, config: Optional[RenderConfig] = None):
+    def __init__(self, specimen, config: RenderConfig | None = None):
         self.specimen = specimen
         self.config = config or RenderConfig()
         self.cache = DiffractionCache(self.config.diffraction_cache_mb)
-        self._fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
-        self._preview_fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
+        self._fieldmaps: OrderedDict[tuple, tuple] = OrderedDict()
+        self._preview_fieldmaps: OrderedDict[tuple, tuple] = OrderedDict()
         # the coherent STEM engine's fine views: their own store, so the transmission tiles of a
         # sparse scan (one per point) do not push out the scan's own field map
-        self._fine_fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
+        self._fine_fieldmaps: OrderedDict[tuple, tuple] = OrderedDict()
         self._tokens = itertools.count(1)
         self._tem_cache = TransferCache()
-        self._frame: Optional[tuple] = None
+        self._frame: tuple | None = None
         self._saed = SaedRenderer(self.config)
         self._stem = StemRenderer(self.cache, self.config, self.seed)
         self._coherent = CoherentStem(self.cache, self.config, self.seed)
-        self._grains_fallback: Optional[GrainTable] = None
+        self._grains_fallback: GrainTable | None = None
         self._lock = threading.RLock()  # render() and a prefetching thread share the caches
         self._prefetch_tem = TransferCache(size=1)
         self._inflight = None  # (optics, threading.Event) of the view being prefetched
@@ -249,7 +248,7 @@ class Renderer:
         return int(getattr(config, "seed", 42) or 42)
 
     @property
-    def grains(self) -> Optional[GrainTable]:
+    def grains(self) -> GrainTable | None:
         g = getattr(self.specimen, "grains", None)
         if g is None:
             if self._grains_fallback is None:
@@ -301,7 +300,7 @@ class Renderer:
                                            threads=max(1, int(self.config.raster_threads)))
         return self.specimen.rasterize(view, layers)
 
-    def _keep_field_map(self, store, key, fm, token, size: Optional[int] = None) -> None:
+    def _keep_field_map(self, store, key, fm, token, size: int | None = None) -> None:
         store[key] = (fm, token, getattr(fm, "generation", 0))
         store.move_to_end(key)
         while len(store) > max(1, self.config.fieldmap_cache_size if size is None else size):
@@ -444,8 +443,8 @@ class Renderer:
             dc, dr = lc - oc, lr - orow
             if abs(dc - round(dc)) > 1e-3 or abs(dr - round(dr)) > 1e-3:
                 continue  # not on the same lattice
-            dc = int(round(dc)) + (ox - nx) // 2  # new pixel (r, c) is old pixel (r + dr, c + dc)
-            dr = int(round(dr)) + (oy - ny) // 2
+            dc = round(dc) + (ox - nx) // 2  # new pixel (r, c) is old pixel (r + dr, c + dc)
+            dr = round(dr) + (oy - ny) // 2
             area = (max(0, min(ny, oy - dr) - max(0, -dr))) * (max(0, min(nx, ox - dc) - max(0, -dc)))
             if area > best_area:
                 best, best_area = (fm, dr, dc, oy, ox), area
@@ -685,7 +684,7 @@ class Renderer:
         """The coherent simulation's :class:`~de_twin.render.coherent_setup.Sampling` for these optics."""
         return self._coherent.sampling(optics)
 
-    def datacube(self, optics, *, time_s: float = 0.0, model: Optional[str] = None) -> np.ndarray:
+    def datacube(self, optics, *, time_s: float = 0.0, model: str | None = None) -> np.ndarray:
         """Noiseless 4D-STEM data: float32 (scan ny, nx, Hd, Wd) at the *binned* detector shape,
         electrons per binned pixel per second."""
         if optics.render_mode not in (RenderMode.STEM_4D, RenderMode.STEM_PARKED):
@@ -733,7 +732,7 @@ class Renderer:
         return self._stem.virtual_image(fm, token, optics, self.grains, self.crystallinity,
                                         float(inner_mrad), float(outer_mrad))
 
-    def warm_up(self, optics, max_patterns: Optional[int] = None, budget_s: float = 0.5,
+    def warm_up(self, optics, max_patterns: int | None = None, budget_s: float = 0.5,
                 time_s: float = 0.0) -> int:
         """Pre-render the most used STEM patterns of the current view (C++ WarmUpCache)."""
         if optics.render_mode not in (RenderMode.STEM_4D, RenderMode.STEM_PARKED):

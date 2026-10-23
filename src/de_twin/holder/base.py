@@ -16,8 +16,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from ..state import HolderState
 
@@ -41,12 +41,12 @@ class Reading:
     measured: float
     target: float
     t: float
-    power: Optional[float] = None
-    resistance: Optional[float] = None
-    voltage: Optional[float] = None
-    current: Optional[float] = None
+    power: float | None = None
+    resistance: float | None = None
+    voltage: float | None = None
+    current: float | None = None
     source: str = "heater"
-    bias_target: Optional[float] = None
+    bias_target: float | None = None
 
     @property
     def settled(self) -> bool:
@@ -72,7 +72,7 @@ class ChannelUnsupported(RuntimeError):
     """Asked for a stimulus this holder does not have (e.g. biasing a heating-only chip)."""
 
 
-def clock_fn(clock) -> Optional[Callable[[], float]]:
+def clock_fn(clock) -> Callable[[], float] | None:
     if clock is None:
         return None
     now = getattr(clock, "now", None)
@@ -118,7 +118,7 @@ class NoHolder:
     def wait_for_control(self, timeout_s: float = 30.0) -> bool:
         return True
 
-    def state(self, t: Optional[float] = None) -> HolderState:
+    def state(self, t: float | None = None) -> HolderState:
         return HolderState(kind="none", t_s=self._t() if t is None else float(t))
 
     def close(self) -> None:

@@ -33,7 +33,6 @@ import logging
 import math
 import threading
 import time
-from typing import Optional
 
 from ..hashing import hash_seed, normal_from_hash
 from ..state import HolderState
@@ -196,7 +195,7 @@ class SimHeatingHolder:
     def _noise(self, t: float) -> float:
         if self.noise_c <= 0:
             return 0.0
-        return self.noise_c * float(normal_from_hash(hash_seed(self.seed, 77, int(round(t * 1000)))))
+        return self.noise_c * float(normal_from_hash(hash_seed(self.seed, 77, round(t * 1000))))
 
     # ---------------------------------------------------------- duck type
     @property
@@ -247,8 +246,8 @@ class SimHeatingHolder:
                 return
             self._retarget(value, math.inf)
 
-    def ramp(self, value: float, *, rate_c_per_s: Optional[float] = None,
-             seconds: Optional[float] = None, channel: str = "temperature") -> None:
+    def ramp(self, value: float, *, rate_c_per_s: float | None = None,
+             seconds: float | None = None, channel: str = "temperature") -> None:
         self._check(channel)
         with self._lock:
             if channel == "bias":
@@ -285,7 +284,7 @@ class SimHeatingHolder:
     def wait_for_control(self, timeout_s: float = 30.0) -> bool:
         return True
 
-    def state(self, t: Optional[float] = None) -> HolderState:
+    def state(self, t: float | None = None) -> HolderState:
         """HolderState at clock time ``t`` (default now). ``t`` in the past reads the
         current state (the model does not rewind)."""
         t = self._clock() if t is None else float(t)

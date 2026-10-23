@@ -122,7 +122,7 @@ class ColumnRealism(DefocusAndTruth):
     hd_rotation_deg_per_um: float = 0.01
 
     def _key(self, mag_mode, mag: float) -> tuple[int, int]:
-        return _mode_id(mag_mode), int(round(float(mag)))
+        return _mode_id(mag_mode), round(float(mag))
 
     def rotation_rad(self, mag_mode, mag: float) -> float:
         """How far the image is rotated on the camera, radians (world -> camera)."""

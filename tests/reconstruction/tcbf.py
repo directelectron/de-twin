@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -105,7 +104,7 @@ def _basis(kx, ky, lam, order):
 
 
 def tcbf(datacube: np.ndarray, *, recip_px_inv_nm: float, scan_step_nm: float, wavelength_nm: float,
-         center: Optional[tuple[float, float]] = None, radius: Optional[float] = None,
+         center: tuple[float, float] | None = None, radius: float | None = None,
          edge: float = 0.85, max_pixels: int = 150, iterations: int = 3, fit_order: int = 1,
          rotation_hint_rad: float = 0.0, upsample: int = 1, ctf_correct: bool = False,
          reference_radius: float = 0.25) -> TcbfResult:

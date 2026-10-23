@@ -7,13 +7,19 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.testing import (Particle, StubCamera, SyntheticSpecimen, fit_defocus, on_zone_grains,
-                                    phase_correlation_shift)
+from de_twin.render.testing import (
+    Particle,
+    StubCamera,
+    SyntheticSpecimen,
+    fit_defocus,
+    on_zone_grains,
+    phase_correlation_shift,
+)
 from de_twin.specimen.materials import MaterialId
 from de_twin.state import Vec2
-from perf_budget import budget
 
 CAM1K = StubCamera(sensor_shape=(1024, 1024))
 CAM512 = StubCamera(sensor_shape=(512, 512))

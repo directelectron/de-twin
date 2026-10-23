@@ -23,12 +23,30 @@ from ..materials import MaterialId
 from .common import StandardStructure
 from .crystals import MoO3LathsStructure
 from .films import PolycrystalFilmStructure
-from .replica import (LatexSpheres, ShadowedReplicaStructure, WaffleGrating, carbon_equivalent, fbm,
-                      island_film)
+from .replica import (
+    LatexSpheres,
+    ShadowedReplicaStructure,
+    WaffleGrating,
+    carbon_equivalent,
+    fbm,
+    island_film,
+)
 
-__all__ = ["PRODUCTS", "Product", "build_structure", "mean_thickness_nm", "preset_name", "LatexSpheres",
-           "ShadowedReplicaStructure", "WaffleGrating", "StandardStructure", "island_film", "fbm",
-           "carbon_equivalent", "FAMILIES"]
+__all__ = [
+    "FAMILIES",
+    "PRODUCTS",
+    "LatexSpheres",
+    "Product",
+    "ShadowedReplicaStructure",
+    "StandardStructure",
+    "WaffleGrating",
+    "build_structure",
+    "carbon_equivalent",
+    "fbm",
+    "island_film",
+    "mean_thickness_nm",
+    "preset_name",
+]
 
 
 @dataclass(frozen=True)
@@ -111,9 +129,9 @@ del G, D
 def build_structure(number: str) -> StandardStructure:
     """The structure of product *number* (see :data:`PRODUCTS`)."""
     P2160 = 1.0 / 2.160
-    au = dict(metal=MaterialId.GOLD)  # Au/Pd: gold stands in for the alloy
-    old, new = dict(edge_nm=10.0, edge_corr_nm=60.0, wavy_nm=40.0, wavy_um=1.2), dict(
-        edge_nm=3.0, edge_corr_nm=80.0, wavy_nm=6.0, wavy_um=3.0)
+    au = {"metal": MaterialId.GOLD}  # Au/Pd: gold stands in for the alloy
+    old, new = {"edge_nm": 10.0, "edge_corr_nm": 60.0, "wavy_nm": 40.0, "wavy_um": 1.2}, {
+        "edge_nm": 3.0, "edge_corr_nm": 80.0, "wavy_nm": 6.0, "wavy_um": 3.0}
     # The current gratings (607, 603, 606, 677, 673): square wells between narrow raised lines,
     # shadowed along the diagonal at a low angle, so each well floor has a bare L-shaped shadow
     # and the rest a grainy coat. The lines are sawtooth (a steep wall and a gentle slope, as

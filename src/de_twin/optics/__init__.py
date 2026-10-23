@@ -1,7 +1,13 @@
 """Column optics: calibration, beam model and the frozen per-acquisition OpticsState."""
 
-from .beam import (beam_current_pa, beam_electrons_per_s, current_density_e_per_nm2_s,
-                   illuminated_diameter_um, illumination_semi_angle_mrad, probe_d0_nm)
+from .beam import (
+                   beam_current_pa,
+                   beam_electrons_per_s,
+                   current_density_e_per_nm2_s,
+                   illuminated_diameter_um,
+                   illumination_semi_angle_mrad,
+                   probe_d0_nm,
+)
 from .calibration import Calibration, MagProject
 from .config import OpticsConfig
 from .derive import derive_optics, select_render_mode, track_live_view, view_center_um

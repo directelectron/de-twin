@@ -105,7 +105,7 @@ def test_drift_rates_configurable():
 
 # ------------------------------------------------------------------ tune perturbations
 def test_ht_change_detunes():
-    col, clk = stem_column(4)
+    col, _clk = stem_column(4)
     before = col.corrector.get()
     angle = col.corrector.pi4_angle_mrad()
     col.set_ht_kv(300)
@@ -134,7 +134,7 @@ def test_tableau_status_timing_and_result():
     col, clk = stem_column(1)
     u = col.corrector.served
     assert u.status() == IDLE
-    ok, why = u.post_tableau("Standard")
+    ok, _why = u.post_tableau("Standard")
     assert ok and u.status() == RUNNING
     assert u.post_measure_c1a1() == (False, "the corrector is busy")
     clk.advance(1.0)
@@ -153,7 +153,7 @@ def test_tableau_status_timing_and_result():
 
 
 def test_measurement_includes_operator_focus_and_stig():
-    col, clk = stem_column(1)
+    col, _clk = stem_column(1)
     truth = col.corrector.get()
     col.set_defocus_um(0.05)
     col.set_condenser_stig(0.01, -0.02)
@@ -177,7 +177,7 @@ def test_measure_refused_without_beam_or_wrong_mode():
 
 
 def test_out_of_tune_needs_small_tableau():
-    col, clk = stem_column(7)
+    col, _clk = stem_column(7)
     col.corrector.set("C3", 5e5)  # 0.5 mm of C3 left: outer tilts defocus beyond range
     with pytest.raises(CorrectorError, match="measurement range"):
         col.corrector.measure("Enhanced")
@@ -187,7 +187,7 @@ def test_out_of_tune_needs_small_tableau():
 
 # ------------------------------------------------------------------ correct
 def test_correct_needs_an_estimate_and_is_imperfect():
-    col, clk = stem_column(2)
+    col, _clk = stem_column(2)
     corr = col.corrector
     with pytest.raises(CorrectorError, match="No value for aberration B2 available"):
         corr.correct("B2")
@@ -203,7 +203,7 @@ def test_correct_needs_an_estimate_and_is_imperfect():
 
 
 def test_partial_correction_fraction():
-    col, clk = stem_column(2)
+    col, _clk = stem_column(2)
     corr = col.corrector
     corr.set("A2", 400 + 0j)
     corr.correct("A2", fraction=0.5, value_nm=400 + 0j)
@@ -250,7 +250,7 @@ def test_auto_tune_converges_after_ht_change(seed):
 
 # ------------------------------------------------------------------ misc ops
 def test_alignment_save_and_load_restores_the_tune():
-    col, clk = stem_column(3)
+    col, _clk = stem_column(3)
     corr = col.corrector
     good = corr.get()
     data = corr.save_alignment()
@@ -271,7 +271,7 @@ def test_beam_tilt_relative_and_absolute():
     assert corr.beam_tilt == (0.0, 0.0, False)
     u = corr.served
     # absolute with no WD estimate refuses, like CEOS
-    completed, running, why = u.set_beam_tilt(1e-3, 0.0, relative=False, wait_s=1.0,
+    completed, _running, why = u.set_beam_tilt(1e-3, 0.0, relative=False, wait_s=1.0,
                                               sleeper=clk.sleep)
     assert not completed and "No value for aberration WD available" in why
     corr.set_beam_tilt(1e-3, 0.0)

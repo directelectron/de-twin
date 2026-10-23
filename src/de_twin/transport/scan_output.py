@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -129,7 +128,7 @@ class ScanOutputReader(_Mapping):
                             flip=(bool(h.flip_horizontal), bool(h.flip_vertical)),
                             points_per_frame=h.points_per_frame or 1.0, total_points=h.total_points)
 
-    def volts(self, point: int) -> Optional[tuple[float, float]]:
+    def volts(self, point: int) -> tuple[float, float] | None:
         """The (H, V) voltages of *point*, or None when they have not been written yet (or
         were written so long ago that the ring has overwritten them)."""
         written = self.written
@@ -152,7 +151,7 @@ class ScanOutputReader(_Mapping):
         out[kept] = self._points[held[kept] % self.capacity]
         return out
 
-    def latest(self) -> Optional[tuple[int, tuple[float, float]]]:
+    def latest(self) -> tuple[int, tuple[float, float]] | None:
         """The last point written and its voltages: where the coils are left driven."""
         written = self.written
         if written == 0:

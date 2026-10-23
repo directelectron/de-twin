@@ -21,8 +21,8 @@ the CTF convention already used by the TEM renderer.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping
 
 import numpy as np
 
@@ -67,7 +67,7 @@ class Aberrations:
 
     # ---------------------------------------------------------- construction
     @classmethod
-    def from_polar(cls, **mag_angle) -> "Aberrations":
+    def from_polar(cls, **mag_angle) -> Aberrations:
         """``Aberrations.from_polar(A1=(5.0, 30.0), C3=1.2e6)``: magnitude nm, azimuth deg."""
         out = {}
         for k, v in mag_angle.items():
@@ -80,7 +80,7 @@ class Aberrations:
                 out[k] = complex(v)
         return cls(out)
 
-    def copy(self) -> "Aberrations":
+    def copy(self) -> Aberrations:
         return Aberrations(dict(self.coeffs))
 
     def __getitem__(self, name: str) -> complex:
@@ -88,21 +88,21 @@ class Aberrations:
             raise KeyError(name)
         return self.coeffs.get(name, 0j)
 
-    def __add__(self, other: "Aberrations | Mapping[str, complex]") -> "Aberrations":
+    def __add__(self, other: Aberrations | Mapping[str, complex]) -> Aberrations:
         o = other.coeffs if isinstance(other, Aberrations) else dict(other)
         out = dict(self.coeffs)
         for k, v in o.items():
             out[k] = out.get(k, 0j) + complex(v)
         return Aberrations(out)
 
-    def __sub__(self, other: "Aberrations | Mapping[str, complex]") -> "Aberrations":
+    def __sub__(self, other: Aberrations | Mapping[str, complex]) -> Aberrations:
         o = other.coeffs if isinstance(other, Aberrations) else dict(other)
         return self + {k: -complex(v) for k, v in o.items()}
 
-    def scaled(self, factor: float) -> "Aberrations":
+    def scaled(self, factor: float) -> Aberrations:
         return Aberrations({k: v * factor for k, v in self.coeffs.items()})
 
-    def only(self, names: Iterable[str]) -> "Aberrations":
+    def only(self, names: Iterable[str]) -> Aberrations:
         names = set(names)
         return Aberrations({k: v for k, v in self.coeffs.items() if k in names})
 

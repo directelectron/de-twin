@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from ..specimen.fieldmap import ViewWindow
 from ..state import RenderMode
@@ -73,7 +72,7 @@ class OpticsState:
     scan_step_um: float = 0.0
     scan_shape: tuple[int, int] = (0, 0)  # (ny, nx) scan points
     scan_rotation_rad: float = 0.0
-    park_um: Optional[tuple[float, float]] = None  # parked probe position (world um)
+    park_um: tuple[float, float] | None = None  # parked probe position (world um)
 
     # Raster downsample: output pixels per raster pixel (TEM); 1 = no resample
     raster_downsample: int = 1
