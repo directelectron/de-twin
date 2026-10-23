@@ -129,20 +129,20 @@ def test_a_bad_area_setting_is_refused_and_changes_nothing():
 
 
 def test_a_refused_switch_leaves_the_column_as_it_was(monkeypatch):
-    import de_twin.column.column as colmod
+    import de_twin.column.properties as colmod
 
     c = _col()
     c.set("LowDose", True)
     s0 = c.state()
-    real = colmod._SETTERS["ImageShift"]
+    real = colmod.SETTERS["ImageShift"]
 
     def refuse(col, v):
         raise ColumnRefused("no")
 
-    monkeypatch.setitem(colmod._SETTERS, "ImageShift", refuse)
+    monkeypatch.setitem(colmod.SETTERS, "ImageShift", refuse)
     with pytest.raises(ColumnRefused):
         c.set("LowDoseArea", "View")
-    monkeypatch.setitem(colmod._SETTERS, "ImageShift", real)
+    monkeypatch.setitem(colmod.SETTERS, "ImageShift", real)
     s1 = c.state()
     assert c.get("LowDoseArea") == "Record"
     assert (s1.magnification, s1.defocus_um, s1.spot_size) == (s0.magnification, s0.defocus_um, s0.spot_size)

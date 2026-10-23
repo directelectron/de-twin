@@ -22,15 +22,10 @@ from typing import Any, Optional
 
 from ..state import MicroscopeState, ProbeMode, Projection, StagePosition, TemStem, Vec2
 from . import ladders as L
-from .column import (
-    BEAM_TILT_MRAD_PER_UNIT,
-    DIFF_SHIFT_MRAD_PER_UNIT,
-    Column,
-    ColumnRefused,
-    is_tfs,
-    probe_mode_from_raw,
-    screen_from_raw,
-)
+from .column import Column
+from .errors import ColumnRefused
+from .properties import BEAM_TILT_MRAD_PER_UNIT, DIFF_SHIFT_MRAD_PER_UNIT
+from .vendor import is_tfs, probe_mode_from_raw, screen_from_raw
 from .soap import BATCH_KEYS, SoapError, SoapTemChannelClient
 
 log = logging.getLogger(__name__)
@@ -387,7 +382,7 @@ class MirrorColumn(Column):
                 value = (value["x"], value["y"])
             value = tuple(float(v) for v in value)
         if name == "ProbeMode" and not isinstance(value, (int, float)) and not str(value).lstrip("-").isdigit():
-            from .column import probe_mode_to_raw
+            from .vendor import probe_mode_to_raw
             pm = value if isinstance(value, ProbeMode) else ProbeMode[str(value).upper()]
             value = probe_mode_to_raw(self.instrument_type, pm)
         if name == "StagePosition":

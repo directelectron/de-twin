@@ -53,7 +53,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from ..column.column import Column, ColumnRefused
+from ..column.column import Column
+from ..column.errors import ColumnRefused
 from ..column.soap import PROP_OP, SoapError, envelope, fault_envelope, parse_body
 
 log = logging.getLogger(__name__)

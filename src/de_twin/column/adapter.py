@@ -20,7 +20,9 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable, Optional
 
-from .column import Column, ColumnRefused, is_tfs
+from .column import Column
+from .errors import ColumnRefused
+from .vendor import is_tfs
 
 log = logging.getLogger(__name__)
 
