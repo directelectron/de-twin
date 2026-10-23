@@ -18,8 +18,21 @@ from de_twin.holder import (
 )
 from de_twin.state import HolderState
 
-DUCK = ("real", "reason", "channels", "busy", "read", "set", "ramp", "stop", "flag", "describe",
-        "wait_for_control", "close", "state")
+DUCK = (
+    "real",
+    "reason",
+    "channels",
+    "busy",
+    "read",
+    "set",
+    "ramp",
+    "stop",
+    "flag",
+    "describe",
+    "wait_for_control",
+    "close",
+    "state",
+)
 
 
 @pytest.fixture
@@ -177,8 +190,16 @@ class _FakeChannel:
 
 def _fake_impulse(bias=False):
     mod = types.SimpleNamespace()
-    mod.heat = _FakeChannel({"temperature": 301.5, "targetTemperature": 300.0, "power": 0.012,
-                             "resistance": 950.0, "voltage": 3.4, "current": 0.0036})
+    mod.heat = _FakeChannel(
+        {
+            "temperature": 301.5,
+            "targetTemperature": 300.0,
+            "power": 0.012,
+            "resistance": 950.0,
+            "voltage": 3.4,
+            "current": 0.0036,
+        }
+    )
     mod.bias = _FakeChannel({"voltage": 1.0, "current": 2e-6}) if bias else None
     mod.waitForControl = lambda: None
     mod.getStatus = lambda: "OK"
@@ -221,8 +242,11 @@ def test_impulse_missing_falls_back(monkeypatch, clock):
 
 
 def test_autopilot_planrun_drives_sim_holder(clock):
-    impulse = pytest.importorskip("de_automate.impulse") if _autopilot_on_path() else pytest.skip(
-        "de_autopilot not found")
+    impulse = (
+        pytest.importorskip("de_automate.impulse")
+        if _autopilot_on_path()
+        else pytest.skip("de_autopilot not found")
+    )
     h = SimHeatingHolder(clock=clock, noise_c=0.0)
     plan = impulse.Plan.staircase(25, 125, steps=2, rate=10, hold_s=5)
     run = impulse.PlanRun(plan, h, start=25, now=clock.now())
@@ -243,6 +267,7 @@ def _autopilot_on_path() -> bool:
         sys.path.append(path)
     try:
         import de_automate.impulse  # noqa: F401
+
         return True
     except Exception:
         return False

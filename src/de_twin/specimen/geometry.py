@@ -55,7 +55,9 @@ class AABB:
         return AABB(self.xmin - m, self.ymin - m, self.xmax + m, self.ymax + m)
 
     def expand(self, o: AABB) -> AABB:
-        return AABB(min(self.xmin, o.xmin), min(self.ymin, o.ymin), max(self.xmax, o.xmax), max(self.ymax, o.ymax))
+        return AABB(
+            min(self.xmin, o.xmin), min(self.ymin, o.ymin), max(self.xmax, o.xmax), max(self.ymax, o.ymax)
+        )
 
     @property
     def center(self) -> tuple[float, float]:
@@ -103,10 +105,12 @@ def lognormal_from_hash(h, median, sigma_log, lo, hi):
 
 # -- rough ellipse (MakeRoughEllipse outline, analytic) --------------------------------------
 
+
 def rough_rmod(theta, period=ROUGH_PERIOD, amplitude=1.0):
     """Radial modulation of MakeRoughEllipse in the ellipse's normalised frame."""
-    return 1.0 + amplitude * (np.sin((theta + 0.43) * period) / 15.0
-                              + np.sin((theta + 0.14) * period * 5) / 60.0)
+    return 1.0 + amplitude * (
+        np.sin((theta + 0.43) * period) / 15.0 + np.sin((theta + 0.14) * period * 5) / 60.0
+    )
 
 
 def inside_rough_ellipse(dx, dy, rx, ry):
@@ -136,6 +140,7 @@ def rough_ellipse_signed_dist(dx, dy, rx, ry):
 
 # -- jittered lattice -------------------------------------------------------------------------
 
+
 @dataclass
 class LatticeHit:
     i: np.ndarray  # int64 cell index
@@ -154,8 +159,16 @@ class LatticeHit:
         return np.asarray(func(self.h))
 
     def masked(self, m) -> LatticeHit:
-        return LatticeHit(self.i[m], self.j[m], self.sx[m], self.sy[m], self.d2[m], self.h[m],
-                          None if self.site is None else self.site[m], self.grid_h)
+        return LatticeHit(
+            self.i[m],
+            self.j[m],
+            self.sx[m],
+            self.sy[m],
+            self.d2[m],
+            self.h[m],
+            None if self.site is None else self.site[m],
+            self.grid_h,
+        )
 
     @property
     def dist(self) -> np.ndarray:
@@ -237,7 +250,6 @@ class JitteredLattice:
                 np.copyto(bh, h, where=m)
         return LatticeHit(bi, bj, bsx, bsy, best, bh)
 
-
     # -- block evaluation (exact, coarse-to-fine) ------------------------------------------------
     def _grid(self, x_lo, x_hi, y_lo, y_hi):
         L = self.cell_um
@@ -248,8 +260,16 @@ class JitteredLattice:
         SX, SY, HH = self.sites(gi[None, :], gj[:, None])
         # site coordinates relative to the grid origin, in float32 (cell-scale precision is ample)
         x0, y0 = imin * L, jmin * L
-        return ((SX - x0).astype(np.float32).ravel(), (SY - y0).astype(np.float32).ravel(), HH.ravel(),
-                imin, jmin, imax - imin + 1, x0, y0)
+        return (
+            (SX - x0).astype(np.float32).ravel(),
+            (SY - y0).astype(np.float32).ravel(),
+            HH.ravel(),
+            imin,
+            jmin,
+            imax - imin + 1,
+            x0,
+            y0,
+        )
 
     def _label(self, x, y, grid):
         """Flat grid index of the nearest site. Quadrant 2x2 search: with sites confined to the
@@ -316,9 +336,26 @@ class JitteredLattice:
         if _rnb.AVAILABLE:
             SX, SY, _HH, _imin, _jmin, gw, x0, y0 = grid
             out = np.empty((H, Wd), np.int32)
-            _rnb.block_labels(np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]), ox, oy, r0, r1, c0,
-                              c1, s, nr_n, nc_n, SX, SY, float(x0), float(y0), float(self.cell_um), int(gw),
-                              self.jitter_frac <= 0.25, out)
+            _rnb.block_labels(
+                np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]),
+                ox,
+                oy,
+                r0,
+                r1,
+                c0,
+                c1,
+                s,
+                nr_n,
+                nc_n,
+                SX,
+                SY,
+                float(x0),
+                float(y0),
+                float(self.cell_um),
+                int(gw),
+                self.jitter_frac <= 0.25,
+                out,
+            )
             return out, grid
         rows = np.arange(r0, r1)
         cols = np.arange(c0, c1)
@@ -344,7 +381,9 @@ class JitteredLattice:
         lab, grid = self.block_labels(ctx, r0, r1, c0, c1, offset)
         X, Y = ctx.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
         shape = lab.shape
-        return BlockHit(lab, grid, np.broadcast_to(X, shape) - offset[0], np.broadcast_to(Y, shape) - offset[1])
+        return BlockHit(
+            lab, grid, np.broadcast_to(X, shape) - offset[0], np.broadcast_to(Y, shape) - offset[1]
+        )
 
 
 class BlockHit:
@@ -419,8 +458,10 @@ def value_noise(seed: int, x, y):
         n01 = G.take(f + W)
         n11 = G.take(f + W + 1)
     else:
+
         def hu(a, b):
             return uniform_from_hash(hash_seed(s, SeedKind.SUPPORT_FILM, a, b))
+
         n00, n10, n01, n11 = hu(ix, iy), hu(ix + 1, iy), hu(ix, iy + 1), hu(ix + 1, iy + 1)
     a = n00 + (n10 - n00) * tx
     b = n01 + (n11 - n01) * tx
@@ -475,6 +516,7 @@ def value_noise_separable(seed: int, xs, ys):
 
 
 # -- polygons in raster space -----------------------------------------------------------------
+
 
 def polygon_mask_rows(pcol, prow, r0: int, r1: int, nx: int) -> np.ndarray:
     """Pixel-centre inside mask of a polygon given in raster coordinates.

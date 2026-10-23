@@ -17,8 +17,7 @@ from ..optics.physics import electron_wavelength_nm
 
 #: The CEOS reference server's aberration list, in the order it reports (and
 #: truncates at ``maxFit``). We is image shift (m), WD the beam tilt (rad).
-CEOS_ORDER = ("C1", "A1", "A2", "B2", "C3", "A3", "S3", "A4", "D4", "B4", "C5", "A5", "R5",
-              "S5", "We", "WD")
+CEOS_ORDER = ("C1", "A1", "A2", "B2", "C3", "A3", "S3", "A4", "D4", "B4", "C5", "A5", "R5", "S5", "We", "WD")
 FIT_NAMES = tuple(n for n in CEOS_ORDER if n in TERMS)
 #: tabType -> (default outer angle mrad, default maxFit)
 TABLEAU_TYPES = {"Fast": (9.0, "B2"), "Standard": (18.0, "A4"), "Enhanced": (34.0, "A5")}
@@ -57,13 +56,11 @@ NATIVE_NOMINAL = {"C3": 1.2e6, "C5": 2.0e6, "B2": 150.0, "A2": 300.0, "S3": 3000
 NATIVE_SPREAD = {"C3": 0.03, "C5": 0.25, "B2": 0.5, "A2": 0.5, "S3": 0.5, "A3": 0.5}
 #: A good tune at 200 kV (|value| drawn in [0.5, 1.5] x nominal, random azimuth / sign).
 #: Gives a pi/4 angle (excluding C1/A1, as CEOS quotes it) of ~24-30 mrad with C5 ~2 mm.
-TUNED_NOMINAL = {"C1": 1.5, "A1": 1.5, "B2": 7.0, "A2": 14.0, "C3": 400.0, "S3": 130.0,
-                 "A3": 400.0}
+TUNED_NOMINAL = {"C1": 1.5, "A1": 1.5, "B2": 7.0, "A2": 14.0, "C3": 400.0, "S3": 130.0, "A3": 400.0}
 #: Out of tune (cold start, after an HT change): added to the tuned offset.
 #: (C1/A1 stay mostly inside the 470 nm measurement range, so a Fast tableau or a
 #: C1A1 measurement still works; a Standard tableau loses its outer images.)
-DETUNE_HT = {"C1": 300.0, "A1": 150.0, "B2": 1000.0, "A2": 500.0, "C3": 15000.0, "S3": 5000.0,
-             "A3": 5000.0}
+DETUNE_HT = {"C1": 300.0, "A1": 150.0, "B2": 1000.0, "A2": 500.0, "C3": 15000.0, "S3": 5000.0, "A3": 5000.0}
 #: Probe mode / function mode / TEM-STEM change.
 DETUNE_MODE = {"C1": 20.0, "A1": 10.0, "B2": 25.0, "A2": 10.0}
 #: Random-walk rates, nm per sqrt(second) (rms of |increment|).
@@ -78,8 +75,12 @@ TILT_JITTER_MRAD = 0.05
 
 #: Correction: (fixed gain error sigma, fixed rotation error sigma in deg, jitter fraction).
 CORRECT_ERRORS = {
-    "C1": (0.02, 0.0, 0.01), "A1": (0.03, 2.0, 0.01), "B2": (0.05, 3.0, 0.02),
-    "A2": (0.05, 3.0, 0.02), "C3": (0.03, 0.0, 0.01), "S3": (0.08, 5.0, 0.03),
+    "C1": (0.02, 0.0, 0.01),
+    "A1": (0.03, 2.0, 0.01),
+    "B2": (0.05, 3.0, 0.02),
+    "A2": (0.05, 3.0, 0.02),
+    "C3": (0.03, 0.0, 0.01),
+    "S3": (0.08, 5.0, 0.03),
     "A3": (0.08, 5.0, 0.03),
 }
 CORRECT_ERRORS_DEFAULT = (0.15, 8.0, 0.05)
@@ -134,8 +135,9 @@ def native_aberrations(seed: int = 0, side: str = "probe") -> Aberrations:
 
 def tuned_residual(rng: np.random.Generator, scale: float = 1.0) -> Aberrations:
     """A residual after a good tune (without C5, which stays native)."""
-    return Aberrations({n: _random_coeff(rng, n, v * scale * rng.uniform(0.5, 1.5))
-                        for n, v in TUNED_NOMINAL.items()})
+    return Aberrations(
+        {n: _random_coeff(rng, n, v * scale * rng.uniform(0.5, 1.5)) for n, v in TUNED_NOMINAL.items()}
+    )
 
 
 def operator_c1a1(state, side: str, stig_nm_per_unit: float = 1000.0) -> tuple[float, complex]:
@@ -151,14 +153,14 @@ def pi4_angle_mrad(ab: Aberrations, ht_kv: float = 200.0, *, include_c1a1: bool 
     """The pi/4 angle a CEOS tableau quotes: C1 and A1 excluded (the operator sets
     focus and stigmation), everything else in phase (worst azimuth)."""
     lam = electron_wavelength_nm(ht_kv)
-    a = ab if include_c1a1 else Aberrations({k: v for k, v in ab.coeffs.items()
-                                            if k not in ("C1", "A1")})
+    a = ab if include_c1a1 else Aberrations({k: v for k, v in ab.coeffs.items() if k not in ("C1", "A1")})
     return a.flat_angle_mrad(lam)
 
 
 # ---------------------------------------------------------------------------
 # Tableau physics
 # ---------------------------------------------------------------------------
+
 
 def induced_c1a1(coeffs: dict[str, complex], tilt: complex) -> tuple[float, complex]:
     """Effective defocus C1 and two-fold astigmatism A1 (nm) seen with the beam tilted
@@ -177,9 +179,9 @@ def induced_c1a1(coeffs: dict[str, complex], tilt: complex) -> tuple[float, comp
         if p >= 1 and q >= 1:
             c1 += 2.0 * (k * p * q * tb ** (p - 1) * t ** (q - 1)).real
         if p >= 2:
-            a1 += k * p * (p - 1) * tb ** (p - 2) * t ** q
+            a1 += k * p * (p - 1) * tb ** (p - 2) * t**q
         if q >= 2:
-            a1 += (k * q * (q - 1) * tb ** p * t ** (q - 2)).conjugate()
+            a1 += (k * q * (q - 1) * tb**p * t ** (q - 2)).conjugate()
     return c1, a1
 
 
@@ -188,8 +190,10 @@ def tableau_tilts(tab_type: str, angle_mrad: float) -> list[complex]:
     for frac, n in TABLEAU_RINGS[tab_type]:
         r = angle_mrad * 1e-3 * frac
         off = math.pi / n if frac < 1.0 else 0.0
-        tilts += [r * complex(math.cos(off + 2 * math.pi * i / n), math.sin(off + 2 * math.pi * i / n))
-                  for i in range(n)]
+        tilts += [
+            r * complex(math.cos(off + 2 * math.pi * i / n), math.sin(off + 2 * math.pi * i / n))
+            for i in range(n)
+        ]
     return tilts
 
 
@@ -215,6 +219,7 @@ def _design_rows(params, tilt: complex) -> np.ndarray:
 # ---------------------------------------------------------------------------
 # Results
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class MeasurementResult:
@@ -272,8 +277,7 @@ def parse_aberration_set(text: str) -> list[tuple[str, tuple[float, float]]]:
 
 def ceos_to_nm(items: Iterable[tuple[str, tuple[float, float]]]) -> dict[str, complex]:
     """CEOS (x, y) metres -> {name: complex nm} for the names chi knows (We/WD dropped)."""
-    return {n: complex(x * 1e9, 0.0 if _round(n) else y * 1e9)
-            for n, (x, y) in items if n in TERMS}
+    return {n: complex(x * 1e9, 0.0 if _round(n) else y * 1e9) for n, (x, y) in items if n in TERMS}
 
 
 def parse_info(text: str) -> dict[str, str]:
@@ -289,6 +293,7 @@ def parse_info(text: str) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # Drift
 # ---------------------------------------------------------------------------
+
 
 class _Drift:
     """Deterministic random walk sampled on a fixed time grid, independent of how

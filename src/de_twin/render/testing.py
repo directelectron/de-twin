@@ -106,8 +106,13 @@ def _cached_grains(seed: int) -> GrainTable:
 
 
 # ----------------------------------------------------------- analysis helpers
-def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: float | None = None,
-                          half_width_deg: float = 15.0, nbins: int = 256):
+def radial_power_spectrum(
+    img: np.ndarray,
+    pixel_nm: float,
+    sector_rad: float | None = None,
+    half_width_deg: float = 15.0,
+    nbins: int = 256,
+):
     """(k [1/nm], radially averaged |FFT|^2), optionally within a +-sector (mod 180 deg)."""
     a = np.asarray(img, np.float64)
     f = np.abs(np.fft.fftshift(np.fft.fft2(a - a.mean()))) ** 2
@@ -122,20 +127,28 @@ def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: float | 
         m = np.abs(d) < np.radians(half_width_deg)
     edges = np.linspace(0.0, 0.5 / pixel_nm, nbins + 1)
     idx = np.digitize(k[m], edges)
-    s = np.bincount(idx, weights=f[m], minlength=nbins + 2)[1:nbins + 1]
-    n = np.bincount(idx, minlength=nbins + 2)[1:nbins + 1]
+    s = np.bincount(idx, weights=f[m], minlength=nbins + 2)[1 : nbins + 1]
+    n = np.bincount(idx, minlength=nbins + 2)[1 : nbins + 1]
     return 0.5 * (edges[1:] + edges[:-1]), s / np.maximum(n, 1)
 
 
 def ctf2(k, defocus_nm, wavelength_nm, cs_mm=1.2, amplitude_contrast=0.07):
     """(sin chi - kappa cos chi)^2 with the twin's sign convention (df < 0 underfocus)."""
-    kap = amplitude_contrast / np.sqrt(1.0 - amplitude_contrast ** 2)
-    chi = np.pi * wavelength_nm * defocus_nm * k ** 2 + 0.5 * np.pi * cs_mm * 1e6 * wavelength_nm ** 3 * k ** 4
+    kap = amplitude_contrast / np.sqrt(1.0 - amplitude_contrast**2)
+    chi = np.pi * wavelength_nm * defocus_nm * k**2 + 0.5 * np.pi * cs_mm * 1e6 * wavelength_nm**3 * k**4
     return (np.sin(chi) - kap * np.cos(chi)) ** 2
 
 
-def fit_defocus(img, pixel_nm, wavelength_nm, df_grid_nm, cs_mm=1.2, k_range=(0.3, 3.0),
-                sector_rad=None, amplitude_contrast=0.07):
+def fit_defocus(
+    img,
+    pixel_nm,
+    wavelength_nm,
+    df_grid_nm,
+    cs_mm=1.2,
+    k_range=(0.3, 3.0),
+    sector_rad=None,
+    amplitude_contrast=0.07,
+):
     """Brute-force CTF fit: the defocus whose CTF^2 best correlates with the
     background-flattened radial power spectrum. Returns (defocus_nm, score)."""
     k, p = radial_power_spectrum(img, pixel_nm, sector_rad)

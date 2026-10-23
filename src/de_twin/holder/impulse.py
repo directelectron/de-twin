@@ -77,6 +77,7 @@ def import_impulse(timeout_s: float | None = None):
         raise result["error"]
     return result["module"]
 
+
 class ImpulseFollower:
     """A real DENS holder through ``impulsePy`` (or any object with its API)."""
 
@@ -136,7 +137,11 @@ class ImpulseFollower:
             t=time.time(),
             power=_field(data, "power", "heatingPower"),
             resistance=_field(data, "resistance"),
-            voltage=voltage, current=current, source=source, bias_target=self._bias_target)
+            voltage=voltage,
+            current=current,
+            source=source,
+            bias_target=self._bias_target,
+        )
 
     def set(self, value: float, *, channel: str = "temperature") -> None:
         with self._lock:
@@ -146,8 +151,14 @@ class ImpulseFollower:
             else:
                 self._target = float(value)
 
-    def ramp(self, value: float, *, rate_c_per_s: float | None = None,
-             seconds: float | None = None, channel: str = "temperature") -> None:
+    def ramp(
+        self,
+        value: float,
+        *,
+        rate_c_per_s: float | None = None,
+        seconds: float | None = None,
+        channel: str = "temperature",
+    ) -> None:
         with self._lock:
             module = self._channel(channel)
             if seconds and seconds > 0 and not rate_c_per_s:
@@ -197,10 +208,14 @@ class ImpulseFollower:
         biasing = "bias" in self.channels
         return HolderState(
             kind="heating_biasing" if biasing else "heating",
-            temperature_c=r.measured, target_c=r.target, power_w=r.power or 0.0,
+            temperature_c=r.measured,
+            target_c=r.target,
+            power_w=r.power or 0.0,
             resistance_ohm=r.resistance or 0.0,
             bias_v=(r.voltage or 0.0) if r.source == "bias" else (self._bias_target or 0.0),
-            current_a=r.current or 0.0, t_s=float(t))
+            current_a=r.current or 0.0,
+            t_s=float(t),
+        )
 
     def close(self) -> None:
         try:

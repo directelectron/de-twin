@@ -167,7 +167,6 @@ class ColumnDefinition(DefocusAndTruth):
         return self.is_astig_nm_per_um * complex(isx_um, isy_um)
 
 
-
 # ------------------------------------------------------------------ twin -> SerialEM
 def _nominal_pixel_nm(mag: float, camera, calibration=None, lm_max: float | None = None) -> float:
     from ..state import MicroscopeState
@@ -209,10 +208,20 @@ def _serialem_rotation_deg(stage: np.ndarray) -> float:
     return (ax + 0.5 * d + 180.0) % 360.0 - 180.0
 
 
-def to_serialem(realism, camera, calibrations_path, properties_path=None, *,
-                mag_table: dict | None = None, lm_max_mag: float | None = None,
-                calibration=None, spots=(1, 2, 3, 4, 5), reference_mag: float = 20000.0,
-                camera_index: int = 0, flips=(False, False)) -> None:
+def to_serialem(
+    realism,
+    camera,
+    calibrations_path,
+    properties_path=None,
+    *,
+    mag_table: dict | None = None,
+    lm_max_mag: float | None = None,
+    calibration=None,
+    spots=(1, 2, 3, 4, 5),
+    reference_mag: float = 20000.0,
+    camera_index: int = 0,
+    flips=(False, False),
+) -> None:
     """Write the calibrations SerialEM would measure on a column (and, with
     *properties_path*, the camera's ``RotationAndPixel`` block). *flips* are the twin's
     ``OpticsConfig.flip_x / flip_y``."""
@@ -227,15 +236,21 @@ def to_serialem(realism, camera, calibrations_path, properties_path=None, *,
     for ind, mag in sorted(mags.items()):
         nominal = _nominal_pixel_nm(mag, cam, calibration, lm_max_mag)
         stage, is_, theta, p_nm = _camera_mats(realism, mag, nominal, flips, lm_max_mag)
-        rows.append(f"{ind} {camera_index} {is_[0, 0]:.12g} {is_[0, 1]:.12g} {is_[1, 0]:.12g} {is_[1, 1]:.12g}   {round(mag)}")
-        stage_rows.append(f"StageToCameraMatrix {ind} {camera_index} {stage[0, 0]:.12g} {stage[0, 1]:.12g} "
-                          f"{stage[1, 0]:.12g} {stage[1, 1]:.12g}   0.000000   {round(mag)}")
+        rows.append(
+            f"{ind} {camera_index} {is_[0, 0]:.12g} {is_[0, 1]:.12g} {is_[1, 0]:.12g} {is_[1, 1]:.12g}   {round(mag)}"
+        )
+        stage_rows.append(
+            f"StageToCameraMatrix {ind} {camera_index} {stage[0, 0]:.12g} {stage[0, 1]:.12g} "
+            f"{stage[1, 0]:.12g} {stage[1, 1]:.12g}   0.000000   {round(mag)}"
+        )
         mode = _mode_for(mag, lm_max_mag)
         o = np.asarray(realism.mag_offset_um(mode, mag))
         if np.any(o):
             isx, isy = -np.linalg.solve(realism.is_matrix(mode, mag), o)
             offs.append(f"{ind} 0 {isx:.12g} {isy:.12g}")
-        rot_rows.append(f"RotationAndPixel {ind} {UNDEFINED:.0f} {_serialem_rotation_deg(stage):.12g} {p_nm:.12g}")
+        rot_rows.append(
+            f"RotationAndPixel {ind} {UNDEFINED:.0f} {_serialem_rotation_deg(stage):.12g} {p_nm:.12g}"
+        )
     lines.append(f"ImageShiftMatrix {len(rows)}")
     lines += rows
     lines += stage_rows
@@ -244,31 +259,39 @@ def to_serialem(realism, camera, calibrations_path, properties_path=None, *,
         lines += offs
     micro, nano = int(ProbeMode.TEM), int(ProbeMode.NANOPROBE)
     for spot in spots:
-        lines.append(f"CrossoverIntensity {spot} {realism.crossover(spot, micro):.12g} {realism.crossover(spot, nano):.12g}")
+        lines.append(
+            f"CrossoverIntensity {spot} {realism.crossover(spot, micro):.12g} {realism.crossover(spot, nano):.12g}"
+        )
     # high-focus magnification: image scale and rotation relative to focus (a mag cal: index 0)
     for df in HIGH_FOCUS_DEFOCUS_UM:
         scale = 1.0 / realism.defocus_scale(df)
         rot = -math.degrees(realism.defocus_rotation_rad(df))
-        lines.append(f"HighFocusMagCal 3 1 {df:.6f} 0.500000 {scale:.12g} {rot:.12g} "
-                     f"{realism.crossover(3, micro):.12g} 0 0")
+        lines.append(
+            f"HighFocusMagCal 3 1 {df:.6f} 0.500000 {scale:.12g} {rot:.12g} "
+            f"{realism.crossover(3, micro):.12g} 0 0"
+        )
     # autofocus: image displacement (SerialEM camera px) between +/- beam tilt, per unit tilt
     ref = min(mags, key=lambda i: abs(mags[i] - reference_mag))
     mag = mags[ref]
-    stage, is_, theta, p_nm = _camera_mats(realism, mag, _nominal_pixel_nm(mag, cam, calibration, lm_max_mag),
-                                           flips, lm_max_mag)
+    stage, is_, theta, p_nm = _camera_mats(
+        realism, mag, _nominal_pixel_nm(mag, cam, calibration, lm_max_mag), flips, lm_max_mag
+    )
     bt_units = FOCUS_CAL_TILT_MRAD / BEAM_TILT_MRAD_PER_UNIT
     # a tilt along world x displaces the image by 2 df tau along it: in SerialEM camera px
     d = _T_CAM @ _flip_matrix(flips) @ _rot(-theta) @ np.array([1.0, 0.0])
     per_um = 2.0 * 1000.0 * FOCUS_CAL_TILT_MRAD * 1e-3 / p_nm * d / bt_units
     pts = [(df, *(df * per_um)) for df in FOCUS_CAL_DEFOCUS_UM]
-    lines.append(f"FocusCalibration {ref} {camera_index} {per_um[0]:.12g} {per_um[1]:.12g} "
-                 f"{bt_units:.2f} {len(pts)} 0 1 -999   {round(mag)}")
+    lines.append(
+        f"FocusCalibration {ref} {camera_index} {per_um[0]:.12g} {per_um[1]:.12g} "
+        f"{bt_units:.2f} {len(pts)} 0 1 -999   {round(mag)}"
+    )
     lines += [f"{a:.6f} {b:.12g} {c:.12g}" for a, b, c in pts]
     Path(calibrations_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
     if properties_path is not None:
         Path(properties_path).write_text(
             f"CameraProperties {camera_index}\n" + "\n".join(rot_rows) + "\nEndCameraProperties\n",
-            encoding="utf-8")
+            encoding="utf-8",
+        )
 
 
 # ------------------------------------------------------------------ SerialEM -> column
@@ -296,14 +319,24 @@ def _rotation_and_pixel(path, camera_index: int) -> dict:
         if blocks and block != camera_index:
             continue
         rot, pix = float(p[3]), float(p[4])
-        out[int(p[1])] = (None if abs(rot) > 900 else rot,
-                          None if pix <= 0 or 998.9 < abs(pix) < 999.1 else pix)
+        out[int(p[1])] = (
+            None if abs(rot) > 900 else rot,
+            None if pix <= 0 or 998.9 < abs(pix) < 999.1 else pix,
+        )
     return out
 
 
-def from_serialem(calibrations_path, properties_path=None, *, camera, mag_table: dict | None = None,
-                  lm_max_mag: float | None = None, calibration=None, camera_index: int = 0,
-                  flips=(False, False)) -> ColumnDefinition:
+def from_serialem(
+    calibrations_path,
+    properties_path=None,
+    *,
+    camera,
+    mag_table: dict | None = None,
+    lm_max_mag: float | None = None,
+    calibration=None,
+    camera_index: int = 0,
+    flips=(False, False),
+) -> ColumnDefinition:
     """A column definition from a microscope's SerialEM calibrations (and, if given, the
     camera's ``RotationAndPixel`` lines). Stage calibrations give each magnification's
     rotation and true pixel size; ``RotationAndPixel`` values override them where defined."""

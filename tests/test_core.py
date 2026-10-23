@@ -31,8 +31,9 @@ def test_uniform_range_and_rng_determinism():
 
 
 def test_view_window_roundtrip_with_tilt_and_rotation():
-    v = ViewWindow(center_um=(10.0, -5.0), pixel_um=0.01, shape=(64, 128), rotation_rad=0.3,
-                   flip_x=True, cos_alpha=0.8)
+    v = ViewWindow(
+        center_um=(10.0, -5.0), pixel_um=0.01, shape=(64, 128), rotation_rad=0.3, flip_x=True, cos_alpha=0.8
+    )
     rows, cols = np.mgrid[0:64, 0:128]
     x, y = v.pixel_to_world(rows, cols)
     r2, c2 = v.world_to_pixel(x, y)

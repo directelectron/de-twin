@@ -40,13 +40,15 @@ def _centre_on(tw, kind, pixel_um, n=512):
 
     home = tw.specimen.home_um()
     for k in range(25):
-        r = 0.0 if k == 0 else n * pixel_um * (0.5 + 0.5 * k ** 0.5)
+        r = 0.0 if k == 0 else n * pixel_um * (0.5 + 0.5 * k**0.5)
         c = (home[0] + r * math.cos(2.4 * k), home[1] + r * math.sin(2.4 * k))
         fm = tw.specimen.rasterize(ViewWindow(center_um=c, pixel_um=pixel_um, shape=(n, n)))
         m = fm.material_id
         um = fm.under_material if fm.under_material is not None else np.zeros_like(m)
-        hit = {"latex": (m == int(MaterialId.PROTEIN)) | (um == int(MaterialId.PROTEIN)),
-               "moo3": m == int(MaterialId.MOLYBDENUM_TRIOXIDE)}[kind]
+        hit = {
+            "latex": (m == int(MaterialId.PROTEIN)) | (um == int(MaterialId.PROTEIN)),
+            "moo3": m == int(MaterialId.MOLYBDENUM_TRIOXIDE),
+        }[kind]
         if hit.any():
             i, j = np.unravel_index(np.argmax(ndimage.uniform_filter(hit.astype(float), 9) * hit), hit.shape)
             x, y = stage_for_view_center(fm.view.pixel_to_world(i, j), tw.column.state(), tw.optics_config)
@@ -144,8 +146,9 @@ def test_the_island_film_coverage_follows_the_deposit():
     prev = 0.0
     for c in (0.15, 0.3, 0.5, 0.65, 0.8):
         rel = (c / 0.6) ** 1.25
-        inside, t, grain = island_film(5, g[1], g[0], np.full(g[0].shape, rel), 1.0, 8.0, 0.6,
-                                       int(MaterialId.GOLD))
+        inside, t, grain = island_film(
+            5, g[1], g[0], np.full(g[0].shape, rel), 1.0, 8.0, 0.6, int(MaterialId.GOLD)
+        )
         assert inside.mean() == pytest.approx(c, abs=0.06)
         assert inside.mean() > prev
         prev = inside.mean()
@@ -157,8 +160,9 @@ def test_the_island_film_coverage_follows_the_deposit():
 def test_shadowing_coats_the_facing_side_and_leaves_a_shadow_behind_a_ridge():
     """Source along +x at 25 deg: behind a 20 nm ridge (x just below it) lies a shadow ~43 nm
     long, with a soft edge; the ridge top and the open ground are lit."""
-    g = WaffleGrating(1.0, depth_nm=20.0, line_fraction=0.2, ramp_nm=10.0, edge_nm=0.0, wavy_nm=0.0,
-                      both=False)
+    g = WaffleGrating(
+        1.0, depth_nm=20.0, line_fraction=0.2, ramp_nm=10.0, edge_nm=0.0, wavy_nm=0.0, both=False
+    )
     s = ShadowedReplicaStructure(g, rough_nm=0.0, crumple_nm=0.0, azimuth_deg=0.0, elevation_deg=25.0)
     x = np.linspace(0.0, 1.0, 2001)
     _h, gx, _gy, lit = s.tile().sample(x, np.full_like(x, 0.3))
@@ -195,7 +199,9 @@ def test_a_moo3_lath_long_edge_is_its_crystal_long_axis(make_standard_twin):
         if one.sum() < 300 or (g == g[0]).mean() < 0.99:
             continue  # small, or laths overlapping
         ring = ndimage.binary_dilation(one, iterations=3) & ~one
-        if ((fm.material_id[ring] == mid) & (fm.grain_id[ring] != g[0])).any() or (fm.grain_id == g[0]).sum() > one.sum():
+        if ((fm.material_id[ring] == mid) & (fm.grain_id[ring] != g[0])).any() or (
+            fm.grain_id == g[0]
+        ).sum() > one.sum():
             continue  # another lath touches it (and may hide part of it)
         rows, cols = np.nonzero(one)
         wx, wy = fm.view.pixel_to_world(rows, cols)  # world coordinates: no raster flips
@@ -203,12 +209,10 @@ def test_a_moo3_lath_long_edge_is_its_crystal_long_axis(make_standard_twin):
         if evals[1] < 6.0 * evals[0]:
             continue  # cut by the window's edge
         box = 12.0 * math.sqrt(evals[0] * evals[1])  # the area of a rectangle with these moments
-        if one.sum() * fm.view.pixel_um ** 2 < 0.85 * box:
+        if one.sum() * fm.view.pixel_um**2 < 0.85 * box:
             continue  # not one clean lath (overlapping laths)
         b = tw.specimen.grains.matrices[int(g[0])] @ _direct_basis(mid) @ np.array([0.0, 1.0, 0.0])
         b = b[:2] / np.linalg.norm(b[:2])
         assert abs(float(np.dot(evecs[:, 1], b))) > math.cos(math.radians(2.0))
         checked += 1
     assert checked >= 1
-
-

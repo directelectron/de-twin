@@ -152,8 +152,26 @@ def _tbin(t):
 
 
 @_njit(parallel=True)
-def tile_maps(mat, thick, f_t, lam, has_under, umat, uthick, cutoff, fb, keep_on, loss, has_loss,
-              diffuse_on, slot, bragg, dmaps, dmax, tbin):
+def tile_maps(
+    mat,
+    thick,
+    f_t,
+    lam,
+    has_under,
+    umat,
+    uthick,
+    cutoff,
+    fb,
+    keep_on,
+    loss,
+    has_loss,
+    diffuse_on,
+    slot,
+    bragg,
+    dmaps,
+    dmax,
+    tbin,
+):
     """The incoherent add-on maps of a coherent-STEM tile in one pass (``coherent.build_tile``):
     ``bragg = (T + dw (1 - fb)) loss``, the diffuse weight beyond the band limit
     ``dw fb`` (and the under layer's) into ``dmaps[slot[m]]``, ``dmax[row, slot]`` its row

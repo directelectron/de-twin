@@ -41,8 +41,17 @@ U64 = np.uint64
 
 
 # ------------------------------------------------------------------ shared physics
-def island_film(seed: int, X_um, Y_um, deposit_nm, mean_deposit_nm: float, island_nm: float,
-                coverage: float, metal: int, grain_nm: float = 2.2):
+def island_film(
+    seed: int,
+    X_um,
+    Y_um,
+    deposit_nm,
+    mean_deposit_nm: float,
+    island_nm: float,
+    coverage: float,
+    metal: int,
+    grain_nm: float = 2.2,
+):
     """An evaporated island film on the pixels (X, Y) (um) with local *deposit_nm*: (inside
     island, island thickness nm, grain id of each inside pixel).
 
@@ -55,7 +64,7 @@ def island_film(seed: int, X_um, Y_um, deposit_nm, mean_deposit_nm: float, islan
 
     dep = np.asarray(deposit_nm, float)
     rel = dep / max(mean_deposit_nm, 1e-9)
-    c = np.clip(coverage * rel ** 0.8, 0.0, 0.9)
+    c = np.clip(coverage * rel**0.8, 0.0, 0.9)
     f = stamps.field(seed, X_um, Y_um, island_nm / NM_PER_UM, c)
     inside = (f > 0.0) & (dep > 0)
     t = np.where(inside, dep / np.maximum(c, 1e-3), 0.0)
@@ -90,8 +99,15 @@ def _lattice_index(ctx, r: int, c: int) -> tuple[int, int]:
 def _level_lut(cov, half, levels, table):
     """`stamps._level_offset` on a fine coverage grid (built once: 8192 x 3 floats)."""
     if not _LEVEL_LUT:
-        _LEVEL_LUT.append(_replica_nb.level_offset_lut(cov, half, levels, table, __import__(
-            "de_twin.specimen.stamps", fromlist=["_OFFSETS"])._OFFSETS))
+        _LEVEL_LUT.append(
+            _replica_nb.level_offset_lut(
+                cov,
+                half,
+                levels,
+                table,
+                __import__("de_twin.specimen.stamps", fromlist=["_OFFSETS"])._OFFSETS,
+            )
+        )
     return _LEVEL_LUT[0]
 
 
@@ -112,12 +128,27 @@ class WaffleGrating:
     waviness that averages out (the mean period is exact) and, for the old style, defects:
     missing and doubled line segments."""
 
-    def __init__(self, period_um: float, depth_nm: float = 30.0, line_fraction: float = 0.22,
-                 ramp_nm: float = 25.0, edge_nm: float = 5.0, edge_corr_nm: float = 60.0,
-                 wavy_nm: float = 15.0, wavy_um: float = 1.5, defects: float = 0.0,
-                 both: bool = True, trench: bool = False, back_ramp_nm: float | None = None):
+    def __init__(
+        self,
+        period_um: float,
+        depth_nm: float = 30.0,
+        line_fraction: float = 0.22,
+        ramp_nm: float = 25.0,
+        edge_nm: float = 5.0,
+        edge_corr_nm: float = 60.0,
+        wavy_nm: float = 15.0,
+        wavy_um: float = 1.5,
+        defects: float = 0.0,
+        both: bool = True,
+        trench: bool = False,
+        back_ramp_nm: float | None = None,
+    ):
         self.P, self.depth, self.w = float(period_um), float(depth_nm), float(line_fraction)
-        self.ramp, self.edge, self.edge_corr = ramp_nm / NM_PER_UM, edge_nm / NM_PER_UM, edge_corr_nm / NM_PER_UM
+        self.ramp, self.edge, self.edge_corr = (
+            ramp_nm / NM_PER_UM,
+            edge_nm / NM_PER_UM,
+            edge_corr_nm / NM_PER_UM,
+        )
         # a ruled master's lines are sawtooth: a steep front wall (+x / +y side, `ramp_nm`
         # wide in projection) and a gentler back slope (`back_ramp_nm`)
         self.back = (back_ramp_nm if back_ramp_nm is not None else ramp_nm) / NM_PER_UM
@@ -155,15 +186,24 @@ class WaffleGrating:
                 near = np.abs(d - half) < 0.5 * self.ramp + 2.0 * self.edge
                 if near.any():
                     d = d.copy()
-                    d[near] += self.edge * fbm(seed ^ salt, b[near], line[near] * 0.731 * P,
-                                               self.edge_corr, 2)
+                    d[near] += self.edge * fbm(
+                        seed ^ salt, b[near], line[near] * 0.731 * P, self.edge_corr, 2
+                    )
             ramp = np.where(sd > 0, self.ramp, self.back)
             r = np.clip((half - d) / np.maximum(ramp, 1e-9) + 0.5, 0.0, 1.0)
             if rough and self.defects > 0:  # missing segments of a line (old-style gratings)
                 seg = np.floor(b / (2.0 * P))
-                gone = uniform_from_hash(hash_seed(seed ^ salt, SeedKind.STRUCTURE,
-                                                   (line.astype(np.int64) * 100003 + seg.astype(np.int64)) & 0xFFFFFFFF,
-                                                   0x33)) < self.defects
+                gone = (
+                    uniform_from_hash(
+                        hash_seed(
+                            seed ^ salt,
+                            SeedKind.STRUCTURE,
+                            (line.astype(np.int64) * 100003 + seg.astype(np.int64)) & 0xFFFFFFFF,
+                            0x33,
+                        )
+                    )
+                    < self.defects
+                )
                 r = np.where(gone, 0.0, r)
             out = r if out is None else np.maximum(out, r)
         h = self.depth * out
@@ -195,7 +235,9 @@ class ReliefTile:
         worst = np.full(h.shape, -np.inf)
         rows, cols = np.mgrid[0:n, 0:n].astype(np.float64)
         for s_nm in np.arange(d, reach + 2 * d, 1.5 * d):
-            hs = ndimage.map_coordinates(h, [rows + uy * s_nm / d, cols + ux * s_nm / d], order=1, mode="grid-wrap")
+            hs = ndimage.map_coordinates(
+                h, [rows + uy * s_nm / d, cols + ux * s_nm / d], order=1, mode="grid-wrap"
+            )
             np.maximum(worst, (hs - h - 0.5) / s_nm, out=worst)
         lit = np.clip((tan_hi - worst) / (tan_hi - tan_lo), 0.0, 1.0)
         self.h, self.gx, self.gy, self.lit = (np.ascontiguousarray(a, np.float32) for a in (h, gx, gy, lit))
@@ -218,6 +260,7 @@ class LatexSpheres:
     diameter_nm: float
     density_per_um2: float
     sigma_frac: float = 0.02  # coefficient of variation of the diameter (normal)
+
     def cell_um(self) -> float:
         """A lattice finer than the mean spacing, sparsely occupied, so the spheres lie at
         random rather than on a grid (but never overlap)."""
@@ -264,13 +307,26 @@ class ShadowedReplicaStructure(StandardStructure):
 
     required_layers = frozenset()
 
-    def __init__(self, relief: WaffleGrating | None, base_nm: float = 20.0,
-                 rough_nm: float = 3.0, rough_um: float = 0.06, crumple_nm: float = 12.0,
-                 crumple_um: float = 0.3, metal: int = MaterialId.GOLD, metal_nm: float = 6.0,
-                 elevation_deg: float = 25.0, azimuth_deg: float = 45.0, island_nm: float = 9.0,
-                 coverage: float = 0.65, grain_nm: float = 2.2, shadow_leak: float = 0.12,
-                 spheres: LatexSpheres | None = None, sphere_material: int = MaterialId.PROTEIN,
-                 spheres_shadowed: bool = True):
+    def __init__(
+        self,
+        relief: WaffleGrating | None,
+        base_nm: float = 20.0,
+        rough_nm: float = 3.0,
+        rough_um: float = 0.06,
+        crumple_nm: float = 12.0,
+        crumple_um: float = 0.3,
+        metal: int = MaterialId.GOLD,
+        metal_nm: float = 6.0,
+        elevation_deg: float = 25.0,
+        azimuth_deg: float = 45.0,
+        island_nm: float = 9.0,
+        coverage: float = 0.65,
+        grain_nm: float = 2.2,
+        shadow_leak: float = 0.12,
+        spheres: LatexSpheres | None = None,
+        sphere_material: int = MaterialId.PROTEIN,
+        spheres_shadowed: bool = True,
+    ):
         self.relief = relief
         self.base, self.rough_nm, self.rough_um = float(base_nm), float(rough_nm), float(rough_um)
         self.crumple_nm, self.crumple_um = float(crumple_nm), float(crumple_um)
@@ -291,8 +347,15 @@ class ShadowedReplicaStructure(StandardStructure):
         t = self.mean_carbon_nm()
         if self.spheres is not None:  # latex volume per area, as carbon
             r = 0.5 * self.spheres.diameter_nm
-            t += self.spheres.density_per_um2 / NM_PER_UM ** 2 * 4.0 / 3.0 * math.pi * r ** 3 * (
-                carbon_equivalent(self.sphere_material))
+            t += (
+                self.spheres.density_per_um2
+                / NM_PER_UM**2
+                * 4.0
+                / 3.0
+                * math.pi
+                * r**3
+                * (carbon_equivalent(self.sphere_material))
+            )
         if self.metal_nm > 0:
             t += self.flat_deposit_nm() * carbon_equivalent(self.metal)
         return t
@@ -327,7 +390,11 @@ class ShadowedReplicaStructure(StandardStructure):
 
         sp = self.spheres
         R0 = 0.5 * sp.diameter_nm / NM_PER_UM
-        shade = 2.0 * R0 * (1.0 + 3 * sp.sigma_frac) / max(math.tan(self.elev), 1e-3) if self.spheres_shadowed else 0.0
+        shade = (
+            2.0 * R0 * (1.0 + 3 * sp.sigma_frac) / max(math.tan(self.elev), 1e-3)
+            if self.spheres_shadowed
+            else 0.0
+        )
         reach = 2.0 * R0 + shade
         x0, x1 = float(np.min(lx)) - reach, float(np.max(lx)) + reach
         y0, y1 = float(np.min(ly)) - reach, float(np.max(ly)) + reach
@@ -348,6 +415,7 @@ class ShadowedReplicaStructure(StandardStructure):
         """The replica's own surface (the crumple and the fine roughness): its slope (nm/nm)
         by finite differences of the noise."""
         e = 0.002  # um
+
         def h(xx, yy):
             out = np.zeros(np.shape(xx))
             if self.crumple_nm > 0:
@@ -355,6 +423,7 @@ class ShadowedReplicaStructure(StandardStructure):
             if rough and self.rough_nm > 0:
                 out = out + self.rough_nm * fbm(seed ^ 0x91, xx, yy, self.rough_um, 4, 0.6)
             return out
+
         h0 = h(x, y)
         return h0, (h(x + e, y) - h0) / (e * NM_PER_UM), (h(x, y + e) - h0) / (e * NM_PER_UM)
 
@@ -373,11 +442,14 @@ class ShadowedReplicaStructure(StandardStructure):
             return
         r0, r1, c0, c1 = win
         relief = self.relief
-        specs = [(seed ^ 0x51, relief.wavy_um if relief else 1.0, 2, 0.5),
-                 (seed ^ 0x52, relief.wavy_um if relief else 1.0, 2, 0.5),
-                 (seed ^ 0x61, relief.edge_corr if relief else 1.0, 2, 0.5),
-                 (seed ^ 0x62, relief.edge_corr if relief else 1.0, 2, 0.5),
-                 (seed ^ 0x93, self.crumple_um, 2, 0.5), (seed ^ 0x91, self.rough_um, 4, 0.6)]
+        specs = [
+            (seed ^ 0x51, relief.wavy_um if relief else 1.0, 2, 0.5),
+            (seed ^ 0x52, relief.wavy_um if relief else 1.0, 2, 0.5),
+            (seed ^ 0x61, relief.edge_corr if relief else 1.0, 2, 0.5),
+            (seed ^ 0x62, relief.edge_corr if relief else 1.0, 2, 0.5),
+            (seed ^ 0x93, self.crumple_um, 2, 0.5),
+            (seed ^ 0x91, self.rough_um, 4, 0.6),
+        ]
         FS = np.zeros((6, 4), np.uint64)
         FC, FSN, FA = (np.zeros((6, 4)) for _ in range(3))
         FN = np.zeros(6, np.int64)
@@ -386,28 +458,70 @@ class ShadowedReplicaStructure(StandardStructure):
             FS[k, :octs], FC[k, :octs], FSN[k, :octs], FA[k, :octs], FN[k] = a, c, sn, am, octs
         has_relief = tile is not None
         spheres = self.spheres is not None
-        FL = np.array([has_relief, self.crumple_nm > 0, rough and self.rough_nm > 0, spheres, self.spheres_shadowed,
-                       self.metal_nm > 0, islands, bool(relief and relief.wavy > 0),
-                       bool(relief and relief.edge > 0), ANALYTIC_SLOPE], np.bool_)
-        R = np.array([relief.wavy if relief else 0.0, relief.edge if relief else 0.0,
-                      relief.P if relief else 1.0, WAVY_ACROSS])
-        stack = (np.stack([tile.h, tile.gx, tile.gy, tile.lit]) if has_relief
-                 else np.zeros((4, 1, 1), np.float32))
+        FL = np.array(
+            [
+                has_relief,
+                self.crumple_nm > 0,
+                rough and self.rough_nm > 0,
+                spheres,
+                self.spheres_shadowed,
+                self.metal_nm > 0,
+                islands,
+                bool(relief and relief.wavy > 0),
+                bool(relief and relief.edge > 0),
+                ANALYTIC_SLOPE,
+            ],
+            np.bool_,
+        )
+        R = np.array(
+            [
+                relief.wavy if relief else 0.0,
+                relief.edge if relief else 0.0,
+                relief.P if relief else 1.0,
+                WAVY_ACROSS,
+            ]
+        )
+        stack = (
+            np.stack([tile.h, tile.gx, tile.gy, tile.lit]) if has_relief else np.zeros((4, 1, 1), np.float32)
+        )
         TX = np.array([self.crumple_nm, self.rough_nm, 0.002])
         ux, uy = self.u
-        D = np.array([self.metal_nm, math.sin(self.elev), math.cos(self.elev), ux, uy, flat, self.shadow_leak,
-                      self.base, mean_c, carbon_equivalent(self.sphere_material)])
-        M = np.array([self.metal, self.sphere_material, int(MaterialId.AMORPHOUS_CARBON), GRAINS_PER_MATERIAL],
-                     np.int64)
+        D = np.array(
+            [
+                self.metal_nm,
+                math.sin(self.elev),
+                math.cos(self.elev),
+                ux,
+                uy,
+                flat,
+                self.shadow_leak,
+                self.base,
+                mean_c,
+                carbon_equivalent(self.sphere_material),
+            ]
+        )
+        M = np.array(
+            [self.metal, self.sphere_material, int(MaterialId.AMORPHOUS_CARBON), GRAINS_PER_MATERIAL],
+            np.int64,
+        )
         tiles, cov = phase_tiles()
         half = int(np.argmin(np.abs(cov - LABYRINTH)))
         levels, table = _coverage_table()
         feat = self.island_nm / NM_PER_UM
-        I = np.array([self.coverage, period_px_cached() / feat, 1.0 / (12.0 * feat), 6.0,
-                      self.grain_nm / NM_PER_UM, cov[1], cov[half]])
+        I = np.array(
+            [
+                self.coverage,
+                period_px_cached() / feat,
+                1.0 / (12.0 * feat),
+                6.0,
+                self.grain_nm / NM_PER_UM,
+                cov[1],
+                cov[half],
+            ]
+        )
         fseed = np.uint64(int(seed) & 0xFFFFFFFFFFFFFFFF)
         cseed = np.uint64(((int(seed) ^ 0x1F) * 0xC2B2AE3D27D4EB4F) & 0xFFFFFFFFFFFFFFFF)
-        covs = np.ascontiguousarray(cov[1:half + 1], np.float64)
+        covs = np.ascontiguousarray(cov[1 : half + 1], np.float64)
         lvx = np.arange(1, half + 1, dtype=np.float64)
         W = np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr])
         O = np.array([owner.cx, owner.cy, math.cos(-owner.rot), math.sin(-owner.rot), owner.rx, owner.ry])
@@ -441,8 +555,19 @@ class ShadowedReplicaStructure(StandardStructure):
                 ss = self._sphere_set(seed, lx[m], ly[m])
                 rmax = float(ss.r.max()) if ss.r.size else 0.0
                 reach = 2.0 * rmax / max(math.tan(self.elev), 1e-3) + rmax
-                SPB[kb] = (ss.x0, ss.y0, 1.0 / ss.bin, step, step * NM_PER_UM, ux * ce, uy * ce, se, reach,
-                           0.5 * ss.bin, SHADOW_PENUMBRA_RAD)
+                SPB[kb] = (
+                    ss.x0,
+                    ss.y0,
+                    1.0 / ss.bin,
+                    step,
+                    step * NM_PER_UM,
+                    ux * ce,
+                    uy * ce,
+                    se,
+                    reach,
+                    0.5 * ss.bin,
+                    SHADOW_PENUMBRA_RAD,
+                )
                 SNB[kb] = (ss.nx, ss.ny)
                 cxs.append(ss.cx)
                 cys.append(ss.cy)
@@ -452,17 +577,29 @@ class ShadowedReplicaStructure(StandardStructure):
                 BSO[kb] = (s0, s0 + len(ss.start))
                 n_sph += ss.cx.size
                 n_mem += ss.members.size
-        cat = (lambda xs, dt: np.ascontiguousarray(np.concatenate(xs), dt) if xs else np.zeros(1, dt))
-        sarr = (cat(cxs, np.float64), cat(cys, np.float64), cat(rs, np.float64), cat(starts, np.int64),
-                cat(members, np.int64))
+        cat = lambda xs, dt: np.ascontiguousarray(np.concatenate(xs), dt) if xs else np.zeros(1, dt)
+        sarr = (
+            cat(cxs, np.float64),
+            cat(cys, np.float64),
+            cat(rs, np.float64),
+            cat(starts, np.int64),
+            cat(members, np.int64),
+        )
         # node grids of the aperiodic noise (analytic mode): strides a fraction of each field's
         # finest octave, in raster pixels (1: every pixel, as at low magnification)
-        finest = [((relief.wavy_um if relief else 1.0) / LACUNARITY, bool(FL[7])),
-                  ((relief.edge_corr if relief else 1.0) / LACUNARITY, bool(FL[8])),
-                  (self.crumple_um / LACUNARITY, bool(FL[1])),
-                  (self.rough_um / LACUNARITY ** 3, bool(FL[2]))]
-        ST = np.array([max(1, min(32, int(sc / (px * NODES_PER_WAVELENGTH)))) if (on and ANALYTIC_SLOPE) else 1
-                       for sc, on in finest], np.int64)
+        finest = [
+            ((relief.wavy_um if relief else 1.0) / LACUNARITY, bool(FL[7])),
+            ((relief.edge_corr if relief else 1.0) / LACUNARITY, bool(FL[8])),
+            (self.crumple_um / LACUNARITY, bool(FL[1])),
+            (self.rough_um / LACUNARITY**3, bool(FL[2])),
+        ]
+        ST = np.array(
+            [
+                max(1, min(32, int(sc / (px * NODES_PER_WAVELENGTH)))) if (on and ANALYTIC_SLOPE) else 1
+                for sc, on in finest
+            ],
+            np.int64,
+        )
         # the node lattice is world-fixed: raster pixel (r0, c0) is lattice pixel (gr, gc) of the
         # view's pixel lattice, and nodes sit on its multiples of s, so the pieces of a raster
         # (strips, the part a stage move brings in) interpolate the same nodes as the whole
@@ -470,29 +607,76 @@ class ShadowedReplicaStructure(StandardStructure):
         OFF = np.array([[gr - (gr // s) * s, gc - (gc // s) * s] for s in ST], np.int64)
         nodes = []
         for q, (s, (_, on)) in enumerate(zip(ST, finest)):
-            shape = ((r1 - 1 - r0 + OFF[q, 0]) // s + 2, (c1 - 1 - c0 + OFF[q, 1]) // s + 2, 2 if q < 2 else 3) \
-                if (on and ANALYTIC_SLOPE and s > 1) else (1, 1, 3)  # stride 1: evaluated per pixel
+            shape = (
+                ((r1 - 1 - r0 + OFF[q, 0]) // s + 2, (c1 - 1 - c0 + OFF[q, 1]) // s + 2, 2 if q < 2 else 3)
+                if (on and ANALYTIC_SLOPE and s > 1)
+                else (1, 1, 3)
+            )  # stride 1: evaluated per pixel
             nodes.append(np.zeros(shape))
         if ANALYTIC_SLOPE:
-            _replica_nb.replica_nodes(r0, r1, c0, c1, W, O, FS, FC, FSN, FA, FN, R, TX,
-                               ST, OFF, *nodes)
-        _replica_nb.replica_block(ctx.thick, ctx.material, ctx.grain, uthick, umat, used, ctx.nx, r0, r1, c0, c1, W, O,
-                           FL, R, stack, FS, FC, FSN, FA, FN, TX, *sarr, SPB, SNB, BSO, bstep, D, M, I, tiles, fseed,
-                           cseed, covs, lvx, levels, table, _OFFSETS, ST, OFF, *nodes, *_level_lut(cov, half, levels, table))
+            _replica_nb.replica_nodes(r0, r1, c0, c1, W, O, FS, FC, FSN, FA, FN, R, TX, ST, OFF, *nodes)
+        _replica_nb.replica_block(
+            ctx.thick,
+            ctx.material,
+            ctx.grain,
+            uthick,
+            umat,
+            used,
+            ctx.nx,
+            r0,
+            r1,
+            c0,
+            c1,
+            W,
+            O,
+            FL,
+            R,
+            stack,
+            FS,
+            FC,
+            FSN,
+            FA,
+            FN,
+            TX,
+            *sarr,
+            SPB,
+            SNB,
+            BSO,
+            bstep,
+            D,
+            M,
+            I,
+            tiles,
+            fseed,
+            cseed,
+            covs,
+            lvx,
+            levels,
+            table,
+            _OFFSETS,
+            ST,
+            OFF,
+            *nodes,
+            *_level_lut(cov, half, levels, table),
+        )
         if new_under and used[0]:
             ctx.under_material, ctx.under_thick = umat, uthick
 
     def fill(self, ctx, owner):
         seed = int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
         px = ctx.pixel_um
-        scales = [self.crumple_um if self.crumple_nm > 0 else 1e9,
-                  self.relief.P if self.relief is not None else 1e9,
-                  self.spheres.diameter_nm / NM_PER_UM if self.spheres is not None else 1e9]
+        scales = [
+            self.crumple_um if self.crumple_nm > 0 else 1e9,
+            self.relief.P if self.relief is not None else 1e9,
+            self.spheres.diameter_nm / NM_PER_UM if self.spheres is not None else 1e9,
+        ]
         if not _resolved(min(scales), ctx):
             return  # the owner carries the mean
         mean_c = self.mean_carbon_nm()
         flat = self.flat_deposit_nm()
-        rough = (self.rough_nm > 0 or self.crumple_nm > 0) and _resolved(min(self.rough_um, self.crumple_um) / 2.0, ctx)
+        rough = (self.rough_nm > 0 or self.crumple_nm > 0) and _resolved(
+            min(self.rough_um, self.crumple_um) / 2.0, ctx
+        )
         islands = self.metal_nm > 0 and _resolved(self.island_nm / NM_PER_UM, ctx)
         tile = self.tile()
         ux, uy = self.u
@@ -551,8 +735,9 @@ class ShadowedReplicaStructure(StandardStructure):
             if self.metal_nm <= 0:
                 continue
             if islands:
-                inside, t_m, grain = island_film(seed, lx, ly, dep, flat, self.island_nm, self.coverage,
-                                                 self.metal, self.grain_nm)
+                inside, t_m, grain = island_film(
+                    seed, lx, ly, dep, flat, self.island_nm, self.coverage, self.metal, self.grain_nm
+                )
             else:  # islands too fine to see: the deposit as a continuous metal layer
                 inside, t_m, grain = dep > 0, dep, np.full(int((dep > 0).sum()), -1, np.int32)
             if inside.any():
@@ -564,6 +749,8 @@ class ShadowedReplicaStructure(StandardStructure):
                 if (~on_latex).any():
                     ctx.add_under(f[~on_latex], MaterialId.AMORPHOUS_CARBON, below[~on_latex])
                 if on_latex.any():  # the film under the latex counted as latex
-                    tl = chord[inside][on_latex] + carbon[inside][on_latex] * carbon_equivalent(self.sphere_material)
+                    tl = chord[inside][on_latex] + carbon[inside][on_latex] * carbon_equivalent(
+                        self.sphere_material
+                    )
                     ctx.add_under(f[on_latex], self.sphere_material, tl)
                 _claim(ctx, f, grain, self.metal)

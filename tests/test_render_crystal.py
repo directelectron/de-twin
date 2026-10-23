@@ -40,7 +40,7 @@ def _disk_radius(img, cx, cy, window):
     """Radius of a uniform disk from the second moment of the rendered (disk (x) PSF) spot."""
     y, x = np.indices(img.shape)
     r2 = (x - cx) ** 2 + (y - cy) ** 2
-    m = r2 < window ** 2
+    m = r2 < window**2
     mom = (img[m] * r2[m]).sum() / img[m].sum()
     return mom
 
@@ -82,8 +82,11 @@ def test_stem_convergence_is_a_stem_convergence():
 
 def _cbed(alpha_mrad, cl_mm=100.0):
     gid = AU * GRAINS_PER_MATERIAL + 2
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 30.0, grain=2)],
-                             grains=on_zone_grains(gid, (0, 1, 1)))
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM,
+        particles=[Particle(0.0, 0.0, 30.0, grain=2)],
+        grains=on_zone_grains(gid, (0, 1, 1)),
+    )
     s = MicroscopeState()
     s.tem_stem = TemStem.STEM
     s.camera_length_mm = cl_mm
@@ -93,8 +96,12 @@ def _cbed(alpha_mrad, cl_mm=100.0):
     r.scan.size = (9, 9)
     r.scan.step_um = 0.002
     o = derive_optics(s, r, StubCamera(), Calibration.default(), OpticsConfig())
-    img = Renderer(spec, RenderConfig(intensity_jitter=False, probe_footprint_blend=False,
-                                      diffuse_scattering=False, film_halo=False)).render(o, scan_point=(4, 4))
+    img = Renderer(
+        spec,
+        RenderConfig(
+            intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False, film_halo=False
+        ),
+    ).render(o, scan_point=(4, 4))
     return o, img
 
 
@@ -119,8 +126,11 @@ def test_cbed_disks_separate_when_alpha_is_below_half_the_bragg_angle():
 
 def test_tem_bright_field_contrast_changes_with_tilt():
     gid = AU * GRAINS_PER_MATERIAL + 4
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 12.0, grain=4)],
-                             grains=on_zone_grains(gid, (0, 1, 1), in_plane_rad=0.4))
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM,
+        particles=[Particle(0.0, 0.0, 12.0, grain=4)],
+        grains=on_zone_grains(gid, (0, 1, 1), in_plane_rad=0.4),
+    )
     r = Renderer(spec, RenderConfig(phase_texture_scale=0.0, lattice_fringes=False))
     config = OpticsConfig(objective_aperture_mrad=5.0)
     means = []
@@ -128,7 +138,9 @@ def test_tem_bright_field_contrast_changes_with_tilt():
         s = MicroscopeState()
         s.magnification = 50000
         s.stage.alpha_deg = float(a)
-        o = derive_optics(s, AcquisitionRequest(), StubCamera(sensor_shape=(256, 256)), Calibration.default(), config)
+        o = derive_optics(
+            s, AcquisitionRequest(), StubCamera(sensor_shape=(256, 256)), Calibration.default(), config
+        )
         img = r.render(o) / o.dose_e_per_px_s
         fm, _ = r.field_map(o)
         inside = fm.grain_id == gid
@@ -145,17 +157,26 @@ def test_determinism():
     s = MicroscopeState()
     s.projection = Projection.DIFFRACTION
     s.camera_length_mm = 150.0
-    o = derive_optics(s, AcquisitionRequest(), StubCamera(sensor_shape=(256, 256)), Calibration.default(),
-                      OpticsConfig(sa_aperture_um=2.0))
+    o = derive_optics(
+        s,
+        AcquisitionRequest(),
+        StubCamera(sensor_shape=(256, 256)),
+        Calibration.default(),
+        OpticsConfig(sa_aperture_um=2.0),
+    )
     assert np.array_equal(a.render(o), b.render(o))
 
 
 # ---------------------------------------------------------------- perf
 def _many_grains(n=200, seed=5):
     rng = np.random.default_rng(seed)
-    return SyntheticSpecimen(film_thickness_nm=10.0, particles=[
-        Particle(float(x), float(y), 8.0, AU, int(g))
-        for x, y, g in zip(rng.uniform(-0.2, 0.2, n), rng.uniform(-0.2, 0.2, n), range(n))])
+    return SyntheticSpecimen(
+        film_thickness_nm=10.0,
+        particles=[
+            Particle(float(x), float(y), 8.0, AU, int(g))
+            for x, y, g in zip(rng.uniform(-0.2, 0.2, n), rng.uniform(-0.2, 0.2, n), range(n))
+        ],
+    )
 
 
 def test_perf_saed_and_tilt_step():
@@ -176,8 +197,9 @@ def test_perf_saed_and_tilt_step():
     # TEM bright field (512^2) tilt step
     t = MicroscopeState()
     t.magnification = 8000  # 416 nm field: all 200 grains in view
-    tem = derive_optics(t, AcquisitionRequest(), StubCamera(sensor_shape=(512, 512)), Calibration.default(),
-                        OpticsConfig())
+    tem = derive_optics(
+        t, AcquisitionRequest(), StubCamera(sensor_shape=(512, 512)), Calibration.default(), OpticsConfig()
+    )
     r.render(tem)
     assert len(np.unique(r.field_map(tem)[0].grain_id)) > 150
     times = []

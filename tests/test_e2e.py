@@ -32,8 +32,10 @@ def xcorr_shift(a, b):
 
 def test_soap_stage_move_shifts_deapi_images():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim")
-    with TemChannelServer(twin.column, host="127.0.0.1", port=0) as soap, \
-            TwinDeapiServer(twin, port=0, pace=False) as cam:
+    with (
+        TemChannelServer(twin.column, host="127.0.0.1", port=0) as soap,
+        TwinDeapiServer(twin, port=0, pace=False) as cam,
+    ):
         scope = SoapTemChannelClient(port=soap.port)
         c = deapi.Client()
         c.usingMmf = False
@@ -57,7 +59,9 @@ def test_soap_stage_move_shifts_deapi_images():
             time.sleep(0.02)
         b = image()
         # DE-Server's metadata view of the column agrees with the SOAP face
-        assert float(c["Instrument Stage Position X (micrometers)"]) == pytest.approx(x0 + 60 * px_um, abs=1e-3)
+        assert float(c["Instrument Stage Position X (micrometers)"]) == pytest.approx(
+            x0 + 60 * px_um, abs=1e-3
+        )
         c.disconnect()
     dx, dy = xcorr_shift(b, a)
     assert abs(abs(dx) - 60) <= 2 and abs(dy) <= 2

@@ -45,9 +45,22 @@ def buckets(fm, optics, grains, crystallinity, config):
     cryst = np.bincount(inv, weights=s.crystallinity[disk], minlength=len(uniq)) / counts
     diffuse = np.bincount(mat, weights=s.diffuse_w[disk].astype(np.float64), minlength=len(MATERIALS)) / n
     if s.under_mat is not None:
-        diffuse = diffuse + np.bincount(s.under_mat[disk].astype(np.int64), weights=s.under_w[disk].astype(np.float64),
-                                        minlength=len(MATERIALS)) / n
-    return (uniq >> 40, ((uniq >> 12) & 0x0FFFFFFF) - 1, (uniq & 0xFFF) * THICKNESS_BIN_NM, cryst, weight), diffuse
+        diffuse = (
+            diffuse
+            + np.bincount(
+                s.under_mat[disk].astype(np.int64),
+                weights=s.under_w[disk].astype(np.float64),
+                minlength=len(MATERIALS),
+            )
+            / n
+        )
+    return (
+        uniq >> 40,
+        ((uniq >> 12) & 0x0FFFFFFF) - 1,
+        (uniq & 0xFFF) * THICKNESS_BIN_NM,
+        cryst,
+        weight,
+    ), diffuse
 
 
 def composite(bk, optics, grains, options: PatternOptions) -> tuple[Pattern, int]:
@@ -60,13 +73,22 @@ def composite(bk, optics, grains, options: PatternOptions) -> tuple[Pattern, int
         rows = []
         for m in np.unique(mats[folded]):
             f = folded[mats[folded] == m]
-            rows.append((m, -1, np.average(t[f], weights=weight[f]), np.average(cryst[f], weights=weight[f]),
-                         weight[f].sum()))
+            rows.append(
+                (
+                    m,
+                    -1,
+                    np.average(t[f], weights=weight[f]),
+                    np.average(cryst[f], weights=weight[f]),
+                    weight[f].sum(),
+                )
+            )
         fm, fg, ft, fc, fw = (np.array(v) for v in zip(*rows))
         mats, gids = np.r_[mats[keep], fm], np.r_[gids[keep], fg]
         t, cryst, weight = np.r_[t[keep], ft], np.r_[cryst[keep], fc], np.r_[weight[keep], fw]
-    return (bucket_patterns(mats, gids, t, cryst, grains, optics, options).combine(weight),
-            int(min(len(grain), MAX_EXACT_GRAINS)))
+    return (
+        bucket_patterns(mats, gids, t, cryst, grains, optics, options).combine(weight),
+        int(min(len(grain), MAX_EXACT_GRAINS)),
+    )
 
 
 def apply_beam_stop(img: np.ndarray, cx: float, cy: float, radius: float) -> None:
@@ -105,17 +127,28 @@ class SaedRenderer:
             return self._render_one(fm, fm_token, optics, grains, crystallinity)
         out = None
         for (tx, ty), wt, (sx, sy) in samples:
-            key = (fm_token, dataclasses.replace(optics, precession_mrad=0.0, precession_phase_rad=0.0,
-                                                 precession_arc_rad=6.283185307179586,
-                                                 beam_tilt_mrad=(tx * 1e3, ty * 1e3)),
-                   round(sx, 9), round(sy, 9))
+            key = (
+                fm_token,
+                dataclasses.replace(
+                    optics,
+                    precession_mrad=0.0,
+                    precession_phase_rad=0.0,
+                    precession_arc_rad=6.283185307179586,
+                    beam_tilt_mrad=(tx * 1e3, ty * 1e3),
+                ),
+                round(sx, 9),
+                round(sy, 9),
+            )
             img = self._tilts.get(key)
             if img is None:
                 img = self._render_one(fm, fm_token, key[1], grains, crystallinity, keep=False)
                 if sx or sy:  # no descan: this tilt's pattern sits off the centre
                     img = shift_bilinear(img, sx / optics.recip_pixel_inv_nm, sy / optics.recip_pixel_inv_nm)
                 self._tilts[key] = img
-                while sum(v.nbytes for v in self._tilts.values()) > PRECESSION_CACHE_BYTES and len(self._tilts) > 1:
+                while (
+                    sum(v.nbytes for v in self._tilts.values()) > PRECESSION_CACHE_BYTES
+                    and len(self._tilts) > 1
+                ):
                     self._tilts.popitem(last=False)
             else:
                 self._tilts.move_to_end(key)
@@ -136,11 +169,21 @@ class SaedRenderer:
             return np.zeros((h, w), np.float32)
         spec, self.exact_grains = composite(bk, optics, grains, options)
         mrad_px = optics.recip_pixel_inv_nm * 1000.0 * optics.wavelength_nm
-        dif = [(screening_angle_mrad(m, optics.wavelength_nm), float(diffuse[m]))
-               for m in range(len(diffuse)) if diffuse[m] > 0]
+        dif = [
+            (screening_angle_mrad(m, optics.wavelength_nm), float(diffuse[m]))
+            for m in range(len(diffuse))
+            if diffuse[m] > 0
+        ]
         cx0, cy0 = float(w // 2), float(h // 2)
-        pat = render_pattern(spec, (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px,
-                             center=(cx0, cy0), diffuse=dif, mrad_per_px=mrad_px)
+        pat = render_pattern(
+            spec,
+            (h, w),
+            optics.recip_pixel_inv_nm,
+            optics.disk_radius_px,
+            center=(cx0, cy0),
+            diffuse=dif,
+            mrad_per_px=mrad_px,
+        )
         dcx, dcy = optics.diffraction_center_px
         pat = shift_bilinear(pat, dcx - cx0, dcy - cy0)
         pat *= np.float32(optics.pattern_e_per_s)

@@ -30,7 +30,9 @@ class Samples:
     under_w: np.ndarray = None  # float32 its diffuse fraction
 
 
-def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True, diffuse: bool = True) -> Samples:
+def describe(
+    fm, optics, grains, crystallinity, *, fallback_grains: bool = True, diffuse: bool = True
+) -> Samples:
     mat = fm.material_id
     t = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     lam = absorption_lengths_nm(optics.ht_kv)
@@ -42,8 +44,11 @@ def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True,
         umat = fm.under_material
         tu = fm.under_thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
         Tu = np.exp(-tu / lam[umat]).astype(np.float32)
-        uw = ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam[umat]))).astype(np.float32) if diffuse \
+        uw = (
+            ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam[umat]))).astype(np.float32)
+            if diffuse
             else np.zeros_like(tu)
+        )
         uw = np.where(umat > 0, uw, np.float32(0.0))
 
     gid = fm.grain_id.astype(np.int64)
@@ -69,10 +74,23 @@ def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True,
         ungrained = ~m & crystalline
         if ungrained.any():  # the specimen decides: glassy (in-situ, not nucleated) or powder
             cryst[ungrained] = float(np.asarray(crystallinity(np.array([-1])), float)[0])
-    dw = ((1.0 - T) * np.exp(-t / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32) if diffuse \
+    dw = (
+        ((1.0 - T) * np.exp(-t / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32)
+        if diffuse
         else np.zeros_like(t)
+    )
     if umat is not None:  # the primary sees only what the under layer let through
         T = T * Tu
         dw = dw * Tu
-    return Samples(mat, t, np.maximum(T, MIN_TRANSMISSION).astype(np.float32), own_gid, diff_gid,
-                   thickness_bin_for(t), cryst, dw, umat, uw)
+    return Samples(
+        mat,
+        t,
+        np.maximum(T, MIN_TRANSMISSION).astype(np.float32),
+        own_gid,
+        diff_gid,
+        thickness_bin_for(t),
+        cryst,
+        dw,
+        umat,
+        uw,
+    )

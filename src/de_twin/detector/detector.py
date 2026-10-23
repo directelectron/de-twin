@@ -79,8 +79,9 @@ class Detector:
     ``expose`` is serialised by an internal lock (it reuses buffers).
     """
 
-    def __init__(self, model: CameraModel | str = "DE16", seed: int = 0, *,
-                 ht_kv: float = 300.0, **overrides):
+    def __init__(
+        self, model: CameraModel | str = "DE16", seed: int = 0, *, ht_kv: float = 300.0, **overrides
+    ):
         model = camera(model)
         if overrides:
             known = {f.name for f in dataclasses.fields(CameraModel)}
@@ -130,8 +131,12 @@ class Detector:
     def super_resolution(self, request: AcquisitionRequest | None = None) -> bool:
         """Whether *request* reads this camera out at super-resolution: a counting camera,
         asked for it, unbinned (binning and super-resolution do not combine)."""
-        return bool(request is not None and getattr(request, "super_resolution", False)
-                    and self.model.hardware_counting and _binning(request) == (1, 1))
+        return bool(
+            request is not None
+            and getattr(request, "super_resolution", False)
+            and self.model.hardware_counting
+            and _binning(request) == (1, 1)
+        )
 
     # ------------------------------------------------------- ground truth
     def _build_maps(self) -> None:
@@ -148,8 +153,11 @@ class Detector:
         if m.fpn_pattern:
             xi = np.arange(W)
             seg_w = max(1, m.segment_shape[1])
-            col = (((xi // seg_w + 1) % 2) * 10 + np.where(xi < seg_w, 20, 0)
-                   + np.where((xi >= seg_w) & (xi < 2 * seg_w), -20, 0)).astype(np.float32)
+            col = (
+                ((xi // seg_w + 1) % 2) * 10
+                + np.where(xi < seg_w, 20, 0)
+                + np.where((xi >= seg_w) & (xi < 2 * seg_w), -20, 0)
+            ).astype(np.float32)
             off += (np.arange(H) % 8).astype(np.float32)[:, None] * (xi % 8).astype(np.float32)[None, :]
             off += col[None, :]
         if m.fpn_column_adu > 0:
@@ -165,7 +173,9 @@ class Detector:
         gain = gain * (1.0 + np.float32(m.gain_stitch) * ((yy % seg_h) / seg_h - 0.5))
         gain = gain.astype(np.float32, copy=False)
         if m.gain_column_sigma > 0:
-            gain *= 1.0 + (rng.standard_normal(W, dtype=np.float32) * np.float32(m.gain_column_sigma))[None, :]
+            gain *= (
+                1.0 + (rng.standard_normal(W, dtype=np.float32) * np.float32(m.gain_column_sigma))[None, :]
+            )
         if m.gain_pixel_sigma > 0:
             gain *= 1.0 + rng.standard_normal((H, W), dtype=np.float32) * np.float32(m.gain_pixel_sigma)
         gain /= np.float32(gain.mean(dtype=np.float64))
@@ -177,8 +187,7 @@ class Detector:
         n_hot = round(m.hot_pixel_fraction * n)
         n_dead = round(m.dead_pixel_fraction * n)
         n_cols = round(m.bad_column_fraction * W)
-        picks = (rng.choice(n, size=n_hot + n_dead, replace=False) if n_hot + n_dead
-                 else np.zeros(0, np.int64))
+        picks = rng.choice(n, size=n_hot + n_dead, replace=False) if n_hot + n_dead else np.zeros(0, np.int64)
         hot_idx, dead_idx = picks[:n_hot], picks[n_hot:]
         lo, hi = m.hot_dark_current_adu_per_s
         hot_rate = np.exp(rng.uniform(np.log(lo), np.log(hi), n_hot)).astype(np.float32)
@@ -187,8 +196,7 @@ class Detector:
         oflat[dead_idx[: len(dead_idx) // 2]] = 0.0  # half of the dead pixels read ~0
         bflat[hot_idx] = True
         bflat[dead_idx] = True
-        bad_cols = (np.sort(rng.choice(W, size=n_cols, replace=False)) if n_cols
-                    else np.zeros(0, np.int64))
+        bad_cols = np.sort(rng.choice(W, size=n_cols, replace=False)) if n_cols else np.zeros(0, np.int64)
         for c in bad_cols:
             gain[:, c] *= 0.3
             off[:, c] += 150.0
@@ -238,7 +246,7 @@ class Detector:
         r = self.roi(request)
         bx, by = _binning(request)
         oh, ow = self.output_shape(request)
-        d = (self.dark_map + self.dark_current_map(exposure_s))[r.y:r.y + oh * by, r.x:r.x + ow * bx]
+        d = (self.dark_map + self.dark_current_map(exposure_s))[r.y : r.y + oh * by, r.x : r.x + ow * bx]
         d = np.clip(d, 0, self.model.max_value)
         return d.reshape(oh, by, ow, bx).mean(axis=(1, 3), dtype=np.float64)
 
@@ -247,13 +255,20 @@ class Detector:
         r = self.roi(request)
         bx, by = _binning(request)
         oh, ow = self.output_shape(request)
-        g = self.gain_map[r.y:r.y + oh * by, r.x:r.x + ow * bx]
+        g = self.gain_map[r.y : r.y + oh * by, r.x : r.x + ow * bx]
         return g.reshape(oh, by, ow, bx).mean(axis=(1, 3), dtype=np.float64)
 
     # --------------------------------------------------------------- expose
-    def expose(self, flux, exposure_s: float, request: AcquisitionRequest | None = None,
-               frame_index: int = 0, *, ht_kv: float | None = None,
-               seed: int | None = None) -> tuple[np.ndarray, dict]:
+    def expose(
+        self,
+        flux,
+        exposure_s: float,
+        request: AcquisitionRequest | None = None,
+        frame_index: int = 0,
+        *,
+        ht_kv: float | None = None,
+        seed: int | None = None,
+    ) -> tuple[np.ndarray, dict]:
         """Simulate one raw frame.
 
         ``flux``: electrons / sensor pixel / second, a float array of the ROI
@@ -291,8 +306,10 @@ class Detector:
                 direct = False
                 flux = flux[: oh * by, : ow * bx]
             else:
-                raise ValueError(f"flux shape {flux.shape} matches neither the ROI "
-                                 f"({r.h}, {r.w}) nor the output shape ({oh}, {ow})")
+                raise ValueError(
+                    f"flux shape {flux.shape} matches neither the ROI "
+                    f"({r.h}, {r.w}) nor the output shape ({oh}, {ow})"
+                )
             if flux.dtype != np.float32:
                 flux = flux.astype(np.float32)
 
@@ -305,8 +322,12 @@ class Detector:
             nb, gbx, gby = 1, bx, by
 
         # hot pixels inside the ROI, in grid coordinates
-        hm = ((self._hot_y >= sl[0].start) & (self._hot_y < sl[0].stop)
-              & (self._hot_x >= sl[1].start) & (self._hot_x < sl[1].stop))
+        hm = (
+            (self._hot_y >= sl[0].start)
+            & (self._hot_y < sl[0].stop)
+            & (self._hot_x >= sl[1].start)
+            & (self._hot_x < sl[1].stop)
+        )
         hy = (self._hot_y[hm] - r.y) // (by if direct else 1)
         hx = (self._hot_x[hm] - r.x) // (bx if direct else 1)
         hrate = self._hot_rate[hm] / np.float32(nb)
@@ -320,11 +341,27 @@ class Detector:
         scale = 2.0 ** (min(bd, m.bit_depth) - m.bit_depth) if bd else 1.0
         vmax = float(min(m.max_value, (1 << bd) - 1) if bd else m.max_value)
 
-        ctx = _Ctx(model=m, seed=self.seed if seed is None else int(seed), frame_index=int(frame_index), t=t, flux=flux,
-                   nb=nb, gain=gain, off=off, gbx=gbx, gby=gby, out=out, vmax=vmax, scale=scale,
-                   hy=hy, hx=hx, hrate=hrate, S=None,
-                   adu=m.adu_per_electron_at(ht),
-                   a=m.charge_spread_at(ht) / (bx if direct else 1))
+        ctx = _Ctx(
+            model=m,
+            seed=self.seed if seed is None else int(seed),
+            frame_index=int(frame_index),
+            t=t,
+            flux=flux,
+            nb=nb,
+            gain=gain,
+            off=off,
+            gbx=gbx,
+            gby=gby,
+            out=out,
+            vmax=vmax,
+            scale=scale,
+            hy=hy,
+            hx=hx,
+            hrate=hrate,
+            S=None,
+            adu=m.adu_per_electron_at(ht),
+            a=m.charge_spread_at(ht) / (bx if direct else 1),
+        )
 
         with self._lock:
             if m.hardware_counting and (sr or _fast_detector()):
@@ -379,23 +416,56 @@ class Detector:
             lut = getattr(self, "_gamma_lut", None)
             if lut is None or lut[0] != k:
                 lut = self._gamma_lut = (k, fast.gamma_lut(k))
-            fast.deposit(lam, p0, float(ctx.adu), float(k),
-                         np.uint64(fast.frame_key(ctx.seed, ctx.frame_index, 1)), self._S,
-                         table, zstart, lut[1])
+            fast.deposit(
+                lam,
+                p0,
+                float(ctx.adu),
+                float(k),
+                np.uint64(fast.frame_key(ctx.seed, ctx.frame_index, 1)),
+                self._S,
+                table,
+                zstart,
+                lut[1],
+            )
         S = self._S if has else ctx.gain  # unread without signal
         base = float(m.dark_current_adu_per_s * ctx.t)
         sigma = float(m.read_noise_adu / math.sqrt(ctx.nb)) if m.read_noise_adu > 0 else 0.0
         if ctx.gbx == 1 and ctx.gby == 1:
             hot = self._hot_grid(ctx, gh, gw)
-            sat = fast.analog_out(S, has, float(ctx.a), 1.0 / ctx.nb, ctx.gain, ctx.off, base,
-                                  sigma, float(ctx.scale), table, nstart, hot,
-                                  float(ctx.vmax), ctx.out)
+            sat = fast.analog_out(
+                S,
+                has,
+                float(ctx.a),
+                1.0 / ctx.nb,
+                ctx.gain,
+                ctx.off,
+                base,
+                sigma,
+                float(ctx.scale),
+                table,
+                nstart,
+                hot,
+                float(ctx.vmax),
+                ctx.out,
+            )
             return float(dose), int(sat)
         x = getattr(self, "_X", None)
         if x is None or x.shape != (gh, gw):
             x = self._X = np.empty((gh, gw), np.float32)
-        fast.analog(S, has, float(ctx.a), 1.0 / ctx.nb, ctx.gain, ctx.off, base, sigma,
-                    float(ctx.scale), table, nstart, x)
+        fast.analog(
+            S,
+            has,
+            float(ctx.a),
+            1.0 / ctx.nb,
+            ctx.gain,
+            ctx.off,
+            base,
+            sigma,
+            float(ctx.scale),
+            table,
+            nstart,
+            x,
+        )
         if ctx.hy.size:
             np.add.at(x, (ctx.hy, ctx.hx), ctx.hrate * np.float32(ctx.t * ctx.scale))
         sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
@@ -416,14 +486,14 @@ class Detector:
             sat = fast.count_super(mean, p0, key, table, zstart, int(cap), float(ctx.vmax), ctx.out)
             return dose, int(sat)
         if ctx.gbx == 1 and ctx.gby == 1:
-            sat = fast.count(mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb,
-                             float(ctx.vmax), ctx.out, mean, False)
+            sat = fast.count(
+                mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb, float(ctx.vmax), ctx.out, mean, False
+            )
             return dose, int(sat)
         x = getattr(self, "_X", None)
         if x is None or x.shape != (gh, gw):
             x = self._X = np.empty((gh, gw), np.float32)
-        fast.count(mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb, float(ctx.vmax),
-                   ctx.out, x, True)
+        fast.count(mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb, float(ctx.vmax), ctx.out, x, True)
         sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
         return dose, int(sat)
 
@@ -451,10 +521,18 @@ class Detector:
             np.add.at(hot, (ctx.hy, ctx.hx), ctx.hrate * np.float32(ctx.nb * m.full_frame_time_s))
         mean = np.empty((gh, gw), np.float32)
         p0 = np.empty((gh, gw), np.float32)
-        dose = fast.counting_prepare(flux if flux is not None else ctx.gain, flux is not None,
-                                     ctx.gain, float(ctx.t * ctx.nb), float(m.cluster_area_px),
-                                     float(ncyc * ctx.nb), float(m.false_event_rate), hot,
-                                     mean, p0)
+        dose = fast.counting_prepare(
+            flux if flux is not None else ctx.gain,
+            flux is not None,
+            ctx.gain,
+            float(ctx.t * ctx.nb),
+            float(m.cluster_area_px),
+            float(ncyc * ctx.nb),
+            float(m.false_event_rate),
+            hot,
+            mean,
+            p0,
+        )
         self._cmeans = (key, owner, gowner, mean, p0, float(dose))
         return mean, p0, float(dose)
 
@@ -572,8 +650,8 @@ class _Ctx:
                 v = _buf("v", (h, w))
                 v[0] = S[r0 - 1] if r0 > 0 else S[r0]
                 if h > 1:
-                    v[1:] = S[r0:r1 - 1]
-                    v[:-1] += S[r0 + 1:r1]
+                    v[1:] = S[r0 : r1 - 1]
+                    v[:-1] += S[r0 + 1 : r1]
                 v[-1] += S[r1] if r1 < S.shape[0] else S[r1 - 1]
                 tmp = _buf("tmp", (h, w))
                 np.multiply(S[r0:r1], ca, out=tmp)
@@ -622,7 +700,7 @@ class _Ctx:
         if bx > 1 or by > 1:
             x = x.reshape(h // by, by, w // bx, bx).mean(axis=(1, 3), dtype=np.float32)
         x += np.float32(0.5)
-        self.out[r0 // by:r1 // by] = x  # truncation after +0.5 == rounding (x >= 0)
+        self.out[r0 // by : r1 // by] = x  # truncation after +0.5 == rounding (x >= 0)
         return sat
 
     # ---- counting cameras: counted events per pixel
@@ -649,8 +727,11 @@ class _Ctx:
         p += np.float32(m.false_event_rate)
         sel = (self.hy >= r0) & (self.hy < r1)
         if sel.any():
-            np.add.at(p, (self.hy[sel] - r0, self.hx[sel]),
-                      self.hrate[sel] * np.float32(self.nb * m.full_frame_time_s))
+            np.add.at(
+                p,
+                (self.hy[sel] - r0, self.hx[sel]),
+                self.hrate[sel] * np.float32(self.nb * m.full_frame_time_s),
+            )
         np.minimum(p, np.float32(1.0), out=p)
         p *= np.float32(ncyc * self.nb)
         counts = _poisson(rng, p, _buf("n", (h, w)))

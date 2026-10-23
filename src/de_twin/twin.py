@@ -91,8 +91,9 @@ class DigitalTwin:
 
         if column is not None and corrector not in (None, "none"):
             raise ValueError("pass corrector= only when the twin builds its own column")
-        self.column = column if column is not None else Column(
-            clock=self.clock, corrector=corrector, seed=self.seed)
+        self.column = (
+            column if column is not None else Column(clock=self.clock, corrector=corrector, seed=self.seed)
+        )
         if holder is None or isinstance(holder, str):
             holder = connect_holder(holder or "none", clock=self.clock)
         self.holder = holder
@@ -149,7 +150,11 @@ class DigitalTwin:
         1.5 um underfocus — a phase object shows almost nothing in focus, and that is
         how cryo is imaged."""
         df = float(opts.start_defocus_um)
-        if df == 0.0 and getattr(self.specimen.config, "preparation", "") == "proteins"                 and float(getattr(opts, "negative_stain_fraction", 0.0)) < 0.5:
+        if (
+            df == 0.0
+            and getattr(self.specimen.config, "preparation", "") == "proteins"
+            and float(getattr(opts, "negative_stain_fraction", 0.0)) < 0.5
+        ):
             return -1.5
         return df
 
@@ -165,7 +170,11 @@ class DigitalTwin:
         if m.hardware_counting:
             return 0.1 * float(m.hw_quanta) * fps
         ht = float(self.column.state().ht_kv or m.reference_ht_kv)
-        per_e = float(m.adu_per_electron_at(ht)) if callable(getattr(m, "adu_per_electron_at", None))             else float(m.adu_per_electron)
+        per_e = (
+            float(m.adu_per_electron_at(ht))
+            if callable(getattr(m, "adu_per_electron_at", None))
+            else float(m.adu_per_electron)
+        )
         per_frame = max(0.0, (float(m.saturation_adu) - float(m.dark_offset_adu)) / max(per_e, 1e-9))
         return 0.35 * per_frame * fps
 
@@ -274,8 +283,9 @@ class DigitalTwin:
             if scan_point is None:
                 scan_point = self.scan_point(request, frame_index)
             img = self.renderer.render(optics, frame_index=frame_index, scan_point=scan_point, time_s=t)
-            if self.renderer.config.prefetch and (optics.render_mode == RenderMode.TEM_IMAGING
-                                                  or self.renderer.stem_model(optics) == "coherent"):
+            if self.renderer.config.prefetch and (
+                optics.render_mode == RenderMode.TEM_IMAGING or self.renderer.stem_model(optics) == "coherent"
+            ):
                 self._prefetch_next(request, state, t)
             if img.shape != shape:
                 img = _fit(img, shape)
@@ -286,8 +296,9 @@ class DigitalTwin:
     _STAGE_FIELDS = ("x_um", "y_um", "alpha_deg", "beta_deg")
 
     def _view_of(self, state: MicroscopeState) -> tuple:
-        return (tuple(getattr(state, f) for f in self._VIEW_FIELDS)
-                + tuple(getattr(state.stage, f) for f in self._STAGE_FIELDS))
+        return tuple(getattr(state, f) for f in self._VIEW_FIELDS) + tuple(
+            getattr(state.stage, f) for f in self._STAGE_FIELDS
+        )
 
     def _prefetch_next(self, request: AcquisitionRequest, state: MicroscopeState, t: float) -> None:
         """A new view: render, in the background, the one repeating the last change gives."""
@@ -373,8 +384,9 @@ class DigitalTwin:
                     self._frame_serial += 1
                 else:
                     serial, seed = i, int(request.seed)
-                raw, info = self.detector.expose(flux, frame_time, request, serial,
-                                                 ht_kv=state.ht_kv, seed=seed)
+                raw, info = self.detector.expose(
+                    flux, frame_time, request, serial, ht_kv=state.ht_kv, seed=seed
+                )
             meta = FrameMeta(
                 frame_index=i,
                 time_s=t,
@@ -411,8 +423,9 @@ class DigitalTwin:
         raw, _ = next(self.frames(req))
         return raw
 
-    def snap(self, exposure_s: float = 1.0, *, fps: float = 40.0, units: str = "electrons",
-             **request_kw) -> np.ndarray:
+    def snap(
+        self, exposure_s: float = 1.0, *, fps: float = 40.0, units: str = "electrons", **request_kw
+    ) -> np.ndarray:
         """An integrated, dark/gain-corrected image, the way DE-Server delivers one.
 
         ``exposure_s`` is split into frames at ``fps``, each corrected with
@@ -452,7 +465,7 @@ class DigitalTwin:
             return self.renderer.datacube(optics, time_s=t)
 
     def stem_model(self, request: AcquisitionRequest) -> str:
-        """"coherent" or "kinematic": the STEM model the renderer uses for this request."""
+        """ "coherent" or "kinematic": the STEM model the renderer uses for this request."""
         with self.lock:
             return self.renderer.stem_model(self.optics(request))
 
@@ -504,7 +517,9 @@ class DigitalTwin:
             "mag_offset_um": (0.0, 0.0),
             "stage_error_um": (float(state.stage_error_um.x), float(state.stage_error_um.y)),
             "backlash_um": float(self.column.backlash_um) if hasattr(self.column, "backlash_um") else 0.0,
-            "eucentric_offset_um": float(state.stage.z_um + config.stage_offset_um[2] - config.eucentric_height_um),
+            "eucentric_offset_um": float(
+                state.stage.z_um + config.stage_offset_um[2] - config.eucentric_height_um
+            ),
             "flip": (bool(config.flip_x), bool(config.flip_y)),
         }
         out["bs_matrix_um_per_unit"] = [[1.0, 0.0], [0.0, 1.0]]
@@ -545,10 +560,15 @@ class DigitalTwin:
         ny, nx = gt["grain_id"].shape
         step = gt["view"].pixel_um * 1000.0
         y, x = np.mgrid[0:ny, 0:nx] * step
-        return CrystalMap(Rotation(gt["quaternion"].reshape(-1, 4)), np.where(gid >= 0, mat.astype(int), -1),
-                          x=x.ravel(), y=y.ravel(),
-                          phase_list=PhaseList([phase_for(i) for i in ids], ids=ids) if ids else None,
-                          prop={"grain_id": gid, "thickness_nm": gt["thickness_nm"].ravel()}, scan_unit="nm")
+        return CrystalMap(
+            Rotation(gt["quaternion"].reshape(-1, 4)),
+            np.where(gid >= 0, mat.astype(int), -1),
+            x=x.ravel(),
+            y=y.ravel(),
+            phase_list=PhaseList([phase_for(i) for i in ids], ids=ids) if ids else None,
+            prop={"grain_id": gid, "thickness_nm": gt["thickness_nm"].ravel()},
+            scan_unit="nm",
+        )
 
     def request(self, **fields) -> AcquisitionRequest:
         """An AcquisitionRequest for this twin's camera."""

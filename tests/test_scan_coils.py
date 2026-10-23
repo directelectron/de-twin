@@ -35,7 +35,9 @@ class TestCoils:
 
     def test_a_pixel_offset_moves_by_whole_and_fractional_points(self):
         step = 2.0 / 64
-        assert scan_coils(_scan(pixel_offset=(3.0, -1.5))).center_volts == pytest.approx((3 * step, -1.5 * step))
+        assert scan_coils(_scan(pixel_offset=(3.0, -1.5))).center_volts == pytest.approx(
+            (3 * step, -1.5 * step)
+        )
 
     def test_rotation_turns_the_grid_but_not_the_offset(self):
         scan = _scan(rotation_deg=90.0, pixel_offset=(2.0, 0.0))
@@ -70,8 +72,15 @@ class TestOptics:
         assert o.view.center_um == base.view.center_um
 
     def test_each_point_lands_where_its_voltages_say(self, make_scan_optics):
-        scan = _scan(size=(16, 16), step_um=0.0008, voltage_h=(-0.3, 0.5), voltage_v=(-0.6, 0.2),
-                     pixel_offset=(1.25, -2.0), rotation_deg=30.0, flip=(False, True))
+        scan = _scan(
+            size=(16, 16),
+            step_um=0.0008,
+            voltage_h=(-0.3, 0.5),
+            voltage_v=(-0.6, 0.2),
+            pixel_offset=(1.25, -2.0),
+            rotation_deg=30.0,
+            flip=(False, True),
+        )
         o = make_scan_optics(scan)
         reference = make_scan_optics(_scan(size=(16, 16), step_um=0.0008))
         nm_per_v = o.extras["scan_nm_per_volt"]
@@ -93,9 +102,10 @@ class TestOptics:
         for col, row in ((7, 5), (11, 9)):  # on the points the moved probe reaches from (4, 5), (8, 9)
             x, y = o.view.pixel_to_world(row, col)
             particles.append(Particle(float(x), float(y), 1.5))
-        renderer = Renderer(SyntheticSpecimen(particles=particles),
-                            RenderConfig(stem_model="kinematic", intensity_jitter=False,
-                                         probe_footprint_blend=False))
+        renderer = Renderer(
+            SyntheticSpecimen(particles=particles),
+            RenderConfig(stem_model="kinematic", intensity_jitter=False, probe_footprint_blend=False),
+        )
         film = renderer.render(o, scan_point=(1, 1))
         for col, row in ((4, 5), (8, 9)):
             here = renderer.render(moved, scan_point=(col, row))
@@ -106,7 +116,9 @@ class TestOptics:
 class TestClamp:
     def test_the_offset_stops_at_half_the_range(self):
         step = 2.0 / 64
-        assert scan_coils(_scan(pixel_offset=(32.0, -32.0))).center_volts == pytest.approx((32 * step, -32 * step))
+        assert scan_coils(_scan(pixel_offset=(32.0, -32.0))).center_volts == pytest.approx(
+            (32 * step, -32 * step)
+        )
         assert scan_coils(_scan(pixel_offset=(100.0, -100.0))).center_volts == pytest.approx((1.0, -1.0))
 
     def test_the_offset_stays_inside_the_cards_output(self):

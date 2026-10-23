@@ -21,8 +21,12 @@ from de_twin.render import tem
 from de_twin.specimen.model import Specimen
 from de_twin.twin import DigitalTwin
 
-PRESETS = ("Dense Au on holey C", "Ted Pella 607 - 2160 l/mm grating replica (waffle)",
-           "Ted Pella 619 - Diffraction standard, evaporated aluminum", "Apoferritin in ice")
+PRESETS = (
+    "Dense Au on holey C",
+    "Ted Pella 607 - 2160 l/mm grating replica (waffle)",
+    "Ted Pella 619 - Diffraction standard, evaporated aluminum",
+    "Apoferritin in ice",
+)
 T = defaultdict(float)
 _depth = defaultdict(int)
 
@@ -39,6 +43,7 @@ def _wrap(owner, name, label):
             _depth[label] -= 1
             if _depth[label] == 0:
                 T[label] += time.perf_counter() - t0
+
     setattr(owner, name, w)
 
 
@@ -77,6 +82,7 @@ if tem._fp.AVAILABLE:  # the transposed FFTs of the fast path
                 return _f(*a, **k)
             finally:
                 T[_label] += time.perf_counter() - t0
+
         setattr(tem._fp, _name, _w)
 
 COLS = ("total", "raster", "bragg", "noise", "exit", "fft", "ctf", "ifft", "finish", "detector", "other")
@@ -92,9 +98,18 @@ def _frame(tw, req):
     total = t1 - t0
     exit_rest = T["exitwave"] - T["bragg"] - T["noise"]
     ifft = T["tem"] - T["exitwave"] - T["fft"] - T["ctf"]  # inverse FFT, |psi|^2, the product
-    r = {"total": total + (t2 - t1), "raster": T["raster"], "bragg": T["bragg"], "noise": T["noise"],
-         "exit": exit_rest, "fft": T["fft"], "ctf": T["ctf"], "ifft": ifft, "finish": T["finish"],
-         "detector": t2 - t1}
+    r = {
+        "total": total + (t2 - t1),
+        "raster": T["raster"],
+        "bragg": T["bragg"],
+        "noise": T["noise"],
+        "exit": exit_rest,
+        "fft": T["fft"],
+        "ctf": T["ctf"],
+        "ifft": ifft,
+        "finish": T["finish"],
+        "detector": t2 - t1,
+    }
     r["other"] = total - (T["raster"] + T["tem"] + T["finish"])
     return r
 
@@ -138,7 +153,9 @@ def main():
         f = tw.flux(req)
         tw.detector.expose(f, req.frame_time_s, req, 0, ht_kv=tw.column.state().ht_kv)  # its maps
         for name, r in cases(tw, req):
-            print(f"{preset[:24]:24s} {name:22s} " + " ".join(f"{1000 * r[c]:7.0f}" for c in COLS), flush=True)
+            print(
+                f"{preset[:24]:24s} {name:22s} " + " ".join(f"{1000 * r[c]:7.0f}" for c in COLS), flush=True
+            )
 
 
 if __name__ == "__main__":

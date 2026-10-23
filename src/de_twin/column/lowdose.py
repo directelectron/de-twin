@@ -118,9 +118,14 @@ class LowDose:
 
 def area_from_state(s) -> LowDoseArea:
     """An area holding the column's current settings (no defocus offset)."""
-    return LowDoseArea(float(s.magnification), int(s.spot_size), float(s.intensity), 0.0,
-                       (float(s.image_shift_um.x), float(s.image_shift_um.y)),
-                       (float(s.beam_shift_um.x), float(s.beam_shift_um.y)))
+    return LowDoseArea(
+        float(s.magnification),
+        int(s.spot_size),
+        float(s.intensity),
+        0.0,
+        (float(s.image_shift_um.x), float(s.image_shift_um.y)),
+        (float(s.beam_shift_um.x), float(s.beam_shift_um.y)),
+    )
 
 
 def normalise_area(name) -> str | None:

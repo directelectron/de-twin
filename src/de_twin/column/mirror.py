@@ -228,8 +228,9 @@ class MirrorColumn(Column):
         self.corrector_every = int(corrector_every)
         self.corrector_info: dict = {}
         self._corrector_supported: bool | None = None
-        super().__init__(clock=clock, stage_speed_um_s=float("inf"), tilt_speed_deg_s=float("inf"),
-                         stage_limits=(1e9,) * 5)
+        super().__init__(
+            clock=clock, stage_speed_um_s=float("inf"), tilt_speed_deg_s=float("inf"), stage_limits=(1e9,) * 5
+        )
         self.client = client or SoapTemChannelClient(host, port, timeout=timeout)
         self.host, self.port = self.client.host, self.client.port
         self.period_s = float(period_s)
@@ -272,8 +273,11 @@ class MirrorColumn(Column):
             except SoapError:
                 pass
         corr = None
-        if (self.corrector_every > 0 and self._corrector_supported is not False
-                and self.polls % self.corrector_every == 0):
+        if (
+            self.corrector_every > 0
+            and self._corrector_supported is not False
+            and self.polls % self.corrector_every == 0
+        ):
             corr = self.poll_corrector()
         with self.lock:
             prev = self._s.copy()
@@ -294,8 +298,9 @@ class MirrorColumn(Column):
             if "filament" in info:
                 extra["Filament"] = info["filament"]
             op = info.get("op_status")
-            changed = self._apply_state(state, op_state=op, extra=extra,
-                                        convergence_explicit=info.get("convergence_explicit"))
+            changed = self._apply_state(
+                state, op_state=op, extra=extra, convergence_explicit=info.get("convergence_explicit")
+            )
             self._remote_op = op
         self.connected = True
         self.last_error = None
@@ -370,19 +375,42 @@ class MirrorColumn(Column):
     def set(self, name: str, value: Any) -> None:
         """Forward a write to the channel, then refresh. Raises ColumnRefused on ``success=0``."""
         self._guard(name)
-        if name in ("InstrumentType", "HT", "HTState", "Filament", "HighTension", "MagString",
-                    "FunctionMode", "ApertureKind", "ApertureSize", "ConvergenceAngle"):
+        if name in (
+            "InstrumentType",
+            "HT",
+            "HTState",
+            "Filament",
+            "HighTension",
+            "MagString",
+            "FunctionMode",
+            "ApertureKind",
+            "ApertureSize",
+            "ConvergenceAngle",
+        ):
             if name == "FunctionMode":
                 name = "SubMode"
             else:
                 raise ColumnRefused(f"{name} cannot be written through DE-TEM-Channel")
-        if name in ("BeamTilt", "DiffractionShift", "ImageShift", "BeamShift", "ObjectiveStig",
-                    "CondenserStig", "GunShift", "GunTilt"):
+        if name in (
+            "BeamTilt",
+            "DiffractionShift",
+            "ImageShift",
+            "BeamShift",
+            "ObjectiveStig",
+            "CondenserStig",
+            "GunShift",
+            "GunTilt",
+        ):
             if isinstance(value, dict):
                 value = (value["x"], value["y"])
             value = tuple(float(v) for v in value)
-        if name == "ProbeMode" and not isinstance(value, (int, float)) and not str(value).lstrip("-").isdigit():
+        if (
+            name == "ProbeMode"
+            and not isinstance(value, (int, float))
+            and not str(value).lstrip("-").isdigit()
+        ):
             from .vendor import probe_mode_to_raw
+
             pm = value if isinstance(value, ProbeMode) else ProbeMode[str(value).upper()]
             value = probe_mode_to_raw(self.instrument_type, pm)
         if name == "StagePosition":

@@ -57,10 +57,15 @@ def test_the_numba_raster_is_the_numpy_raster(name, mag, monkeypatch):
 def test_a_rotated_tilted_view(monkeypatch):
     import dataclasses
 
-    tw = DigitalTwin("Ted Pella 603 - 2160 l/mm grating replica with 0.261 um latex spheres", camera="DESim",
-                     clock=ManualClock(), seed=4)
-    view = dataclasses.replace(tw.optics(tw.request()).view, shape=(300, 340), rotation_rad=0.6, flip_y=True,
-                               cos_alpha=0.93)
+    tw = DigitalTwin(
+        "Ted Pella 603 - 2160 l/mm grating replica with 0.261 um latex spheres",
+        camera="DESim",
+        clock=ManualClock(),
+        seed=4,
+    )
+    view = dataclasses.replace(
+        tw.optics(tw.request()).view, shape=(300, 340), rotation_rad=0.6, flip_y=True, cos_alpha=0.93
+    )
     ref = _raster(tw, view, False, monkeypatch)
     new = _raster(tw, view, True, monkeypatch)
     np.testing.assert_array_equal(new.material_id, ref.material_id)
@@ -69,8 +74,9 @@ def test_a_rotated_tilted_view(monkeypatch):
 
 
 @pytest.mark.skipif(not raster_nb.AVAILABLE, reason="no numba")
-@pytest.mark.parametrize("name", ["Ted Pella 607 - 2160 l/mm grating replica (waffle)",
-                                  "Ted Pella 628-B - Gold-shadowed latex"])
+@pytest.mark.parametrize(
+    "name", ["Ted Pella 607 - 2160 l/mm grating replica (waffle)", "Ted Pella 628-B - Gold-shadowed latex"]
+)
 @pytest.mark.parametrize("mag", [25000.0, 150000.0])
 def test_the_fast_replica_is_statistically_the_exact_one(name, mag, monkeypatch):
     """The fast replica (analytic texture slope, node grids for the smooth noise, the island

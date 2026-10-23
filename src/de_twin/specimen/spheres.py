@@ -62,8 +62,15 @@ def occlusion1(xk, yk, zk, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, d
     last = -2
     s_ = 0.0
     while s_ <= reach:
-        b = _bin_of(xk + dx / math.sqrt(dx * dx + dy * dy) * s_, yk + dy / math.sqrt(dx * dx + dy * dy) * s_,
-                    x0, y0, inv, nx, ny)
+        b = _bin_of(
+            xk + dx / math.sqrt(dx * dx + dy * dy) * s_,
+            yk + dy / math.sqrt(dx * dx + dy * dy) * s_,
+            x0,
+            y0,
+            inv,
+            nx,
+            ny,
+        )
         if b >= 0 and b != last:
             for m in range(start[b], start[b + 1]):
                 s = members[m]
@@ -103,14 +110,23 @@ def _top_chord_nb(x, y, cx, cy, r, start, members, x0, y0, inv, nx, ny, top, cho
 
 
 @_njit(parallel=True)
-def _occlusion_nb(x, y, z0, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, dy, dz, reach, step, pen, out):
+def _occlusion_nb(
+    x, y, z0, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, dy, dz, reach, step, pen, out
+):
     for k in _prange(x.size):
         occ = 0.0
         last = -2
         s_ = 0.0
         while s_ <= reach:
-            b = _bin_of(x[k] + dx / math.sqrt(dx * dx + dy * dy) * s_, y[k] + dy / math.sqrt(dx * dx + dy * dy) * s_,
-                        x0, y0, inv, nx, ny)
+            b = _bin_of(
+                x[k] + dx / math.sqrt(dx * dx + dy * dy) * s_,
+                y[k] + dy / math.sqrt(dx * dx + dy * dy) * s_,
+                x0,
+                y0,
+                inv,
+                nx,
+                ny,
+            )
             if b >= 0 and b != last:
                 for m in range(start[b], start[b + 1]):
                     s = members[m]
@@ -176,8 +192,22 @@ class SphereSet:
         y = np.ascontiguousarray(y, np.float64).ravel()
         top, chord = np.zeros(x.size), np.zeros(x.size)
         if self.cx.size and x.size:
-            _top_chord_nb(x, y, self.cx, self.cy, self.r, self.start, self.members, self.x0, self.y0,
-                          1.0 / self.bin, self.nx, self.ny, top, chord)
+            _top_chord_nb(
+                x,
+                y,
+                self.cx,
+                self.cy,
+                self.r,
+                self.start,
+                self.members,
+                self.x0,
+                self.y0,
+                1.0 / self.bin,
+                self.nx,
+                self.ny,
+                top,
+                chord,
+            )
         return top.reshape(shape), chord.reshape(shape)
 
     def occlusion(self, x, y, z0, to_source, elev: float, penumbra: float):
@@ -191,9 +221,28 @@ class SphereSet:
         if self.cx.size and x.size:
             ce, se = math.cos(elev), math.sin(elev)
             reach = 2.0 * float(self.r.max()) / max(math.tan(elev), 1e-3) + float(self.r.max())
-            _occlusion_nb(x, y, z0, self.cx, self.cy, self.r, self.start, self.members, self.x0, self.y0,
-                          1.0 / self.bin, self.nx, self.ny, to_source[0] * ce, to_source[1] * ce, se,
-                          reach, 0.5 * self.bin, penumbra, out)
+            _occlusion_nb(
+                x,
+                y,
+                z0,
+                self.cx,
+                self.cy,
+                self.r,
+                self.start,
+                self.members,
+                self.x0,
+                self.y0,
+                1.0 / self.bin,
+                self.nx,
+                self.ny,
+                to_source[0] * ce,
+                to_source[1] * ce,
+                se,
+                reach,
+                0.5 * self.bin,
+                penumbra,
+                out,
+            )
         return out.reshape(shape)
 
 
@@ -202,7 +251,11 @@ def _sites_nb(seed, i0, i1, j0, j1, jitter, out_x, out_y, out_h):
     k = 0
     for j in range(j0, j1 + 1):
         for i in range(i0, i1 + 1):
-            z = seed ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15)) ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
+            z = (
+                seed
+                ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
+                ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
+            )
             z = splitmix64_kernel(z)
             fx = float((z >> np.uint64(11)) & np.uint64(0xFFFFF)) / 1048576.0
             fy = float((z >> np.uint64(31)) & np.uint64(0xFFFFF)) / 1048576.0

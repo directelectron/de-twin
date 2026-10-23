@@ -46,8 +46,10 @@ class TcbfResult:
     @property
     def aberrations(self):
         from de_twin.optics.aberrations import Aberrations
-        return Aberrations({"C1": self.C1_nm, "A1": self.A1_nm, "B2": self.B2_nm, "A2": self.A2_nm,
-                            "C3": self.C3_nm})
+
+        return Aberrations(
+            {"C1": self.C1_nm, "A1": self.A1_nm, "B2": self.B2_nm, "A2": self.A2_nm, "C3": self.C3_nm}
+        )
 
 
 def bf_disk(mean_pattern: np.ndarray, threshold: float = 0.5) -> tuple[float, float, float]:
@@ -71,6 +73,7 @@ def _xcorr_shift(a_hat: np.ndarray, ref_hat: np.ndarray, upsample: int = 16) -> 
     def sub(cm, c0, cp):
         d = cm - 2 * c0 + cp
         return 0.0 if abs(d) < 1e-12 else 0.5 * (cm - cp) / d
+
     fy = sub(cc[(iy - 1) % ny, ix], cc[iy, ix], cc[(iy + 1) % ny, ix])
     fx = sub(cc[iy, (ix - 1) % nx], cc[iy, ix], cc[iy, (ix + 1) % nx])
     py = ((iy + ny // 2) % ny - ny // 2) + fy
@@ -103,11 +106,23 @@ def _basis(kx, ky, lam, order):
     return names, np.stack(cols, 1)
 
 
-def tcbf(datacube: np.ndarray, *, recip_px_inv_nm: float, scan_step_nm: float, wavelength_nm: float,
-         center: tuple[float, float] | None = None, radius: float | None = None,
-         edge: float = 0.85, max_pixels: int = 150, iterations: int = 3, fit_order: int = 1,
-         rotation_hint_rad: float = 0.0, upsample: int = 1, ctf_correct: bool = False,
-         reference_radius: float = 0.25) -> TcbfResult:
+def tcbf(
+    datacube: np.ndarray,
+    *,
+    recip_px_inv_nm: float,
+    scan_step_nm: float,
+    wavelength_nm: float,
+    center: tuple[float, float] | None = None,
+    radius: float | None = None,
+    edge: float = 0.85,
+    max_pixels: int = 150,
+    iterations: int = 3,
+    fit_order: int = 1,
+    rotation_hint_rad: float = 0.0,
+    upsample: int = 1,
+    ctf_correct: bool = False,
+    reference_radius: float = 0.25,
+) -> TcbfResult:
     """Parallax / tilt-corrected bright field.
 
     Parameters
@@ -151,7 +166,9 @@ def tcbf(datacube: np.ndarray, *, recip_px_inv_nm: float, scan_step_nm: float, w
         if mu <= 0:
             continue
         ims.append(v / mu - 1.0)
-        ks.append(((xx.ravel()[sel].mean() - cx) * recip_px_inv_nm, (yy.ravel()[sel].mean() - cy) * recip_px_inv_nm))
+        ks.append(
+            ((xx.ravel()[sel].mean() - cx) * recip_px_inv_nm, (yy.ravel()[sel].mean() - cy) * recip_px_inv_nm)
+        )
     ims = np.array(ims)
     ks = np.array(ks)
     hats = np.fft.fft2(ims)
@@ -228,10 +245,13 @@ def tcbf(datacube: np.ndarray, *, recip_px_inv_nm: float, scan_step_nm: float, w
                     np.add.at(acc, (yy2, xx2), v * wy * wx)
                     np.add.at(wts, (yy2, xx2), wy * wx)
         from scipy.ndimage import gaussian_filter
-        img = gaussian_filter(acc, 0.5 * u, mode="wrap") / np.maximum(gaussian_filter(wts, 0.5 * u, mode="wrap"),
-                                                                       1e-6)
+
+        img = gaussian_filter(acc, 0.5 * u, mode="wrap") / np.maximum(
+            gaussian_filter(wts, 0.5 * u, mode="wrap"), 1e-6
+        )
     if ctf_correct:
         from de_twin.optics.aberrations import Aberrations
+
         ny2, nx2 = img.shape
         step = scan_step_nm / max(1, int(upsample))
         qyy = np.fft.fftfreq(ny2, step)[:, None]
@@ -240,6 +260,20 @@ def tcbf(datacube: np.ndarray, *, recip_px_inv_nm: float, scan_step_nm: float, w
         qlx, qly = c * qxx - s * qyy, s * qxx + c * qyy
         chi = Aberrations({"C1": C1, "A1": A1}).chi(qlx, qly, lam)
         img = np.fft.ifft2(np.fft.fft2(img) * np.sign(np.sin(chi))).real
-    return TcbfResult(img, bf, C1, A1, complex(vals.get("B2", 0)), complex(vals.get("A2", 0)),
-                      float(complex(vals.get("C3", 0)).real), th,
-                      shifts, fit, ks, M, (float(cx), float(cy)), float(radius), residual)
+    return TcbfResult(
+        img,
+        bf,
+        C1,
+        A1,
+        complex(vals.get("B2", 0)),
+        complex(vals.get("A2", 0)),
+        float(complex(vals.get("C3", 0)).real),
+        th,
+        shifts,
+        fit,
+        ks,
+        M,
+        (float(cx), float(cy)),
+        float(radius),
+        residual,
+    )

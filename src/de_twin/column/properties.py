@@ -47,6 +47,7 @@ def _pair(value: Any, name: str) -> tuple[float, float]:
 # Property tables
 # ---------------------------------------------------------------------------
 
+
 def _v2(v: Vec2, scale: float = 1.0) -> tuple[float, float]:
     return (v.x / scale, v.y / scale)
 
@@ -55,6 +56,7 @@ def _set_vec(attr: str, scale: float = 1.0):
     def setter(col: Column, value) -> None:
         x, y = _pair(value, attr)
         setattr(col._s, attr, Vec2(x * scale, y * scale))
+
     return setter
 
 
@@ -142,6 +144,7 @@ def _set_flag(attr: str):
     def setter(col: Column, value) -> None:
         v = value.strip().lower() in ("1", "true", "on", "yes") if isinstance(value, str) else bool(value)
         setattr(col._s, attr, v)
+
     return setter
 
 
@@ -151,24 +154,28 @@ def _set_float(attr: str, lo: float, hi: float):
         if not lo <= v <= hi:
             raise ColumnRefused(f"{attr} must be in [{lo:g}, {hi:g}], got {v:g}")
         setattr(col._s, attr, v)
+
     return setter
 
 
 def _set_extra_pair(key: str):
     def setter(col: Column, value) -> None:
         col._extra[key] = _pair(value, key)
+
     return setter
 
 
 def _set_extra_float(key: str):
     def setter(col: Column, value) -> None:
         col._extra[key] = float(value)
+
     return setter
 
 
 def _set_axis(i: int):
     def setter(col: Column, value) -> None:
         col._s_stage({STAGE_AXES[i]: float(value)})
+
     return setter
 
 
@@ -176,6 +183,7 @@ def _get_axis(i: int):
     def getter(col: Column) -> float:
         col._update_stage()
         return float(col._stage_now[i])
+
     return getter
 
 

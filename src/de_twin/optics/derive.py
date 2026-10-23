@@ -51,8 +51,9 @@ MAX_ALPHA_RAD = 0.1
 MIN_DISK_RADIUS_PX = 0.75
 
 
-def select_render_mode(state: MicroscopeState, request: AcquisitionRequest,
-                       config: OpticsConfig) -> RenderMode:
+def select_render_mode(
+    state: MicroscopeState, request: AcquisitionRequest, config: OpticsConfig
+) -> RenderMode:
     """C++ dispatch: STEM is tested before diffraction, then the override applies."""
     if request.scan.enabled:
         mode = RenderMode.STEM_4D
@@ -88,8 +89,9 @@ def _tem_imaging(state: MicroscopeState, mode: RenderMode | None = None) -> bool
     return state.tem_stem == TemStem.TEM and state.projection == Projection.IMAGING
 
 
-def _shift_terms(state: MicroscopeState, config: OpticsConfig,
-                 mode: RenderMode | None = None) -> tuple[float, float]:
+def _shift_terms(
+    state: MicroscopeState, config: OpticsConfig, mode: RenderMode | None = None
+) -> tuple[float, float]:
     """Everything but the stage that moves the view centre (before the flips), um:
     image shift (through the column's image-shift matrix), beam shift, the displacement of a
     tilted specimen that is off eucentric height, and the magnification's image offset."""
@@ -123,8 +125,9 @@ def _beam_shift_world(state: MicroscopeState, config: OpticsConfig) -> tuple[flo
     return bx, by
 
 
-def view_center_um(state: MicroscopeState, config: OpticsConfig,
-                   mode: RenderMode | None = None) -> tuple[float, float]:
+def view_center_um(
+    state: MicroscopeState, config: OpticsConfig, mode: RenderMode | None = None
+) -> tuple[float, float]:
     sx = -1.0 if config.flip_x else 1.0
     sy = -1.0 if config.flip_y else 1.0
     ox, oy, _ = config.stage_offset_um
@@ -136,8 +139,12 @@ def view_center_um(state: MicroscopeState, config: OpticsConfig,
     return cx, cy
 
 
-def stage_for_view_center(center_um: tuple[float, float], state: MicroscopeState,
-                          config: OpticsConfig, mode: RenderMode | None = None) -> tuple[float, float]:
+def stage_for_view_center(
+    center_um: tuple[float, float],
+    state: MicroscopeState,
+    config: OpticsConfig,
+    mode: RenderMode | None = None,
+) -> tuple[float, float]:
     """The stage (x, y) µm that puts specimen point *center_um* on axis, with the column's
     current image and beam shifts — the inverse of :func:`view_center_um`."""
     sx = -1.0 if config.flip_x else 1.0
@@ -151,9 +158,13 @@ def stage_for_view_center(center_um: tuple[float, float], state: MicroscopeState
     return x, y
 
 
-def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
-                  calibration: Calibration | None = None,
-                  config: OpticsConfig | None = None) -> OpticsState:
+def derive_optics(
+    state: MicroscopeState,
+    request: AcquisitionRequest,
+    camera,
+    calibration: Calibration | None = None,
+    config: OpticsConfig | None = None,
+) -> OpticsState:
     calibration = calibration or Calibration.default()
     config = config or OpticsConfig()
 
@@ -256,9 +267,16 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         rotation = config.realism.rotation_rad(state.mag_mode, state.magnification)
         rotation += config.realism.defocus_rotation_rad(state.defocus_um + config.defocus_offset_um)
     flip_x, flip_y = coils.flip if scanning else (False, False)
-    view = ViewWindow(center_um=(cx, cy), pixel_um=raster_nm / 1000.0, shape=(int(ry), int(rx)),
-                      rotation_rad=rotation, flip_x=flip_x, flip_y=flip_y,
-                      cos_alpha=cos_y, cos_beta=cos_x)
+    view = ViewWindow(
+        center_um=(cx, cy),
+        pixel_um=raster_nm / 1000.0,
+        shape=(int(ry), int(rx)),
+        rotation_rad=rotation,
+        flip_x=flip_x,
+        flip_y=flip_y,
+        cos_alpha=cos_y,
+        cos_beta=cos_x,
+    )
     # TEM imaging: where beam shift has put the illuminated disc, raster pixels from centre
     beam_offset_px = (0.0, 0.0)
     if mode == RenderMode.TEM_IMAGING and (state.beam_shift_um.x or state.beam_shift_um.y):
@@ -271,8 +289,9 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
 
     # Focus
     _ox, _oy, oz = config.stage_offset_um
-    defocus_um = (state.defocus_um + config.defocus_offset_um
-                  + (state.stage.z_um + oz - config.eucentric_height_um))
+    defocus_um = (
+        state.defocus_um + config.defocus_offset_um + (state.stage.z_um + oz - config.eucentric_height_um)
+    )
     theta_ill_mrad = illumination_semi_angle_mrad(state, config)
     theta_ill = theta_ill_mrad / 1000.0
     # The convergence (and so the diffraction disk radius) is the column's in every mode:
@@ -309,8 +328,13 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     center = (axis[0] + (ds.x + bt.x) / mrad_per_px, axis[1] + (ds.y + bt.y) / mrad_per_px)
 
     # Dose [twin]: physical electrons
-    blanked = (state.beam_blanked or not state.ht_on or not state.column_valves_open
-               or state.screen_position == 1 or not request.beam_reaches_detector)
+    blanked = (
+        state.beam_blanked
+        or not state.ht_on
+        or not state.column_valves_open
+        or state.screen_position == 1
+        or not request.beam_reaches_detector
+    )
     beam_e_s = beam_electrons_per_s(state, config)
     current_pa = beam_e_s * 1.602176634e-19 * 1e12
     if mode == RenderMode.TEM_IMAGING:
@@ -333,11 +357,15 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
 
     # Aberrations [twin]
     stig = state.objective_stig
-    a1 = ((stig.x - config.objective_stig_zero[0]) * config.stig_nm_per_unit,
-          (stig.y - config.objective_stig_zero[1]) * config.stig_nm_per_unit)
+    a1 = (
+        (stig.x - config.objective_stig_zero[0]) * config.stig_nm_per_unit,
+        (stig.y - config.objective_stig_zero[1]) * config.stig_nm_per_unit,
+    )
     cstig = state.condenser_stig
-    a1_probe = ((cstig.x - config.condenser_stig_zero[0]) * config.condenser_stig_nm_per_unit,
-                (cstig.y - config.condenser_stig_zero[1]) * config.condenser_stig_nm_per_unit)
+    a1_probe = (
+        (cstig.x - config.condenser_stig_zero[0]) * config.condenser_stig_nm_per_unit,
+        (cstig.y - config.condenser_stig_zero[1]) * config.condenser_stig_nm_per_unit,
+    )
     # Residual/corrected aberrations from the column (corrector), else an uncorrected C3;
     # plus the operator's focus (C1) and the stigmator of each side (A1).
     c1_nm = defocus_um * 1000.0
@@ -351,7 +379,9 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     img_tilt = (float(state.beam_tilt_mrad.x), float(state.beam_tilt_mrad.y))
     if config.realism is not None and mode == RenderMode.TEM_IMAGING:
         isw = config.realism.is_matrix(state.mag_mode, state.magnification) @ (
-            state.image_shift_um.x, state.image_shift_um.y)
+            state.image_shift_um.x,
+            state.image_shift_um.y,
+        )
         tx, ty = config.realism.is_tilt_mrad(float(isw[0]), float(isw[1]))
         img_tilt = (img_tilt[0] + tx, img_tilt[1] + ty)
         image_ab = image_ab + {"A1": config.realism.is_astig_nm(float(isw[0]), float(isw[1]))}
@@ -359,7 +389,7 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     probe_ab = probe_ab + {"C1": c1_nm, "A1": complex(a1_probe[0], a1_probe[1])}
     spot = state.spot_size if state.spot_size > 0 else config.reference_spot
     source_nm = config.stem_source_size_nm * config.reference_spot / spot
-    bx, by = (request.hw_binning if request.hw_binning is not None else (1, 1))
+    bx, by = request.hw_binning if request.hw_binning is not None else (1, 1)
 
     extras = {
         "selected_area_um": d_sa_um,
@@ -431,9 +461,13 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     )
 
 
-def track_live_view(optics: OpticsState, state: MicroscopeState,
-                    config: OpticsConfig | None = None, calibration: Calibration | None = None,
-                    request: AcquisitionRequest | None = None) -> OpticsState:
+def track_live_view(
+    optics: OpticsState,
+    state: MicroscopeState,
+    config: OpticsConfig | None = None,
+    calibration: Calibration | None = None,
+    request: AcquisitionRequest | None = None,
+) -> OpticsState:
     """C++ ``TrackLiveView``: follow stage/shifts (and the STEM step) without
     touching anything else, with a 5 %-of-a-step deadband. Returns ``optics``
     unchanged when nothing moved."""
@@ -461,11 +495,15 @@ def track_live_view(optics: OpticsState, state: MicroscopeState,
     scale_changed = scanning and abs(step_nm - old_nm) > 1e-4 * max(step_nm, old_nm)
     if not moved and not scale_changed:
         return optics
-    view = dataclasses.replace(optics.view, center_um=(cx, cy),
-                               pixel_um=(step_nm / 1000.0) if scale_changed else optics.view.pixel_um)
+    view = dataclasses.replace(
+        optics.view,
+        center_um=(cx, cy),
+        pixel_um=(step_nm / 1000.0) if scale_changed else optics.view.pixel_um,
+    )
     extras = dict(optics.extras)
     if scale_changed:
         extras["stem_step_nm"] = step_nm
         extras["probe_blend_offset_px"] = 0.5 * optics.probe_diameter_nm / step_nm
-    return dataclasses.replace(optics, view=view, extras=extras,
-                               scan_step_um=(step_nm / 1000.0) if scanning else optics.scan_step_um)
+    return dataclasses.replace(
+        optics, view=view, extras=extras, scan_step_um=(step_nm / 1000.0) if scanning else optics.scan_step_um
+    )

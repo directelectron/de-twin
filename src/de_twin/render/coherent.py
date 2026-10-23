@@ -154,14 +154,35 @@ class CoherentStem:
     # ------------------------------------------------------------ keys
     def _cfg_key(self) -> tuple:
         c = self.config
-        return (c.coherent_max_grid, c.coherent_probe_tail, c.coherent_mode_power, c.coherent_max_modes,
-                c.coherent_focal_samples, c.coherent_focal_spread, c.coherent_source_size, c.coherent_beam_tilt,
-                c.coherent_incoherent_scattering, c.diffuse_scattering, c.max_g_inv_nm, c.mip_phase,
-                c.edge_taper_nm, c.refraction_loss, c.phase_texture_scale, c.texture_bandlimit_nm,
-                c.amplitude_contrast, c.lattice_fringes, c.lattice_phase_rad, c.lattice_fringe_model, c.lattice_fringe_efficiency,
-                c.diffraction_contrast_scale,
-                c.add_descan, c.descan_ramp_scale, tuple(c.descan_ramp_px), c.film_halo,
-                c.coherent_object_bandwidth_inv_nm)
+        return (
+            c.coherent_max_grid,
+            c.coherent_probe_tail,
+            c.coherent_mode_power,
+            c.coherent_max_modes,
+            c.coherent_focal_samples,
+            c.coherent_focal_spread,
+            c.coherent_source_size,
+            c.coherent_beam_tilt,
+            c.coherent_incoherent_scattering,
+            c.diffuse_scattering,
+            c.max_g_inv_nm,
+            c.mip_phase,
+            c.edge_taper_nm,
+            c.refraction_loss,
+            c.phase_texture_scale,
+            c.texture_bandlimit_nm,
+            c.amplitude_contrast,
+            c.lattice_fringes,
+            c.lattice_phase_rad,
+            c.lattice_fringe_model,
+            c.lattice_fringe_efficiency,
+            c.diffraction_contrast_scale,
+            c.add_descan,
+            c.descan_ramp_scale,
+            tuple(c.descan_ramp_px),
+            c.film_halo,
+            c.coherent_object_bandwidth_inv_nm,
+        )
 
     def _optics_key(self, optics) -> tuple:
         return (optics, probe_aberrations_of(optics).key(), tuple(optics.extras.get("hw_binning", (1, 1))))
@@ -170,10 +191,18 @@ class CoherentStem:
     def _probe_key(optics) -> tuple:
         """What of the optics the sampling and the probe depend on (not the scan, the view or
         the stage: a stage move or a new scan step keeps the probe)."""
-        return (optics.wavelength_nm, optics.convergence_mrad, tuple(optics.output_shape),
-                optics.recip_pixel_inv_nm, tuple(optics.diffraction_center_px),
-                probe_aberrations_of(optics).key(), tuple(optics.beam_tilt_mrad), optics.source_size_nm,
-                optics.focal_spread_nm, tuple(optics.extras.get("hw_binning", (1, 1))))
+        return (
+            optics.wavelength_nm,
+            optics.convergence_mrad,
+            tuple(optics.output_shape),
+            optics.recip_pixel_inv_nm,
+            tuple(optics.diffraction_center_px),
+            probe_aberrations_of(optics).key(),
+            tuple(optics.beam_tilt_mrad),
+            optics.source_size_nm,
+            optics.focal_spread_nm,
+            tuple(optics.extras.get("hw_binning", (1, 1))),
+        )
 
     def sampling(self, optics) -> Sampling:
         """The simulation sampling (cheap: no probe is built)."""
@@ -237,7 +266,7 @@ class CoherentStem:
         out = []
         for t in dict.fromkeys(tid.tolist()):  # in order of first appearance
             r, c = divmod(t, -(-nx // C))
-            iy, ix = np.mgrid[r * R:min(ny, (r + 1) * R), c * C:min(nx, (c + 1) * C)]
+            iy, ix = np.mgrid[r * R : min(ny, (r + 1) * R), c * C : min(nx, (c + 1) * C)]
             xs, ys = self._scan_world(optics, np.stack([ix.ravel(), iy.ravel()], 1))
             out.append((np.flatnonzero(tid == t), field_view(xs, ys, s, optics.view)))
         return out
@@ -262,14 +291,24 @@ class CoherentStem:
                 else:
                     hi = mid - 1
             return lo
+
         if px(1, nx) <= limit:
             return largest(lambda r: px(r, nx) <= limit, ny), nx
         return 1, largest(lambda c: px(1, c) <= limit, nx)
 
     def _tile(self, ctx, optics, s: Sampling, view, build: bool = True) -> Tile | None:
         fm, token = ctx.field_map(view)
-        key = (token, view, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
-               optics.convergence_mrad, self.seed, self._cfg_key())
+        key = (
+            token,
+            view,
+            optics.ht_kv,
+            optics.thickness_tilt_factor,
+            optics.alpha_rad,
+            optics.beta_rad,
+            optics.convergence_mrad,
+            self.seed,
+            self._cfg_key(),
+        )
         with self._lock:
             tile = self._tiles.get(key)
             if tile is not None:
@@ -277,8 +316,9 @@ class CoherentStem:
                 return tile
         if not build:
             return None
-        tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed,
-                          s.object_bandwidth)  # outside the lock (prefetch thread)
+        tile = build_tile(
+            fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed, s.object_bandwidth
+        )  # outside the lock (prefetch thread)
         with self._lock:
             if key in self._tiles:
                 return self._tiles[key]
@@ -342,8 +382,18 @@ class CoherentStem:
         tile.cache[key] = (probe, out)
         return out
 
-    def _compute(self, ctx, optics, probe: Probe, tile: Tile, points, fm_scan=None, *,
-                 annuli_mrad=None, want_patterns=True) -> tuple:
+    def _compute(
+        self,
+        ctx,
+        optics,
+        probe: Probe,
+        tile: Tile,
+        points,
+        fm_scan=None,
+        *,
+        annuli_mrad=None,
+        want_patterns=True,
+    ) -> tuple:
         s = probe.sampling
         n, h2 = s.n, s.n // 2
         (hd, wd), (fx, fy) = s.det_shape, s.sub
@@ -352,8 +402,12 @@ class CoherentStem:
         rows, cols = tile.view.world_to_pixel(xs, ys)
         rows = np.rint(rows).astype(np.int64)
         cols = np.rint(cols).astype(np.int64)
-        if (rows.min() - h2 < 0 or cols.min() - h2 < 0 or rows.max() + h2 > tile.t.shape[0]
-                or cols.max() + h2 > tile.t.shape[1]):
+        if (
+            rows.min() - h2 < 0
+            or cols.min() - h2 < 0
+            or rows.max() + h2 > tile.t.shape[0]
+            or cols.max() + h2 > tile.t.shape[1]
+        ):
             raise RuntimeError("coherent STEM: probe window outside the transmission tile")
         pts = np.asarray(points, np.int64).reshape(-1, 2)
         npts = len(pts)
@@ -381,7 +435,7 @@ class CoherentStem:
             ya, yb = max(y0, 0), min(y0 + H, n)
             xa, xb = max(x0, 0), min(x0 + W, n)
             if ya < yb and xa < xb:
-                acc[k, ya - y0:yb - y0, xa - x0:xb - x0] += w * I[ya:yb, xa:xb]
+                acc[k, ya - y0 : yb - y0, xa - x0 : xb - x0] += w * I[ya:yb, xa:xb]
 
         def sq(G):
             v = G.view(np.float32)
@@ -401,8 +455,15 @@ class CoherentStem:
             full = np.zeros((B, n, n), np.float32) if amask is not None else None
             x0s = place[lo:hi, 0].astype(int)
             y0s = place[lo:hi, 2].astype(int)
-            simple = (want_patterns and (x0s == x0s[0]).all() and (y0s == y0s[0]).all()
-                      and y0s[0] >= 0 and x0s[0] >= 0 and y0s[0] + H <= n and x0s[0] + W <= n)
+            simple = (
+                want_patterns
+                and (x0s == x0s[0]).all()
+                and (y0s == y0s[0]).all()
+                and y0s[0] >= 0
+                and x0s[0] >= 0
+                and y0s[0] + H <= n
+                and x0s[0] + W <= n
+            )
             e = np.empty((B, n, n), np.complex64)
             for mode, w in zip(work, mw):
                 for k in range(B):
@@ -412,7 +473,7 @@ class CoherentStem:
                 F = sfft.fft2(e, norm="ortho", workers=1, overwrite_x=True)
                 wf = np.float32(w)
                 if simple:
-                    I = sq(F[:, y0s[0]:y0s[0] + H, x0s[0]:x0s[0] + W])
+                    I = sq(F[:, y0s[0] : y0s[0] + H, x0s[0] : x0s[0] + W])
                     if len(mw) == 1:
                         acc = I
                     else:
@@ -451,8 +512,12 @@ class CoherentStem:
             acc = np.zeros((B, hd, wd), np.float32) if want_patterns else None
             x0s = np.ascontiguousarray(place[lo:hi, 0].astype(np.int64))
             y0s = np.ascontiguousarray(place[lo:hi, 2].astype(np.int64))
-            if amask is None and (int(x0s.min()) >= n or int(x0s.max()) + W <= 0 or int(y0s.min()) >= n
-                                  or int(y0s.max()) + H <= 0):
+            if amask is None and (
+                int(x0s.min()) >= n
+                or int(x0s.max()) + W <= 0
+                or int(y0s.min()) >= n
+                or int(y0s.max()) + H <= 0
+            ):
                 return  # the detector sees none of the simulated k range: zeros
             e = np.empty((B, n, n), np.complex64)
             for mode, w in zip(work, mw):
@@ -497,7 +562,7 @@ class CoherentStem:
                 r, c = int(rows[k]), int(cols[k])
                 g = int(tile.gid[r, c])
                 if g < 0:  # probe centre off the grain: the grain dominating the window
-                    prod = probe.intensity * tile.bragg[r - h2:r + h2, c - h2:c + h2]
+                    prod = probe.intensity * tile.bragg[r - h2 : r + h2, c - h2 : c + h2]
                     jr, jc = divmod(int(np.argmax(prod)), n)
                     r, c = r - h2 + jr, c - h2 + jc
                     g = int(tile.gid[r, c])
@@ -505,8 +570,11 @@ class CoherentStem:
                     keys[k] = (g // GRAINS_PER_MATERIAL, g, int(tile.tbin[r, c]))
                 else:
                     bragg_w[k] = 0.0
-        diffuse = {m: np.maximum(v if per_point else v[r0, c0], 0.0).astype(np.float64)
-                   for m, v in wts.items() if m != "bragg"}
+        diffuse = {
+            m: np.maximum(v if per_point else v[r0, c0], 0.0).astype(np.float64)
+            for m, v in wts.items()
+            if m != "bragg"
+        }
         self.points_computed += npts
         return pats, anns, bragg_w, keys, diffuse, shifts
 
@@ -514,14 +582,33 @@ class CoherentStem:
     def _bragg_pattern(self, ctx, optics, s: Sampling, key, center_b) -> np.ndarray | None:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
-        ck = ("coh-bragg", key, (hd, wd), rb, round(center_b[0], 3), round(center_b[1], 3), s.object_bandwidth,
-              optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv, self.config.max_g_inv_nm,
-              _tilt_key(optics))
+        ck = (
+            "coh-bragg",
+            key,
+            (hd, wd),
+            rb,
+            round(center_b[0], 3),
+            round(center_b[1], 3),
+            s.object_bandwidth,
+            optics.convergence_mrad,
+            optics.alpha_rad,
+            optics.beta_rad,
+            optics.ht_kv,
+            self.config.max_g_inv_nm,
+            _tilt_key(optics),
+        )
 
         def render(_k):
             mid, gid, tb = key
-            ps = bucket_patterns([mid], [gid], [tb * THICKNESS_BIN_NM], [1.0], ctx.grains, optics,
-                                 PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm))
+            ps = bucket_patterns(
+                [mid],
+                [gid],
+                [tb * THICKNESS_BIN_NM],
+                [1.0],
+                ctx.grains,
+                optics,
+                PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm),
+            )
             sp = ps[0].spots
             sp = sp[np.hypot(sp[:, 0], sp[:, 1]) > max(1e-9, s.object_bandwidth)]
             tot = float(sp[:, 2].sum()) if len(sp) else 0.0
@@ -531,6 +618,7 @@ class CoherentStem:
             sp[:, 2] /= tot
             disk = optics.convergence_mrad / 1000.0 / optics.wavelength_nm / rb
             return render_pattern(Pattern(sp), (hd, wd), rb, disk, center=center_b)
+
         return self.cache.get(ck, render)
 
     def diffuse_cut_mrad(self, optics) -> float:
@@ -547,8 +635,16 @@ class CoherentStem:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
         cut = self.diffuse_cut_mrad(optics)
-        ck = ("coh-diffuse", mid, (hd, wd), rb, round(center_b[0], 3), round(center_b[1], 3), optics.ht_kv,
-              round(cut, 6))
+        ck = (
+            "coh-diffuse",
+            mid,
+            (hd, wd),
+            rb,
+            round(center_b[0], 3),
+            round(center_b[1], 3),
+            optics.ht_kv,
+            round(cut, 6),
+        )
 
         def render(_k):
             from scipy.special import erfc
@@ -563,6 +659,7 @@ class CoherentStem:
                 p = p * (0.5 * erfc((cut - r) / (math.sqrt(2.0) * mrad_px))).astype(np.float32)
                 p /= np.float32(t0 * t0 / (cut * cut + t0 * t0))
             return p.astype(np.float32)
+
         return self.cache.get(ck, render)
 
     # ------------------------------------------------------------- blocks
@@ -571,7 +668,9 @@ class CoherentStem:
         pts = np.asarray(points, np.int64).reshape(-1, 2)
         if len(groups) == 1:
             return self._compute(ctx, optics, probe, groups[0][1], pts, fm_scan, **kw)
-        parts = [(idx, self._compute(ctx, optics, probe, tile, pts[idx], fm_scan, **kw)) for idx, tile in groups]
+        parts = [
+            (idx, self._compute(ctx, optics, probe, tile, pts[idx], fm_scan, **kw)) for idx, tile in groups
+        ]
         npts = len(pts)
 
         def merged(i, shape_of):
@@ -582,6 +681,7 @@ class CoherentStem:
             for idx, r in parts:
                 out[idx] = r[i]
             return out
+
         pats = merged(0, lambda a: a.shape[1:])
         anns = merged(1, lambda a: a.shape[1:])
         bragg_w = merged(2, lambda a: ())
@@ -614,7 +714,9 @@ class CoherentStem:
 
     def _patterns(self, ctx, optics, points, fm_scan, probe: Probe, groups) -> np.ndarray:
         s = probe.sampling
-        out, _, bragg_w, keys, diffuse, shifts = self._compute_groups(ctx, optics, probe, groups, points, fm_scan)
+        out, _, bragg_w, keys, diffuse, shifts = self._compute_groups(
+            ctx, optics, probe, groups, points, fm_scan
+        )
         cb = s.det_center_px
         bx, by = s.binning
         for k in range(len(out)):
@@ -654,8 +756,9 @@ class CoherentStem:
                 _, v = self._blocks.popitem(last=False)
                 self._block_bytes -= v.nbytes
 
-    def _block(self, ctx, optics, fm_scan, fm_token, index: int,
-               read_ahead: bool = False) -> tuple[np.ndarray, int]:
+    def _block(
+        self, ctx, optics, fm_scan, fm_token, index: int, read_ahead: bool = False
+    ) -> tuple[np.ndarray, int]:
         s = self.sampling(optics)
         ny, nx = optics.view.shape
         bsz = self._block_size(optics, s)
@@ -711,6 +814,7 @@ class CoherentStem:
                 finally:
                     with self._lock:
                         self._inflight.pop(key, None)
+
             with self._lock:
                 self._inflight[key] = self._ahead.submit(job)
 
@@ -762,7 +866,7 @@ class CoherentStem:
         while i < ny * nx:
             blk, j = self._block(ctx, optics, fm_scan, fm_token, i)
             k = min(len(blk) - j, ny * nx - i)
-            out[i:i + k] = blk[j:j + k]
+            out[i : i + k] = blk[j : j + k]
             i += k
         return out.reshape(ny, nx, *s.det_shape)
 
@@ -783,23 +887,40 @@ class CoherentStem:
         for m in range(len(MATERIALS)):
             t0 = screening_angle_mrad(m, lam) if m else 1.0
             beyond = t0 * t0 / (cut * cut + t0 * t0)
-            dfrac[m] = (diffuse_annulus_fraction(m, lam, max(inner_mrad, cut), max(outer_mrad, cut)) / beyond
-                        if m and beyond > 0 else 0.0)
+            dfrac[m] = (
+                diffuse_annulus_fraction(m, lam, max(inner_mrad, cut), max(outer_mrad, cut)) / beyond
+                if m and beyond > 0
+                else 0.0
+            )
         bfrac: dict = {}
         for b0 in range(0, len(pts), bsz):
-            chunk = pts[b0:b0 + bsz]
+            chunk = pts[b0 : b0 + bsz]
             _, groups = self._prepare(ctx, optics, chunk)
             _, anns, bragg_w, keys, diffuse, _ = self._compute_groups(
-                ctx, optics, probe, groups, chunk, fm_scan, annuli_mrad=[(inner_mrad, outer_mrad)],
-                want_patterns=False)
+                ctx,
+                optics,
+                probe,
+                groups,
+                chunk,
+                fm_scan,
+                annuli_mrad=[(inner_mrad, outer_mrad)],
+                want_patterns=False,
+            )
             v = anns[:, 0].copy()
             for k, key in enumerate(keys):
                 if key is None or bragg_w[k] <= 0:
                     continue
                 if key not in bfrac:
                     mid, gid, tb = key
-                    ps = bucket_patterns([mid], [gid], [tb * THICKNESS_BIN_NM], [1.0], ctx.grains, optics,
-                                         PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm))
+                    ps = bucket_patterns(
+                        [mid],
+                        [gid],
+                        [tb * THICKNESS_BIN_NM],
+                        [1.0],
+                        ctx.grains,
+                        optics,
+                        PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm),
+                    )
                     sp = ps[0].spots
                     sp = sp[np.hypot(sp[:, 0], sp[:, 1]) > max(1e-9, s.object_bandwidth)]
                     tot = float(sp[:, 2].sum()) if len(sp) else 0.0
@@ -807,14 +928,16 @@ class CoherentStem:
                     if tot > 0:
                         sp = sp.copy()
                         sp[:, 2] /= tot
-                        one = PatternSet(1, sp, np.zeros(len(sp), np.int64), np.zeros((0, 3)),
-                                         np.zeros(0, np.int64))
-                        bfrac[key] = float(annulus_fractions(one, optics.convergence_mrad, lam,
-                                                             inner_mrad, outer_mrad)[0])
+                        one = PatternSet(
+                            1, sp, np.zeros(len(sp), np.int64), np.zeros((0, 3)), np.zeros(0, np.int64)
+                        )
+                        bfrac[key] = float(
+                            annulus_fractions(one, optics.convergence_mrad, lam, inner_mrad, outer_mrad)[0]
+                        )
                 v[k] += bragg_w[k] * bfrac[key]
             for m, wm in diffuse.items():
                 v += wm * dfrac[m]
-            out[b0:b0 + len(chunk)] = v
+            out[b0 : b0 + len(chunk)] = v
         return (out.reshape(ny, nx) * optics.pattern_e_per_s).astype(np.float32)
 
     # ---------------------------------------------------------- ground truth
@@ -825,33 +948,57 @@ class CoherentStem:
         allx, ally = self._scan_world(optics, pts)
         view = field_view(allx, ally, s, optics.view)
         fm, token = ctx.field_map(view)
-        key = (token, view, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
-               optics.convergence_mrad, self.seed, self._cfg_key())
+        key = (
+            token,
+            view,
+            optics.ht_kv,
+            optics.thickness_tilt_factor,
+            optics.alpha_rad,
+            optics.beta_rad,
+            optics.convergence_mrad,
+            self.seed,
+            self._cfg_key(),
+        )
         tile = self._tiles.get(key)
         if tile is None:
-            tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed,
-                              s.object_bandwidth)
+            tile = build_tile(
+                fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed, s.object_bandwidth
+            )
         rows, cols = tile.view.world_to_pixel(allx, ally)
         ny, nx = optics.view.shape
         pos = np.stack([np.rint(rows), np.rint(cols)], 1).astype(np.float64)  # snapped: exactly as simulated
         ab = probe.aberrations
         modes = probe.modes
         return {
-            "object": tile.t, "dx_nm": s.dx_nm, "view": tile.view,
-            "positions_px": pos, "positions_nm": pos * s.dx_nm, "scan_shape": (ny, nx),
-            "probe": modes[0], "probe_modes": modes, "mode_weights": probe.weights,
+            "object": tile.t,
+            "dx_nm": s.dx_nm,
+            "view": tile.view,
+            "positions_px": pos,
+            "positions_nm": pos * s.dx_nm,
+            "scan_shape": (ny, nx),
+            "probe": modes[0],
+            "probe_modes": modes,
+            "mode_weights": probe.weights,
             "coherent_fraction": probe.coherent_fraction,
-            "wavelength_nm": optics.wavelength_nm, "convergence_mrad": optics.convergence_mrad,
+            "wavelength_nm": optics.wavelength_nm,
+            "convergence_mrad": optics.convergence_mrad,
             "alpha_mrad": optics.convergence_mrad,
-            "aberrations": ab, "aberrations_polar": ab.polar(),
-            "C1_nm": float(ab["C1"].real), "A1_nm": complex(ab["A1"]), "C3_nm": float(ab["C3"].real),
-            "B2_nm": complex(ab["B2"]), "C5_nm": float(ab["C5"].real),
+            "aberrations": ab,
+            "aberrations_polar": ab.polar(),
+            "C1_nm": float(ab["C1"].real),
+            "A1_nm": complex(ab["A1"]),
+            "C3_nm": float(ab["C3"].real),
+            "B2_nm": complex(ab["B2"]),
+            "C5_nm": float(ab["C5"].real),
             "defocus_nm": float(optics.defocus_um * 1000.0),
-            "beam_tilt_mrad": tuple(optics.beam_tilt_mrad), "focal_spread_nm": float(optics.focal_spread_nm),
+            "beam_tilt_mrad": tuple(optics.beam_tilt_mrad),
+            "focal_spread_nm": float(optics.focal_spread_nm),
             "source_size_nm": float(optics.source_size_nm),
-            "scan_step_nm": optics.scan_step_um * 1000.0, "scan_rotation_rad": optics.scan_rotation_rad,
+            "scan_step_nm": optics.scan_step_um * 1000.0,
+            "scan_rotation_rad": optics.scan_rotation_rad,
             "sampling": s,
-            "detector_shape": s.det_shape, "detector_recip_px_inv_nm": s.det_recip_px,
+            "detector_shape": s.det_shape,
+            "detector_recip_px_inv_nm": s.det_recip_px,
             "detector_center_px": s.det_center_px,
         }
 

@@ -56,9 +56,18 @@ intersphinx_mapping = {
 }
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "_root", "Thumbs.db", ".DS_Store", "auto_examples/*.ipynb",
-                    "auto_examples/*.py", "auto_examples/*.zip", "auto_examples/*.json",
-                    "auto_examples/*.md5", "sg_execution_times.rst"]
+exclude_patterns = [
+    "_build",
+    "_root",
+    "Thumbs.db",
+    ".DS_Store",
+    "auto_examples/*.ipynb",
+    "auto_examples/*.py",
+    "auto_examples/*.zip",
+    "auto_examples/*.json",
+    "auto_examples/*.md5",
+    "sg_execution_times.rst",
+]
 
 # -- Sphinx Gallery ----------------------------------------------------------
 sphinx_gallery_conf = {

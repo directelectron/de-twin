@@ -21,7 +21,11 @@ raw = twin.raw_frame(0.025)
 corrected = twin.snap(1.0)  # 40 frames at 40 fps, corrected, in electrons
 
 fig, axes = plt.subplots(1, 3, figsize=(10, 3.6))
-panels = [(dark, "dark frame (ADU)"), (raw, "one raw 25 ms frame (ADU)"), (corrected, "1 s corrected (electrons)")]
+panels = [
+    (dark, "dark frame (ADU)"),
+    (raw, "one raw 25 ms frame (ADU)"),
+    (corrected, "1 s corrected (electrons)"),
+]
 for ax, (img, title) in zip(axes, panels):
     ax.imshow(img, cmap="gray", vmin=img.mean() - 3 * img.std(), vmax=img.mean() + 3 * img.std())
     ax.set_title(title, fontsize=9)

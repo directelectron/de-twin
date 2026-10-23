@@ -280,5 +280,9 @@ class FastLattice:
         h = np.empty(n, np.uint64)
         if n:
             _nearest_nb(xs, ys, self.seed, self.jitter, sx, sy, d2, h)
-        return SimpleNamespace(sx=(sx * c).reshape(shape), sy=(sy * c).reshape(shape),
-                               d2=(d2 * c * c).reshape(shape), h=h.reshape(shape))
+        return SimpleNamespace(
+            sx=(sx * c).reshape(shape),
+            sy=(sy * c).reshape(shape),
+            d2=(d2 * c * c).reshape(shape),
+            h=h.reshape(shape),
+        )

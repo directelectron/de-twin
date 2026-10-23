@@ -157,15 +157,23 @@ def protein_mean_thickness_nm(density, median_d_nm, sigma_log, thickness_nm, fad
     if density <= 0 or thickness_nm <= 0:
         return 0.0
     r = 0.5 * median_d_nm / NM_PER_UM
-    return density * thickness_nm * (2.0 / 3.0) * math.pi * r * r * math.exp(2 * sigma_log ** 2) * fade
+    return density * thickness_nm * (2.0 / 3.0) * math.pi * r * r * math.exp(2 * sigma_log**2) * fade
 
 
 class ProteinFieldStructure(Structure):
     """Hashed-lattice protein blobs (projected spheres) embedded in the support film."""
 
-    def __init__(self, median_diameter_nm, sigma_log, density_per_um2, thickness_nm,
-                 material=MaterialId.PROTEIN, negative_stain_fraction=0.0, crystal_patch_fraction=0.0,
-                 dose_sensitivity=0.0):
+    def __init__(
+        self,
+        median_diameter_nm,
+        sigma_log,
+        density_per_um2,
+        thickness_nm,
+        material=MaterialId.PROTEIN,
+        negative_stain_fraction=0.0,
+        crystal_patch_fraction=0.0,
+        dose_sensitivity=0.0,
+    ):
         self.median = float(median_diameter_nm)
         self.sigma = float(sigma_log)
         self.density = float(density_per_um2)
@@ -193,12 +201,37 @@ class ProteinFieldStructure(Structure):
         for a, bb in ctx.row_blocks(r0, r1, c1 - c0):
             labels, grid = blobs.block_labels(ctx, a, bb, c0, c1)
             SX, SY, HH, _, _, _, x0, y0 = grid
-            diam = np.asarray(lognormal_from_hash(HH, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM), np.float64)
+            diam = np.asarray(
+                lognormal_from_hash(HH, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM), np.float64
+            )
             stained = (uniform_from_hash(HH ^ STAIN_MIX) < stain) if stain > 0 else np.zeros(1, bool)
-            _rnb.protein_block(ctx.thick, ctx.material, ctx.grain, ctx.nx, a, bb, c0, c1, W, O,
-                               np.ascontiguousarray(labels, np.int32), SX, SY, float(x0), float(y0), diam,
-                               np.ascontiguousarray(stained), stain > 0, self.thickness, fade, stain_nm,
-                               NEG_STAIN_INNER, PROTEIN_MAX_R_UM, np.uint8(self.material), np.uint8(MaterialId.PLATINUM))
+            _rnb.protein_block(
+                ctx.thick,
+                ctx.material,
+                ctx.grain,
+                ctx.nx,
+                a,
+                bb,
+                c0,
+                c1,
+                W,
+                O,
+                np.ascontiguousarray(labels, np.int32),
+                SX,
+                SY,
+                float(x0),
+                float(y0),
+                diam,
+                np.ascontiguousarray(stained),
+                stain > 0,
+                self.thickness,
+                fade,
+                stain_nm,
+                NEG_STAIN_INNER,
+                PROTEIN_MAX_R_UM,
+                np.uint8(self.material),
+                np.uint8(MaterialId.PLATINUM),
+            )
 
     def fill(self, ctx, owner):
         if self.density <= 0 or self.thickness <= 0:
@@ -226,7 +259,9 @@ class ProteinFieldStructure(Structure):
         for B in _owner_pixels(ctx, owner):
             hit = B.nearest(ctx, blobs)
             d2 = hit.d2
-            diam = hit.per_site(lambda h: lognormal_from_hash(h, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM))
+            diam = hit.per_site(
+                lambda h: lognormal_from_hash(h, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM)
+            )
             stained = hit.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain) if stain > 0 else None
             grain = None
             if self.patch > 0:
@@ -237,8 +272,9 @@ class ProteinFieldStructure(Structure):
                     d2 = np.where(in_patch, ch.d2, d2)
                     diam = np.where(in_patch, med, diam)
                     if stained is not None:
-                        stained = np.where(in_patch, ch.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain),
-                                           stained)
+                        stained = np.where(
+                            in_patch, ch.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain), stained
+                        )
                     grain = np.where(in_patch, 0, -1)  # placeholder, material-dependent below
                     patch_h = ph.h
             r = 0.5 * diam / NM_PER_UM
@@ -261,7 +297,7 @@ class ProteinFieldStructure(Structure):
             claim = wasvac | (add >= existing)
             g = np.full(fo.shape, -1, np.int32)
             if grain is not None:
-                inp = (grain[ok][pos] >= 0)
+                inp = grain[ok][pos] >= 0
                 if np.any(inp):
                     g[inp] = grain_id_from_hash(mat[inp], patch_h[ok][pos][inp])
             _claim(ctx, fo[claim], g[claim], mat[claim])
@@ -320,8 +356,16 @@ class ThinFilmStructure(Structure):
 
     required_layers = frozenset()
 
-    def __init__(self, median_grain_um, thickness_nm, gradient_per_mm, pinhole_fraction,
-                 crack_density_per_um, material, coarse_fraction=THIN_FILM_COARSE_FRACTION):
+    def __init__(
+        self,
+        median_grain_um,
+        thickness_nm,
+        gradient_per_mm,
+        pinhole_fraction,
+        crack_density_per_um,
+        material,
+        coarse_fraction=THIN_FILM_COARSE_FRACTION,
+    ):
         self.grain_um = float(median_grain_um)
         self.thickness = float(thickness_nm)
         self.gradient = float(gradient_per_mm)
@@ -404,7 +448,9 @@ class VoronoiGrainsStructure(Structure):
         for B in _owner_pixels(ctx, owner):
             hit = B.nearest(ctx, lat)
             if jit > 0:
-                ctx.add_thickness(B.flat, hit.per_site(lambda h: jit * (uniform_from_hash(h ^ GRAIN_STEP_MIX) - 0.5)))
+                ctx.add_thickness(
+                    B.flat, hit.per_site(lambda h: jit * (uniform_from_hash(h ^ GRAIN_STEP_MIX) - 0.5))
+                )
             _claim(ctx, B.flat, hit.per_site(lambda h: grain_id_from_hash(mat, h)), mat)
 
 
@@ -436,7 +482,7 @@ class PrecipitatesStructure(Structure):
             return
         cell = math.sqrt(area / self.count)
         if not _resolved(cell, ctx):
-            er2 = self.median_r ** 2 * math.exp(2 * PRECIP_SIGMA_LOG ** 2)
+            er2 = self.median_r**2 * math.exp(2 * PRECIP_SIGMA_LOG**2)
             lam = self.count * math.pi * er2 / area
             mean_extra = self.extra * (1.0 - math.exp(-min(max(lam, 0.0), 700.0)))
             for B in _owner_pixels(ctx, owner):
@@ -449,12 +495,19 @@ class PrecipitatesStructure(Structure):
         mat = self.material
 
         def radius(h):
-            return lognormal_from_hash(h, med, PRECIP_SIGMA_LOG, med * PRECIP_R_MIN_MULT,
-                                       med * PRECIP_R_MAX_MULT) / NM_PER_UM
+            return (
+                lognormal_from_hash(
+                    h, med, PRECIP_SIGMA_LOG, med * PRECIP_R_MIN_MULT, med * PRECIP_R_MAX_MULT
+                )
+                / NM_PER_UM
+            )
 
         def stretch(h):
-            return np.sqrt(PRECIP_RATIO_MIN + (PRECIP_RATIO_MAX - PRECIP_RATIO_MIN)
-                           * uniform_from_hash(hash_seed(h, SeedKind.STRUCTURE, 1)))
+            return np.sqrt(
+                PRECIP_RATIO_MIN
+                + (PRECIP_RATIO_MAX - PRECIP_RATIO_MIN)
+                * uniform_from_hash(hash_seed(h, SeedKind.STRUCTURE, 1))
+            )
 
         for B in _owner_pixels(ctx, owner):
             flat = B.flat
@@ -569,9 +622,19 @@ class CrossGratingStructure(Structure):
 
     required_layers = frozenset()
 
-    def __init__(self, period_um: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5,
-                 metal: int = MaterialId.PLATINUM, metal_nm: float = 2.0, shadow_elevation_deg: float = 30.0,
-                 shadow_azimuth_deg: float = 45.0, rough: bool = True, dirt: bool = True):
+    def __init__(
+        self,
+        period_um: float,
+        base_nm: float,
+        depth_nm: float,
+        line_fraction: float = 0.5,
+        metal: int = MaterialId.PLATINUM,
+        metal_nm: float = 2.0,
+        shadow_elevation_deg: float = 30.0,
+        shadow_azimuth_deg: float = 45.0,
+        rough: bool = True,
+        dirt: bool = True,
+    ):
         self.period = float(period_um)
         self.base = float(base_nm)
         self.depth = float(depth_nm)
@@ -592,10 +655,14 @@ class CrossGratingStructure(Structure):
             return lx, ly
         wa = GRATING_WAVINESS_NM / NM_PER_UM
         k = 2.0 * math.pi / GRATING_WAVINESS_UM
-        ph = [2.0 * math.pi * float(uniform_from_hash(hash_seed(seed, SeedKind.STRUCTURE, n, 0x5A)))
-              for n in range(4)]
-        return (lx + wa * (0.6 * np.sin(k * ly + ph[0]) + 0.4 * np.sin(0.61 * k * (lx + ly) + ph[1])),
-                ly + wa * (0.6 * np.sin(k * lx + ph[2]) + 0.4 * np.sin(0.61 * k * (lx - ly) + ph[3])))
+        ph = [
+            2.0 * math.pi * float(uniform_from_hash(hash_seed(seed, SeedKind.STRUCTURE, n, 0x5A)))
+            for n in range(4)
+        ]
+        return (
+            lx + wa * (0.6 * np.sin(k * ly + ph[0]) + 0.4 * np.sin(0.61 * k * (lx + ly) + ph[1])),
+            ly + wa * (0.6 * np.sin(k * lx + ph[2]) + 0.4 * np.sin(0.61 * k * (lx - ly) + ph[3])),
+        )
 
     def _ridge_d(self, a):
         P = self.period
@@ -616,8 +683,9 @@ class CrossGratingStructure(Structure):
                 if near.any():
                     ec = GRATING_EDGE_CORRELATION_NM / NM_PER_UM
                     d = d.copy()
-                    d[near] += amp * (2.0 * value_noise(rough_seed ^ salt, b[near] / ec,
-                                                        np.floor(a[near] / P) * 7.31) - 1.0)
+                    d[near] += amp * (
+                        2.0 * value_noise(rough_seed ^ salt, b[near] / ec, np.floor(a[near] / P) * 7.31) - 1.0
+                    )
             r = np.clip((half - d) / ramp + 0.5, 0.0, 1.0)
             out = r if out is None else np.maximum(out, r)
         return out
@@ -679,8 +747,9 @@ class CrossGratingStructure(Structure):
                 f = B.sub(island)
                 # the deposit gathered into islands (mean = coverage x island); the carbon under
                 # an island becomes metal-equivalent thickness
-                ctx.add_thickness(f, metal[island] / GRATING_GRAIN_COVERAGE
-                                  + carbon[island] * eq - carbon[island])
+                ctx.add_thickness(
+                    f, metal[island] / GRATING_GRAIN_COVERAGE + carbon[island] * eq - carbon[island]
+                )
                 grain = grain_id_from_hash(self.metal, gh.grid_h).take(gh.site)[island]
                 _claim(ctx, f, grain, self.metal)
 
@@ -714,8 +783,10 @@ class MultilayerStructure(Structure):
             gc = np.arange(c0, int(col.max()) + 1, dtype=np.int64)
             gbi = np.mod(gb, nb)
             # grain per (absolute band, column) cell, evaluated once per cell
-            G = grain_id_from_hash(self.materials[gbi][:, None],
-                                   hash_seed(np.uint64(owner.seed), SeedKind.GRAIN, mix_cell(gb[:, None], gc[None, :])))
+            G = grain_id_from_hash(
+                self.materials[gbi][:, None],
+                hash_seed(np.uint64(owner.seed), SeedKind.GRAIN, mix_cell(gb[:, None], gc[None, :])),
+            )
             bi = np.mod(band, nb)
             mats = self.materials[bi]
             _claim(ctx, B.flat, G[band - b0, col - c0], mats)

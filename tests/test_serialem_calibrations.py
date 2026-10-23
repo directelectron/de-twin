@@ -27,8 +27,14 @@ def test_the_file_is_a_serialem_calibration_file(files):
     text = cal.read_text().splitlines()
     assert text[0] == "SerialEMCalibrations"
     keys = {line.split()[0] for line in text[1:] if line and line.split()[0].isalpha()}
-    assert {"ImageShiftMatrix", "StageToCameraMatrix", "ImageShiftOffsets",
-            "CrossoverIntensity", "HighFocusMagCal", "FocusCalibration"} <= keys
+    assert {
+        "ImageShiftMatrix",
+        "StageToCameraMatrix",
+        "ImageShiftOffsets",
+        "CrossoverIntensity",
+        "HighFocusMagCal",
+        "FocusCalibration",
+    } <= keys
     n = int(next(line for line in text if line.startswith("ImageShiftMatrix")).split()[1])
     assert n == len(twin_mag_table())
     body = props.read_text().splitlines()
@@ -62,17 +68,29 @@ def test_a_twin_defined_by_serialem_calibrations_is_that_column(files):
     real = ColumnRealism(seed=11, backlash_um=0.0, is_coma_mrad_per_um=0.0, is_astig_nm_per_um=0.0)
     to_serialem(real, CAMERA, cal, props)
     d = from_serialem(cal, props, camera=CAMERA)
-    a = DigitalTwin("Dense Au on holey C", camera=CAMERA, clock=ManualClock(), seed=1,
-                    optics_config=OpticsConfig(realism=real))
-    b = DigitalTwin("Dense Au on holey C", camera=CAMERA, clock=ManualClock(), seed=1,
-                    optics_config=OpticsConfig(realism=d))
+    a = DigitalTwin(
+        "Dense Au on holey C",
+        camera=CAMERA,
+        clock=ManualClock(),
+        seed=1,
+        optics_config=OpticsConfig(realism=real),
+    )
+    b = DigitalTwin(
+        "Dense Au on holey C",
+        camera=CAMERA,
+        clock=ManualClock(),
+        seed=1,
+        optics_config=OpticsConfig(realism=d),
+    )
     for mag in (150.0, 5000.0, 20000.0, 60000.0):
         for tw in (a, b):
             tw.column.set("Magnification", mag)
             tw.column.set("ImageShift", (0.3, -0.2))
         ta, tb = a.calibration_truth(), b.calibration_truth()
         assert tb["true_pixel_nm"] == pytest.approx(ta["true_pixel_nm"], rel=1e-6)
-        assert (tb["image_rotation_deg"] - ta["image_rotation_deg"] + 180) % 360 - 180 == pytest.approx(0, abs=1e-4)
+        assert (tb["image_rotation_deg"] - ta["image_rotation_deg"] + 180) % 360 - 180 == pytest.approx(
+            0, abs=1e-4
+        )
         np.testing.assert_allclose(tb["is_matrix_um_per_unit"], ta["is_matrix_um_per_unit"], atol=1e-6)
         np.testing.assert_allclose(tb["mag_offset_um"], ta["mag_offset_um"], atol=1e-6)
         oa, ob = a.optics(a.request()), b.optics(b.request())
@@ -96,11 +114,18 @@ def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files, ma
     tw.column.backlash_um = 0.0  # backlash has its own test; here only the matrix
     to_serialem(tw.optics_config.realism, CAMERA, cal, props)
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
-    S = next(np.array([float(v) for v in line.split()[3:7]]).reshape(2, 2)
-             for line in cal.read_text().splitlines()
-             if line.startswith(f"StageToCameraMatrix {ind} "))
-    rot = float(next(line.split()[3] for line in props.read_text().splitlines()
-                     if line.startswith(f"RotationAndPixel {ind} ")))
+    S = next(
+        np.array([float(v) for v in line.split()[3:7]]).reshape(2, 2)
+        for line in cal.read_text().splitlines()
+        if line.startswith(f"StageToCameraMatrix {ind} ")
+    )
+    rot = float(
+        next(
+            line.split()[3]
+            for line in props.read_text().splitlines()
+            if line.startswith(f"RotationAndPixel {ind} ")
+        )
+    )
     assert np.linalg.det(S) > 0, "a real scope's handedness"
     assert rot == pytest.approx(math.degrees(math.atan2(-S[1, 0], -S[0, 0])), abs=1e-6)
     a = _img(tw)
@@ -123,8 +148,11 @@ def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_tw
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
     text = cal.read_text().splitlines()
     k = text.index(next(line for line in text if line.startswith("ImageShiftMatrix")))
-    A = next(np.array([float(v) for v in line.split()[2:6]]).reshape(2, 2)
-             for line in text[k + 1:] if line.split()[0] == str(ind))
+    A = next(
+        np.array([float(v) for v in line.split()[2:6]]).reshape(2, 2)
+        for line in text[k + 1 :]
+        if line.split()[0] == str(ind)
+    )
     a = _img(tw)
     for u in ((0.2, 0.0), (0.0, 0.2)):
         tw.column.set("ImageShift", u)
@@ -136,8 +164,14 @@ def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_tw
 def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define(tmp_path):
     cal = tmp_path / "cal.txt"
     props = tmp_path / "props.txt"
-    cal.write_text("SerialEMCalibrations\nStageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n14 0 2 0 0 2   20000\nFocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1" + "\n")
-    props.write_text("CameraProperties 1\nRotationAndPixel 14 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel 14 999 999 0\nEndCameraProperties" + "\n")
+    cal.write_text(
+        "SerialEMCalibrations\nStageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n14 0 2 0 0 2   20000\nFocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1"
+        + "\n"
+    )
+    props.write_text(
+        "CameraProperties 1\nRotationAndPixel 14 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel 14 999 999 0\nEndCameraProperties"
+        + "\n"
+    )
     d = from_serialem(cal, props, camera=CAMERA)
     mag = 20000.0
     assert d.rotation_rad("MAG1", mag) == pytest.approx(0.0, abs=1e-9), "999: from the stage matrix"

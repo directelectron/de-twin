@@ -27,7 +27,7 @@ CAM512 = StubCamera(sensor_shape=(512, 512))
 
 def _centroid_dark(img):
     w = np.clip(np.median(img) - img, 0, None)
-    ys, xs = np.mgrid[:img.shape[0], :img.shape[1]]
+    ys, xs = np.mgrid[: img.shape[0], : img.shape[1]]
     return float((w * xs).sum() / w.sum()), float((w * ys).sum() / w.sum())
 
 
@@ -97,7 +97,7 @@ def test_illuminated_disk_edge_is_visible_when_focused(make_optics):
     assert img[256, 256] == pytest.approx(o.dose_e_per_px_s, rel=1e-3)
     assert img[0, 0] < 1e-3 * o.dose_e_per_px_s
     radius_px = o.illuminated_diameter_um * 1000 / 2 / o.specimen_pixel_nm
-    assert ((img > 0.5 * img.max()).sum()) == pytest.approx(math.pi * radius_px ** 2, rel=0.05)
+    assert ((img > 0.5 * img.max()).sum()) == pytest.approx(math.pi * radius_px**2, rel=0.05)
 
 
 def test_zero_thickness_film_is_vacuum(make_optics):
@@ -126,8 +126,7 @@ def test_thon_ring_contrast_is_realistic(make_optics):
 
 def test_astigmatism_gives_elliptical_rings(make_optics):
     a1 = 150.0
-    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0,
-                objective_stig=Vec2(a1 / 1000.0, 0.0))
+    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0, objective_stig=Vec2(a1 / 1000.0, 0.0))
     assert o.astigmatism_nm == pytest.approx((a1, 0.0))
     img = Renderer(SyntheticSpecimen()).render(o)
     grid = np.linspace(-1500, -500, 501)
@@ -136,8 +135,7 @@ def test_astigmatism_gives_elliptical_rings(make_optics):
     assert dfx == pytest.approx(-1000 + a1, abs=20)
     assert dfy == pytest.approx(-1000 - a1, abs=20)
     # the 45-degree component rotates the ellipse
-    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0,
-                objective_stig=Vec2(0.0, a1 / 1000.0))
+    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0, objective_stig=Vec2(0.0, a1 / 1000.0))
     img = Renderer(SyntheticSpecimen()).render(o)
     d45, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=math.pi / 4)
     d135, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=3 * math.pi / 4)
@@ -147,8 +145,10 @@ def test_astigmatism_gives_elliptical_rings(make_optics):
 
 @pytest.mark.parametrize("df_um", [-2.0, 2.0])
 def test_beam_tilt_shift_is_defocus_times_tilt(df_um, make_optics):
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM,
-                             particles=[Particle(0.0, 0.0, 15.0), Particle(0.03, -0.02, 10.0, grain=5)])
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM,
+        particles=[Particle(0.0, 0.0, 15.0), Particle(0.03, -0.02, 10.0, grain=5)],
+    )
     r = Renderer(spec)
     a = r.render(make_optics(magnification=40000, defocus_um=df_um))
     o = make_optics(magnification=40000, defocus_um=df_um, beam_tilt_mrad=Vec2(2.0, 1.0))
@@ -179,28 +179,26 @@ def test_fresnel_fringe_at_hole_edge_flips_with_defocus(make_optics):
         img = Renderer(spec, config).render(o) / o.dose_e_per_px_s
         c = img.shape[0] // 2
         r_px = int(30.0 / o.specimen_pixel_nm)
-        rows[df] = img[c, c + r_px - 16:c + r_px]  # inside the hole, next to the edge
+        rows[df] = img[c, c + r_px - 16 : c + r_px]  # inside the hole, next to the edge
     assert rows[-3.0].max() > 1.1
     assert rows[3.0].min() < 0.9
     assert rows[-3.0].mean() > rows[3.0].mean()
 
 
-
-
-
 def test_lattice_fringes_resolved_at_high_mag(make_optics):
     grains = on_zone_grains(MaterialId.GOLD * 512 + 1, (0, 1, 1))  # exactly on [011]
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 6.0, grain=1)],
-                             grains=grains)
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 6.0, grain=1)], grains=grains
+    )
     o = make_optics(camera=CAM512, magnification=400000, defocus_um=-0.05)
     img = Renderer(spec).render(o)
     d = 0.4078 / math.sqrt(3)  # {111}, the strongest [011] zone reflections
     c = img.shape[0] // 2
-    crop = img[c - 64:c + 64, c - 64:c + 64]
+    crop = img[c - 64 : c + 64, c - 64 : c + 64]
     f = np.abs(np.fft.fftshift(np.fft.fft2(crop - crop.mean())))
     ky, kx = np.mgrid[-64:64, -64:64] / (128 * o.specimen_pixel_nm)
     k = np.hypot(kx, ky)
-    near = (np.abs(k - 1 / d) < 0.4)
+    near = np.abs(k - 1 / d) < 0.4
     far = (k > 1 / d + 1.0) & (k < 1 / d + 2.0)
     assert f[near].max() > 5 * np.median(f[far])
 

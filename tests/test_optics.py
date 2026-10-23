@@ -45,7 +45,9 @@ def test_default_calibration_is_geometric(make_state):
     cal = Calibration.default()
     s = make_state(magnification=20000)
     assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(6.5e3 / 20000)
-    assert cal.recip_pixel_inv_nm(s, DE16) == pytest.approx((6.5 / 250.0) / (1000 * electron_wavelength_nm(200)))
+    assert cal.recip_pixel_inv_nm(s, DE16) == pytest.approx(
+        (6.5 / 250.0) / (1000 * electron_wavelength_nm(200))
+    )
     assert cal.mag_ladder("MAG1")[0] == 2000 and cal.mag_ladder("MAG1")[-1] == 800000
     assert cal.mag_ladder("LowMAG")[0] == 50 and cal.mag_ladder("LowMAG")[-1] == 1500
     assert 250 in cal.cl_ladder()
@@ -81,9 +83,11 @@ def test_mag_yaml_values(make_state):
 def test_mag_yaml_with_tabs_and_ht_table(tmp_path, make_state):
     (tmp_path / "mag.yaml").write_text(
         "- Project: MAG1\n  Mode: 1\n  SubMode: 0\n  TemStemMode: 0\n  Mags:\n    1000:\t2.0\n"
-        "- Project: Diff Mag\n  Mode: 2\n  SubMode: 4\n  TemStemMode: 0\n  CamLength(cm):\n    25:\t0.02\n")
+        "- Project: Diff Mag\n  Mode: 2\n  SubMode: 4\n  TemStemMode: 0\n  CamLength(cm):\n    25:\t0.02\n"
+    )
     (tmp_path / "ht.yaml").write_text(
-        "HT:\n  300000:\n    TEM_Scale_Factor: 1.1\n    TEM_Diff_Scale_Factor: 0.8\n")
+        "HT:\n  300000:\n    TEM_Scale_Factor: 1.1\n    TEM_Diff_Scale_Factor: 0.8\n"
+    )
     cal = Calibration.from_mag_yaml(tmp_path / "mag.yaml", ht_table=tmp_path / "ht.yaml")
     s = make_state(magnification=1000, ht_kv=300.0, camera_length_mm=250.0)
     assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(2.2)
@@ -93,9 +97,14 @@ def test_mag_yaml_with_tabs_and_ht_table(tmp_path, make_state):
 # ---------------------------------------------------------- dispatch
 def test_render_mode_selection_and_override(make_derived_optics, make_state):
     assert make_derived_optics().render_mode == RenderMode.TEM_IMAGING
-    assert make_derived_optics(make_state(projection=Projection.DIFFRACTION)).render_mode == RenderMode.TEM_DIFFRACTION
-    assert make_derived_optics(make_state(tem_stem=TemStem.STEM, projection=Projection.DIFFRACTION)).render_mode \
-        == RenderMode.STEM_PARKED  # STEM is tested before diffraction
+    assert (
+        make_derived_optics(make_state(projection=Projection.DIFFRACTION)).render_mode
+        == RenderMode.TEM_DIFFRACTION
+    )
+    assert (
+        make_derived_optics(make_state(tem_stem=TemStem.STEM, projection=Projection.DIFFRACTION)).render_mode
+        == RenderMode.STEM_PARKED
+    )  # STEM is tested before diffraction
     r = AcquisitionRequest()
     r.scan.enabled = True
     assert make_derived_optics(request=r).render_mode == RenderMode.STEM_4D
@@ -193,15 +202,21 @@ def test_tilt_foreshortening(make_derived_optics, make_state):
 def test_defocus_includes_z_offsets_and_eucentric(make_derived_optics, make_state):
     s = make_state(defocus_um=-1.0)
     s.stage.z_um = 3.0
-    o = make_derived_optics(s, config=OpticsConfig(defocus_offset_um=0.5, eucentric_height_um=1.0,
-                                    stage_offset_um=(0, 0, 0.25)))
+    o = make_derived_optics(
+        s, config=OpticsConfig(defocus_offset_um=0.5, eucentric_height_um=1.0, stage_offset_um=(0, 0, 0.25))
+    )
     assert o.defocus_um == pytest.approx(-1.0 + 0.5 + (3.0 + 0.25 - 1.0))
 
 
-
 def test_probe_and_disk(make_derived_optics, make_state):
-    s = make_state(tem_stem=TemStem.STEM, probe_mode=ProbeMode.NANOPROBE, spot_size=3,
-               convergence_semi_angle_mrad=20.0, defocus_um=0.1, camera_length_mm=100.0)
+    s = make_state(
+        tem_stem=TemStem.STEM,
+        probe_mode=ProbeMode.NANOPROBE,
+        spot_size=3,
+        convergence_semi_angle_mrad=20.0,
+        defocus_um=0.1,
+        camera_length_mm=100.0,
+    )
     r = AcquisitionRequest()
     r.scan.enabled = True
     o = make_derived_optics(s, r)
@@ -251,7 +266,9 @@ def test_lowmag_spreads_the_beam(make_state):
 
 def test_beam_current_model(make_state):
     assert beam_current_pa(make_state(spot_size=3)) == pytest.approx(600.0)
-    assert beam_current_pa(make_state(spot_size=1)) / beam_current_pa(make_state(spot_size=5)) == pytest.approx(25.0)
+    assert beam_current_pa(make_state(spot_size=1)) / beam_current_pa(
+        make_state(spot_size=5)
+    ) == pytest.approx(25.0)
     nano = beam_current_pa(make_state(spot_size=3, probe_mode=ProbeMode.NANOPROBE))
     assert nano == pytest.approx(30.0)
     assert beam_current_pa(make_state(ht_on=False)) == 0.0
@@ -267,17 +284,20 @@ def test_realistic_tem_dose_on_de16(make_derived_optics, make_state):
 
 def test_dose_scaling(make_derived_optics, make_state):
     base = make_derived_optics(make_state(magnification=20000))
-    assert make_derived_optics(make_state(magnification=40000)).dose_e_per_px_s == pytest.approx(base.dose_e_per_px_s / 4)
+    assert make_derived_optics(make_state(magnification=40000)).dose_e_per_px_s == pytest.approx(
+        base.dose_e_per_px_s / 4
+    )
     assert make_derived_optics(make_state(magnification=20000, spot_size=1)).dose_e_per_px_s == pytest.approx(
-        base.dose_e_per_px_s * 9)
+        base.dose_e_per_px_s * 9
+    )
     # spreading the beam (higher intensity -> larger area) lowers the dose ~ 1/D^2
     s1, s2 = make_state(intensity=0.4), make_state(intensity=0.6)
     r = make_derived_optics(s1).dose_e_per_px_s / make_derived_optics(s2).dose_e_per_px_s
     assert r == pytest.approx((illuminated_diameter_um(s2) / illuminated_diameter_um(s1)) ** 2)
     # physical: J * p^2 with J = I / (e * area)
     d_nm = illuminated_diameter_um(MicroscopeState()) * 1000
-    j = 600e-12 / 1.602176634e-19 / (math.pi * d_nm ** 2 / 4)
-    assert base.dose_e_per_px_s == pytest.approx(j * 0.325 ** 2)
+    j = 600e-12 / 1.602176634e-19 / (math.pi * d_nm**2 / 4)
+    assert base.dose_e_per_px_s == pytest.approx(j * 0.325**2)
 
 
 def test_stem_dose_is_probe_current(make_derived_optics, make_state):
@@ -337,18 +357,24 @@ def test_max_raster_pixels_zero_renders_at_the_frame_sampling(make_derived_optic
     assert native.raster_downsample == 1 and native.view.shape == (4096, 4096)
     assert native.resolution_warning == ""
     assert native.view.pixel_um == pytest.approx(0.325e-3)
-    mid = make_derived_optics(make_state(magnification=20000), config=OpticsConfig(max_raster_pixels=2048 * 2048))
+    mid = make_derived_optics(
+        make_state(magnification=20000), config=OpticsConfig(max_raster_pixels=2048 * 2048)
+    )
     assert mid.raster_downsample == 2
 
 
-def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes(make_derived_optics, make_state):
+def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes(
+    make_derived_optics, make_state
+):
     from de_twin.state import Projection
 
     doses = {}
     for zoom in (False, True):
         config = OpticsConfig(intensity_zoom=zoom)
-        doses[zoom] = [make_derived_optics(make_state(magnification=m), config=config).dose_e_per_px_s
-                       for m in (5000, 20000, 80000)]
+        doses[zoom] = [
+            make_derived_optics(make_state(magnification=m), config=config).dose_e_per_px_s
+            for m in (5000, 20000, 80000)
+        ]
     assert doses[True][0] == pytest.approx(doses[True][1], rel=1e-6)
     assert doses[True][2] == pytest.approx(doses[True][1], rel=1e-6)
     assert doses[False][0] > 10 * doses[False][2], "without it, dose/px goes as 1/mag^2"
@@ -356,11 +382,13 @@ def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes(ma
     ref = OpticsConfig().intensity_zoom_reference_mag
     s = make_state(magnification=ref)
     assert make_derived_optics(s, config=OpticsConfig(intensity_zoom=True)).dose_e_per_px_s == pytest.approx(
-        make_derived_optics(s).dose_e_per_px_s, rel=1e-6)
+        make_derived_optics(s).dose_e_per_px_s, rel=1e-6
+    )
     # diffraction is left alone
     d = make_state(magnification=5000, projection=Projection.DIFFRACTION)
-    assert make_derived_optics(d, config=OpticsConfig(intensity_zoom=True)).illuminated_diameter_um == pytest.approx(
-        make_derived_optics(d).illuminated_diameter_um)
+    assert make_derived_optics(
+        d, config=OpticsConfig(intensity_zoom=True)
+    ).illuminated_diameter_um == pytest.approx(make_derived_optics(d).illuminated_diameter_um)
 
 
 def test_beam_shift_moves_a_scan_even_on_a_column_that_reports_tem(make_derived_optics, make_state):

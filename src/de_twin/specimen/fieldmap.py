@@ -188,6 +188,7 @@ class GrainTable:
         """(N, 3, 3) crystal -> specimen (untilted lab) matrices."""
         if self._matrices is None:
             from ..crystal.orientation import crystal_to_lab
+
             self._matrices = crystal_to_lab(self.quaternions)
         return self._matrices
 
@@ -204,6 +205,7 @@ def _direct_basis(mid: int) -> np.ndarray:
     if c is None or not c.lattice or (len(set(c.lattice[:3])) == 1 and set(c.lattice[3:]) == {90.0}):
         return np.eye(3)
     from ..crystal.phases import phase_for
+
     return np.asarray(phase_for(mid).structure.lattice.base).T
 
 
@@ -211,6 +213,8 @@ def grain_id_from_hash(material_id, h):
     """Grain id for a feature of ``material_id`` from a 64-bit hash (C++ GrainIdFromHash)."""
     k = hash_seed(h, SeedKind.GRAIN, 0)
     if isinstance(k, np.ndarray):
-        return (np.asarray(material_id, np.int64) * GRAINS_PER_MATERIAL
-                + (k % np.uint64(GRAINS_PER_MATERIAL)).astype(np.int64)).astype(np.int32)
+        return (
+            np.asarray(material_id, np.int64) * GRAINS_PER_MATERIAL
+            + (k % np.uint64(GRAINS_PER_MATERIAL)).astype(np.int64)
+        ).astype(np.int32)
     return int(material_id) * GRAINS_PER_MATERIAL + int(k % GRAINS_PER_MATERIAL)

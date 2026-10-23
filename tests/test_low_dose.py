@@ -76,13 +76,19 @@ def _to_view_frame(record: np.ndarray, rec_view, view_view, shape) -> np.ndarray
 def test_view_to_record_alignment_finds_the_true_area_offset():
     from scipy.ndimage import gaussian_filter
 
-    tw = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=1,
-                     optics_config=OpticsConfig.realistic(seed=5))
+    tw = DigitalTwin(
+        "Dense Au on holey C",
+        camera="DESim",
+        clock=ManualClock(),
+        seed=1,
+        optics_config=OpticsConfig.realistic(seed=5),
+    )
     tw.column.set("Magnification", 20000)
     tw.column.set("Intensity", 0.95)
     tw.column.set("LowDose", True)
-    tw.column.set("LowDoseAreas", {"View": {"magnification": 5000, "defocus_offset_um": -30.0,
-                                            "intensity": 0.95}})
+    tw.column.set(
+        "LowDoseAreas", {"View": {"magnification": 5000, "defocus_offset_um": -30.0, "intensity": 0.95}}
+    )
     req = tw.request()
     o_rec = tw.optics(req)
     rec = tw.flux(req).astype(float)
@@ -121,8 +127,11 @@ def test_a_bad_area_setting_is_refused_and_changes_nothing():
     c = _col()
     c.set("LowDose", True)
     before = c.get("LowDoseAreas")
-    for bad in ({"View": {"image_shift": (1.0,)}}, {"View": {"intensity": "lots"}},
-                {"View": {"defocus_offset_um": float("nan")}}):
+    for bad in (
+        {"View": {"image_shift": (1.0,)}},
+        {"View": {"intensity": "lots"}},
+        {"View": {"defocus_offset_um": float("nan")}},
+    ):
         with pytest.raises(ColumnRefused):
             c.set("LowDoseAreas", bad)
     assert c.get("LowDoseAreas") == before

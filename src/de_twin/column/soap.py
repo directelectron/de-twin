@@ -32,37 +32,103 @@ DEFAULT_PORT = 5002
 #: DE-TEM-Channel ``core/confige.cpp`` command_list, in wire order. DE-Server's
 #: Instrument.cpp mirrors this list (its enum must stay aligned).
 BATCH_KEYS = (
-    "GUN_HT", "GUN_HTMax", "GUN_HTState", "PROJ_BeamBlankState", "ILLUM_Filament",
-    "PROJ_Mode", "PROJ_Magnification", "PROJ_ImageShift", "PROJ_Focus", "PROJ_Defocus",
-    "PROJ_ImageBeamShift", "PROJ_ScreenPosition", "CAMERA_MeasuredExposureTime",
-    "STAGE_Status", "STAGE_Holder", "STAGE_Position", "VACUUM_Status",
-    "VACUUM_ColumnValvesOpen", "VACUUM_PVPRunning", "VACUUM_Gauges", "PROJ_CameraLength",
-    "INSTRUMENT_Type", "PROJ_SubMode", "PROJ_TemStemMode", "STAGE_PositionFull",
-    "ILLUM_ImageShift", "ILLUM_BeamShift", "ILLUM_BeamTilt", "PROJ_ObjStig",
-    "ILLUM_CondenserStig", "OP_Status", "STAGE_Mode", "ILLUM_SpotSize", "ILLUM_ProbeMode",
-    "ILLUM_ConvergenceAngle", "ILLUM_AlphaSelector", "ILLUM_CondenserApertureIndex",
+    "GUN_HT",
+    "GUN_HTMax",
+    "GUN_HTState",
+    "PROJ_BeamBlankState",
+    "ILLUM_Filament",
+    "PROJ_Mode",
+    "PROJ_Magnification",
+    "PROJ_ImageShift",
+    "PROJ_Focus",
+    "PROJ_Defocus",
+    "PROJ_ImageBeamShift",
+    "PROJ_ScreenPosition",
+    "CAMERA_MeasuredExposureTime",
+    "STAGE_Status",
+    "STAGE_Holder",
+    "STAGE_Position",
+    "VACUUM_Status",
+    "VACUUM_ColumnValvesOpen",
+    "VACUUM_PVPRunning",
+    "VACUUM_Gauges",
+    "PROJ_CameraLength",
+    "INSTRUMENT_Type",
+    "PROJ_SubMode",
+    "PROJ_TemStemMode",
+    "STAGE_PositionFull",
+    "ILLUM_ImageShift",
+    "ILLUM_BeamShift",
+    "ILLUM_BeamTilt",
+    "PROJ_ObjStig",
+    "ILLUM_CondenserStig",
+    "OP_Status",
+    "STAGE_Mode",
+    "ILLUM_SpotSize",
+    "ILLUM_ProbeMode",
+    "ILLUM_ConvergenceAngle",
+    "ILLUM_AlphaSelector",
+    "ILLUM_CondenserApertureIndex",
     "PROJ_DiffractionShift",
 )
 
 #: The batch DE-Server polls every cycle (Instrument.cpp get_Properties order).
 DESERVER_BATCH = (
-    "PROJ_Mode", "PROJ_SubMode", "PROJ_Magnification", "PROJ_CameraLength", "PROJ_Defocus",
-    "GUN_HT", "PROJ_ScreenPosition", "PROJ_BeamBlankState", "PROJ_TemStemMode",
-    "INSTRUMENT_Type", "STAGE_PositionFull", "ILLUM_BeamShift", "ILLUM_ImageShift",
-    "ILLUM_SpotSize", "ILLUM_ProbeMode", "ILLUM_ConvergenceAngle", "ILLUM_AlphaSelector",
+    "PROJ_Mode",
+    "PROJ_SubMode",
+    "PROJ_Magnification",
+    "PROJ_CameraLength",
+    "PROJ_Defocus",
+    "GUN_HT",
+    "PROJ_ScreenPosition",
+    "PROJ_BeamBlankState",
+    "PROJ_TemStemMode",
+    "INSTRUMENT_Type",
+    "STAGE_PositionFull",
+    "ILLUM_BeamShift",
+    "ILLUM_ImageShift",
+    "ILLUM_SpotSize",
+    "ILLUM_ProbeMode",
+    "ILLUM_ConvergenceAngle",
+    "ILLUM_AlphaSelector",
     "ILLUM_CondenserApertureIndex",
 )
 
 #: getProperty status ids (DE-TEM-Channel core/global.h PropertyOperationId).
 PROP_OP = {
-    "GLOBAL": 0, "BEAMBLANK": 100, "SPOTSIZE": 101, "MAGINDEX": 102, "DEFOCUS": 103,
-    "IMAGESHIFT": 104, "BEAMSHIFT": 105, "BEAMTILT": 106, "OBJSTIG": 107,
-    "CONDENSERSTIG": 108, "SCREENPOSITION": 109, "COLUMNVALVES": 110, "STAGE_X": 111,
-    "STAGE_Y": 112, "STAGE_Z": 113, "STAGE_A": 114, "STAGE_B": 115, "STAGEPOSITION": 116,
-    "PROJECTIONMODE": 117, "TEMSTEMMODE": 118, "APERTUREKIND": 119, "APERTURESIZE": 120,
-    "STAGEMODE": 121, "INTENSITY": 122, "CAMERALENGTH": 123, "DIFFFOCUS": 124,
-    "SCANROTATION": 125, "GUNSHIFT": 126, "GUNTILT": 127, "FUNCTIONMODE": 128,
-    "PROBEMODE": 129, "ALPHASELECTOR": 130, "DIFFRACTIONSHIFT": 131,
+    "GLOBAL": 0,
+    "BEAMBLANK": 100,
+    "SPOTSIZE": 101,
+    "MAGINDEX": 102,
+    "DEFOCUS": 103,
+    "IMAGESHIFT": 104,
+    "BEAMSHIFT": 105,
+    "BEAMTILT": 106,
+    "OBJSTIG": 107,
+    "CONDENSERSTIG": 108,
+    "SCREENPOSITION": 109,
+    "COLUMNVALVES": 110,
+    "STAGE_X": 111,
+    "STAGE_Y": 112,
+    "STAGE_Z": 113,
+    "STAGE_A": 114,
+    "STAGE_B": 115,
+    "STAGEPOSITION": 116,
+    "PROJECTIONMODE": 117,
+    "TEMSTEMMODE": 118,
+    "APERTUREKIND": 119,
+    "APERTURESIZE": 120,
+    "STAGEMODE": 121,
+    "INTENSITY": 122,
+    "CAMERALENGTH": 123,
+    "DIFFFOCUS": 124,
+    "SCANROTATION": 125,
+    "GUNSHIFT": 126,
+    "GUNTILT": 127,
+    "FUNCTIONMODE": 128,
+    "PROBEMODE": 129,
+    "ALPHASELECTOR": 130,
+    "DIFFRACTIONSHIFT": 131,
 }
 
 #: OperationState (core/global.h).
@@ -193,19 +259,47 @@ PROPERTIES: dict[str, tuple[tuple | None, tuple | None, str | None]] = {
     "BeamTilt": (("pair", "getBeamTilt"), ("pair", "setBeamTilt"), None),
     "ObjectiveStig": (("pair", "getObjectiveStig"), ("pair", "setObjectiveStig"), None),
     "CondenserStig": (("pair", "getCondenserStig"), ("pair", "setCondenserStig"), None),
-    "DiffractionShift": (("pair", "getDiffractionShift"), ("pair", "setDiffractionShift"), "DiffractionShiftX"),
+    "DiffractionShift": (
+        ("pair", "getDiffractionShift"),
+        ("pair", "setDiffractionShift"),
+        "DiffractionShiftX",
+    ),
     "StagePosition": (("stage_all",), ("stage_all",), None),
     "StageX": (("stage", 0), ("stage", "x"), "StageX"),
     "StageY": (("stage", 1), ("stage", "y"), "StageY"),
     "StageZ": (("stage", 2), ("stage", "z"), "StageZ"),
     "StageA": (("stage", 3), ("stage", "a"), "StageA"),
     "StageB": (("stage", 4), ("stage", "b"), "StageB"),
-    "TemStemMode": (("value", "getTemStemMode", "shortResult"), ("value", "setTemStemMode", "mode"), "TemStemMode"),
-    "ProjectionMode": (("value", "getProjectMode", "shortResult"), ("value", "setProjectionMode", "mode"), "ProjectionMode"),
-    "SubMode": (("value", "getProjectSubMode", "shortResult"), ("value", "setFunctionMode", "mode"), "SubMode"),
-    "BeamBlank": (("value", "getBeamBlankState", "intResult"), ("value", "setBeamBlank", "blank"), "BeamBlank"),
-    "ScreenPosition": (("value", "getScreenPosition", "shortResult"), ("value", "setScreenPosition", "pos"), "ScreenPosition"),
-    "ColumnValvesOpen": (("value", "getColumnValveStatus", "shortResult"), ("value", "setColumnValvesOpen", "open"), "ColumnValvesOpen"),
+    "TemStemMode": (
+        ("value", "getTemStemMode", "shortResult"),
+        ("value", "setTemStemMode", "mode"),
+        "TemStemMode",
+    ),
+    "ProjectionMode": (
+        ("value", "getProjectMode", "shortResult"),
+        ("value", "setProjectionMode", "mode"),
+        "ProjectionMode",
+    ),
+    "SubMode": (
+        ("value", "getProjectSubMode", "shortResult"),
+        ("value", "setFunctionMode", "mode"),
+        "SubMode",
+    ),
+    "BeamBlank": (
+        ("value", "getBeamBlankState", "intResult"),
+        ("value", "setBeamBlank", "blank"),
+        "BeamBlank",
+    ),
+    "ScreenPosition": (
+        ("value", "getScreenPosition", "shortResult"),
+        ("value", "setScreenPosition", "pos"),
+        "ScreenPosition",
+    ),
+    "ColumnValvesOpen": (
+        ("value", "getColumnValveStatus", "shortResult"),
+        ("value", "setColumnValvesOpen", "open"),
+        "ColumnValvesOpen",
+    ),
     "HighTension": (("value", "getAccelVoltage", "floatResult"), None, None),
     "MaxHighTension": (("value", "getMaxHTValue", "floatResult"), None, None),
     "HTState": (("value", "getHTState", "shortResult"), None, None),
@@ -216,7 +310,11 @@ PROPERTIES: dict[str, tuple[tuple | None, tuple | None, str | None]] = {
     "StageMode": (("prop", "StageMode"), ("value", "setStageMode", "mode"), "StageMode"),
     "StageHolder": (("value", "getStageHolder", "shortResult"), None, None),
     "ScanRotation": (("prop", "ScanRotation"), ("value", "setScanRotation", "deg"), "ScanRotation"),
-    "DiffractionFocus": (("prop", "DiffractionFocus"), ("value", "setDiffractionFocus", "value"), "DiffractionFocus"),
+    "DiffractionFocus": (
+        ("prop", "DiffractionFocus"),
+        ("value", "setDiffractionFocus", "value"),
+        "DiffractionFocus",
+    ),
     "GunShift": (("props", "GunShiftX", "GunShiftY"), ("pair", "setGunShift"), "GunShiftX"),
     "GunTilt": (("props", "GunTiltX", "GunTiltY"), ("pair", "setGunTilt"), "GunTiltX"),
     "ScreenCurrent": (("prop", "ScreenCurrent"), None, None),
@@ -250,8 +348,8 @@ class SoapTemChannelClient:
         fields = [(k.replace("_", "-"), v) for k, v in params.items()]
         payload = envelope(method, fields).encode("utf-8")
         req = urllib.request.Request(
-            self.url, data=payload,
-            headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": '""'})
+            self.url, data=payload, headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": '""'}
+        )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 text = resp.read()
@@ -408,21 +506,35 @@ class SoapTemChannelClient:
     def corrector_measure_c1a1(self) -> bool:
         return self._ok("correctorMeasureC1A1", val=0)
 
-    def corrector_acquire_tableau(self, tab_type: str = "", angle_mrad: float = 0.0,
-                                  max_fit: str = "") -> bool:
-        return self._ok("correctorAcquireTableau", tabType=tab_type, angle=float(angle_mrad),
-                        maxFit=max_fit)
+    def corrector_acquire_tableau(
+        self, tab_type: str = "", angle_mrad: float = 0.0, max_fit: str = ""
+    ) -> bool:
+        return self._ok("correctorAcquireTableau", tabType=tab_type, angle=float(angle_mrad), maxFit=max_fit)
 
-    def corrector_correct(self, name: str, value: tuple[float, float] | None = None,
-                          target: tuple[float, float] | None = None, select: str = "",
-                          wait_ms: int = 0) -> bool:
+    def corrector_correct(
+        self,
+        name: str,
+        value: tuple[float, float] | None = None,
+        target: tuple[float, float] | None = None,
+        select: str = "",
+        wait_ms: int = 0,
+    ) -> bool:
         """``correctorCorrectAberration``. ``value`` None = the corrector's own estimate,
         ``target`` None = zero. With ``wait_ms`` > 0, True means *completed*."""
         vx, vy = value if value is not None else (0.0, 0.0)
         tx, ty = target if target is not None else (0.0, 0.0)
-        return self._ok("correctorCorrectAberration", name=name, useValue=int(value is not None),
-                        valueX=float(vx), valueY=float(vy), useTarget=int(target is not None),
-                        targetX=float(tx), targetY=float(ty), select=select, waitMs=int(wait_ms))
+        return self._ok(
+            "correctorCorrectAberration",
+            name=name,
+            useValue=int(value is not None),
+            valueX=float(vx),
+            valueY=float(vy),
+            useTarget=int(target is not None),
+            targetX=float(tx),
+            targetY=float(ty),
+            select=select,
+            waitMs=int(wait_ms),
+        )
 
     def corrector_fetch_alignment_file(self) -> bool:
         return self._ok("correctorFetchAlignmentFile", val=0)
@@ -444,10 +556,16 @@ class SoapTemChannelClient:
     def corrector_reconnect(self) -> bool:
         return self._ok("correctorReconnect", val=0)
 
-    def set_corrector_beam_tilt(self, x_rad: float, y_rad: float, relative: bool = True,
-                                wait_ms: int = 0) -> bool:
-        return self._ok("setCorrectorBeamTilt", x=float(x_rad), y=float(y_rad),
-                        relative=int(bool(relative)), waitMs=int(wait_ms))
+    def set_corrector_beam_tilt(
+        self, x_rad: float, y_rad: float, relative: bool = True, wait_ms: int = 0
+    ) -> bool:
+        return self._ok(
+            "setCorrectorBeamTilt",
+            x=float(x_rad),
+            y=float(y_rad),
+            relative=int(bool(relative)),
+            waitMs=int(wait_ms),
+        )
 
     def get_corrector_beam_tilt(self) -> tuple[float, float, bool]:
         out = self.call("getCorrectorBeamTilt", val=0)

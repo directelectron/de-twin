@@ -91,10 +91,17 @@ def _lookup(table: dict, key: float, rel_tol: float):
 class Calibration:
     """Magnification -> nm/px and camera length -> 1/nm/px, per mag mode."""
 
-    def __init__(self, projects: list[MagProject], *, reference_pixel_um: float | None = None,
-                 ht_scale: dict | None = None, tolerance: float = 0.005,
-                 stem_scan_span_v: float = 1.0, stem_fov_nm_at_1x: float = 1.28e8,
-                 name: str = "custom"):
+    def __init__(
+        self,
+        projects: list[MagProject],
+        *,
+        reference_pixel_um: float | None = None,
+        ht_scale: dict | None = None,
+        tolerance: float = 0.005,
+        stem_scan_span_v: float = 1.0,
+        stem_fov_nm_at_1x: float = 1.28e8,
+        name: str = "custom",
+    ):
         self.projects = list(projects)
         # Pixel pitch (um) the tables were measured with; None = use values as-is.
         self.reference_pixel_um = reference_pixel_um
@@ -107,8 +114,9 @@ class Calibration:
 
     # ------------------------------------------------------------------ io
     @classmethod
-    def from_mag_yaml(cls, path, *, reference_pixel_um: float | None = None,
-                      ht_table=None, tolerance: float = 0.005) -> Calibration:
+    def from_mag_yaml(
+        cls, path, *, reference_pixel_um: float | None = None, ht_table=None, tolerance: float = 0.005
+    ) -> Calibration:
         """Load a DE-Server ``mag.yaml`` (tabs tolerated) and optionally an ``ht_table_*.yaml``."""
         text = Path(path).read_text(encoding="utf-8", errors="replace").replace("\t", "    ")
         data = yaml.safe_load(text) or []
@@ -120,12 +128,24 @@ class Calibration:
             cl = {float(k): float(v) for k, v in (p.get("CamLength(cm)") or {}).items()}
             if p.get("CamLengthInMM"):
                 cl = {k / 10.0: v for k, v in cl.items()}
-            projects.append(MagProject(str(p["Project"]), int(p.get("Mode", -1)),
-                                       int(p.get("SubMode", -1)), int(p.get("TemStemMode", 0)),
-                                       mags, cl))
+            projects.append(
+                MagProject(
+                    str(p["Project"]),
+                    int(p.get("Mode", -1)),
+                    int(p.get("SubMode", -1)),
+                    int(p.get("TemStemMode", 0)),
+                    mags,
+                    cl,
+                )
+            )
         ht_scale = cls._load_ht_table(ht_table) if ht_table else None
-        return cls(projects, reference_pixel_um=reference_pixel_um, ht_scale=ht_scale,
-                   tolerance=tolerance, name=Path(path).name)
+        return cls(
+            projects,
+            reference_pixel_um=reference_pixel_um,
+            ht_scale=ht_scale,
+            tolerance=tolerance,
+            name=Path(path).name,
+        )
 
     @staticmethod
     def _load_ht_table(path) -> dict:
@@ -152,6 +172,7 @@ class Calibration:
         are scaled by the camera's pixel pitch, so 20 kx on a 6.5 um pixel is
         0.325 nm/px. Camera lengths are geometric (``None`` entries).
         """
+
         def mags(ladder):
             return {float(m): 1000.0 / (m * post_magnification) for m in ladder}
 
@@ -258,8 +279,7 @@ class Calibration:
         mode = _alphanumeric_key(state.mag_mode)
         mag = float(state.magnification)
         proj = next((p for p in cands if _alphanumeric_key(p.name) in _MODE_ALIASES.get(mode, (mode,))), None)
-        proj = proj or next((p for p in cands
-                             if _lookup(p.mags, mag, self.tolerance) is not _MISSING), None)
+        proj = proj or next((p for p in cands if _lookup(p.mags, mag, self.tolerance) is not _MISSING), None)
         if proj is None:
             return 0.0
         v = _lookup(proj.mags, mag, self.tolerance)

@@ -172,7 +172,9 @@ def test_pairs_and_units(col):
     s = col.state()
     assert s.image_shift_um.x == 0.5 and s.image_shift_um.y == -0.25
     assert s.beam_tilt_mrad.x == pytest.approx(2.0)
-    assert col.get("BeamTilt") == pytest.approx((2.0 / BEAM_TILT_MRAD_PER_UNIT, -1.0 / BEAM_TILT_MRAD_PER_UNIT))
+    assert col.get("BeamTilt") == pytest.approx(
+        (2.0 / BEAM_TILT_MRAD_PER_UNIT, -1.0 / BEAM_TILT_MRAD_PER_UNIT)
+    )
     assert s.diffraction_shift_mrad.y == pytest.approx(2.0)
     with pytest.raises(ColumnRefused):
         col.set("BeamShift", "nonsense")

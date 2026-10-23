@@ -9,8 +9,12 @@ import numpy as np
 from ..state import ExposureMode
 
 EXPOSURE_MODES = {
-    "dark": ExposureMode.DARK, "trial": ExposureMode.TRIAL, "gain": ExposureMode.GAIN,
-    "normal": ExposureMode.NORMAL, "raw": ExposureMode.RAW, "vacuum": ExposureMode.VACUUM,
+    "dark": ExposureMode.DARK,
+    "trial": ExposureMode.TRIAL,
+    "gain": ExposureMode.GAIN,
+    "normal": ExposureMode.NORMAL,
+    "raw": ExposureMode.RAW,
+    "vacuum": ExposureMode.VACUUM,
 }
 PIXEL_DTYPES = {1: np.uint8, 5: np.uint16, 13: np.float32}
 
@@ -30,8 +34,15 @@ GPU_PUBLISH_S = 0.02
 TEMPERATURE_PROP = "Simulator Virtual Specimen Temperature (C)"
 
 # DE-Server "Instrument Project Name" per (function mode, TEM/STEM) (mag.yaml projects)
-_PROJECT_NAMES = {(0, 0): "MAG1", (1, 0): "MAG2", (2, 0): "Low Mag", (3, 0): "SMAG",
-                  (4, 0): "Diff Mag", (2, 1): "HR_STEM", (4, 1): "NBD_STEM"}
+_PROJECT_NAMES = {
+    (0, 0): "MAG1",
+    (1, 0): "MAG2",
+    (2, 0): "Low Mag",
+    (3, 0): "SMAG",
+    (4, 0): "Diff Mag",
+    (2, 1): "HR_STEM",
+    (4, 1): "NBD_STEM",
+}
 
 
 def _property_key(name: str) -> str:

@@ -59,14 +59,20 @@ class StemTables:
 
 def build_tables(fm, optics, grains, crystallinity, config, seed: int) -> StemTables:
     s = describe(fm, optics, grains, crystallinity, fallback_grains=True, diffuse=config.diffuse_scattering)
-    codes = ((s.mat.astype(np.int64) << 44) | ((s.gid + 1) << 16) | (s.thickness_bin << 4)
-             | crystal_bin_for(s.crystallinity))
+    codes = (
+        (s.mat.astype(np.int64) << 44)
+        | ((s.gid + 1) << 16)
+        | (s.thickness_bin << 4)
+        | crystal_bin_for(s.crystallinity)
+    )
     uniq, inv = np.unique(codes, return_inverse=True)
     keys = np.stack([uniq >> 44, ((uniq >> 16) & 0x0FFFFFFF) - 1, (uniq >> 4) & 0xFFF, uniq & 0xF], 1)
     ny, nx = s.mat.shape
     if config.intensity_jitter:
         idx = np.arange(ny * nx, dtype=np.uint64).reshape(ny, nx)
-        jit = (0.9 + 0.2 * uniform_from_hash(hash_seed(seed, SeedKind.INTENSITY_JITTER, idx))).astype(np.float32)
+        jit = (0.9 + 0.2 * uniform_from_hash(hash_seed(seed, SeedKind.INTENSITY_JITTER, idx))).astype(
+            np.float32
+        )
     else:
         jit = np.ones((ny, nx), np.float32)
     return StemTables(s, inv.reshape(ny, nx), keys, jit)
@@ -105,16 +111,25 @@ def _blend_samples(optics, ix, iy, enabled: bool):
     if not enabled or optics.scan_step_um <= 0 or off < BLEND_MIN_OFFSET_PX:
         return [(ix, iy, 1.0)]
     o = round(off)
-    pts = [(ix, iy, BLEND_CENTRE_WEIGHT), (ix - o, iy, BLEND_ARM_WEIGHT), (ix + o, iy, BLEND_ARM_WEIGHT),
-           (ix, iy - o, BLEND_ARM_WEIGHT), (ix, iy + o, BLEND_ARM_WEIGHT)]
+    pts = [
+        (ix, iy, BLEND_CENTRE_WEIGHT),
+        (ix - o, iy, BLEND_ARM_WEIGHT),
+        (ix + o, iy, BLEND_ARM_WEIGHT),
+        (ix, iy - o, BLEND_ARM_WEIGHT),
+        (ix, iy + o, BLEND_ARM_WEIGHT),
+    ]
     return [(int(np.clip(x, 0, nx - 1)), int(np.clip(y, 0, ny - 1)), wt) for x, y, wt in pts]
 
 
 def _tilt_key(optics) -> tuple:
     """What of the beam tilt and precession a pattern depends on."""
-    return (tuple(optics.beam_tilt_mrad), getattr(optics, "precession_mrad", 0.0),
-            getattr(optics, "precession_descan", True), getattr(optics, "precession_phase_rad", 0.0),
-            getattr(optics, "precession_arc_rad", 0.0))
+    return (
+        tuple(optics.beam_tilt_mrad),
+        getattr(optics, "precession_mrad", 0.0),
+        getattr(optics, "precession_descan", True),
+        getattr(optics, "precession_phase_rad", 0.0),
+        getattr(optics, "precession_arc_rad", 0.0),
+    )
 
 
 class StemRenderer:
@@ -125,8 +140,16 @@ class StemRenderer:
         self._tables: OrderedDict[tuple, StemTables] = OrderedDict()
 
     def tables(self, fm, fm_token, optics, grains, crystallinity) -> StemTables:
-        key = (fm_token, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
-               optics.convergence_mrad, self.config.diffuse_scattering, self.config.intensity_jitter)
+        key = (
+            fm_token,
+            optics.ht_kv,
+            optics.thickness_tilt_factor,
+            optics.alpha_rad,
+            optics.beta_rad,
+            optics.convergence_mrad,
+            self.config.diffuse_scattering,
+            self.config.intensity_jitter,
+        )
         t = self._tables.get(key)
         if t is None:
             t = build_tables(fm, optics, grains, crystallinity, self.config, self.seed)
@@ -138,8 +161,15 @@ class StemRenderer:
         return t
 
     def _bucket(self, keys, optics, grains):
-        return bucket_patterns(keys[:, 0], keys[:, 1], keys[:, 2] * THICKNESS_BIN_NM, keys[:, 3] / CRYSTAL_BINS,
-                               grains, optics, PatternOptions.from_config(self.config))
+        return bucket_patterns(
+            keys[:, 0],
+            keys[:, 1],
+            keys[:, 2] * THICKNESS_BIN_NM,
+            keys[:, 3] / CRYSTAL_BINS,
+            grains,
+            optics,
+            PatternOptions.from_config(self.config),
+        )
 
     def all_specs(self, tab: StemTables, optics, grains):
         """PatternSet of every key of the table (one vectorised batch, then kept)."""
@@ -156,19 +186,34 @@ class StemRenderer:
         specs = (tab.all_specs or {}).get(_tilt_key(optics))
         if specs is not None:
             return specs[i]
-        return self._bucket(tab.keys[i:i + 1], optics, grains)[0]
+        return self._bucket(tab.keys[i : i + 1], optics, grains)[0]
 
     def _pattern(self, tab, i, optics, grains) -> np.ndarray:
         h, w = optics.output_shape
-        key = ("dp", tuple(int(v) for v in tab.keys[i]), (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px,
-               optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv,
-               PatternOptions.from_config(self.config), _tilt_key(optics))
-        return self.cache.get(key, lambda _k: render_pattern(self.spec(tab, i, optics, grains), (h, w),
-                                                             optics.recip_pixel_inv_nm, optics.disk_radius_px))
+        key = (
+            "dp",
+            tuple(int(v) for v in tab.keys[i]),
+            (h, w),
+            optics.recip_pixel_inv_nm,
+            optics.disk_radius_px,
+            optics.convergence_mrad,
+            optics.alpha_rad,
+            optics.beta_rad,
+            optics.ht_kv,
+            PatternOptions.from_config(self.config),
+            _tilt_key(optics),
+        )
+        return self.cache.get(
+            key,
+            lambda _k: render_pattern(
+                self.spec(tab, i, optics, grains), (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px
+            ),
+        )
 
     # ------------------------------------------------------------ CBED
-    def render(self, fm, fm_token, optics, grains, crystallinity, scan_point, frame_index,
-               specimen=None) -> np.ndarray:
+    def render(
+        self, fm, fm_token, optics, grains, crystallinity, scan_point, frame_index, specimen=None
+    ) -> np.ndarray:
         config = self.config
         h, w = optics.output_shape
         tab = self.tables(fm, fm_token, optics, grains, crystallinity)
@@ -210,22 +255,27 @@ class StemRenderer:
             # forward map p' = M (p - c) + c + t  ->  ndimage wants the inverse (row, col order)
             minv = np.linalg.inv(np.array([[eyy, exy], [exy, exx]]))
             c = np.array([cy0, cx0])
-            out = ndimage.affine_transform(out, minv, offset=c - minv @ (c + np.array([ty, tx])), order=1,
-                                           mode="constant", cval=0.0)
+            out = ndimage.affine_transform(
+                out, minv, offset=c - minv @ (c + np.array([ty, tx])), order=1, mode="constant", cval=0.0
+            )
         else:
             out = shift_bilinear(out, tx, ty)
         out *= np.float32(optics.pattern_e_per_s / float(tab.jitter[iy, ix]))
         return out
 
     # --------------------------------------------------- virtual detector
-    def virtual_image(self, fm, fm_token, optics, grains, crystallinity, inner_mrad: float,
-                      outer_mrad: float) -> np.ndarray:
+    def virtual_image(
+        self, fm, fm_token, optics, grains, crystallinity, inner_mrad: float, outer_mrad: float
+    ) -> np.ndarray:
         tab = self.tables(fm, fm_token, optics, grains, crystallinity)
         s = tab.samples
         lam = optics.wavelength_nm
-        frac = annulus_fractions(self.all_specs(tab, optics, grains), optics.convergence_mrad,
-                                 lam, inner_mrad, outer_mrad)
-        dfrac = np.array([diffuse_annulus_fraction(m, lam, inner_mrad, outer_mrad) for m in range(len(MATERIALS))])
+        frac = annulus_fractions(
+            self.all_specs(tab, optics, grains), optics.convergence_mrad, lam, inner_mrad, outer_mrad
+        )
+        dfrac = np.array(
+            [diffuse_annulus_fraction(m, lam, inner_mrad, outer_mrad) for m in range(len(MATERIALS))]
+        )
         sig = s.T * frac[tab.key_index] + s.diffuse_w * dfrac[s.mat]
         if s.under_mat is not None:
             sig = sig + s.under_w * dfrac[s.under_mat]
@@ -234,14 +284,19 @@ class StemRenderer:
             o = round(float(optics.extras.get("probe_blend_offset_px", 0.0)))
             p = np.pad(sig, o, mode="edge")
             ny, nx = sig.shape
-            sig = (BLEND_CENTRE_WEIGHT * p[o:o + ny, o:o + nx]
-                   + BLEND_ARM_WEIGHT * (p[o:o + ny, 0:nx] + p[o:o + ny, 2 * o:2 * o + nx]
-                                         + p[0:ny, o:o + nx] + p[2 * o:2 * o + ny, o:o + nx]))
+            sig = BLEND_CENTRE_WEIGHT * p[o : o + ny, o : o + nx] + BLEND_ARM_WEIGHT * (
+                p[o : o + ny, 0:nx]
+                + p[o : o + ny, 2 * o : 2 * o + nx]
+                + p[0:ny, o : o + nx]
+                + p[2 * o : 2 * o + ny, o : o + nx]
+            )
         return (sig * np.float32(optics.pattern_e_per_s) / tab.jitter).astype(np.float32)
 
-    def warm_up(self, fm, fm_token, optics, grains, crystallinity, max_patterns=None,
-                budget_s: float = 0.5) -> int:
+    def warm_up(
+        self, fm, fm_token, optics, grains, crystallinity, max_patterns=None, budget_s: float = 0.5
+    ) -> int:
         import time
+
         tab = self.tables(fm, fm_token, optics, grains, crystallinity)
         order = np.argsort(-np.bincount(tab.key_index.ravel(), minlength=len(tab.keys)), kind="stable")
         cap = len(order) if max_patterns is None else min(len(order), int(max_patterns))

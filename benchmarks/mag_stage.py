@@ -36,6 +36,7 @@ def _timed(name, fn):
             return fn(*a, **k)
         finally:
             T[name] += time.perf_counter() - t0
+
     return wrap
 
 
@@ -62,8 +63,14 @@ def _frame(tw, req):
     tw.detector.expose(flux, req.frame_time_s, req, 0, ht_kv=tw.column.state().ht_kv)
     t2 = time.perf_counter()
     # the TEM raster time includes neither the rasterisation (done before) nor the finish
-    out = {"total": t1 - t0, "raster": T["raster"], "tem": T["tem"], "finish": T["finish"],
-           "detector": t2 - t1, "settled": float("nan")}
+    out = {
+        "total": t1 - t0,
+        "raster": T["raster"],
+        "tem": T["tem"],
+        "finish": T["finish"],
+        "detector": t2 - t1,
+        "settled": float("nan"),
+    }
     if tw.renderer.config.interactive:  # the full render once the view has settled
         time.sleep(tw.renderer.config.settle_s + 0.02)
         t0 = time.perf_counter()
@@ -132,8 +139,10 @@ def main():
     args = ap.parse_args()
     config = RenderConfig(interactive=args.interactive)
     prof = cProfile.Profile() if args.profile else None
-    print(f"{'preset':28s} {'camera':6s} {'scenario':26s} {'total':>7s} {'raster':>7s} {'tem':>7s} "
-          f"{'finish':>7s} {'detect':>7s} {'settled':>7s}  (ms)  raster")
+    print(
+        f"{'preset':28s} {'camera':6s} {'scenario':26s} {'total':>7s} {'raster':>7s} {'tem':>7s} "
+        f"{'finish':>7s} {'detect':>7s} {'settled':>7s}  (ms)  raster"
+    )
     for preset in args.presets:
         for cam in args.cameras:
             tw = DigitalTwin(preset, camera=cam, clock=ManualClock(), seed=0, render_config=config)

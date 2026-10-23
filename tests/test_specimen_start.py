@@ -65,8 +65,7 @@ def test_a_supplied_column_is_left_where_it_is():
 
 
 def test_the_start_can_be_skipped():
-    tw = DigitalTwin("Al thin film 100 nm", camera="DESim", clock=ManualClock(),
-                     start_on_specimen=False)
+    tw = DigitalTwin("Al thin film 100 nm", camera="DESim", clock=ManualClock(), start_on_specimen=False)
     st = tw.column.state()
     assert (st.stage.x_um, st.stage.y_um) == (0.0, 0.0)
 

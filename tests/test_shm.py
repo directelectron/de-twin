@@ -29,8 +29,14 @@ def test_request_roundtrip_and_frames_in_order():
     name = uname()
     with FrameConsumer(name, max_frame_bytes=64 * 48 * 2) as cons:
         prod = FrameProducer(name)
-        rid = cons.begin(frame_shape=(48, 64), exposure_mode=ExposureMode.GAIN, frame_time_s=0.02,
-                         total_frames=5, binning=(2, 2), sensor_shape=(96, 128))
+        rid = cons.begin(
+            frame_shape=(48, 64),
+            exposure_mode=ExposureMode.GAIN,
+            frame_time_s=0.02,
+            total_frames=5,
+            binning=(2, 2),
+            sensor_shape=(96, 128),
+        )
         got = prod.poll_request(timeout=1)
         assert got is not None and got[0] == rid
         req = got[1]

@@ -120,6 +120,7 @@ def _clock_fn(clock) -> Callable[[], float]:
 # Column
 # ---------------------------------------------------------------------------
 
+
 class Column:
     """A simulated column. Thread-safe (``self.lock`` is an ``RLock``).
 
@@ -180,7 +181,8 @@ class Column:
         self._fm = fm
         self._last_imaging_fm = fm if fm != L.FM_DIFF else L.FM_MAG1
         self._convergence_explicit: float | None = (
-            float(s.convergence_semi_angle_mrad) if s.convergence_semi_angle_mrad > 0 else None)
+            float(s.convergence_semi_angle_mrad) if s.convergence_semi_angle_mrad > 0 else None
+        )
         pos = [s.stage.x_um, s.stage.y_um, s.stage.z_um, s.stage.alpha_deg, s.stage.beta_deg]
         self._stage_start = list(pos)
         self._stage_target = list(pos)
@@ -225,9 +227,16 @@ class Column:
             opts = dict(corrector_options or {})
             opts.setdefault("sleeper", getattr(clock, "sleep", None))
             self.corrector = Corrector(
-                kind, clock=self._now, seed=self.seed, lock=self.lock, ht_kv=s.ht_kv,
-                operator=self._operator_c1a1, beam_check=self._corrector_beam_check,
-                label=self._corrector_label, **opts)
+                kind,
+                clock=self._now,
+                seed=self.seed,
+                lock=self.lock,
+                ht_kv=s.ht_kv,
+                operator=self._operator_c1a1,
+                beam_check=self._corrector_beam_check,
+                label=self._corrector_label,
+                **opts,
+            )
 
     # ------------------------------------------------------------ corrector
     def _operator_c1a1(self, side: str) -> tuple[float, complex]:
@@ -253,8 +262,10 @@ class Column:
 
     def _corrector_label(self) -> str:
         s = self._s
-        return (f"{s.ht_kv:g}kV {'STEM' if s.tem_stem == TemStem.STEM else 'TEM'} "
-                f"{L.FUNCTION_MODE_NAMES[self._fm]} {s.probe_mode.name}")
+        return (
+            f"{s.ht_kv:g}kV {'STEM' if s.tem_stem == TemStem.STEM else 'TEM'} "
+            f"{L.FUNCTION_MODE_NAMES[self._fm]} {s.probe_mode.name}"
+        )
 
     def _tune_key(self) -> tuple:
         s = self._s
@@ -343,8 +354,11 @@ class Column:
         if self._convergence_explicit is not None:
             return self._convergence_explicit
         if is_tfs(self._s.instrument_type):
-            row = 2 if self._s.probe_mode in (ProbeMode.NANOPROBE, ProbeMode.NBD, ProbeMode.CBD,
-                                              ProbeMode.EDS) else 0
+            row = (
+                2
+                if self._s.probe_mode in (ProbeMode.NANOPROBE, ProbeMode.NBD, ProbeMode.CBD, ProbeMode.EDS)
+                else 0
+            )
         else:
             row = jeol_row(self._s.probe_mode)
         return L.convergence_mrad(row, self._s.alpha_selector, stem=self._s.tem_stem == TemStem.STEM)
@@ -493,8 +507,17 @@ class Column:
         if axes:
             self.set("StagePosition", axes)
 
-    def move_stage(self, x=None, y=None, z=None, alpha=None, beta=None, *, wait: bool = True,
-                   timeout: float | None = None) -> bool:
+    def move_stage(
+        self,
+        x=None,
+        y=None,
+        z=None,
+        alpha=None,
+        beta=None,
+        *,
+        wait: bool = True,
+        timeout: float | None = None,
+    ) -> bool:
         self.set_stage(x=x, y=y, z=z, alpha=alpha, beta=beta)
         return self.wait_idle(timeout) if wait else True
 
@@ -674,13 +697,25 @@ class Column:
 
     def _s_stage(self, value) -> None:
         if isinstance(value, StagePosition):
-            value = {"x": value.x_um, "y": value.y_um, "z": value.z_um,
-                     "a": value.alpha_deg, "b": value.beta_deg}
+            value = {
+                "x": value.x_um,
+                "y": value.y_um,
+                "z": value.z_um,
+                "a": value.alpha_deg,
+                "b": value.beta_deg,
+            }
         elif not isinstance(value, dict):
             vals = list(value)
             value = dict(zip(STAGE_AXES, vals))
-        aliases = {"alpha": "a", "beta": "b", "x_um": "x", "y_um": "y", "z_um": "z",
-                   "alpha_deg": "a", "beta_deg": "b"}
+        aliases = {
+            "alpha": "a",
+            "beta": "b",
+            "x_um": "x",
+            "y_um": "y",
+            "z_um": "z",
+            "alpha_deg": "a",
+            "beta_deg": "b",
+        }
         axes = {aliases.get(k, k): v for k, v in value.items() if v is not None}
         unknown = set(axes) - set(STAGE_AXES)
         if unknown:
@@ -734,8 +769,14 @@ class Column:
         return dict(zip(STAGE_AXES, self._stage_now))
 
     # ---- extras for MirrorColumn ----
-    def _apply_state(self, s: MicroscopeState, *, op_state: int | None = None,
-                     extra: dict | None = None, convergence_explicit: float | None = None) -> list[str]:
+    def _apply_state(
+        self,
+        s: MicroscopeState,
+        *,
+        op_state: int | None = None,
+        extra: dict | None = None,
+        convergence_explicit: float | None = None,
+    ) -> list[str]:
         """Replace the whole state (no dynamics, no refusals). Returns changed names."""
         with self.lock:
             before = self.values()
@@ -757,5 +798,3 @@ class Column:
                 self._last_op_state = int(op_state)
             after = self.values()
         return [k for k in after if after[k] != before.get(k)]
-
-

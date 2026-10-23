@@ -54,8 +54,9 @@ class ScanCoils:
     flip: tuple[bool, bool]
 
 
-def _actual_ranges(size: tuple[int, int], voltage_h: tuple[float, float],
-                   voltage_v: tuple[float, float]) -> tuple[float, float]:
+def _actual_ranges(
+    size: tuple[int, int], voltage_h: tuple[float, float], voltage_v: tuple[float, float]
+) -> tuple[float, float]:
     """The H and V spans the grid really uses: the longer side gets its whole range."""
     nx, ny = max(1, int(size[0])), max(1, int(size[1]))
     span_h = float(voltage_h[1]) - float(voltage_h[0])
@@ -86,8 +87,12 @@ def scan_coils(scan) -> ScanCoils:
     shift_h = _clamp_shift(float(scan.pixel_offset[0]) * span_h / nx, middle_h, span_h)
     shift_v = _clamp_shift(float(scan.pixel_offset[1]) * span_v / ny, middle_v, span_v)
     center = (middle_h + shift_h, middle_v + shift_v)
-    return ScanCoils(volts_per_point=volts_per_point, center_volts=center,
-                     rotation_deg=float(scan.rotation_deg), flip=(bool(scan.flip[0]), bool(scan.flip[1])))
+    return ScanCoils(
+        volts_per_point=volts_per_point,
+        center_volts=center,
+        rotation_deg=float(scan.rotation_deg),
+        flip=(bool(scan.flip[0]), bool(scan.flip[1])),
+    )
 
 
 def point_volts(scan, x: float, y: float) -> tuple[float, float]:
@@ -103,8 +108,10 @@ def point_volts(scan, x: float, y: float) -> tuple[float, float]:
     a = math.radians(coils.rotation_deg)
     c, s = math.cos(a), math.sin(a)
     u, v = u * c - v * s, u * s + v * c
-    return (coils.center_volts[0] + coils.volts_per_point * u,
-            coils.center_volts[1] + coils.volts_per_point * v)
+    return (
+        coils.center_volts[0] + coils.volts_per_point * u,
+        coils.center_volts[1] + coils.volts_per_point * v,
+    )
 
 
 def point_from_volts(scan, h: float, v: float) -> tuple[float, float]:

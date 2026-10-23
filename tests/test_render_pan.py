@@ -10,10 +10,12 @@ from de_twin.twin import DigitalTwin
 
 def _pair(name="Dense Au on holey C"):
     # the fixed pan margin (a 15 % guard on every side), not the adaptive guard band
-    pan = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=3,
-                      render_config=RenderConfig(adaptive_margin=False))
-    ref = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=3,
-                      render_config=RenderConfig(pan_margin=0.0))
+    pan = DigitalTwin(
+        name, camera="DESim", clock=ManualClock(), seed=3, render_config=RenderConfig(adaptive_margin=False)
+    )
+    ref = DigitalTwin(
+        name, camera="DESim", clock=ManualClock(), seed=3, render_config=RenderConfig(pan_margin=0.0)
+    )
     return pan, ref
 
 
@@ -71,8 +73,13 @@ def test_an_exposure_renders_once_on_a_running_clock():
 
 
 def test_interactive_previews_while_moving_and_renders_in_full_once_settled():
-    tw = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=3,
-                     render_config=RenderConfig(interactive=True, settle_s=0.05))
+    tw = DigitalTwin(
+        "Dense Au on holey C",
+        camera="DESim",
+        clock=ManualClock(),
+        seed=3,
+        render_config=RenderConfig(interactive=True, settle_s=0.05),
+    )
     ref = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=3)
     req = tw.request()
     tw.flux(req)
@@ -85,6 +92,7 @@ def test_interactive_previews_while_moving_and_renders_in_full_once_settled():
     assert moving.shape == full.shape
     assert moving.mean() == pytest.approx(full.mean(), rel=0.05)
     import time
+
     time.sleep(0.06)
     settled = tw.flux(req)
     assert tw.renderer.previews_rendered == 1, "settled: the full render, not a preview"

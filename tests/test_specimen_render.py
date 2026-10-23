@@ -44,7 +44,9 @@ def test_shifted_view_equals_shifted_raster(name):
     px = 0.004
     v0 = _feature_view(s, px, 256)
     k_r, k_c = 23, -41
-    v1 = ViewWindow(center_um=(v0.center_um[0] + k_c * px, v0.center_um[1] + k_r * px), pixel_um=px, shape=v0.shape)
+    v1 = ViewWindow(
+        center_um=(v0.center_um[0] + k_c * px, v0.center_um[1] + k_r * px), pixel_um=px, shape=v0.shape
+    )
     a, b = s.rasterize(v0), s.rasterize(v1)
     # pixel (i, j) of view 1 is pixel (i + k_r, j + k_c) of view 0
     A = a.thickness_nm[k_r:, :k_c]
@@ -168,15 +170,28 @@ def test_protein_blobs_are_thickness_contrast_in_ice():
     assert np.count_nonzero(fm.material_id == MaterialId.PROTEIN) > 100  # blobs out-thicken 12 nm carbon
 
 
-@pytest.mark.parametrize("name", ["Dense Au on holey C", "Al thin film 100 nm", "FIB Liftout",
-                                  "Droplet crystallization", "PN junction lamella"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Dense Au on holey C",
+        "Al thin film 100 nm",
+        "FIB Liftout",
+        "Droplet crystallization",
+        "PN junction lamella",
+    ],
+)
 def test_rotated_view_matches_unrotated_statistics(name):
     s = Specimen(from_name(name))
     f = s.features()[0]
     a = s.rasterize(ViewWindow(center_um=f.center_um, pixel_um=0.05, shape=(256, 256)))
-    b = s.rasterize(ViewWindow(center_um=f.center_um, pixel_um=0.05, shape=(256, 256), rotation_rad=np.pi / 2))
+    b = s.rasterize(
+        ViewWindow(center_um=f.center_um, pixel_um=0.05, shape=(256, 256), rotation_rad=np.pi / 2)
+    )
     # a quarter turn samples the same world patch: same material make-up and mean thickness
     ha = np.bincount(a.material_id.ravel(), minlength=16) / a.material_id.size
     hb = np.bincount(b.material_id.ravel(), minlength=16) / b.material_id.size
     assert np.abs(ha - hb).max() < 0.02
-    assert abs(float(a.thickness_nm.mean()) - float(b.thickness_nm.mean())) <= 0.02 * float(a.thickness_nm.mean()) + 0.5
+    assert (
+        abs(float(a.thickness_nm.mean()) - float(b.thickness_nm.mean()))
+        <= 0.02 * float(a.thickness_nm.mean()) + 0.5
+    )

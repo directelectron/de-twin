@@ -78,8 +78,7 @@ def test_diffraction_mode_centres_the_direct_beam(twin):
 def test_stem_frames_follow_the_scan(twin):
     twin.column.set_tem_stem(TemStem.STEM)
     try:
-        req = twin.request(frame_time_s=0.001, total_frames=4,
-                           scan=ScanRequest(enabled=True, size=(2, 2)))
+        req = twin.request(frame_time_s=0.001, total_frames=4, scan=ScanRequest(enabled=True, size=(2, 2)))
         points = [meta.scan_point for _, meta in twin.frames(req)]
         assert points == [(0, 0), (1, 0), (0, 1), (1, 1)]
         vi = twin.virtual_image(twin.request(scan=ScanRequest(enabled=True, size=(32, 32))), 40, 150)
@@ -109,8 +108,7 @@ def test_gain_reference_is_measured_not_ground_truth(twin):
 
 def test_in_situ_heating_crystallises_the_specimen():
     clock = ManualClock()
-    tw = DigitalTwin("In Situ Heating (Nanoparticles)", camera="DESim", clock=clock,
-                     holder="sim-heating")
+    tw = DigitalTwin("In Situ Heating (Nanoparticles)", camera="DESim", clock=clock, holder="sim-heating")
     tw.specimen.update(0.0, tw.holder_state(0.0))
     gid = np.arange(5 * 512, 6 * 512)  # gold grains
     before = tw.specimen.crystallinity(gid).mean()

@@ -80,8 +80,15 @@ class Excitation:
 class CrystalLibrary:
     """Reciprocal lattice + kinematic ``|F|^2`` of one phase, computed once."""
 
-    def __init__(self, phase, *, max_g_inv_nm: float = MAX_G_INV_NM, debye_waller_a2: float = 0.0,
-                 scattering_params: str = "lobato", cache_dir: str | None = None):
+    def __init__(
+        self,
+        phase,
+        *,
+        max_g_inv_nm: float = MAX_G_INV_NM,
+        debye_waller_a2: float = 0.0,
+        scattering_params: str = "lobato",
+        cache_dir: str | None = None,
+    ):
         self.phase = phase
         self.max_g_inv_nm = float(max_g_inv_nm)
         self.debye_waller_a2 = float(debye_waller_a2)
@@ -109,19 +116,29 @@ class CrystalLibrary:
         rlv.sanitise_phase()
         rlv.calculate_structure_factor(self.scattering_params)
         g_a = rlv.gspacing  # 1/A
-        f2 = np.abs(np.asarray(rlv.structure_factor)) ** 2 * np.exp(-0.5 * self.debye_waller_a2 * g_a ** 2)
+        f2 = np.abs(np.asarray(rlv.structure_factor)) ** 2 * np.exp(-0.5 * self.debye_waller_a2 * g_a**2)
         keep = f2 > MIN_F2_FRACTION * f2.max()
-        return (np.asarray(rlv.data, np.float64)[keep] * 10.0, np.rint(rlv.hkl[keep]).astype(np.int32),
-                f2[keep].astype(np.float64))
+        return (
+            np.asarray(rlv.data, np.float64)[keep] * 10.0,
+            np.rint(rlv.hkl[keep]).astype(np.int32),
+            f2[keep].astype(np.float64),
+        )
 
     def _cache_path(self, cache_dir):
         cache_dir = cache_dir or os.environ.get("DE_TWIN_CRYSTAL_CACHE")
         if not cache_dir:
             return None
         s = self.phase.structure
-        key = repr((str(s.lattice), [(a.element, tuple(np.round(a.xyz, 6))) for a in s],
-                    self.phase.space_group.number if self.phase.space_group else 0, self.max_g_inv_nm,
-                    self.debye_waller_a2, self.scattering_params))
+        key = repr(
+            (
+                str(s.lattice),
+                [(a.element, tuple(np.round(a.xyz, 6))) for a in s],
+                self.phase.space_group.number if self.phase.space_group else 0,
+                self.max_g_inv_nm,
+                self.debye_waller_a2,
+                self.scattering_params,
+            )
+        )
         return Path(cache_dir) / f"{self.phase.name}_{hashlib.sha1(key.encode()).hexdigest()[:16]}.npz"
 
     def _load(self, cache_dir):
@@ -156,7 +173,7 @@ class CrystalLibrary:
         s_max = S_WINDOW_INV_NM + self.g_len * (convergence_mrad * 1e-3)
         parts = []
         for c0 in range(0, len(m), CHUNK):
-            gl = np.einsum("nij,gj->ngi", m[c0:c0 + CHUNK], self.g)
+            gl = np.einsum("nij,gj->ngi", m[c0 : c0 + CHUNK], self.g)
             r2 = gl[..., 0] ** 2 + gl[..., 1] ** 2
             s = inv_lam - np.sqrt(np.maximum(inv_lam * inv_lam - r2, 0.0)) - gl[..., 2]
             own, idx = np.nonzero(np.abs(s) < s_max)
@@ -166,8 +183,9 @@ class CrystalLibrary:
             return e.astype(np.int64), e.astype(np.int64), e, e, e
         return tuple(np.concatenate(v) for v in zip(*parts))
 
-    def intensity_at(self, idx, s, thickness_nm, ht_kv: float, wavelength_nm: float,
-                     convergence_mrad: float = 0.0) -> np.ndarray:
+    def intensity_at(
+        self, idx, s, thickness_nm, ht_kv: float, wavelength_nm: float, convergence_mrad: float = 0.0
+    ) -> np.ndarray:
         """Kinematic fraction ``(pi t / xi_g)^2 <sinc^2>`` of reflections ``idx`` at excitation
         errors ``s`` and thicknesses ``thickness_nm`` (all (K,)): the thickness-dependent part
         of :meth:`excite`, element by element."""
@@ -179,8 +197,15 @@ class CrystalLibrary:
         taper = np.cos(0.5 * math.pi * excess) ** 2
         return (k[idx] * tt) ** 2 * rocking_curve(math.pi * tt * s, math.pi * tt * ga) * taper
 
-    def excite(self, matrices, wavelength_nm: float, thickness_nm, ht_kv: float,
-               convergence_mrad: float = 0.0, min_intensity: float = 0.0) -> Excitation:
+    def excite(
+        self,
+        matrices,
+        wavelength_nm: float,
+        thickness_nm,
+        ht_kv: float,
+        convergence_mrad: float = 0.0,
+        min_intensity: float = 0.0,
+    ) -> Excitation:
         """Excited reflections of each crystal->lab matrix (N, 3, 3) at thickness (N,) nm.
 
         ``thickness_nm`` may also be (N, T): every orientation at T thicknesses; ``intensity``
@@ -196,13 +221,17 @@ class CrystalLibrary:
         col = (lambda v: v[:, None]) if t.ndim == 2 else (lambda v: v)
         x = math.pi * tt * col(s)
         a = math.pi * tt * col(self.g_len[idx] * alpha)
-        excess = np.clip((np.abs(s) - S_TAPER_INV_NM - self.g_len[idx] * alpha)
-                         / (S_WINDOW_INV_NM - S_TAPER_INV_NM), 0.0, 1.0)
+        excess = np.clip(
+            (np.abs(s) - S_TAPER_INV_NM - self.g_len[idx] * alpha) / (S_WINDOW_INV_NM - S_TAPER_INV_NM),
+            0.0,
+            1.0,
+        )
         taper = np.cos(0.5 * math.pi * excess) ** 2
         inten = (col(k[idx]) * tt) ** 2 * rocking_curve(x, a) * col(taper)
         if t.ndim == 2:
-            total = np.stack([np.bincount(own, weights=inten[:, j], minlength=n)
-                              for j in range(t.shape[1])], 1)
+            total = np.stack(
+                [np.bincount(own, weights=inten[:, j], minlength=n) for j in range(t.shape[1])], 1
+            )
             return Excitation(own, idx, gx, gy, s, inten, total)
         total = np.bincount(own, weights=inten, minlength=n)
         if min_intensity > 0:
@@ -223,8 +252,13 @@ class CrystalLibrary:
         return self._rings[1], self._rings[2]
 
     # ------------------------------------------------- orientation mapping
-    def template_library(self, resolution_deg: float = 1.0, ht_kv: float = 200.0,
-                         max_excitation_error: float = 0.05, **generator_options):
+    def template_library(
+        self,
+        resolution_deg: float = 1.0,
+        ht_kv: float = 200.0,
+        max_excitation_error: float = 0.05,
+        **generator_options,
+    ):
         """A diffsims ``Simulation2D`` over the reduced fundamental zone (orix
         ``get_sample_reduced_fundamental``), i.e. an orientation-mapping template library
         in the twin's own convention (pyxem ``get_orientation``)."""
@@ -233,8 +267,13 @@ class CrystalLibrary:
 
         rot = get_sample_reduced_fundamental(resolution_deg, point_group=self.phase.point_group)
         gen = SimulationGenerator(ht_kv, **generator_options)
-        return gen.calculate_diffraction2d(self.phase, rotation=rot, reciprocal_radius=self.max_g_inv_nm / 10.0,
-                                           max_excitation_error=max_excitation_error, with_direct_beam=False)
+        return gen.calculate_diffraction2d(
+            self.phase,
+            rotation=rot,
+            reciprocal_radius=self.max_g_inv_nm / 10.0,
+            max_excitation_error=max_excitation_error,
+            with_direct_beam=False,
+        )
 
 
 @functools.cache
@@ -246,5 +285,6 @@ def library_for(material_id: int, max_g_inv_nm: float = MAX_G_INV_NM) -> Crystal
     phase = phase_for(int(material_id))
     if phase is None:
         return None
-    return CrystalLibrary(phase, max_g_inv_nm=max_g_inv_nm,
-                          debye_waller_a2=material(int(material_id)).debye_waller_a2)
+    return CrystalLibrary(
+        phase, max_g_inv_nm=max_g_inv_nm, debye_waller_a2=material(int(material_id)).debye_waller_a2
+    )

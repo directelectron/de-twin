@@ -31,13 +31,19 @@ def test_cpp_reads_twin_frames(mode):
     n = 6
     face = ShmFace(twin, name=name, pace=False).start()
     try:
-        out = subprocess.run([str(EXE), name, str(n), "1024", "1024", str(int(mode))],
-                             capture_output=True, text=True, timeout=120)
+        out = subprocess.run(
+            [str(EXE), name, str(n), "1024", "1024", str(int(mode))],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
     finally:
         face.stop()
     print(out.stdout)
     assert out.returncode == 0, out.stdout + out.stderr
-    frames = [dict(t.split("=") for t in ln.split()[1:]) for ln in out.stdout.splitlines() if ln.startswith("FRAME")]
+    frames = [
+        dict(t.split("=") for t in ln.split()[1:]) for ln in out.stdout.splitlines() if ln.startswith("FRAME")
+    ]
     assert [int(f["i"]) for f in frames] == list(range(n))
     mean = [int(f["sum"]) / (1024 * 1024) for f in frames]
     if mode == ExposureMode.DARK:

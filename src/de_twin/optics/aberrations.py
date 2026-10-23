@@ -130,7 +130,7 @@ class Aberrations:
         acc = np.zeros(np.broadcast(w, wb).shape, np.complex128)
         for name, c in self.coeffs.items():
             p, q, pre, _ = TERMS[name]
-            acc += pre * c * wb ** p * w ** q
+            acc += pre * c * wb**p * w**q
         return (2.0 * math.pi / lam) * acc.real
 
     def gradient(self, kx, ky, wavelength_nm: float) -> tuple[np.ndarray, np.ndarray]:
@@ -143,8 +143,8 @@ class Aberrations:
         gy = np.zeros_like(gx)
         for name, c in self.coeffs.items():
             p, q, pre, _ = TERMS[name]
-            a = p * wb ** (p - 1) * w ** q if p else 0.0
-            b = q * wb ** p * w ** (q - 1) if q else 0.0
+            a = p * wb ** (p - 1) * w**q if p else 0.0
+            b = q * wb**p * w ** (q - 1) if q else 0.0
             gx += pre * c * lam * (a + b)
             gy += pre * c * lam * (-1j * a + 1j * b)
         s = 2.0 * math.pi / lam
@@ -158,8 +158,9 @@ class Aberrations:
         c0 = float(self.chi(0.0, 0.0, wavelength_nm))
         return float(np.max(np.abs(c - c0)))
 
-    def flat_angle_mrad(self, wavelength_nm: float, limit_rad: float = math.pi / 4,
-                        max_mrad: float = 60.0) -> float:
+    def flat_angle_mrad(
+        self, wavelength_nm: float, limit_rad: float = math.pi / 4, max_mrad: float = 60.0
+    ) -> float:
         """Largest aperture semi-angle whose phase error stays below ``limit_rad``
         (what a corrector tableau quotes as the 'pi/4 angle')."""
         lo, hi = 0.0, max_mrad

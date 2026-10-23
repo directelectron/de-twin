@@ -131,8 +131,9 @@ def test_probe_blend_mixes_neighbours(make_stem_optics):
     y, x = np.indices((256, 256))
     outside = np.hypot(x - 128, y - 128) > o.disk_radius_px + 12
     blended = Renderer(spec, RenderConfig(intensity_jitter=False)).render(o, scan_point=(18, 16))
-    single = Renderer(spec, RenderConfig(intensity_jitter=False, probe_footprint_blend=False)
-                      ).render(o, scan_point=(18, 16))
+    single = Renderer(spec, RenderConfig(intensity_jitter=False, probe_footprint_blend=False)).render(
+        o, scan_point=(18, 16)
+    )
     assert blended[outside].sum() > 10 * max(single[outside].sum(), 1e-30)
 
 
@@ -195,8 +196,10 @@ def test_blanked_stem(make_stem_optics):
 def test_cache_is_used_and_warm_up(make_stem_optics):
     o = make_stem_optics()
     rng = np.random.default_rng(1)
-    parts = [_particle_at(o, int(i), int(j), 3.0, grain=int(g))
-             for i, j, g in zip(rng.integers(0, NSCAN, 20), rng.integers(0, NSCAN, 20), range(20))]
+    parts = [
+        _particle_at(o, int(i), int(j), 3.0, grain=int(g))
+        for i, j, g in zip(rng.integers(0, NSCAN, 20), rng.integers(0, NSCAN, 20), range(20))
+    ]
     spec = SyntheticSpecimen(particles=parts)
     r = Renderer(spec)
     n = r.warm_up(o, budget_s=5.0)

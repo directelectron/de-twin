@@ -92,6 +92,7 @@ try:  # deapi is an optional dependency of the twin
     from deapi.buffer_protocols import pb
     from deapi.simulated_server.fake_server import FakeServer, Property, add_parameter
     from deapi.version import commandVersion
+
     try:
         from deapi.version import fake_server_software_version as _SERVER_VERSION
     except ImportError:  # older deapi
@@ -121,12 +122,29 @@ def _sends_scan_pattern_index(server_version: str) -> bool:
 class DynamicProperty(Property):  # type: ignore[misc]
     """A property whose value is computed (and optionally applied) by callables."""
 
-    def __init__(self, name: str, getter: Callable[[], Any], setter: Callable[[Any], None] | None = None,
-                 *, data_type: str = "String", category: str = "Twin", options: str = "",
-                 value_type: str | None = None, default_value: str = "", server=None):
-        super().__init__(name=name, value="", data_type=data_type, category=category,
-                         value_type=value_type or ("ReadOnly" if setter is None else "AllowAll"),
-                         options=options, default_value=default_value, server=server)
+    def __init__(
+        self,
+        name: str,
+        getter: Callable[[], Any],
+        setter: Callable[[Any], None] | None = None,
+        *,
+        data_type: str = "String",
+        category: str = "Twin",
+        options: str = "",
+        value_type: str | None = None,
+        default_value: str = "",
+        server=None,
+    ):
+        super().__init__(
+            name=name,
+            value="",
+            data_type=data_type,
+            category=category,
+            value_type=value_type or ("ReadOnly" if setter is None else "AllowAll"),
+            options=options,
+            default_value=default_value,
+            server=server,
+        )
         self._getter = getter
         self._setter = setter
 
@@ -162,8 +180,15 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
     twin = None
     pace = True
 
-    def __init__(self, dataset: str = "grains", socket=None, *, twin=None, pace: bool | None = None,
-                 default_fps: float = 40.0):
+    def __init__(
+        self,
+        dataset: str = "grains",
+        socket=None,
+        *,
+        twin=None,
+        pace: bool | None = None,
+        default_fps: float = 40.0,
+    ):
         if pb is None:
             raise ImportError("TwinFakeServer needs the deapi package")
         self._tls = threading.local()
@@ -197,14 +222,25 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         self._values[_property_key(prop.name)] = prop
 
     def _plain(self, name, value, data_type="String", value_type="AllowAll", options="", category="Twin"):
-        self._put(Property(name=name, value=str(value), data_type=data_type, category=category,
-                           value_type=value_type, options=options, default_value=str(value), server=self))
+        self._put(
+            Property(
+                name=name,
+                value=str(value),
+                data_type=data_type,
+                category=category,
+                value_type=value_type,
+                options=options,
+                default_value=str(value),
+                server=self,
+            )
+        )
 
     def _install_properties(self, default_fps: float) -> None:
         model = self.twin.detector.model
         h, w = (int(v) for v in model.sensor_shape)
         max_fps = float(getattr(model, "max_fps", 0) or 0) or (
-            1.0 / float(getattr(model, "full_frame_time_s", 0.01) or 0.01))
+            1.0 / float(getattr(model, "full_frame_time_s", 0.01) or 0.01)
+        )
         v = self._values
         v["camera_name"]._value = str(model.name)
         for axis, n in (("x", w), ("y", h)):
@@ -228,12 +264,22 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
                     self._hw_bin[:] = [b, b]
                 else:
                     self._hw_bin[1] = b
+
             return setter
 
         for i, axis in enumerate("XY"):
-            self._put(DynamicProperty(f"Hardware Binning {axis}", (lambda i=i: self._hw_bin[i]),
-                                      set_bin(i), data_type="Integer", value_type="Set",
-                                      options="'1*', '2'", default_value="1", category="Basic"))
+            self._put(
+                DynamicProperty(
+                    f"Hardware Binning {axis}",
+                    (lambda i=i: self._hw_bin[i]),
+                    set_bin(i),
+                    data_type="Integer",
+                    value_type="Set",
+                    options="'1*', '2'",
+                    default_value="1",
+                    category="Basic",
+                )
+            )
         # exposure: frames per second / frame count / exposure time stay consistent
         self._fps = min(float(default_fps), max_fps * 10)
         # A 0.5 s exposure to begin with, not one frame: a DE frame is sparse by
@@ -252,35 +298,81 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         def set_exposure(value):
             self._frame_count = max(1, round(float(value) * self._fps))
 
-        self._put(DynamicProperty("Frames Per Second", lambda: self._fps, set_fps, data_type="Float",
-                                  value_type="Range", options="0.06, 1000000.0, '0.06 - 1000000.0'",
-                                  category="Basic"))
-        self._put(DynamicProperty("Frame Count", lambda: self._frame_count, set_count,
-                                  data_type="Integer", value_type="Range",
-                                  options="1.0, 100000000.0, '1 - 100000000'", category="Basic"))
-        self._put(DynamicProperty("Exposure Time (seconds)", lambda: self._frame_count / self._fps,
-                                  set_exposure, data_type="Float", value_type="Range",
-                                  options="0.0, 1000000.0, '0.0 - 1000000.0'", category="Basic"))
+        self._put(
+            DynamicProperty(
+                "Frames Per Second",
+                lambda: self._fps,
+                set_fps,
+                data_type="Float",
+                value_type="Range",
+                options="0.06, 1000000.0, '0.06 - 1000000.0'",
+                category="Basic",
+            )
+        )
+        self._put(
+            DynamicProperty(
+                "Frame Count",
+                lambda: self._frame_count,
+                set_count,
+                data_type="Integer",
+                value_type="Range",
+                options="1.0, 100000000.0, '1 - 100000000'",
+                category="Basic",
+            )
+        )
+        self._put(
+            DynamicProperty(
+                "Exposure Time (seconds)",
+                lambda: self._frame_count / self._fps,
+                set_exposure,
+                data_type="Float",
+                value_type="Range",
+                options="0.0, 1000000.0, '0.0 - 1000000.0'",
+                category="Basic",
+            )
+        )
         # twin extras
-        self._put(DynamicProperty(TEMPERATURE_PROP, self._get_temperature, self._set_temperature,
-                                  data_type="Float", category="Simulator"))
-        self._put(DynamicProperty("Simulator Virtual Specimen", lambda: self._specimen_name,
-                                  self._set_specimen, category="Simulator"))
+        self._put(
+            DynamicProperty(
+                TEMPERATURE_PROP,
+                self._get_temperature,
+                self._set_temperature,
+                data_type="Float",
+                category="Simulator",
+            )
+        )
+        self._put(
+            DynamicProperty(
+                "Simulator Virtual Specimen",
+                lambda: self._specimen_name,
+                self._set_specimen,
+                category="Simulator",
+            )
+        )
         for name, value in SCAN_COIL_PROPERTIES.items():
             self._plain(name, value, "Float", category="Scan")
         self._plain(OUTPUT_BUFFER_PROPERTY, 0.0, "Float", category="Scan")
         for name in SCAN_FLIP_PROPERTIES:
             self._plain(name, "Off", category="Scan")
         clock = getattr(self.twin, "clock", None)
-        self._put(DynamicProperty("Twin Clock (seconds)",
-                                  lambda: clock.now() if hasattr(clock, "now") else time.time(),
-                                  data_type="Float"))
+        self._put(
+            DynamicProperty(
+                "Twin Clock (seconds)",
+                lambda: clock.now() if hasattr(clock, "now") else time.time(),
+                data_type="Float",
+            )
+        )
         self._put(DynamicProperty("Twin Holder", lambda: self._holder_state().kind))
         self.auto_references = True
-        self._put(DynamicProperty(
-            "Simulator Auto References", lambda: "On" if self.auto_references else "Off",
-            lambda v: setattr(self, "auto_references", _to_bool(v)),
-            category="Simulator", options="On, Off"))
+        self._put(
+            DynamicProperty(
+                "Simulator Auto References",
+                lambda: "On" if self.auto_references else "Off",
+                lambda v: setattr(self, "auto_references", _to_bool(v)),
+                category="Simulator",
+                options="On, Off",
+            )
+        )
         self._install_instrument_properties()
         self.virtual_masks = [np.ones((self._image_shape()), np.int8) for _ in range(5)]
 
@@ -379,6 +471,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             def get():
                 _, _, ab = corr_ab()
                 return abs(complex(ab.get(name, 0j))) * scale
+
             return get
 
         def corr_pi4():
@@ -387,6 +480,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
                 return 0.0
             from ..column.ceos import pi4_angle_mrad
             from ..optics.aberrations import Aberrations
+
             return pi4_angle_mrad(Aberrations(ab), s.ht_kv)
 
         ro += [
@@ -415,10 +509,18 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
                     return
                 self._centroiding = "Super-resolution" if "super" in v.lower() else "Standard"
 
-            self._put(DynamicProperty("Centroiding Mode", lambda: self._centroiding, set_centroiding,
-                                      data_type="String", value_type="Set",
-                                      options="'Standard*', 'Super-resolution'",
-                                      default_value="Standard", category="Basic"))
+            self._put(
+                DynamicProperty(
+                    "Centroiding Mode",
+                    lambda: self._centroiding,
+                    set_centroiding,
+                    data_type="String",
+                    value_type="Set",
+                    options="'Standard*', 'Super-resolution'",
+                    default_value="Standard",
+                    category="Basic",
+                )
+            )
             for axis in ("x", "y"):
                 orig = self._values.get(f"image_size_{axis}_pixels")
                 if orig is None:
@@ -426,16 +528,25 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
 
                 def size(orig=orig):
                     n = int(float(orig.value))
-                    return 2 * n if (self._centroiding == "Super-resolution"
-                                     and tuple(self._hw_bin) == (1, 1)) else n
+                    return (
+                        2 * n
+                        if (self._centroiding == "Super-resolution" and tuple(self._hw_bin) == (1, 1))
+                        else n
+                    )
 
                 self._put(DynamicProperty(orig.name, size, data_type="Integer", category=orig.category))
 
         # Provenance: frames from here are simulated, and by what
         from .. import __version__
 
-        self._put(DynamicProperty(SIMULATOR_SOURCE_PROPERTY, lambda: f"de-twin {__version__}",
-                                  data_type="String", category="Twin"))
+        self._put(
+            DynamicProperty(
+                SIMULATOR_SOURCE_PROPERTY,
+                lambda: f"de-twin {__version__}",
+                data_type="String",
+                category="Twin",
+            )
+        )
 
     def _holder_state(self):
         holder = self.twin.holder
@@ -457,8 +568,9 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         if "temperature" not in tuple(getattr(holder, "channels", ())):
             from ..holder import SimHeatingHolder
 
-            holder = SimHeatingHolder(reason="created by a deapi temperature write",
-                                      clock=getattr(self.twin, "clock", None))
+            holder = SimHeatingHolder(
+                reason="created by a deapi temperature write", clock=getattr(self.twin, "clock", None)
+            )
             with self.twin.lock:
                 self.twin.holder = holder
         holder.set(float(value))
@@ -477,9 +589,13 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
     def request(self) -> AcquisitionRequest:
         """The AcquisitionRequest the current properties describe."""
         model = self.twin.detector.model
-        return request_from_properties(self.__getitem__, model.name, tuple(model.sensor_shape),
-                                       scan_points=self._scan_points,
-                                       acquisition_index=self._acq_count)
+        return request_from_properties(
+            self.__getitem__,
+            model.name,
+            tuple(model.sensor_shape),
+            scan_points=self._scan_points,
+            acquisition_index=self._acq_count,
+        )
 
     def _masks_for(self, shape):
         key = (shape, tuple(id(m) for m in self.virtual_masks))
@@ -544,8 +660,12 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             if cid == SET_SCAN_ROI:
                 vals = [p.p_bool if p.type == pb.AnyParameter.P_BOOL else p.p_int for p in params[:5]]
                 self["Scan - ROI Enable"] = "On" if vals[0] else "Off"
-                (self["Scan - ROI Offset X"], self["Scan - ROI Offset Y"],
-                 self["Scan - ROI Size X"], self["Scan - ROI Size Y"]) = vals[1:5]
+                (
+                    self["Scan - ROI Offset X"],
+                    self["Scan - ROI Offset Y"],
+                    self["Scan - ROI Size X"],
+                    self["Scan - ROI Size Y"],
+                ) = vals[1:5]
                 return (self._ack(command),)
             if cid == SET_SCAN_XY_ARRAY:
                 return self._set_scan_xy_array(command)
@@ -617,8 +737,15 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         elif vt == "Set" and raw:
             opts = [o.replace("*", "").replace("'", "").replace("`", "").strip() for o in raw.split(",")]
         read_only = vt in ("ReadOnly", "READ_ONLY", "Read Only", "Server")
-        values = [str(prop.data_type), vt, *opts, str(prop.category), str(prop.default_value or ""),
-                  str(prop.value), bool(read_only)]
+        values = [
+            str(prop.data_type),
+            vt,
+            *opts,
+            str(prop.category),
+            str(prop.default_value or ""),
+            str(prop.value),
+            bool(read_only),
+        ]
         return (self._ack(command, *values),)
 
     def _start(self, command):
@@ -734,14 +861,35 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         mean = float(out.mean()) if out.size else 0.0
         hmin, hmax = (float(out.min()), float(out.max())) if out.size else (0.0, 0.0)
         mapping = [
-            int(pixel_format), int(window_w), int(window_h), "de_twin",
+            int(pixel_format),
+            int(window_w),
+            int(window_h),
+            "de_twin",
             int(acq.request.acquisition_index if acq else 0),
-            bool(acq is not None and acq.running), int(max(count - 1, 0)), int(count),
-            hmin, hmax, mean, float(out.std()) if out.size else 0.0,
-            float(eppix), float(eppix * out.size * fps), float(eppix * fps), 0.0, float(eppix),
-            0.0, 0.0, 0.0, 0.0, 0.0,  # incident
-            0.0, 0.0, 0.0,  # red/orange warning, saturation
-            f"{time.time():.6f}", hmin, hmax, 1.0,
+            bool(acq is not None and acq.running),
+            int(max(count - 1, 0)),
+            int(count),
+            hmin,
+            hmax,
+            mean,
+            float(out.std()) if out.size else 0.0,
+            float(eppix),
+            float(eppix * out.size * fps),
+            float(eppix * fps),
+            0.0,
+            float(eppix),
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,  # incident
+            0.0,
+            0.0,
+            0.0,  # red/orange warning, saturation
+            f"{time.time():.6f}",
+            hmin,
+            hmax,
+            1.0,
         ]
         if _sends_scan_pattern_index(_SERVER_VERSION):
             mapping.append(0)  # current_scan_pattern_idx
@@ -806,6 +954,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
 # ---------------------------------------------------------------------------
 # Serving
 # ---------------------------------------------------------------------------
+
 
 def _recv_exact(conn, n: int) -> bytes:
     buf = b""
@@ -926,8 +1075,7 @@ class TwinDeapiServer:
             except (TimeoutError, OSError):
                 continue
             conn.settimeout(None)
-            t = threading.Thread(target=self._serve_conn, args=(conn,), daemon=True,
-                                 name="TwinDeapi-conn")
+            t = threading.Thread(target=self._serve_conn, args=(conn,), daemon=True, name="TwinDeapi-conn")
             t.start()
 
     def _serve_conn(self, conn) -> None:
@@ -968,13 +1116,24 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--holder", default="none", help="none | sim-heating | sim-biasing | impulse")
     p.add_argument("--time-scale", type=float, default=1.0)
-    p.add_argument("--soap-port", type=int, default=None,
-                   help="also serve the DE-TEM-Channel SOAP face for the same twin")
-    p.add_argument("--mirror-temchannel", metavar="HOST[:PORT]", default=None,
-                   help="follow a real/Dummy DE-TEM-Channel instead of simulating the column")
+    p.add_argument(
+        "--soap-port",
+        type=int,
+        default=None,
+        help="also serve the DE-TEM-Channel SOAP face for the same twin",
+    )
+    p.add_argument(
+        "--mirror-temchannel",
+        metavar="HOST[:PORT]",
+        default=None,
+        help="follow a real/Dummy DE-TEM-Channel instead of simulating the column",
+    )
     p.add_argument("--no-pace", action="store_true", help="render frames as fast as possible")
-    p.add_argument("--deapi-loop", action="store_true",
-                   help="use deapi's own initialize_server loop (single connection) patched to the twin")
+    p.add_argument(
+        "--deapi-loop",
+        action="store_true",
+        help="use deapi's own initialize_server loop (single connection) patched to the twin",
+    )
     args = p.parse_args(argv)
     port = args.port or args.port_pos or 13240
 
@@ -988,8 +1147,14 @@ def main(argv=None) -> int:
 
         h, _, pt = args.mirror_temchannel.partition(":")
         column = MirrorColumn(host=h, port=int(pt or 5002), clock=clock)
-    twin = DigitalTwin(specimen=args.specimen, camera=args.camera, column=column, holder=args.holder,
-                       seed=args.seed, clock=clock)
+    twin = DigitalTwin(
+        specimen=args.specimen,
+        camera=args.camera,
+        column=column,
+        holder=args.holder,
+        seed=args.seed,
+        clock=clock,
+    )
     if args.soap_port:
         from .temchannel_soap import TemChannelServer
 

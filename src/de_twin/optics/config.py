@@ -52,15 +52,17 @@ class OpticsConfig:
     reference_current_pa: float = 600.0  # TEM-mode probe current at the reference spot
     reference_spot: int = 3
     spot_exponent: float = 2.0  # I ~ (ref/spot)^exponent (C++ law)
-    probe_mode_current_factor: dict = field(default_factory=lambda: {
-        ProbeMode.TEM: 1.0,
-        ProbeMode.MICROPROBE: 1.0,
-        ProbeMode.EDS: 0.5,
-        ProbeMode.NANOPROBE: 0.05,
-        ProbeMode.NBD: 0.02,
-        ProbeMode.CBD: 0.1,
-        ProbeMode.UNKNOWN: 1.0,
-    })
+    probe_mode_current_factor: dict = field(
+        default_factory=lambda: {
+            ProbeMode.TEM: 1.0,
+            ProbeMode.MICROPROBE: 1.0,
+            ProbeMode.EDS: 0.5,
+            ProbeMode.NANOPROBE: 0.05,
+            ProbeMode.NBD: 0.02,
+            ProbeMode.CBD: 0.1,
+            ProbeMode.UNKNOWN: 1.0,
+        }
+    )
     stem_current_factor: float = 0.05  # STEM with a TEM/unknown probe mode behaves like nanoprobe
     # Condenser aperture diameters (um) by 1-based index; current ~ (d/d_ref)^2.
     condenser_apertures_um: tuple[float, ...] = (150.0, 70.0, 50.0, 10.0)

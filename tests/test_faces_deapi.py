@@ -65,10 +65,16 @@ class StubTwin:
                     col = int(state.stage.x_um) % w
                     frame[:, col] += 3000.0
                     frame += 50.0
-            meta = FrameMeta(frame_index=i, time_s=self.clock.now(), exposure_s=request.frame_time_s,
-                             electrons_per_pixel=0.0 if blanked else 5.0,
-                             render_mode=RenderMode.TEM_IMAGING, blanked=blanked,
-                             scan_point=_scan_point(request, i), microscope=state)
+            meta = FrameMeta(
+                frame_index=i,
+                time_s=self.clock.now(),
+                exposure_s=request.frame_time_s,
+                electrons_per_pixel=0.0 if blanked else 5.0,
+                render_mode=RenderMode.TEM_IMAGING,
+                blanked=blanked,
+                scan_point=_scan_point(request, i),
+                microscope=state,
+            )
             yield np.clip(frame, 0, 65535).astype(np.uint16), meta
 
     def virtual_image(self, request, inner, outer):
@@ -150,12 +156,25 @@ def test_request_mapping(client, server, twin):
     assert req.hw_binning == (2, 2)
     assert req.hw_roi == Roi(0, 0, 64, 32)
     assert req.camera_model == "StubCam"
-    props = {"Frames Per Second": 10, "Frame Count": 2, "Exposure Mode": "Normal",
-             "Hardware ROI Offset X": 0, "Hardware ROI Offset Y": 0, "Hardware ROI Size X": 96,
-             "Hardware ROI Size Y": 64, "Hardware Binning X": 1, "Hardware Binning Y": 1,
-             "Scan - Enable": "On", "Scan - Size X": 4, "Scan - Size Y": 3,
-             "Scan - Camera Frames Per Point": 2, "Scan - Repeats": 1, "Scan - ROI Enable": "Off",
-             "Grabbing - Frames Per Buffer": 1, "Scan - Type": "Raster"}
+    props = {
+        "Frames Per Second": 10,
+        "Frame Count": 2,
+        "Exposure Mode": "Normal",
+        "Hardware ROI Offset X": 0,
+        "Hardware ROI Offset Y": 0,
+        "Hardware ROI Size X": 96,
+        "Hardware ROI Size Y": 64,
+        "Hardware Binning X": 1,
+        "Hardware Binning Y": 1,
+        "Scan - Enable": "On",
+        "Scan - Size X": 4,
+        "Scan - Size Y": 3,
+        "Scan - Camera Frames Per Point": 2,
+        "Scan - Repeats": 1,
+        "Scan - ROI Enable": "Off",
+        "Grabbing - Frames Per Buffer": 1,
+        "Scan - Type": "Raster",
+    }
     r = request_from_properties(props.__getitem__, "X", (64, 96))
     assert r.hw_roi is None and r.scan.enabled and r.scan.size == (4, 3)
     assert r.total_frames == 4 * 3 * 2
@@ -230,7 +249,8 @@ def test_movie_buffer_has_real_frames(client):
     frames = []
     while True:
         status, _total, n, buf = client.get_movie_buffer(
-            None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer)
+            None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer
+        )
         if status.name != "OK":
             break
         assert (info.imageW, info.imageH) == (96, 64)

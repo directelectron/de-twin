@@ -60,7 +60,9 @@ def _precession_frame(optics, time_s: float):
     step = 2.0 * math.pi / PRECESSION_PHASES
     phase = (2.0 * math.pi * hz * float(time_s)) % (2.0 * math.pi)
     arc = max(step, round(arc / step) * step)
-    return dataclasses.replace(optics, precession_phase_rad=round(phase / step) * step, precession_arc_rad=arc)
+    return dataclasses.replace(
+        optics, precession_phase_rad=round(phase / step) * step, precession_arc_rad=arc
+    )
 
 
 def _lattice(view, x: float, y: float) -> tuple[float, float]:
@@ -138,8 +140,17 @@ def transfer_spread_px(optics, leak: float = GUARD_LEAK, N: int = 512) -> float:
     from .tem import _raster_tilt, transfer_function
 
     view = optics.view
-    key = (view.pixel_um, optics.wavelength_nm, image_aberrations_of(optics).key(), _raster_tilt(optics),
-           optics.illumination_mrad, optics.focal_spread_nm, optics.objective_aperture_mrad, float(leak), N)
+    key = (
+        view.pixel_um,
+        optics.wavelength_nm,
+        image_aberrations_of(optics).key(),
+        _raster_tilt(optics),
+        optics.illumination_mrad,
+        optics.focal_spread_nm,
+        optics.objective_aperture_mrad,
+        float(leak),
+        N,
+    )
     hit = _SPREAD_CACHE.get(key)
     if hit is not None:
         return hit
@@ -180,10 +191,15 @@ SUBPIXEL_TOLERANCE_PX = 0.02
 def _cubic_weights(t: float) -> np.ndarray:
     """Keys cubic convolution (a = -1/2) weights of the samples at -1, 0, 1, 2 for a point
     a fraction ``t`` in [0, 1) past sample 0: interpolating, and exact for quadratics."""
-    return np.array([((-0.5 * t + 1.0) * t - 0.5) * t,
-                     (1.5 * t - 2.5) * t * t + 1.0,
-                     ((-1.5 * t + 2.0) * t + 0.5) * t,
-                     (0.5 * t - 0.5) * t * t], np.float32)
+    return np.array(
+        [
+            ((-0.5 * t + 1.0) * t - 0.5) * t,
+            (1.5 * t - 2.5) * t * t + 1.0,
+            ((-1.5 * t + 2.0) * t + 0.5) * t,
+            (0.5 * t - 0.5) * t * t,
+        ],
+        np.float32,
+    )
 
 
 def _crop(raster, center_um, view):
@@ -203,16 +219,17 @@ def _crop(raster, center_um, view):
     if r0 < 0 or c0 < 0 or r0 + ny > py or c0 + nx > px:
         return None
     if abs(fc - c0) < SUBPIXEL_TOLERANCE_PX and abs(fr - r0) < SUBPIXEL_TOLERANCE_PX:
-        return raster[r0:r0 + ny, c0:c0 + nx]
+        return raster[r0 : r0 + ny, c0 : c0 + nx]
     # output pixel j samples the raster at f + j: taps at floor(f) - 1 .. floor(f) + 2
     br, bc = math.floor(fr), math.floor(fc)
     wr, wc = _cubic_weights(fr - br), _cubic_weights(fc - bc)
     # the rows and columns the taps need (edge-clamped where the view touches the raster edge)
     if br >= 1 and bc >= 1 and br + ny + 2 <= py and bc + nx + 2 <= px:
-        src = raster[br - 1:br + ny + 2, bc - 1:bc + nx + 2]
+        src = raster[br - 1 : br + ny + 2, bc - 1 : bc + nx + 2]
     else:
         src = raster[np.clip(np.arange(br - 1, br + ny + 2), 0, py - 1)][
-            :, np.clip(np.arange(bc - 1, bc + nx + 2), 0, px - 1)]
+            :, np.clip(np.arange(bc - 1, bc + nx + 2), 0, px - 1)
+        ]
     return cubic_resample(src, wr, wc, (ny, nx))
 
 
@@ -296,8 +313,9 @@ class Renderer:
         for a piece of a larger view, drawn as that view (``span_px``), when the specimen's
         raster is pixel-local."""
         if getattr(self.specimen, "raster_is_local", False) and _axis_aligned(view):
-            return self.specimen.rasterize(view, layers, span_px=span_px,
-                                           threads=max(1, int(self.config.raster_threads)))
+            return self.specimen.rasterize(
+                view, layers, span_px=span_px, threads=max(1, int(self.config.raster_threads))
+            )
         return self.specimen.rasterize(view, layers)
 
     def _keep_field_map(self, store, key, fm, token, size: int | None = None) -> None:
@@ -330,7 +348,9 @@ class Renderer:
             self.frames_from_cache += 1
             return last[2]  # the same view again: every frame of an exposure
         view = optics.view
-        base = dataclasses.replace(optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0))
+        base = dataclasses.replace(
+            optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0)
+        )
         key = (base, gen, tkey)
         img = self._crop_pan(key, view)
         if img is None and self.config.interactive:
@@ -348,8 +368,17 @@ class Renderer:
         if img is None:
             poptics, shift = self._padded_optics(optics)
             fm, token = self._panned_field_map(poptics, time_s)
-            raster = render_tem_raster(fm, poptics, self.grains, self.crystallinity, self.config,
-                                       self.seed, self._tem_cache, token, shift)
+            raster = render_tem_raster(
+                fm,
+                poptics,
+                self.grains,
+                self.crystallinity,
+                self.config,
+                self.seed,
+                self._tem_cache,
+                token,
+                shift,
+            )
             self._keep_pan("_pans", key, view.center_um, raster, poptics.view)
             img = self._crop_pan(key, view)
         else:
@@ -367,25 +396,41 @@ class Renderer:
         view = optics.view
         ny, nx = view.shape
         f = 1
-        while (ny // (2 * f)) * (nx // (2 * f)) >= self.config.preview_side ** 2 \
-                and ny % (2 * f) == 0 and nx % (2 * f) == 0:
+        while (
+            (ny // (2 * f)) * (nx // (2 * f)) >= self.config.preview_side**2
+            and ny % (2 * f) == 0
+            and nx % (2 * f) == 0
+        ):
             f *= 2
         if f == 1:
             self._changed_at = -1e9  # already small: the full render is the preview
             return self._render_tem_panned(optics, time_s)
         pview = dataclasses.replace(view, shape=(ny // f, nx // f), pixel_um=view.pixel_um * f)
         poptics = dataclasses.replace(
-            optics, view=pview, raster_downsample=max(1, optics.raster_downsample) * f,
-            beam_offset_px=tuple(v / f for v in getattr(optics, "beam_offset_px", (0.0, 0.0))))
-        pbase = dataclasses.replace(poptics, view=dataclasses.replace(pview, center_um=(0.0, 0.0)),
-                                    beam_offset_px=(0.0, 0.0))
+            optics,
+            view=pview,
+            raster_downsample=max(1, optics.raster_downsample) * f,
+            beam_offset_px=tuple(v / f for v in getattr(optics, "beam_offset_px", (0.0, 0.0))),
+        )
+        pbase = dataclasses.replace(
+            poptics, view=dataclasses.replace(pview, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0)
+        )
         pkey = ("preview", pbase, gen, tkey)
         img = self._crop_pan(pkey, pview, "_pan_previews")
         if img is None:
             pad_optics, shift = self._padded_optics(poptics)
             fm, token = self._panned_field_map(pad_optics, time_s, self._preview_fieldmaps)
-            raster = render_tem_raster(fm, pad_optics, self.grains, self.crystallinity,
-                                       self.config, self.seed, self._tem_cache, token, shift)
+            raster = render_tem_raster(
+                fm,
+                pad_optics,
+                self.grains,
+                self.crystallinity,
+                self.config,
+                self.seed,
+                self._tem_cache,
+                token,
+                shift,
+            )
             self._keep_pan("_pan_previews", pkey, pview.center_um, raster, pad_optics.view)
             img = self._crop_pan(pkey, pview, "_pan_previews")
         self.previews_rendered = getattr(self, "previews_rendered", 0) + 1
@@ -408,8 +453,10 @@ class Renderer:
         kc, kr = round(lc), round(lr)
         pview = dataclasses.replace(view, shape=(py, px), center_um=_from_lattice(view, kc, kr))
         d = max(1, optics.raster_downsample)
-        return (dataclasses.replace(optics, view=pview, output_shape=(py * d, px * d)),
-                (-(lr - kr), -(lc - kc)))
+        return (
+            dataclasses.replace(optics, view=pview, output_shape=(py * d, px * d)),
+            (-(lr - kr), -(lc - kc)),
+        )
 
     def _panned_field_map(self, optics, time_s: float, store=None):
         """`field_map` of a padded (lattice-centred) view that takes the part it shares with
@@ -418,8 +465,11 @@ class Renderer:
         specimen whose raster is pixel-local (``raster_is_local``), for which the pieces
         are the pixels a whole raster has."""
         store = self._fieldmaps if store is None else store
-        if (not getattr(self.specimen, "raster_is_local", False) or not self.config.reuse_rasters
-                or not _axis_aligned(optics.view)):
+        if (
+            not getattr(self.specimen, "raster_is_local", False)
+            or not self.config.reuse_rasters
+            or not _axis_aligned(optics.view)
+        ):
             return self.field_map(optics, TEM_LAYERS, time_s, store)
         tq = self.config.time_quantum_s
         tkey = round(time_s / tq) if (self._time_dependent() and tq > 0) else 0
@@ -462,10 +512,14 @@ class Renderer:
         last = parts[-1][1]
         from .. import buffers
 
-        fm = FieldMap(view=view, material_id=buffers.zeros((ny, nx), np.uint8),
-                      thickness_nm=buffers.zeros((ny, nx), np.float32),
-                      grain_id=buffers.full((ny, nx), -1, np.int32),
-                      generation=getattr(last, "generation", 0), time_s=getattr(last, "time_s", 0.0))
+        fm = FieldMap(
+            view=view,
+            material_id=buffers.zeros((ny, nx), np.uint8),
+            thickness_nm=buffers.zeros((ny, nx), np.float32),
+            grain_id=buffers.full((ny, nx), -1, np.int32),
+            generation=getattr(last, "generation", 0),
+            time_s=getattr(last, "time_s", 0.0),
+        )
         if any(p.under_thickness_nm is not None for _, p, _ in parts):
             fm.under_material = buffers.zeros((ny, nx), np.uint8)
             fm.under_thickness_nm = buffers.zeros((ny, nx), np.float32)
@@ -474,7 +528,7 @@ class Renderer:
             for name in ("material_id", "thickness_nm", "grain_id", "under_material", "under_thickness_nm"):
                 a = getattr(src, name)
                 if a is not None:
-                    getattr(fm, name)[r0:r1, c0:c1] = a[sr:sr + h, sc:sc + w]
+                    getattr(fm, name)[r0:r1, c0:c1] = a[sr : sr + h, sc : sc + w]
         self.rasters_built += 1
         self.rasters_reused += 1
         token = (next(self._tokens), fm.generation)
@@ -484,7 +538,7 @@ class Renderer:
     def _keep_pan(self, slot: str, key, center_um, raster, padded_view=None) -> None:
         pans = getattr(self, slot, None) or []
         pans.insert(0, (key, center_um, raster, padded_view))
-        setattr(self, slot, pans[:max(1, self.config.pan_cache_size)])
+        setattr(self, slot, pans[: max(1, self.config.pan_cache_size)])
 
     def _crop_pan(self, key, view, slot: str = "_pans"):
         pans = getattr(self, slot, None) or []
@@ -542,23 +596,33 @@ class Renderer:
         runs without the renderer's lock (a live frame is not held up); only looking up and
         storing take it. Coherent 4D-STEM: the probe, transmission tile and first block of
         patterns. Returns whether anything was rendered."""
-        if (not optics.beam_blanked and optics.render_mode in (RenderMode.STEM_4D, RenderMode.STEM_PARKED)
-                and self.stem_model(optics) == "coherent"):
+        if (
+            not optics.beam_blanked
+            and optics.render_mode in (RenderMode.STEM_4D, RenderMode.STEM_PARKED)
+            and self.stem_model(optics) == "coherent"
+        ):
             return self._prefetch_coherent(optics, time_s)
-        if (optics.beam_blanked or optics.render_mode != RenderMode.TEM_IMAGING or self.config.pan_margin <= 0
-                or self._time_dependent()):
+        if (
+            optics.beam_blanked
+            or optics.render_mode != RenderMode.TEM_IMAGING
+            or self.config.pan_margin <= 0
+            or self._time_dependent()
+        ):
             return False
         tkey = 0  # not time dependent
         gen = getattr(self.specimen, "generation", 0)
         view = optics.view
-        base = dataclasses.replace(optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)),
-                                   beam_offset_px=(0.0, 0.0))
+        base = dataclasses.replace(
+            optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0)
+        )
         key = (base, gen, tkey)
         poptics, shift = self._padded_optics(optics)
         fkey = (poptics.view, frozenset(TEM_LAYERS), gen, tkey)
         with self._lock:
-            if any(k == key and _crop(raster, c0, view) is not None
-                   for k, c0, raster, _ in getattr(self, "_pans", None) or []):
+            if any(
+                k == key and _crop(raster, c0, view) is not None
+                for k, c0, raster, _ in getattr(self, "_pans", None) or []
+            ):
                 return False
             hit = self._fieldmaps.get(fkey)
             if hit is not None:  # the live view's exit-wave spectra (a focus step reuses one)
@@ -581,13 +645,22 @@ class Renderer:
         else:
             fm = self._rasterize(poptics.view, frozenset(TEM_LAYERS))
             token = (next(self._tokens), getattr(fm, "generation", 0))
-        raster = render_tem_raster(fm, poptics, self.grains, self.crystallinity, self.config, self.seed,
-                                   self._prefetch_tem, token, shift)
+        raster = render_tem_raster(
+            fm,
+            poptics,
+            self.grains,
+            self.crystallinity,
+            self.config,
+            self.seed,
+            self._prefetch_tem,
+            token,
+            shift,
+        )
         with self._lock:
             self._keep_field_map(self._fieldmaps, fkey, fm, token)
             pans = getattr(self, "_pans", None) or []
             pans.insert(1 if pans else 0, (key, view.center_um, raster, poptics.view))  # behind the live view
-            self._pans = pans[:max(1, self.config.pan_cache_size)]
+            self._pans = pans[: max(1, self.config.pan_cache_size)]
             # its exit-wave spectrum too: a focus step of the prefetched view is a multiply + FFT
             for k, v in list(self._prefetch_tem.spectra.items()):
                 self._tem_cache._put(self._tem_cache.spectra, k, v)
@@ -609,8 +682,9 @@ class Renderer:
             if self._frame is not None and self._frame[0] == fkey:
                 self.frames_from_cache += 1
                 return self._frame[1]
-            img = render_tem(fm, optics, self.grains, self.crystallinity, self.config, self.seed,
-                             self._tem_cache, token)
+            img = render_tem(
+                fm, optics, self.grains, self.crystallinity, self.config, self.seed, self._tem_cache, token
+            )
             # Shared, not copied: every frame of an exposure is the SAME array (a 4096² copy
             # per frame was 20 ms, and it defeated the detector's per-exposure cache).
             # Read-only, so a caller that would scribble on the cache fails loudly instead.
@@ -622,10 +696,12 @@ class Renderer:
             return self._saed.render(fm, token, optics, self.grains, self.crystallinity)
         fm, token = self.field_map(optics, STEM_LAYERS, time_s)
         if self.stem_model(optics) == "coherent":
-            return self._coherent.render(self._ctx(optics, time_s), fm, token, optics, scan_point,
-                                         frame_index, self.specimen)
-        return self._stem.render(fm, token, optics, self.grains, self.crystallinity, scan_point,
-                                 frame_index, self.specimen)
+            return self._coherent.render(
+                self._ctx(optics, time_s), fm, token, optics, scan_point, frame_index, self.specimen
+            )
+        return self._stem.render(
+            fm, token, optics, self.grains, self.crystallinity, scan_point, frame_index, self.specimen
+        )
 
     # ------------------------------------------------------ coherent STEM
     def _ctx(self, optics, time_s: float):
@@ -635,6 +711,7 @@ class Renderer:
 
         def fine(view):
             return self._fine_field_map(dataclasses.replace(optics, view=view), time_s)
+
         return SimpleNamespace(field_map=fine, grains=self.grains, crystallinity=self.crystallinity)
 
     def _fine_field_map(self, optics, time_s: float):
@@ -699,9 +776,10 @@ class Renderer:
         out = np.empty((ny, nx, hd, wd), np.float32)
         for iy in range(ny):
             for ix in range(nx):
-                p = self._stem.render(fm, token, optics, self.grains, self.crystallinity, (ix, iy), 0,
-                                      self.specimen)
-                out[iy, ix] = p[:hd * by, :wd * bx].reshape(hd, by, wd, bx).sum(axis=(1, 3))
+                p = self._stem.render(
+                    fm, token, optics, self.grains, self.crystallinity, (ix, iy), 0, self.specimen
+                )
+                out[iy, ix] = p[: hd * by, : wd * bx].reshape(hd, by, wd, bx).sum(axis=(1, 3))
         return out
 
     def ground_truth_ptychography(self, optics, *, time_s: float = 0.0) -> dict:
@@ -711,8 +789,9 @@ class Renderer:
             raise ValueError("ptychography ground truth needs STEM optics")
         return self._coherent.ground_truth(self._ctx(optics, time_s), optics)
 
-    def virtual_image(self, optics, inner_mrad: float, outer_mrad: float, *,
-                      time_s: float = 0.0) -> np.ndarray:
+    def virtual_image(
+        self, optics, inner_mrad: float, outer_mrad: float, *, time_s: float = 0.0
+    ) -> np.ndarray:
         """Annular-detector image over the whole scan, float32 (scan ny, nx),
         electrons per second collected at each probe position.
 
@@ -720,20 +799,24 @@ class Renderer:
         and the pattern specs directly - no per-point CBED is rendered.
         """
         if optics.render_mode not in (RenderMode.STEM_4D, RenderMode.STEM_PARKED):
-            raise ValueError("virtual_image needs STEM optics (scan raster); got "
-                             f"{RenderMode(optics.render_mode).name}")
+            raise ValueError(
+                f"virtual_image needs STEM optics (scan raster); got {RenderMode(optics.render_mode).name}"
+            )
         ny, nx = optics.view.shape
         if optics.beam_blanked:
             return np.zeros((ny, nx), np.float32)
         fm, token = self.field_map(optics, STEM_LAYERS, time_s)
         if self.stem_model(optics) == "coherent":
-            return self._coherent.virtual_image(self._ctx(optics, time_s), optics, float(inner_mrad),
-                                                float(outer_mrad), fm)
-        return self._stem.virtual_image(fm, token, optics, self.grains, self.crystallinity,
-                                        float(inner_mrad), float(outer_mrad))
+            return self._coherent.virtual_image(
+                self._ctx(optics, time_s), optics, float(inner_mrad), float(outer_mrad), fm
+            )
+        return self._stem.virtual_image(
+            fm, token, optics, self.grains, self.crystallinity, float(inner_mrad), float(outer_mrad)
+        )
 
-    def warm_up(self, optics, max_patterns: int | None = None, budget_s: float = 0.5,
-                time_s: float = 0.0) -> int:
+    def warm_up(
+        self, optics, max_patterns: int | None = None, budget_s: float = 0.5, time_s: float = 0.0
+    ) -> int:
         """Pre-render the most used STEM patterns of the current view (C++ WarmUpCache)."""
         if optics.render_mode not in (RenderMode.STEM_4D, RenderMode.STEM_PARKED):
             return 0
@@ -761,11 +844,18 @@ class Renderer:
             q[ok] = rotation_from_crystal_to_lab(m)[inv]
         extra = {}
         if fm.under_thickness_nm is not None:
-            extra = {"under_material": fm.under_material.copy(),
-                     "under_thickness_nm": fm.under_thickness_nm * np.float32(optics.thickness_tilt_factor)}
-        return {**extra, "material_id": fm.material_id.copy(), "grain_id": np.where(ok, gid, -1),
-                "quaternion": q, "thickness_nm": fm.thickness_nm * np.float32(optics.thickness_tilt_factor),
-                "view": fm.view}
+            extra = {
+                "under_material": fm.under_material.copy(),
+                "under_thickness_nm": fm.under_thickness_nm * np.float32(optics.thickness_tilt_factor),
+            }
+        return {
+            **extra,
+            "material_id": fm.material_id.copy(),
+            "grain_id": np.where(ok, gid, -1),
+            "quaternion": q,
+            "thickness_nm": fm.thickness_nm * np.float32(optics.thickness_tilt_factor),
+            "view": fm.view,
+        }
 
     def scan_point_for(self, optics, frame_index: int = 0, scan_point=None) -> tuple[int, int]:
         return resolve_scan_point(optics, scan_point, frame_index, self.specimen, self.config)
@@ -773,7 +863,14 @@ class Renderer:
     @property
     def stats(self) -> dict:
         s = self.cache.stats
-        return {"rasters_built": self.rasters_built, "frames_from_cache": self.frames_from_cache,
-                "saed_exact_grains": self._saed.exact_grains,
-                "dp_hits": s.hits, "dp_misses": s.misses, "dp_evictions": s.evictions,
-                "dp_entries": s.entries, "dp_bytes": s.bytes, "dp_last_render_ms": s.last_render_ms}
+        return {
+            "rasters_built": self.rasters_built,
+            "frames_from_cache": self.frames_from_cache,
+            "saed_exact_grains": self._saed.exact_grains,
+            "dp_hits": s.hits,
+            "dp_misses": s.misses,
+            "dp_evictions": s.evictions,
+            "dp_entries": s.entries,
+            "dp_bytes": s.bytes,
+            "dp_last_render_ms": s.last_render_ms,
+        }

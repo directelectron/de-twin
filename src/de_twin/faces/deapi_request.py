@@ -28,9 +28,12 @@ def model_counting(twin) -> bool:
 
 #: DE-Server's scan coil properties, with DE-Server's defaults.
 SCAN_COIL_PROPERTIES = {
-    "Scan - Voltage H Min": -1.0, "Scan - Voltage H Max": 1.0,
-    "Scan - Voltage V Min": -1.0, "Scan - Voltage V Max": 1.0,
-    "Scan - Pixel Offset X": 0.0, "Scan - Pixel Offset Y": 0.0,
+    "Scan - Voltage H Min": -1.0,
+    "Scan - Voltage H Max": 1.0,
+    "Scan - Voltage V Min": -1.0,
+    "Scan - Voltage V Max": 1.0,
+    "Scan - Pixel Offset X": 0.0,
+    "Scan - Pixel Offset Y": 0.0,
     "Scan - Rotation": 0.0,
 }
 SCAN_FLIP_PROPERTIES = ("Scan - Flip Horizontally", "Scan - Flip Vertically")
@@ -45,6 +48,7 @@ def scan_coil_settings(get: Callable[[str], Any]) -> dict:
 
     These are what a client changes WHILE scanning (pan, zoom, drift correction, a moving
     probe), so a running acquisition re-reads them between repetitions."""
+
     def number(name):
         try:
             return float(get(name))
@@ -103,10 +107,14 @@ class _CoilTimeline:
         return self._settings[max(0, bisect.bisect_right(self._points, point) - 1)]
 
 
-def request_from_properties(get: Callable[[str], Any], camera_model: str,
-                            sensor_shape: tuple[int, int], *,
-                            scan_points: list | None = None,
-                            acquisition_index: int = 0) -> AcquisitionRequest:
+def request_from_properties(
+    get: Callable[[str], Any],
+    camera_model: str,
+    sensor_shape: tuple[int, int],
+    *,
+    scan_points: list | None = None,
+    acquisition_index: int = 0,
+) -> AcquisitionRequest:
     """Map deapi / DE-Server property values to an AcquisitionRequest.
 
     ``get(name)`` returns a property value (string or number).
@@ -127,20 +135,38 @@ def request_from_properties(get: Callable[[str], Any], camera_model: str,
         repeats = max(1, int(float(get("Scan - Repeats") or 1)))
         sroi = None
         if _to_bool(get("Scan - ROI Enable")):
-            sroi = Roi(int(float(get("Scan - ROI Offset X"))), int(float(get("Scan - ROI Offset Y"))),
-                       int(float(get("Scan - ROI Size X"))), int(float(get("Scan - ROI Size Y"))))
+            sroi = Roi(
+                int(float(get("Scan - ROI Offset X"))),
+                int(float(get("Scan - ROI Offset Y"))),
+                int(float(get("Scan - ROI Size X"))),
+                int(float(get("Scan - ROI Size Y"))),
+            )
         points = None
         if scan_points and str(get("Scan - Type")) in ("XY File", "XY Array"):
             points = [tuple(map(int, p)) for p in scan_points]
         elif sroi is not None:
             points = [(sroi.x + i, sroi.y + j) for j in range(sroi.h) for i in range(sroi.w)]
-        scan = ScanRequest(enabled=True, size=(nx, ny), dwell_s=fpp / fps, frames_per_point=fpp,
-                           roi=sroi, repeats=repeats, points=points, **scan_coil_settings(get))
+        scan = ScanRequest(
+            enabled=True,
+            size=(nx, ny),
+            dwell_s=fpp / fps,
+            frames_per_point=fpp,
+            roi=sroi,
+            repeats=repeats,
+            points=points,
+            **scan_coil_settings(get),
+        )
         n_points = len(points) if points else nx * ny
         frame_count = n_points * fpp * repeats
     return AcquisitionRequest(
-        camera_model=camera_model, exposure_mode=mode, frame_time_s=1.0 / fps,
+        camera_model=camera_model,
+        exposure_mode=mode,
+        frame_time_s=1.0 / fps,
         total_frames=frame_count,
         frames_per_buffer=max(1, int(float(get("Grabbing - Frames Per Buffer") or 1))),
-        hw_roi=roi, hw_binning=(bx, by), scan=scan, acquisition_index=acquisition_index,
-        super_resolution=_super_resolution(get))
+        hw_roi=roi,
+        hw_binning=(bx, by),
+        scan=scan,
+        acquisition_index=acquisition_index,
+        super_resolution=_super_resolution(get),
+    )

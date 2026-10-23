@@ -101,6 +101,7 @@ from .ceos import (
 # One CEOS server
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class _Pending:
     op: str
@@ -115,12 +116,22 @@ class CorrectorUnit:
     injected clock. Thread-safe through the owner's lock.
     """
 
-    def __init__(self, side: str, *, seed: int = 0, clock: Callable[[], float],
-                 lock: threading.RLock, tuned: bool = True, ht_kv: float = 200.0,
-                 drift_rates: dict[str, float] | None = None, drift_step_s: float = 1.0,
-                 operator: Callable[[str], tuple[float, complex]] | None = None,
-                 beam_check: Callable[[str], str | None] | None = None,
-                 label: Callable[[], str] | None = None, host: str = "127.0.0.1"):
+    def __init__(
+        self,
+        side: str,
+        *,
+        seed: int = 0,
+        clock: Callable[[], float],
+        lock: threading.RLock,
+        tuned: bool = True,
+        ht_kv: float = 200.0,
+        drift_rates: dict[str, float] | None = None,
+        drift_step_s: float = 1.0,
+        operator: Callable[[str], tuple[float, complex]] | None = None,
+        beam_check: Callable[[str], str | None] | None = None,
+        label: Callable[[], str] | None = None,
+        host: str = "127.0.0.1",
+    ):
         if side not in ("probe", "image"):
             raise ValueError("side must be 'probe' or 'image'")
         self.side = side
@@ -198,8 +209,10 @@ class CorrectorUnit:
             self.offset = self.offset + {name: complex(value_nm) - cur}
 
     def _kick(self, table: dict[str, float], scale: float = 1.0) -> None:
-        self.offset = self.offset + {n: _random_coeff(self._rng_events, n, v * scale * self._rng_events.uniform(0.3, 1.0))
-                                     for n, v in table.items()}
+        self.offset = self.offset + {
+            n: _random_coeff(self._rng_events, n, v * scale * self._rng_events.uniform(0.3, 1.0))
+            for n, v in table.items()
+        }
 
     def perturb(self, kind: str = "mode", scale: float = 1.0) -> None:
         """Detune: ``"ht"`` (HT change, cold start) or ``"mode"`` (probe/function mode)."""
@@ -241,14 +254,18 @@ class CorrectorUnit:
     def info(self) -> str:
         """``CorrectorInfo::toString`` (getCorrectorInfo)."""
         rng = ",".join(f"{k}:{v:.9g}" for k, v in MEASUREMENT_RANGE_M.items())
-        return (f"correctorType={self.corrector_type};mode={self.mode};host={self.host};"
-                f"version=v1.9-0-de_twin;kernelVersion=0-00-00;currentLabel={self._label()};"
-                f"currentSetting=de_twin;protocolVersion={PROTOCOL_VERSION};measurementRange={rng}")
+        return (
+            f"correctorType={self.corrector_type};mode={self.mode};host={self.host};"
+            f"version=v1.9-0-de_twin;kernelVersion=0-00-00;currentLabel={self._label()};"
+            f"currentSetting=de_twin;protocolVersion={PROTOCOL_VERSION};measurementRange={rng}"
+        )
 
     def endpoint(self) -> str:
         """``CorrectorFactory::describe``."""
-        return (f"{self.corrector_type} {self.mode} corrector at {self.host}:{self.port} "
-                f"(protocol {PROTOCOL_VERSION})")
+        return (
+            f"{self.corrector_type} {self.mode} corrector at {self.host}:{self.port} "
+            f"(protocol {PROTOCOL_VERSION})"
+        )
 
     def aberrations_string(self) -> str:
         with self.lock:
@@ -298,23 +315,26 @@ class CorrectorUnit:
     def post_measure_c1a1(self) -> tuple[bool, str]:
         return self._post("measureC1A1", T_MEASURE_C1A1, lambda t: self._run_measure(t, "C1A1"))
 
-    def post_tableau(self, tab_type: str = "", angle_mrad: float = 0.0, max_fit: str = "") -> tuple[bool, str]:
+    def post_tableau(
+        self, tab_type: str = "", angle_mrad: float = 0.0, max_fit: str = ""
+    ) -> tuple[bool, str]:
         tab = tab_type or "Standard"
         if tab not in TABLEAU_TYPES:
             # the reference server raises inside the command: accepted, then failed
-            err = _server_error(f'Invalid Tableau type "{tab}", valid types are: '
-                                f"{list(TABLEAU_TYPES)}")
+            err = _server_error(f'Invalid Tableau type "{tab}", valid types are: {list(TABLEAU_TYPES)}')
             return self._post("acquireTableau", 0.05, lambda t: (False, "", err))
         if max_fit and max_fit not in CEOS_ORDER:
             err = _server_error(f'MaxFit aberration "{max_fit}" is unknown')
             return self._post("acquireTableau", 0.05, lambda t: (False, "", err))
         n_images = 1 + sum(n for _, n in TABLEAU_RINGS[tab])
         dur = T_TABLEAU_OVERHEAD + T_TABLEAU_PER_IMAGE * n_images
-        return self._post("acquireTableau", dur,
-                          lambda t: self._run_measure(t, "tableau", tab, angle_mrad, max_fit))
+        return self._post(
+            "acquireTableau", dur, lambda t: self._run_measure(t, "tableau", tab, angle_mrad, max_fit)
+        )
 
-    def _run_measure(self, t: float, kind: str, tab: str = "Standard", angle_mrad: float = 0.0,
-                     max_fit: str = "") -> tuple[bool, str, str]:
+    def _run_measure(
+        self, t: float, kind: str, tab: str = "Standard", angle_mrad: float = 0.0, max_fit: str = ""
+    ) -> tuple[bool, str, str]:
         why = self._beam_check(self.side)
         if why:
             return False, "", _server_error(why)
@@ -327,9 +347,14 @@ class CorrectorUnit:
             self.soc[n] = complex(x * 1e9, y * 1e9)
         return True, res.to_string(), ""
 
-    def simulate_measurement(self, kind: str = "tableau", tab: str = "Standard",
-                             angle_mrad: float = 0.0, max_fit: str = "",
-                             t: float | None = None) -> MeasurementResult | str:
+    def simulate_measurement(
+        self,
+        kind: str = "tableau",
+        tab: str = "Standard",
+        angle_mrad: float = 0.0,
+        max_fit: str = "",
+        t: float | None = None,
+    ) -> MeasurementResult | str:
         """Run the tableau / C1A1 analysis on the current aberrations (no side effects
         other than the measurement noise stream). Returns a result or an error string."""
         t = self._now() if t is None else t
@@ -353,25 +378,29 @@ class CorrectorUnit:
         rng_c1 = MEASUREMENT_RANGE_M["C1"] * 1e9
         rng_a1 = MEASUREMENT_RANGE_M["A1"] * 1e9
         for i, tilt in enumerate(tilts):
-            actual = tilt * self._tilt_cal + (complex(*rng.normal(0.0, TILT_JITTER_MRAD * 1e-3, 2))
-                                             if tilt != 0 else 0j)
+            actual = tilt * self._tilt_cal + (
+                complex(*rng.normal(0.0, TILT_JITTER_MRAD * 1e-3, 2)) if tilt != 0 else 0j
+            )
             c1, a1 = induced_c1a1(truth, actual)
             if abs(c1) > rng_c1 or abs(a1) > rng_a1:
                 lost += 1
                 if i == 0:
-                    return "aberrations out of the measurement range (C1/A1 > {:.3g} m)".format(MEASUREMENT_RANGE_M["C1"])
+                    return "aberrations out of the measurement range (C1/A1 > {:.3g} m)".format(
+                        MEASUREMENT_RANGE_M["C1"]
+                    )
                 continue
             s_c1 = math.hypot(IMAGE_SIGMA_NM, IMAGE_SIGMA_REL * abs(c1))
             s_a1 = math.hypot(IMAGE_SIGMA_NM, IMAGE_SIGMA_REL * abs(a1)) / math.sqrt(2.0)
-            m = (c1 + rng.normal(0.0, s_c1), a1.real + rng.normal(0.0, s_a1),
-                 a1.imag + rng.normal(0.0, s_a1))
+            m = (c1 + rng.normal(0.0, s_c1), a1.real + rng.normal(0.0, s_a1), a1.imag + rng.normal(0.0, s_a1))
             rows.append(_design_rows(params, tilt))
             obs.extend(m)
             sig.extend((s_c1, s_a1, s_a1))
         n_ok = len(tilts) - lost
         if kind == "tableau" and (lost > len(tilts) // 3 or 3 * n_ok < 2 * len(params)):
-            return (f"tableau failed: {lost} of {len(tilts)} images out of the measurement "
-                    f"range; reduce the tilt angle or use a Fast tableau")
+            return (
+                f"tableau failed: {lost} of {len(tilts)} images out of the measurement "
+                f"range; reduce the tilt angle or use a Fast tableau"
+            )
         a = np.vstack(rows)
         w = 1.0 / np.asarray(sig)
         aw = a * w[:, None]
@@ -388,23 +417,42 @@ class CorrectorUnit:
             var[n] = var.get(n, 0.0) + float(cov[j, j])
         n_img = len(tilts)
         return MeasurementResult(
-            kind=kind, aberrations=Aberrations(coeffs),
+            kind=kind,
+            aberrations=Aberrations(coeffs),
             sigma_nm={n: math.sqrt(max(v, 0.0)) for n, v in var.items()},
-            tab_type="" if kind == "C1A1" else tab, angle_mrad=angle, max_fit=max_fit,
-            images=n_img, images_lost=lost, t_start=t, t_done=t, side=self.side, names=names)
+            tab_type="" if kind == "C1A1" else tab,
+            angle_mrad=angle,
+            max_fit=max_fit,
+            images=n_img,
+            images_lost=lost,
+            t_start=t,
+            t_done=t,
+            side=self.side,
+            names=names,
+        )
 
     # correctAberration ------------------------------------------------------
-    def post_correct(self, name: str, value: complex | None = None,
-                     target: complex | None = None, select: str = "",
-                     *, beam_tilt_managed: bool = False) -> tuple[bool, str]:
+    def post_correct(
+        self,
+        name: str,
+        value: complex | None = None,
+        target: complex | None = None,
+        select: str = "",
+        *,
+        beam_tilt_managed: bool = False,
+    ) -> tuple[bool, str]:
         """``value`` / ``target`` in nm (rad for WD); None = omitted."""
         if not name:
             return False, "no aberration name was given"
-        return self._post("correctAberration", T_CORRECT,
-                          lambda t: self._run_correct(t, name, value, target, select, beam_tilt_managed))
+        return self._post(
+            "correctAberration",
+            T_CORRECT,
+            lambda t: self._run_correct(t, name, value, target, select, beam_tilt_managed),
+        )
 
-    def _run_correct(self, t: float, name: str, value, target, select: str,
-                     managed: bool) -> tuple[bool, str, str]:
+    def _run_correct(
+        self, t: float, name: str, value, target, select: str, managed: bool
+    ) -> tuple[bool, str, str]:
         if name not in CEOS_ORDER:
             return False, "", _server_error(f'Unknown aberration "{name}"')
         if value is not None:
@@ -446,12 +494,18 @@ class CorrectorUnit:
 
     # alignment / config / housekeeping ---------------------------------------
     def alignment_json(self) -> str:
-        return json.dumps({
-            "format": "de_twin corrector alignment", "version": 1, "correctorType": self.corrector_type,
-            "mode": self.mode, "label": self._label(),
-            "offset": {n: [v.real * 1e-9, v.imag * 1e-9] for n, v in self.offset.coeffs.items()},
-            "WD": [self.wd.real, self.wd.imag],
-        }, sort_keys=True)
+        return json.dumps(
+            {
+                "format": "de_twin corrector alignment",
+                "version": 1,
+                "correctorType": self.corrector_type,
+                "mode": self.mode,
+                "label": self._label(),
+                "offset": {n: [v.real * 1e-9, v.imag * 1e-9] for n, v in self.offset.coeffs.items()},
+                "WD": [self.wd.real, self.wd.imag],
+            },
+            sort_keys=True,
+        )
 
     def _load_alignment(self, data: str) -> tuple[bool, str, str]:
         try:
@@ -470,6 +524,7 @@ class CorrectorUnit:
         def run(t):
             self.alignment_file = self.alignment_json()
             return True, "", ""
+
         return self._post("getAlignmentFile", T_ALIGNMENT, run)
 
     def post_put_alignment(self, data: str) -> tuple[bool, str]:
@@ -486,6 +541,7 @@ class CorrectorUnit:
             if key not in self.config:
                 return False, "", _server_error(f'Unknown configuration option "{name}"')
             return True, "true" if self.config[key] else "false", ""
+
         return self._post("getConfigOption", T_CONFIG, run)
 
     def post_set_config(self, name: str, value: str) -> tuple[bool, str]:
@@ -508,6 +564,7 @@ class CorrectorUnit:
                     b = bool(v)
             self.config[key] = b
             return True, "", ""
+
         return self._post("setConfigOption", T_CONFIG, run)
 
     def post_readback(self) -> tuple[bool, str]:
@@ -517,16 +574,17 @@ class CorrectorUnit:
         def run(t):
             self.beam_tilt_known = False
             return True, "", ""
+
         return self._post("reconnect", T_RECONNECT, run)
 
     # beam tilt (WD) -----------------------------------------------------------
-    def set_beam_tilt(self, x: float, y: float, relative: bool = True,
-                      wait_s: float = 0.0, sleeper=None) -> tuple[bool, bool, str]:
+    def set_beam_tilt(
+        self, x: float, y: float, relative: bool = True, wait_s: float = 0.0, sleeper=None
+    ) -> tuple[bool, bool, str]:
         """CorrectorService::setBeamTilt (radians). Returns (completed, still_running, why_not).
         ``wait_s == 0``: posts; ``still_running`` True means accepted."""
         tgt = complex(float(x), float(y))
-        ok, why = self.post_correct("WD", value=0j if relative else None, target=tgt,
-                                    beam_tilt_managed=True)
+        ok, why = self.post_correct("WD", value=0j if relative else None, target=tgt, beam_tilt_managed=True)
         if not ok:
             return False, False, why
         if wait_s <= 0:
@@ -550,6 +608,7 @@ class CorrectorUnit:
 # The column's corrector
 # ---------------------------------------------------------------------------
 
+
 class Corrector:
     """Probe and/or image corrector of a column.
 
@@ -563,13 +622,23 @@ class Corrector:
     by default). Every method takes ``side=`` to address the other one in-process.
     """
 
-    def __init__(self, kind: str = "probe", *, clock=None, seed: int = 0, tuned: bool = True,
-                 ht_kv: float = 200.0, lock: threading.RLock | None = None,
-                 drift_rates: dict[str, float] | None = None, drift_step_s: float = 1.0,
-                 operator: Callable[[str], tuple[float, complex]] | None = None,
-                 beam_check: Callable[[str], str | None] | None = None,
-                 label: Callable[[], str] | None = None, served: str | None = None,
-                 sleeper: Callable[[float], None] | None = None):
+    def __init__(
+        self,
+        kind: str = "probe",
+        *,
+        clock=None,
+        seed: int = 0,
+        tuned: bool = True,
+        ht_kv: float = 200.0,
+        lock: threading.RLock | None = None,
+        drift_rates: dict[str, float] | None = None,
+        drift_step_s: float = 1.0,
+        operator: Callable[[str], tuple[float, complex]] | None = None,
+        beam_check: Callable[[str], str | None] | None = None,
+        label: Callable[[], str] | None = None,
+        served: str | None = None,
+        sleeper: Callable[[float], None] | None = None,
+    ):
         kind = normalize_kind(kind)
         if kind == "none":
             raise ValueError("Corrector needs kind 'probe', 'image' or 'both'")
@@ -587,9 +656,18 @@ class Corrector:
         sides = ("probe", "image") if kind == "both" else (kind,)
         for side in sides:
             self.units[side] = CorrectorUnit(
-                side, seed=seed, clock=clock, lock=self.lock, tuned=tuned, ht_kv=ht_kv,
-                drift_rates=drift_rates, drift_step_s=drift_step_s, operator=operator,
-                beam_check=beam_check, label=label)
+                side,
+                seed=seed,
+                clock=clock,
+                lock=self.lock,
+                tuned=tuned,
+                ht_kv=ht_kv,
+                drift_rates=drift_rates,
+                drift_step_s=drift_step_s,
+                operator=operator,
+                beam_check=beam_check,
+                label=label,
+            )
         self.served_side = served if served in self.units else sides[0]
         self.ht_kv = float(ht_kv)
 
@@ -637,16 +715,19 @@ class Corrector:
         u = self.served
         return u.beam_tilt_commanded.real, u.beam_tilt_commanded.imag, u.beam_tilt_known
 
-    def set_beam_tilt(self, x_rad: float, y_rad: float, relative: bool = True,
-                      side: str | None = None) -> None:
-        completed, _, why = self.unit(side).set_beam_tilt(x_rad, y_rad, relative, wait_s=5.0,
-                                                          sleeper=self._sleeper)
+    def set_beam_tilt(
+        self, x_rad: float, y_rad: float, relative: bool = True, side: str | None = None
+    ) -> None:
+        completed, _, why = self.unit(side).set_beam_tilt(
+            x_rad, y_rad, relative, wait_s=5.0, sleeper=self._sleeper
+        )
         if not completed:
             raise CorrectorError(why or self.unit(side).last_error)
 
     def endpoints(self) -> str:
-        return "\n".join(u.endpoint() for u in (self.served, *[v for k, v in self.units.items()
-                                                               if k != self.served_side]))
+        return "\n".join(
+            u.endpoint() for u in (self.served, *[v for k, v in self.units.items() if k != self.served_side])
+        )
 
     # ------------------------------------------------------------ blocking ops
     def _finish(self, u: CorrectorUnit, accepted: tuple[bool, str]) -> None:
@@ -657,8 +738,9 @@ class Corrector:
         if state != DONE:
             raise CorrectorError(u.last_error or "the corrector command failed")
 
-    def measure(self, tab_type: str = "Standard", angle_mrad: float = 0.0, max_fit: str = "",
-                side: str | None = None) -> MeasurementResult:
+    def measure(
+        self, tab_type: str = "Standard", angle_mrad: float = 0.0, max_fit: str = "", side: str | None = None
+    ) -> MeasurementResult:
         """Acquire a tableau (``"Fast"``/``"Standard"``/``"Enhanced"``) or, with
         ``tab_type="C1A1"``, a single C1/A1 measurement. Blocks on the clock (a
         ManualClock is advanced). Raises :class:`CorrectorError` on failure."""
@@ -671,8 +753,15 @@ class Corrector:
         assert u.last_measurement is not None
         return u.last_measurement
 
-    def correct(self, name: str, fraction: float = 1.0, *, side: str | None = None,
-                select: str = "", value_nm: complex | None = None) -> Aberrations:
+    def correct(
+        self,
+        name: str,
+        fraction: float = 1.0,
+        *,
+        side: str | None = None,
+        select: str = "",
+        value_nm: complex | None = None,
+    ) -> Aberrations:
         """Correct ``fraction`` of the corrector's current estimate of ``name`` (from the
         last measurement / state of correction), i.e. CEOS ``correctAberration`` with
         ``target = (1 - fraction) * estimate``. Returns the new ground-truth residual."""

@@ -28,8 +28,15 @@ class PtychoResult:
     dx_nm: float = 0.0
 
 
-def probe_from_aberrations(shape: tuple[int, int], recip_px_inv_nm: float, wavelength_nm: float,
-                           alpha_mrad: float, aberrations, *, edge_px: float = 1.0) -> np.ndarray:
+def probe_from_aberrations(
+    shape: tuple[int, int],
+    recip_px_inv_nm: float,
+    wavelength_nm: float,
+    alpha_mrad: float,
+    aberrations,
+    *,
+    edge_px: float = 1.0,
+) -> np.ndarray:
     """Probe on the reconstruction grid (dx = 1/(N dk)), centred at (N/2, N/2), sum |P|^2 = 1."""
     ny, nx = shape
     ky = np.fft.fftfreq(ny, 1.0 / (ny * recip_px_inv_nm))[:, None]
@@ -54,15 +61,29 @@ def _prepare(datacube, center):
     ex, ey = cx - ix, cy - iy
     amps = np.roll(amps, (-iy, -ix), axis=(1, 2))
     # model FFT index i must represent k = (i - e) dk: multiply the exit wave by exp(+2 pi i e j / N)
-    ramp = (np.exp(2j * math.pi * ey * np.arange(qy) / qy)[:, None]
-            * np.exp(2j * math.pi * ex * np.arange(qx) / qx)[None, :])
+    ramp = (
+        np.exp(2j * math.pi * ey * np.arange(qy) / qy)[:, None]
+        * np.exp(2j * math.pi * ex * np.arange(qx) / qx)[None, :]
+    )
     return amps, ramp, n_p
 
 
-def epie(datacube: np.ndarray, positions_px: np.ndarray, probe: np.ndarray, *,
-         object_shape: tuple[int, int] | None = None, iterations: int = 30, alpha: float = 1.0,
-         beta: float = 0.0, beta_start: int = 5, center: tuple[float, float] | None = None,
-         seed: int = 0, dx_nm: float = 0.0, mode_weights=None, rpie: float = 1.0) -> PtychoResult:
+def epie(
+    datacube: np.ndarray,
+    positions_px: np.ndarray,
+    probe: np.ndarray,
+    *,
+    object_shape: tuple[int, int] | None = None,
+    iterations: int = 30,
+    alpha: float = 1.0,
+    beta: float = 0.0,
+    beta_start: int = 5,
+    center: tuple[float, float] | None = None,
+    seed: int = 0,
+    dx_nm: float = 0.0,
+    mode_weights=None,
+    rpie: float = 1.0,
+) -> PtychoResult:
     """Extended ptychographic iterative engine, optionally mixed-state (several probe modes).
 
     datacube : (..., Qy, Qx) intensities, one pattern per position (scan order = positions order).
@@ -93,7 +114,11 @@ def epie(datacube: np.ndarray, positions_px: np.ndarray, probe: np.ndarray, *,
     if P.ndim == 2:
         P = P[None]
     norms = (np.abs(P) ** 2).sum(axis=(1, 2))
-    w = norms / norms.sum() if mode_weights is None else np.asarray(mode_weights, float) / np.sum(mode_weights)
+    w = (
+        norms / norms.sum()
+        if mode_weights is None
+        else np.asarray(mode_weights, float) / np.sum(mode_weights)
+    )
     total = float((amps.astype(np.float64) ** 2).sum(axis=(1, 2)).mean())
     P *= np.sqrt(total * w / norms).astype(np.float32)[:, None, None]
     rng = np.random.default_rng(seed)
@@ -106,15 +131,15 @@ def epie(datacube: np.ndarray, positions_px: np.ndarray, probe: np.ndarray, *,
         denom = ((1.0 - rpie) * pint + rpie * pmax).astype(np.float32)
         for j in rng.permutation(npat):
             r, c = tl[j]
-            ow = O[r:r + qy, c:c + qx]
+            ow = O[r : r + qy, c : c + qx]
             psi = P * ow[None]
             F = np.fft.fft2(psi * ramp[None], norm="ortho")
-            I = (F.real ** 2 + F.imag ** 2).sum(axis=0)
+            I = (F.real**2 + F.imag**2).sum(axis=0)
             mag = np.sqrt(I)
             err += float(((mag - amps[j]) ** 2).sum())
             F *= (amps[j] / np.maximum(mag, 1e-12))[None]
             d = np.fft.ifft2(F, norm="ortho") * cramp[None] - psi
-            O[r:r + qy, c:c + qx] = ow + alpha * (np.conj(P) * d).sum(axis=0) / denom
+            O[r : r + qy, c : c + qx] = ow + alpha * (np.conj(P) * d).sum(axis=0) / denom
             if beta > 0 and it >= beta_start:
                 P = P + (beta / max(float((np.abs(ow) ** 2).max()), 1e-12)) * np.conj(ow)[None] * d
                 pint = (np.abs(P) ** 2).sum(axis=0)
@@ -200,6 +225,7 @@ def object_on_grid(gt: dict, dx_nm: float) -> tuple[np.ndarray, np.ndarray]:
     s = dx_nm / d0
     my, mx = int((ny - 1) / s) + 1, int((nx - 1) / s) + 1
     yy, xx = np.meshgrid(np.arange(my) * s, np.arange(mx) * s, indexing="ij")
-    out = (map_coordinates(lp.real, [yy, xx], order=3, mode="nearest")
-           + 1j * map_coordinates(lp.imag, [yy, xx], order=3, mode="nearest"))
+    out = map_coordinates(lp.real, [yy, xx], order=3, mode="nearest") + 1j * map_coordinates(
+        lp.imag, [yy, xx], order=3, mode="nearest"
+    )
     return out, np.asarray(gt["positions_px"], np.float64) / s

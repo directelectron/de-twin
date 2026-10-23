@@ -57,11 +57,27 @@ class Layer(IntEnum):
 MAX_FACETS = 8
 
 _FIELDS = {
-    "cx": np.float64, "cy": np.float64, "rx": np.float64, "ry": np.float64, "rot": np.float64,
-    "bound_r": np.float64, "xmin": np.float64, "ymin": np.float64, "xmax": np.float64,
-    "ymax": np.float64, "thickness": np.float32, "profile": np.int8, "shape": np.int8,
-    "layer": np.int8, "material": np.uint8, "grain": np.int32, "inner_frac": np.float32,
-    "seed": np.uint64, "aggregate": np.bool_, "structure": np.int32, "facet_n": np.int8,
+    "cx": np.float64,
+    "cy": np.float64,
+    "rx": np.float64,
+    "ry": np.float64,
+    "rot": np.float64,
+    "bound_r": np.float64,
+    "xmin": np.float64,
+    "ymin": np.float64,
+    "xmax": np.float64,
+    "ymax": np.float64,
+    "thickness": np.float32,
+    "profile": np.int8,
+    "shape": np.int8,
+    "layer": np.int8,
+    "material": np.uint8,
+    "grain": np.int32,
+    "inner_frac": np.float32,
+    "seed": np.uint64,
+    "aggregate": np.bool_,
+    "structure": np.int32,
+    "facet_n": np.int8,
 }
 
 
@@ -97,15 +113,30 @@ class PrimitiveSet:
                 default = {"structure": -1, "grain": -1, "layer": Layer.PREPARATION}.get(k, 0)
                 setattr(self, k, np.full(self.n, default, dt))
         fj = arrays.pop("facet_j", None)
-        self.facet_j = (np.ones((self.n, MAX_FACETS), np.float32) if fj is None
-                        else np.asarray(fj, np.float32).reshape(self.n, MAX_FACETS))
+        self.facet_j = (
+            np.ones((self.n, MAX_FACETS), np.float32)
+            if fj is None
+            else np.asarray(fj, np.float32).reshape(self.n, MAX_FACETS)
+        )
         if arrays:
             raise TypeError(f"unknown primitive fields {sorted(arrays)}")
         self.structures = list(structures or [])
 
     @classmethod
-    def make(cls, cx, cy, rx, ry, *, rot=0.0, shape=Shape.ELLIPSE, bounds=None, bound_r=None,
-             structures=None, **extra_fields) -> PrimitiveSet:
+    def make(
+        cls,
+        cx,
+        cy,
+        rx,
+        ry,
+        *,
+        rot=0.0,
+        shape=Shape.ELLIPSE,
+        bounds=None,
+        bound_r=None,
+        structures=None,
+        **extra_fields,
+    ) -> PrimitiveSet:
         cx = np.atleast_1d(np.asarray(cx, np.float64))
         n = cx.size
         cy = np.broadcast_to(np.asarray(cy, np.float64), (n,))
@@ -121,8 +152,22 @@ class PrimitiveSet:
             hx = np.where(shape_a == Shape.RECT, c * rx + s * ry, bound_r)
             hy = np.where(shape_a == Shape.RECT, s * rx + c * ry, bound_r)
             bounds = (cx - hx, cy - hy, cx + hx, cy + hy)
-        return cls(n, structures=structures, cx=cx, cy=cy, rx=rx, ry=ry, rot=rot, shape=shape_a,
-                   bound_r=bound_r, xmin=bounds[0], ymin=bounds[1], xmax=bounds[2], ymax=bounds[3], **extra_fields)
+        return cls(
+            n,
+            structures=structures,
+            cx=cx,
+            cy=cy,
+            rx=rx,
+            ry=ry,
+            rot=rot,
+            shape=shape_a,
+            bound_r=bound_r,
+            xmin=bounds[0],
+            ymin=bounds[1],
+            xmax=bounds[2],
+            ymax=bounds[3],
+            **extra_fields,
+        )
 
     def __len__(self) -> int:
         return self.n
@@ -162,13 +207,27 @@ class PrimitiveSet:
         return out
 
     def intersects(self, box: AABB) -> np.ndarray:
-        return (self.xmin <= box.xmax) & (self.xmax >= box.xmin) & (self.ymin <= box.ymax) & (self.ymax >= box.ymin)
+        return (
+            (self.xmin <= box.xmax)
+            & (self.xmax >= box.xmin)
+            & (self.ymin <= box.ymax)
+            & (self.ymax >= box.ymin)
+        )
 
     def owner(self, i: int) -> Owner:
-        return Owner(float(self.cx[i]), float(self.cy[i]), float(self.rx[i]), float(self.ry[i]),
-                     float(self.rot[i]), int(self.shape[i]),
-                     AABB(float(self.xmin[i]), float(self.ymin[i]), float(self.xmax[i]), float(self.ymax[i])),
-                     int(self.material[i]), int(self.grain[i]), int(self.seed[i]), float(self.thickness[i]))
+        return Owner(
+            float(self.cx[i]),
+            float(self.cy[i]),
+            float(self.rx[i]),
+            float(self.ry[i]),
+            float(self.rot[i]),
+            int(self.shape[i]),
+            AABB(float(self.xmin[i]), float(self.ymin[i]), float(self.xmax[i]), float(self.ymax[i])),
+            int(self.material[i]),
+            int(self.grain[i]),
+            int(self.seed[i]),
+            float(self.thickness[i]),
+        )
 
     @property
     def nbytes(self) -> int:
@@ -179,13 +238,21 @@ class PrimitiveSet:
 # Raster context
 # ---------------------------------------------------------------------------------------------
 
+
 class RasterContext:
     """The raster being built: view affine, flat core layers and optional layers."""
 
     BLOCK_PIXELS = 1 << 17
 
-    def __init__(self, view: ViewWindow, layers=frozenset(), grains: GrainTable | None = None,
-                 time_index: int = 0, lod_threshold_px: float = 0.5, span_px: int | None = None):
+    def __init__(
+        self,
+        view: ViewWindow,
+        layers=frozenset(),
+        grains: GrainTable | None = None,
+        time_index: int = 0,
+        lod_threshold_px: float = 0.5,
+        span_px: int | None = None,
+    ):
         self.view = view
         self.ny, self.nx = int(view.shape[0]), int(view.shape[1])
         #: The size (pixels) of the view this raster is part of: what the scene's populate /
@@ -278,7 +345,12 @@ class RasterContext:
             rows = np.arange(a, b)[:, None]
             X, Y = self.world(rows, cols[None, :])
             shape = (b - a, c1 - c0)
-            yield (rows * self.nx + cols[None, :]), np.broadcast_to(X, shape), np.broadcast_to(Y, shape), (a, b, c0, c1)
+            yield (
+                (rows * self.nx + cols[None, :]),
+                np.broadcast_to(X, shape),
+                np.broadcast_to(Y, shape),
+                (a, b, c0, c1),
+            )
 
     # -- compositing ----------------------------------------------------------------------------
     def add_thickness(self, flat, nm):
@@ -351,9 +423,14 @@ class RasterContext:
 
     def to_fieldmap(self, time_s: float = 0.0, generation: int = 0) -> FieldMap:
         shp = (self.ny, self.nx)
-        fm = FieldMap(view=self.view, material_id=self.material.reshape(shp),
-                      thickness_nm=self.thick.reshape(shp), grain_id=self.grain.reshape(shp),
-                      generation=generation, time_s=time_s)
+        fm = FieldMap(
+            view=self.view,
+            material_id=self.material.reshape(shp),
+            thickness_nm=self.thick.reshape(shp),
+            grain_id=self.grain.reshape(shp),
+            generation=generation,
+            time_s=time_s,
+        )
         if self.descan is not None:
             fm.descan = self.descan.reshape((2,) + shp)
         if self.strain is not None:
@@ -367,6 +444,7 @@ class RasterContext:
 # ---------------------------------------------------------------------------------------------
 # Batched windows
 # ---------------------------------------------------------------------------------------------
+
 
 def iter_patches(ctx: RasterContext, xmin, ymin, xmax, ymax, max_elems: int = 1 << 19):
     """Group world boxes into equal-size raster windows and yield vectorised stacks.
@@ -389,8 +467,9 @@ def iter_patches(ctx: RasterContext, xmin, ymin, xmax, ymax, max_elems: int = 1 
     ok = (h > 0) & (w > 0)
     size = np.maximum(h, w)
     # Square windows bucketed to multiples of 8 px up to 64, powers of two beyond.
-    K = np.where(size <= 64, 8 * np.ceil(np.maximum(size, 1) / 8.0),
-                 2 ** np.ceil(np.log2(np.maximum(size, 1)))).astype(np.int64)
+    K = np.where(
+        size <= 64, 8 * np.ceil(np.maximum(size, 1) / 8.0), 2 ** np.ceil(np.log2(np.maximum(size, 1)))
+    ).astype(np.int64)
     K = np.where(ok, K, 0)
     for k in np.unique(K[ok]):
         sel_all = np.flatnonzero(K == k)
@@ -398,10 +477,12 @@ def iter_patches(ctx: RasterContext, xmin, ymin, xmax, ymax, max_elems: int = 1 
             per = max(1, max_elems // int(k * k))
             ar = np.arange(k)
             for a in range(0, sel_all.size, per):
-                sel = sel_all[a:a + per]
+                sel = sel_all[a : a + per]
                 rows = r0[sel][:, None, None] + ar[None, :, None]
                 cols = c0[sel][:, None, None] + ar[None, None, :]
-                valid = (ar[None, :, None] < h[sel][:, None, None]) & (ar[None, None, :] < w[sel][:, None, None])
+                valid = (ar[None, :, None] < h[sel][:, None, None]) & (
+                    ar[None, None, :] < w[sel][:, None, None]
+                )
                 yield sel, rows, cols, valid
         else:
             for i in sel_all:
@@ -445,8 +526,12 @@ def _local_frame(ctx: RasterContext, P: PrimitiveSet, sel, rows, cols):
     dx0 = ctx.ox - P.cx[sel]
     dy0 = ctx.oy - P.cy[sel]
     e = (slice(None), None, None)
-    lx = ((irx * (c * dx0 - s * dy0))[e] + (irx * (c * ctx.axc - s * ctx.ayc))[e] * cols)         + (irx * (c * ctx.axr - s * ctx.ayr))[e] * rows
-    ly = ((iry * (s * dx0 + c * dy0))[e] + (iry * (s * ctx.axc + c * ctx.ayc))[e] * cols)         + (iry * (s * ctx.axr + c * ctx.ayr))[e] * rows
+    lx = ((irx * (c * dx0 - s * dy0))[e] + (irx * (c * ctx.axc - s * ctx.ayc))[e] * cols) + (
+        irx * (c * ctx.axr - s * ctx.ayr)
+    )[e] * rows
+    ly = ((iry * (s * dx0 + c * dy0))[e] + (iry * (s * ctx.axc + c * ctx.ayc))[e] * cols) + (
+        iry * (s * ctx.axr + c * ctx.ayr)
+    )[e] * rows
     return lx, ly
 
 
@@ -516,8 +601,14 @@ def _affine_coeffs(ctx: RasterContext, P: PrimitiveSet, i: int):
     irx = 1.0 / rx if rx > 0 else 0.0
     iry = 1.0 / ry if ry > 0 else 0.0
     dx0, dy0 = ctx.ox - float(P.cx[i]), ctx.oy - float(P.cy[i])
-    return (irx * (c * dx0 - s * dy0), irx * (c * ctx.axc - s * ctx.ayc), irx * (c * ctx.axr - s * ctx.ayr),
-            iry * (s * dx0 + c * dy0), iry * (s * ctx.axc + c * ctx.ayc), iry * (s * ctx.axr + c * ctx.ayr))
+    return (
+        irx * (c * dx0 - s * dy0),
+        irx * (c * ctx.axc - s * ctx.ayc),
+        irx * (c * ctx.axr - s * ctx.ayr),
+        iry * (s * dx0 + c * dy0),
+        iry * (s * ctx.axc + c * ctx.ayc),
+        iry * (s * ctx.axr + c * ctx.ayr),
+    )
 
 
 def row_spans(ctx: RasterContext, coeffs, shape: int, r0: int, r1: int):
@@ -575,15 +666,29 @@ def paint_large(ctx: RasterContext, P: PrimitiveSet, i: int, curtain_depth: floa
     co = _affine_coeffs(ctx, P, i)
     profile = int(P.profile[i])
     if _nb.AVAILABLE and profile != Profile.CURTAIN:
-        _nb.paint_large(ctx.thick, ctx.material, ctx.grain, ctx.nx, win[0], win[1], np.array(co, np.float64),
-                        shape == Shape.RECT, float(P.inner_frac[i]) ** 2 if shape == Shape.RING else -1.0,
-                        profile, float(P.thickness[i]), np.uint8(P.material[i]), int(P.grain[i]),
-                        bool(P.layer[i] != Layer.SUPPORT_FILM))
+        _nb.paint_large(
+            ctx.thick,
+            ctx.material,
+            ctx.grain,
+            ctx.nx,
+            win[0],
+            win[1],
+            np.array(co, np.float64),
+            shape == Shape.RECT,
+            float(P.inner_frac[i]) ** 2 if shape == Shape.RING else -1.0,
+            profile,
+            float(P.thickness[i]),
+            np.uint8(P.material[i]),
+            int(P.grain[i]),
+            bool(P.layer[i] != Layer.SUPPORT_FILM),
+        )
         return
     sel = np.array([i])
     step = max(1, max_px // max(1, win[3] - win[2]))
     for a in range(win[0], win[1], step):
-        rows, lo, hi = row_spans(ctx, co, Shape.RECT if shape == Shape.RECT else Shape.ELLIPSE, a, min(win[1], a + step))
+        rows, lo, hi = row_spans(
+            ctx, co, Shape.RECT if shape == Shape.RECT else Shape.ELLIPSE, a, min(win[1], a + step)
+        )
         rr, cc = span_pixels(rows, lo, hi)
         if rr.size == 0:
             continue
@@ -597,8 +702,14 @@ def paint_large(ctx: RasterContext, P: PrimitiveSet, i: int, curtain_depth: floa
             m &= r2.reshape(-1) >= inner * inner
         if not np.any(m):
             continue
-        ctx.apply((rr * ctx.nx + cc)[m], t[m], P.material[i], P.grain[i],
-                  overwrite=P.layer[i] != Layer.SUPPORT_FILM, unique=True)
+        ctx.apply(
+            (rr * ctx.nx + cc)[m],
+            t[m],
+            P.material[i],
+            P.grain[i],
+            overwrite=P.layer[i] != Layer.SUPPORT_FILM,
+            unique=True,
+        )
 
 
 def paint_drawn(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray, curtain_depth: float = 0.35):
@@ -621,7 +732,9 @@ def paint_drawn(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray, curtain_de
             fast = _nb.AVAILABLE and int(profile) != Profile.CURTAIN
             if not fast:
                 ctx.stats["numpy_prims"] = ctx.stats.get("numpy_prims", 0) + 1
-            for sub, rows, cols, valid in iter_patches(ctx, P.xmin[grp], P.ymin[grp], P.xmax[grp], P.ymax[grp]):
+            for sub, rows, cols, valid in iter_patches(
+                ctx, P.xmin[grp], P.ymin[grp], P.xmax[grp], P.ymax[grp]
+            ):
                 sel = grp[sub]
                 if fast:
                     _paint_patch_fast(ctx, P, sel, rows, cols, valid, int(shape), int(profile))
@@ -638,8 +751,13 @@ def paint_drawn(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray, curtain_de
                 flat = np.broadcast_to(rows * ctx.nx + cols, m.shape)[m]
                 owner = np.broadcast_to(np.arange(len(sel))[:, None, None], m.shape)[m]
                 overwrite = P.layer[sel] != Layer.SUPPORT_FILM
-                ctx.apply(flat, np.broadcast_to(t, m.shape)[m], P.material[sel][owner],
-                          P.grain[sel][owner], overwrite=overwrite[owner])
+                ctx.apply(
+                    flat,
+                    np.broadcast_to(t, m.shape)[m],
+                    P.material[sel][owner],
+                    P.grain[sel][owner],
+                    overwrite=overwrite[owner],
+                )
 
 
 def _paint_patch_fast(ctx, P, sel, rows, cols, valid, shape: int, profile: int):
@@ -654,19 +772,43 @@ def _paint_patch_fast(ctx, P, sel, rows, cols, valid, shape: int, profile: int):
     iry = np.where(ry > 0, 1.0 / np.where(ry > 0, ry, 1.0), 0.0)
     dx0 = ctx.ox - P.cx[sel]
     dy0 = ctx.oy - P.cy[sel]
-    co = np.stack([irx * (c * dx0 - s * dy0), irx * (c * ctx.axc - s * ctx.ayc), irx * (c * ctx.axr - s * ctx.ayr),
-                   iry * (s * dx0 + c * dy0), iry * (s * ctx.axc + c * ctx.ayc), iry * (s * ctx.axr + c * ctx.ayr)], 1)
+    co = np.stack(
+        [
+            irx * (c * dx0 - s * dy0),
+            irx * (c * ctx.axc - s * ctx.ayc),
+            irx * (c * ctx.axr - s * ctx.ayr),
+            iry * (s * dx0 + c * dy0),
+            iry * (s * ctx.axc + c * ctx.ayc),
+            iry * (s * ctx.axr + c * ctx.ayr),
+        ],
+        1,
+    )
     vb = np.broadcast_to(valid, (n, rows.shape[1], cols.shape[2]))
     hs = vb[:, :, 0].sum(1).astype(np.int64)
     ws = vb[:, 0, :].sum(1).astype(np.int64)
     r0s = np.ascontiguousarray(rows[:, 0, 0], np.int64)
     c0s = np.ascontiguousarray(cols[:, 0, 0], np.int64)
     fj = np.ascontiguousarray(P.facet_j[sel], np.float64).reshape(n, -1)
-    _patch_nb.paint_patch(ctx, np.ascontiguousarray(co), r0s, c0s, hs, ws, shape, profile,
-                    P.thickness[sel].astype(np.float64), P.inner_frac[sel].astype(np.float64),
-                    P.facet_n[sel].astype(np.int64), fj, P.material[sel].astype(np.uint8),
-                    P.grain[sel].astype(np.int32), P.layer[sel] != Layer.SUPPORT_FILM, float(ROUGH_PERIOD),
-                    (1.0 - ROUGH_PEAK) ** 2, (1.0 + ROUGH_PEAK) ** 2)
+    _patch_nb.paint_patch(
+        ctx,
+        np.ascontiguousarray(co),
+        r0s,
+        c0s,
+        hs,
+        ws,
+        shape,
+        profile,
+        P.thickness[sel].astype(np.float64),
+        P.inner_frac[sel].astype(np.float64),
+        P.facet_n[sel].astype(np.int64),
+        fj,
+        P.material[sel].astype(np.uint8),
+        P.grain[sel].astype(np.int32),
+        P.layer[sel] != Layer.SUPPORT_FILM,
+        float(ROUGH_PERIOD),
+        (1.0 - ROUGH_PEAK) ** 2,
+        (1.0 + ROUGH_PEAK) ** 2,
+    )
 
 
 def paint_dust(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray):
@@ -719,8 +861,14 @@ def paint_dust(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray):
         ts.append((per[:, None] * wgt)[inr])
         mats.append(np.broadcast_to(mat[multi][:, None], wgt.shape)[inr])
         grains.append(np.broadcast_to(grain[multi][:, None], wgt.shape)[inr])
-    ctx.apply(np.concatenate(flats), np.concatenate(ts), np.concatenate(mats), np.concatenate(grains),
-              overwrite=True, grain_with_claim=True)
+    ctx.apply(
+        np.concatenate(flats),
+        np.concatenate(ts),
+        np.concatenate(mats),
+        np.concatenate(grains),
+        overwrite=True,
+        grain_with_claim=True,
+    )
 
 
 def rasterize_scene(scene, ctx: RasterContext, curtain_depth: float = 0.35) -> RasterContext:
@@ -734,8 +882,12 @@ def rasterize_scene(scene, ctx: RasterContext, curtain_depth: float = 0.35) -> R
     culled = dpx < ctx.lod_threshold_px
     dust = vis & ~culled & (dpx < DUST_THRESHOLD_PX)
     draw = vis & ~culled & (dpx >= DUST_THRESHOLD_PX)
-    ctx.stats.update(considered=int(P.n), culled=int(np.count_nonzero(~vis | culled)),
-                     dust=int(np.count_nonzero(dust)), drawn=int(np.count_nonzero(draw)))
+    ctx.stats.update(
+        considered=int(P.n),
+        culled=int(np.count_nonzero(~vis | culled)),
+        dust=int(np.count_nonzero(dust)),
+        drawn=int(np.count_nonzero(draw)),
+    )
     for layer in sorted(set(P.layer.tolist())):
         on = P.layer == layer
         paint_drawn(ctx, P, np.flatnonzero(on & draw), curtain_depth)
@@ -747,6 +899,10 @@ def rasterize_scene(scene, ctx: RasterContext, curtain_depth: float = 0.35) -> R
         P.structures[P.structure[i]].fill(ctx, P.owner(int(i)))
         ctx.stats["structures"] += 1
     t3 = time.perf_counter()
-    ctx.stats.update(holder_ms=1e3 * (t1 - t0), primitives_ms=1e3 * (t2 - t1),
-                     structures_ms=1e3 * (t3 - t2), total_ms=1e3 * (t3 - t0))
+    ctx.stats.update(
+        holder_ms=1e3 * (t1 - t0),
+        primitives_ms=1e3 * (t2 - t1),
+        structures_ms=1e3 * (t3 - t2),
+        total_ms=1e3 * (t3 - t0),
+    )
     return ctx

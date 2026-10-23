@@ -44,8 +44,9 @@ def test_the_numba_and_numpy_hashes_agree():
     from de_twin.hashing import mix64, mix64_int, splitmix64, splitmix64_kernel
 
     rng = np.random.default_rng(0)
-    values = np.concatenate([rng.integers(0, 2**64, 64, dtype=np.uint64),
-                             np.array([0, 1, 2**63, 2**64 - 1], np.uint64)])
+    values = np.concatenate(
+        [rng.integers(0, 2**64, 64, dtype=np.uint64), np.array([0, 1, 2**63, 2**64 - 1], np.uint64)]
+    )
     expected = splitmix64(values)
     for value, want in zip(values, expected):
         assert splitmix64_kernel(value) == want

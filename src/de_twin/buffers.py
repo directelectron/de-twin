@@ -76,7 +76,7 @@ def empty(shape, dtype=np.float64) -> np.ndarray:
         # entries in use are dropped from the list too once it is long: an array a cache
         # still holds is the cache's, and the pool must not keep it alive after that
         if len(_POOL) > 256:
-            del _POOL[:len(_POOL) - 256]
+            del _POOL[: len(_POOL) - 256]
         return a
 
 

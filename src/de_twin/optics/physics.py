@@ -21,8 +21,13 @@ def interaction_constant(ht_kv: float) -> float:
     return (2.0 * math.pi / (lam * kv * 1000.0)) * (REST_ENERGY_KEV + kv) / (2.0 * REST_ENERGY_KEV + kv)
 
 
-def focal_spread_nm(cc_mm: float, energy_spread_ev_fwhm: float, ht_kv: float,
-                    current_instability: float = 0.0, ht_instability: float = 0.0) -> float:
+def focal_spread_nm(
+    cc_mm: float,
+    energy_spread_ev_fwhm: float,
+    ht_kv: float,
+    current_instability: float = 0.0,
+    ht_instability: float = 0.0,
+) -> float:
     """1-sigma defocus spread Delta from chromatic aberration.
 
     Delta = Cc * sqrt((sigma_E/E*)^2 + (2 sigma_I/I)^2 + (sigma_V/V)^2) with the
@@ -32,4 +37,4 @@ def focal_spread_nm(cc_mm: float, energy_spread_ev_fwhm: float, ht_kv: float,
     eps = kv / REST_ENERGY_KEV
     rel = (1.0 + eps) / (1.0 + eps / 2.0)
     s_e = (energy_spread_ev_fwhm / 2.3548) / (kv * 1000.0) * rel
-    return cc_mm * 1e6 * math.sqrt(s_e ** 2 + (2.0 * current_instability) ** 2 + ht_instability ** 2)
+    return cc_mm * 1e6 * math.sqrt(s_e**2 + (2.0 * current_instability) ** 2 + ht_instability**2)

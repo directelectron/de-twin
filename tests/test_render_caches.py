@@ -31,11 +31,21 @@ def _dense_loss(fm, optics, grains, crystallinity, config):
         if lib is None:
             continue
         m = effective_matrices(grains.matrices[g_u[sel]], optics.alpha_rad, optics.beta_rad)
-        ex = lib.excite(m, lam, np.broadcast_to(tb_u * THICKNESS_BIN_NM, (len(sel), len(tb_u))),
-                        optics.ht_kv, optics.convergence_mrad)
+        ex = lib.excite(
+            m,
+            lam,
+            np.broadcast_to(tb_u * THICKNESS_BIN_NM, (len(sel), len(tb_u))),
+            optics.ht_kv,
+            optics.convergence_mrad,
+        )
         out = np.hypot(ex.gx, ex.gy) > g_obj
-        p_out = np.stack([np.bincount(ex.owner, weights=ex.intensity[:, j] * out, minlength=len(sel))
-                          for j in range(len(tb_u))], 1)
+        p_out = np.stack(
+            [
+                np.bincount(ex.owner, weights=ex.intensity[:, j] * out, minlength=len(sel))
+                for j in range(len(tb_u))
+            ],
+            1,
+        )
         table[sel] = cr[sel, None] * bragg_fraction(ex.total) / np.maximum(ex.total, 1e-300) * p_out
     loss[rows, cols] = config.diffraction_contrast_scale * table[g_inv, t_inv]
     return loss
@@ -58,16 +68,18 @@ def test_the_bragg_memo_is_the_dense_excitation_in_any_order(name):
     first = [tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config) for o, fm in views]
     assert tem_contrast._BRAGG_MEMOS, "the excitations are kept"
     tem_contrast._BRAGG_MEMOS.clear()
-    again = [tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config)
-             for o, fm in reversed(views)][::-1]
+    again = [
+        tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config) for o, fm in reversed(views)
+    ][::-1]
     for (o, fm), a, b in zip(views, first, again):
         np.testing.assert_array_equal(a.loss, b.loss)
         assert a.fringes.keys() == b.fringes.keys()
         for k in a.fringes:
             for x, y in zip(a.fringes[k], b.fringes[k]):
                 np.testing.assert_array_equal(x, y)
-        np.testing.assert_allclose(a.loss, _dense_loss(fm, o, r.grains, r.crystallinity, r.config),
-                                   rtol=1e-6, atol=1e-9)
+        np.testing.assert_allclose(
+            a.loss, _dense_loss(fm, o, r.grains, r.crystallinity, r.config), rtol=1e-6, atol=1e-9
+        )
 
 
 def test_a_stage_tilt_is_a_new_excitation():
@@ -81,8 +93,9 @@ def test_a_stage_tilt_is_a_new_excitation():
     o2 = tw.optics(req)
     b = tem_contrast.bragg_contrast(fm, o2, r.grains, r.crystallinity, r.config)
     assert not np.array_equal(a.loss, b.loss)
-    np.testing.assert_allclose(b.loss, _dense_loss(fm, o2, r.grains, r.crystallinity, r.config),
-                               rtol=1e-6, atol=1e-9)
+    np.testing.assert_allclose(
+        b.loss, _dense_loss(fm, o2, r.grains, r.crystallinity, r.config), rtol=1e-6, atol=1e-9
+    )
 
 
 # ------------------------------------------------------------------ raster reuse
@@ -130,11 +143,14 @@ def _same_raster(fm, ref):
     assert np.count_nonzero(fm.material_id != ref.material_id) <= 1e-4 * n
     assert np.count_nonzero(fm.grain_id != ref.grain_id) <= 1e-3 * n
     assert np.count_nonzero(~np.isclose(fm.thickness_nm, ref.thickness_nm, rtol=1e-5, atol=1e-2)) <= 1e-4 * n
-    assert ((fm.under_thickness_nm is None) == (ref.under_thickness_nm is None)
-            or not ref.under_thickness_nm.any())
+    assert (fm.under_thickness_nm is None) == (
+        ref.under_thickness_nm is None
+    ) or not ref.under_thickness_nm.any()
     if ref.under_thickness_nm is not None and fm.under_thickness_nm is not None:
-        assert np.count_nonzero(~np.isclose(fm.under_thickness_nm, ref.under_thickness_nm, rtol=1e-5,
-                                            atol=1e-2)) <= 2e-5 * n
+        assert (
+            np.count_nonzero(~np.isclose(fm.under_thickness_nm, ref.under_thickness_nm, rtol=1e-5, atol=1e-2))
+            <= 2e-5 * n
+        )
 
 
 @pytest.mark.parametrize("rotation", [0.0, 0.5 * np.pi])
@@ -254,8 +270,16 @@ def test_serve_interactive_flag():
 
     from de_twin.cli import _build_twin
 
-    args = argparse.Namespace(specimen="Dense Au on holey C", camera="DESim", seed=0, holder="none",
-                              time_scale=1.0, mirror_temchannel=None, corrector="none", interactive=True)
+    args = argparse.Namespace(
+        specimen="Dense Au on holey C",
+        camera="DESim",
+        seed=0,
+        holder="none",
+        time_scale=1.0,
+        mirror_temchannel=None,
+        corrector="none",
+        interactive=True,
+    )
     assert _build_twin(args).renderer.config.interactive
     args.interactive = False
     assert not _build_twin(args).renderer.config.interactive
@@ -375,10 +399,15 @@ def test_a_tilt_series_keeps_its_tables(make_render_twin):
 
 
 # ------------------------------------------------------------------ fused kernels
-@pytest.mark.parametrize("name,mag,defocus", [("Dense Au on holey C", 20000.0, -1.0),
-                                              ("Apoferritin in ice", 50000.0, -2.0),
-                                              ("Negative stain on carbon", 100000.0, -0.5),
-                                              (GRATING, 150000.0, -0.3)])
+@pytest.mark.parametrize(
+    "name,mag,defocus",
+    [
+        ("Dense Au on holey C", 20000.0, -1.0),
+        ("Apoferritin in ice", 50000.0, -2.0),
+        ("Negative stain on carbon", 100000.0, -0.5),
+        (GRATING, 150000.0, -0.3),
+    ],
+)
 def test_the_fused_kernels_are_the_numpy_reference(name, mag, defocus, monkeypatch):
     """The numba exit wave, Bragg lookup, transfer function and |psi|^2 against the NumPy
     reference: float rounding only."""
@@ -399,8 +428,11 @@ def test_the_fused_kernels_are_the_numpy_reference(name, mag, defocus, monkeypat
     for fast in (False, True):
         monkeypatch.setattr(tem._fp, "AVAILABLE", fast)
         tem_contrast._BRAGG_MEMOS.clear()
-        out.append(tem.render_tem_raster(fm, po, r.grains, r.crystallinity, r.config, r.seed, TransferCache(),
-                                         tok, sh))
+        out.append(
+            tem.render_tem_raster(
+                fm, po, r.grains, r.crystallinity, r.config, r.seed, TransferCache(), tok, sh
+            )
+        )
     ref, fast = out
     d = np.abs(fast - ref) / ref.mean()
     assert d.max() < 1e-4 and np.sqrt((d * d).mean()) < 1e-5
@@ -467,9 +499,14 @@ def test_the_transposed_ffts_are_scipys():
     np.testing.assert_allclose(back, a, rtol=0, atol=1e-5)
 
 
-@pytest.mark.parametrize("name,mag,defocus", [("Dense Au on holey C", 25000.0, -1.0),
-                                              ("Apoferritin in ice", 100000.0, -3.0),
-                                              (GRATING, 3000.0, -20.0)])
+@pytest.mark.parametrize(
+    "name,mag,defocus",
+    [
+        ("Dense Au on holey C", 25000.0, -1.0),
+        ("Apoferritin in ice", 100000.0, -3.0),
+        (GRATING, 3000.0, -20.0),
+    ],
+)
 def test_the_fast_imaging_is_the_double_precision_image(name, mag, defocus):
     """float32 kernels and transposed single-precision FFTs against the NumPy exit wave with
     complex128 FFTs on the same raster: 1e-5 RMS."""
@@ -485,7 +522,9 @@ def test_the_fast_imaging_is_the_double_precision_image(name, mag, defocus):
     r = tw.renderer
     po, sh = r._padded_optics(tw.optics(tw.request()))
     fm, tok = r.field_map(po)
-    fast = tem.render_tem_raster(fm, po, r.grains, r.crystallinity, r.config, r.seed, TransferCache(), tok, sh)
+    fast = tem.render_tem_raster(
+        fm, po, r.grains, r.crystallinity, r.config, r.seed, TransferCache(), tok, sh
+    )
     was = fastpath.AVAILABLE
     fastpath.AVAILABLE = False
     try:
@@ -522,8 +561,9 @@ def test_the_guard_band_keeps_the_fft_wrap_out(mag, defocus):
     o = tw.optics(tw.request())
     big = 1024 + 2 * 768
     po = dataclasses.replace(o, view=dataclasses.replace(o.view, shape=(big, big)))
-    psi = tem.transmission_function(tw.specimen.rasterize(po.view), po, r.grains, r.crystallinity, r.config,
-                                    r.seed).astype(np.complex128)
+    psi = tem.transmission_function(
+        tw.specimen.rasterize(po.view), po, r.grains, r.crystallinity, r.config, r.seed
+    ).astype(np.complex128)
 
     def image(p):
         n = p.shape[0]
@@ -533,9 +573,9 @@ def test_the_guard_band_keeps_the_fft_wrap_out(mag, defocus):
         return np.abs(sfft.ifft2(s * H if H is not None else s)) ** 2
 
     c = big // 2
-    ref = image(psi)[c - 512:c + 512, c - 512:c + 512]
+    ref = image(psi)[c - 512 : c + 512, c - 512 : c + 512]
     g = _guard_px(o, r.config.min_margin_px, r.config.max_margin_px)
     n = 1024 + 2 * g
-    img = image(psi[c - n // 2:c + n // 2, c - n // 2:c + n // 2])[g:g + 1024, g:g + 1024]
+    img = image(psi[c - n // 2 : c + n // 2, c - n // 2 : c + n // 2])[g : g + 1024, g : g + 1024]
     d = (img - ref) / ref.mean()
     assert np.sqrt((d * d).mean()) < 1e-3

@@ -52,8 +52,15 @@ import numpy as np
 
 # DE-Server HT tables (kV, ADU per primary electron).
 ADU_TABLE_DE_SERIES = ((80.0, 1379.0), (120.0, 791.0), (200.0, 316.0), (300.0, 206.0))
-ADU_TABLE_DE16ER = ((40.0, 628.0), (60.0, 374.0), (80.0, 269.0), (100.0, 205.0),
-                    (120.0, 175.0), (200.0, 129.0), (300.0, 86.0))
+ADU_TABLE_DE16ER = (
+    (40.0, 628.0),
+    (60.0, 374.0),
+    (80.0, 269.0),
+    (100.0, 205.0),
+    (120.0, 175.0),
+    (200.0, 129.0),
+    (300.0, 86.0),
+)
 ADU_TABLE_CELERITAS = ((80.0, 1148.0), (200.0, 301.0), (300.0, 208.0))
 
 
@@ -153,40 +160,84 @@ def _loglog_extrapolate(kv, adu, ht):
 
 
 def _adele(name, de_model, *, sat=2192, aliases=(), **overrides) -> CameraModel:
-    base = {"sensor_shape": (4096, 4096), "pixel_um": 6.5, "bit_depth": 12, "bytes_per_pixel": 2,
-                "sensor_family": "ADELE", "full_frame_time_s": 10.821e-3, "saturation_adu": sat,
-                "supports_hw_roi_x": True}
+    base = {
+        "sensor_shape": (4096, 4096),
+        "pixel_um": 6.5,
+        "bit_depth": 12,
+        "bytes_per_pixel": 2,
+        "sensor_family": "ADELE",
+        "full_frame_time_s": 10.821e-3,
+        "saturation_adu": sat,
+        "supports_hw_roi_x": True,
+    }
     base.update(overrides)
     return CameraModel(name=name, de_model=de_model, aliases=aliases, **base)
 
 
 def _desiree(name, de_model, *, sat, aliases=()) -> CameraModel:
     return CameraModel(
-        name=name, de_model=de_model, sensor_shape=(1024, 1024), pixel_um=15.0,
-        bit_depth=12, bytes_per_pixel=2, topology="topbottom", num_parts=2,
-        sensor_family="DESIREE", full_frame_time_s=0.51e-3, saturation_adu=sat,
-        segment_shape=(512, 128), adu_table=ADU_TABLE_CELERITAS,
+        name=name,
+        de_model=de_model,
+        sensor_shape=(1024, 1024),
+        pixel_um=15.0,
+        bit_depth=12,
+        bytes_per_pixel=2,
+        topology="topbottom",
+        num_parts=2,
+        sensor_family="DESIREE",
+        full_frame_time_s=0.51e-3,
+        saturation_adu=sat,
+        segment_shape=(512, 128),
+        adu_table=ADU_TABLE_CELERITAS,
         charge_spread=0.12,  # 15 um pixels: less charge sharing per pixel
-        read_noise_adu=12.0, aliases=aliases)
+        read_noise_adu=12.0,
+        aliases=aliases,
+    )
 
 
 def _caspar(name, de_model, aliases=()) -> CameraModel:
     return CameraModel(
-        name=name, de_model=de_model, sensor_shape=(4096, 4096), pixel_um=8.0,
-        bit_depth=8, bytes_per_pixel=1, topology="leftright", num_parts=2,
-        sensor_family="CASPAR2", hardware_counting=True, full_frame_time_s=0.418e-3,
-        hw_quanta=40, saturation_adu=240, segment_shape=(2048, 1024),
-        read_noise_adu=0.0, dark_offset_adu=0.0, dark_current_adu_per_s=0.0,
-        dsnu_adu=0.0, fpn_column_adu=0.0, fpn_pattern=False,
-        gain_pixel_sigma=0.01, gain_column_sigma=0.003, gain_radial=0.02, gain_stitch=0.01,
+        name=name,
+        de_model=de_model,
+        sensor_shape=(4096, 4096),
+        pixel_um=8.0,
+        bit_depth=8,
+        bytes_per_pixel=1,
+        topology="leftright",
+        num_parts=2,
+        sensor_family="CASPAR2",
+        hardware_counting=True,
+        full_frame_time_s=0.418e-3,
+        hw_quanta=40,
+        saturation_adu=240,
+        segment_shape=(2048, 1024),
+        read_noise_adu=0.0,
+        dark_offset_adu=0.0,
+        dark_current_adu_per_s=0.0,
+        dsnu_adu=0.0,
+        fpn_column_adu=0.0,
+        fpn_pattern=False,
+        gain_pixel_sigma=0.01,
+        gain_column_sigma=0.003,
+        gain_radial=0.02,
+        gain_stitch=0.01,
         hot_dark_current_adu_per_s=(50.0, 500.0),  # hot pixels: spurious counts per second
-        aliases=aliases)
+        aliases=aliases,
+    )
 
 
 _MODELS = [
-    _adele("DESim", "SIMULATOR", sat=2100, sensor_shape=(1024, 1024), pixel_um=10.0,
-           full_frame_time_s=0.1e-3, segment_shape=(256, 32), supports_hw_roi_x=False,
-           aliases=("SIMULATOR", "Simulator", "DE-Sim")),
+    _adele(
+        "DESim",
+        "SIMULATOR",
+        sat=2100,
+        sensor_shape=(1024, 1024),
+        pixel_um=10.0,
+        full_frame_time_s=0.1e-3,
+        segment_shape=(256, 32),
+        supports_hw_roi_x=False,
+        aliases=("SIMULATOR", "Simulator", "DE-Sim"),
+    ),
     _adele("DE16", "DE16", sat=2192, aliases=("DE-16",)),
     _adele("DE16ER", "DE16", sat=2100, adu_table=ADU_TABLE_DE16ER, aliases=("DE-16ER",)),
     _adele("LV16", "LV16", sat=2100, aliases=("DE16LV", "LV-16")),
@@ -194,10 +245,26 @@ _MODELS = [
     _adele("DirectView2", "DIRECTVIEW2", sat=2100, aliases=("DE-DirectView2", "DIRECTVIEW2")),
     _adele("SEMCam", "SEMCAM", sat=2192, aliases=("DESEMCam", "SEMCAM")),
     _adele("Meridian", "MERIDIAN", sat=2192, aliases=("MERIDIAN",)),
-    _adele("DE64", "DE64", sat=2600, sensor_shape=(8192, 8192), topology="leftright",
-           num_parts=2, full_frame_time_s=21.58e-3, aliases=("DE-64",)),
-    _adele("Vision64", "VISION64", sat=2600, sensor_shape=(8192, 8192), topology="leftright",
-           num_parts=2, full_frame_time_s=21.58e-3, aliases=("VISION64",)),
+    _adele(
+        "DE64",
+        "DE64",
+        sat=2600,
+        sensor_shape=(8192, 8192),
+        topology="leftright",
+        num_parts=2,
+        full_frame_time_s=21.58e-3,
+        aliases=("DE-64",),
+    ),
+    _adele(
+        "Vision64",
+        "VISION64",
+        sat=2600,
+        sensor_shape=(8192, 8192),
+        topology="leftright",
+        num_parts=2,
+        full_frame_time_s=21.58e-3,
+        aliases=("VISION64",),
+    ),
     _desiree("Celeritas", "CELERITAS", sat=4022, aliases=("CELERITAS",)),
     _desiree("CeleritasXS", "CELERITASXS", sat=4022, aliases=("CELERITASXS",)),
     _desiree("Zenith", "ZENITH", sat=4061, aliases=("ZENITH",)),

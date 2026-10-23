@@ -20,8 +20,14 @@ class PolycrystalFilmStructure(StandardStructure):
     """An evaporated polycrystalline film (619: aluminium, ~31 nm): equiaxed grains `grain_nm`
     across, randomly oriented (ring patterns), shallow grooves at the grain boundaries."""
 
-    def __init__(self, material: int = MaterialId.ALUMINUM, thickness_nm: float = 31.0, grain_nm: float = 15.0,
-                 groove_nm: float = 3.0, groove_width_nm: float = 1.0):
+    def __init__(
+        self,
+        material: int = MaterialId.ALUMINUM,
+        thickness_nm: float = 31.0,
+        grain_nm: float = 15.0,
+        groove_nm: float = 3.0,
+        groove_width_nm: float = 1.0,
+    ):
         self.base_material = int(material)
         self.t, self.grain_nm = float(thickness_nm), float(grain_nm)
         self.groove, self.groove_w = float(groove_nm), float(groove_width_nm)
@@ -52,9 +58,28 @@ class PolycrystalFilmStructure(StandardStructure):
             W = np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr])
             O = np.array([owner.cx, owner.cy, math.cos(-owner.rot), math.sin(-owner.rot), owner.rx, owner.ry])
             cseed = np.uint64((int(seed) * 0xC2B2AE3D27D4EB4F) & 0xFFFFFFFFFFFFFFFF)
-            _rnb.polycrystal_film(ctx.thick, ctx.material, ctx.grain, ctx.nx, win[0], win[1], win[2], win[3], W, O,
-                                  *p1, *p2, L, 0.2 * L, cseed, self.groove, self.grain_nm, self.groove_w,
-                                  self.base_material, GRAINS_PER_MATERIAL)
+            _rnb.polycrystal_film(
+                ctx.thick,
+                ctx.material,
+                ctx.grain,
+                ctx.nx,
+                win[0],
+                win[1],
+                win[2],
+                win[3],
+                W,
+                O,
+                *p1,
+                *p2,
+                L,
+                0.2 * L,
+                cseed,
+                self.groove,
+                self.grain_nm,
+                self.groove_w,
+                self.base_material,
+                GRAINS_PER_MATERIAL,
+            )
             ctx.stats["fast_fills"] = ctx.stats.get("fast_fills", 0) + 1
             return
         for B in _owner_pixels(ctx, owner):

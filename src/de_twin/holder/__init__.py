@@ -55,8 +55,11 @@ def connect_holder(spec=None, *, clock=None, strict: bool = False, **kwargs):
         except Exception as e:
             if strict:
                 raise
-            reason = (f"impulsePy is not installed ({e})" if isinstance(e, ImportError)
-                      else f"Impulse did not answer ({type(e).__name__}: {e})")
+            reason = (
+                f"impulsePy is not installed ({e})"
+                if isinstance(e, ImportError)
+                else f"Impulse did not answer ({type(e).__name__}: {e})"
+            )
             log.warning("%s; using the simulated heating holder", reason)
             return SimHeatingHolder(reason=reason, clock=clock, **kwargs)
     raise ValueError(f"unknown holder spec {spec!r} (none | sim-heating | sim-biasing | impulse)")

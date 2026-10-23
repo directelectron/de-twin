@@ -112,7 +112,10 @@ def test_find_pixel_size_on_a_cross_grating(make_realistic_twin):
     truth = tw.calibration_truth()
     measured_nm, _ = _grating(tw)
     assert measured_nm == pytest.approx(truth["true_pixel_nm"], rel=0.005)
-    assert abs(truth["true_pixel_nm"] / truth["nominal_pixel_nm"] - 1) > 0.002, "the calibration had something to find"
+    assert abs(truth["true_pixel_nm"] / truth["nominal_pixel_nm"] - 1) > 0.002, (
+        "the calibration had something to find"
+    )
+
 
 def test_image_shift_calibration_recovers_the_matrix_and_rotation(make_realistic_twin):
     tw = make_realistic_twin()
@@ -149,8 +152,13 @@ def test_each_magnification_has_its_own_rotation_scale_and_offset(make_realistic
     for mag in (15000.0, 20000.0, 25000.0):
         tw.column.set("Magnification", mag)
         t = tw.calibration_truth()
-        seen.append((round(t["image_rotation_deg"], 3), round(t["true_pixel_nm"] / t["nominal_pixel_nm"], 5),
-                     t["mag_offset_um"]))
+        seen.append(
+            (
+                round(t["image_rotation_deg"], 3),
+                round(t["true_pixel_nm"] / t["nominal_pixel_nm"], 5),
+                t["mag_offset_um"],
+            )
+        )
     assert len({s[0] for s in seen}) == 3 and len({s[1] for s in seen}) == 3
     # and the offset is where the view centre goes
     from de_twin.optics.derive import view_center_um

@@ -43,15 +43,15 @@ def _convert(img: np.ndarray, pixel_format: int) -> np.ndarray:
     if dtype is np.float32:
         return np.ascontiguousarray(img, dtype=np.float32)
     info = np.iinfo(dtype)
-    return np.ascontiguousarray(np.clip(np.rint(img) if img.dtype.kind == "f" else img,
-                                        info.min, info.max).astype(dtype))
+    return np.ascontiguousarray(
+        np.clip(np.rint(img) if img.dtype.kind == "f" else img, info.min, info.max).astype(dtype)
+    )
 
 
 class _Acquisition:
     """One start_acquisition: frames rendered by a background thread."""
 
-    def __init__(self, server: TwinFakeServer, request: AcquisitionRequest, n_acq: int,
-                 movie: bool):
+    def __init__(self, server: TwinFakeServer, request: AcquisitionRequest, n_acq: int, movie: bool):
         self.request = request
         # 0 acquisitions = repeat until stopped (live view), as DE-Server does
         self.n_acq = max(0, int(n_acq))
@@ -117,15 +117,17 @@ class _Acquisition:
         srv = self._server
         try:
             self._prepare_references()
-            for a in (itertools.count() if self.continuous else range(self.n_acq)):
+            for a in itertools.count() if self.continuous else range(self.n_acq):
                 self.index = a
                 if self.continuous and a:
                     with self.cond:
                         self.sum = None  # the sum is per repetition, like one live buffer
                     # a client steers the probe while it scans: take the coils' settings now
                     if self.request.scan.enabled:
-                        self.request = replace(self.request, scan=replace(
-                            self.request.scan, **scan_coil_settings(srv.__getitem__)))
+                        self.request = replace(
+                            self.request,
+                            scan=replace(self.request.scan, **scan_coil_settings(srv.__getitem__)),
+                        )
                 if self.request.scan.enabled:
                     self._scan()
                 else:
@@ -158,8 +160,9 @@ class _Acquisition:
         frames = 0
         for repeat in range(repeats):
             settings = timeline.at(repeat * points_per_repeat - queued)
-            this_repeat = replace(request, total_frames=frames_per_repeat,
-                                  scan=replace(scan, repeats=1, **settings))
+            this_repeat = replace(
+                request, total_frames=frames_per_repeat, scan=replace(scan, repeats=1, **settings)
+            )
             for raw, meta in srv.twin.frames(this_repeat, pace=srv.pace, stop=self.stop):
                 self._add(raw, meta)
                 frames += 1
@@ -190,7 +193,10 @@ class _Acquisition:
         point = getattr(meta, "scan_point", None)
         self.gpu_images.append(frame)
         self.gpu_info.append((self.count - 1, *(point if point is not None else (-1, -1))))
-        if len(self.gpu_images) >= GPU_BUFFER_FRAMES or time.monotonic() - self.gpu_batch_started >= GPU_PUBLISH_S:
+        if (
+            len(self.gpu_images) >= GPU_BUFFER_FRAMES
+            or time.monotonic() - self.gpu_batch_started >= GPU_PUBLISH_S
+        ):
             self._share_gpu_frames()
 
     def _add(self, raw: np.ndarray, meta) -> None:

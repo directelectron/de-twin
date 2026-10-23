@@ -109,5 +109,7 @@ def angle_overrides(material: int, axis, inplane, spread_deg: float = 0.0) -> tu
     from ...crystal.orientation import Texture
 
     base = int(material) * GRAINS_PER_MATERIAL
-    return tuple((base + k, Texture("oriented", tuple(axis), spread_deg, tuple(inplane), 180.0 * k / ANGLE_BUCKETS))
-                 for k in range(ANGLE_BUCKETS))
+    return tuple(
+        (base + k, Texture("oriented", tuple(axis), spread_deg, tuple(inplane), 180.0 * k / ANGLE_BUCKETS))
+        for k in range(ANGLE_BUCKETS)
+    )

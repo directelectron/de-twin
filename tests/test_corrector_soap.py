@@ -15,12 +15,26 @@ from de_twin.optics.aberrations import Aberrations
 
 GSOAP = r"C:\direct_electron\DE-TEM-Channel\gsoapFiles"
 CORRECTOR_OPS = (
-    "getCorrectorPresent", "getCorrectorStatus", "getCorrectorInfo", "getCorrectorEndpoints",
-    "getCorrectorError", "getCorrectorResult", "getAberrations", "getAberration",
-    "getAlignmentFile", "correctorMeasureC1A1", "correctorAcquireTableau",
-    "correctorCorrectAberration", "correctorFetchAlignmentFile", "correctorPutAlignmentFile",
-    "correctorGetConfigOption", "correctorSetConfigOption", "correctorReadBack",
-    "correctorReconnect", "setCorrectorBeamTilt", "getCorrectorBeamTilt",
+    "getCorrectorPresent",
+    "getCorrectorStatus",
+    "getCorrectorInfo",
+    "getCorrectorEndpoints",
+    "getCorrectorError",
+    "getCorrectorResult",
+    "getAberrations",
+    "getAberration",
+    "getAlignmentFile",
+    "correctorMeasureC1A1",
+    "correctorAcquireTableau",
+    "correctorCorrectAberration",
+    "correctorFetchAlignmentFile",
+    "correctorPutAlignmentFile",
+    "correctorGetConfigOption",
+    "correctorSetConfigOption",
+    "correctorReadBack",
+    "correctorReconnect",
+    "setCorrectorBeamTilt",
+    "getCorrectorBeamTilt",
 )
 
 
@@ -53,8 +67,13 @@ def test_absent_corrector_answers_not_present():
     assert _handle(srv, "getCorrectorInfo", val=0) == ("getCorrectorInfoResponse", {"r": ""})
     assert _handle(srv, "getAberrations", val=0) == ("getAberrationsResponse", {"r": ""})
     assert _handle(srv, "getAberration", name="C1")[1] == {"x": "0", "y": "0", "status": "0"}
-    for op in ("correctorMeasureC1A1", "correctorAcquireTableau", "correctorCorrectAberration",
-               "setCorrectorBeamTilt", "correctorFetchAlignmentFile"):
+    for op in (
+        "correctorMeasureC1A1",
+        "correctorAcquireTableau",
+        "correctorCorrectAberration",
+        "setCorrectorBeamTilt",
+        "correctorFetchAlignmentFile",
+    ):
         assert _handle(srv, op) == ("setResult", {"success": "0"}), op
     # reconnect is the one command allowed without a corrector (it re-probes)
     assert _handle(srv, "correctorReconnect", val=0)[1]["success"] == "1"
@@ -64,8 +83,11 @@ def test_absent_corrector_answers_not_present():
 
 # ------------------------------------------------------------------ recorded envelopes
 def _samples():
-    return sorted(p for p in glob.glob(os.path.join(GSOAP, "*.req.xml"))
-                  if any(f".{op}.req.xml" in p for op in CORRECTOR_OPS))
+    return sorted(
+        p
+        for p in glob.glob(os.path.join(GSOAP, "*.req.xml"))
+        if any(f".{op}.req.xml" in p for op in CORRECTOR_OPS)
+    )
 
 
 @pytest.mark.skipif(not os.path.isdir(GSOAP), reason="DE-TEM-Channel gsoapFiles not available")
@@ -267,9 +289,16 @@ def test_cli_builds_a_corrected_twin(monkeypatch):
             captured.update(kw)
 
     monkeypatch.setattr("de_twin.twin.DigitalTwin", FakeTwin)
-    args = cli.argparse.Namespace(specimen="x", camera="DE16", seed=3, holder="none",
-                                  time_scale=1.0, mirror_temchannel=None, corrector="both",
-                                  corrector_cold=False)
+    args = cli.argparse.Namespace(
+        specimen="x",
+        camera="DE16",
+        seed=3,
+        holder="none",
+        time_scale=1.0,
+        mirror_temchannel=None,
+        corrector="both",
+        corrector_cold=False,
+    )
     cli._build_twin(args)
     col = captured["column"]
     assert col.corrector.kind == "both" and col.seed == 3

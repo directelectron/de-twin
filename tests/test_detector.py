@@ -145,10 +145,22 @@ def test_ht_dependence():
 
 def test_single_electron_events_are_discrete_and_skewed():
     """At low dose the frame shows isolated electron clusters (counting on DE16 needs them)."""
-    d = Detector("DESim", seed=6, read_noise_adu=0.0, dsnu_adu=0.0, fpn_column_adu=0.0,
-                 fpn_pattern=False, gain_pixel_sigma=0, gain_column_sigma=0, gain_radial=0,
-                 gain_stitch=0, hot_pixel_fraction=0, dead_pixel_fraction=0,
-                 bad_column_fraction=0, dark_current_adu_per_s=0)
+    d = Detector(
+        "DESim",
+        seed=6,
+        read_noise_adu=0.0,
+        dsnu_adu=0.0,
+        fpn_column_adu=0.0,
+        fpn_pattern=False,
+        gain_pixel_sigma=0,
+        gain_column_sigma=0,
+        gain_radial=0,
+        gain_stitch=0,
+        hot_pixel_fraction=0,
+        dead_pixel_fraction=0,
+        bad_column_fraction=0,
+        dark_current_adu_per_s=0,
+    )
     t = 0.01
     f = d.expose(np.full((1024, 1024), 0.01 / t, np.float32), t)[0].astype(float) - 360
     lit = f > 30

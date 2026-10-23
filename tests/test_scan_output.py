@@ -15,8 +15,15 @@ from de_twin.state import FrameMeta, RenderMode, ScanRequest
 from de_twin.transport import scan_output as S
 from de_twin.transport.shm import FrameConsumer
 
-GEOMETRY = S.ScanGeometry(size=(8, 8), voltage_h=(-1.0, 1.0), voltage_v=(-1.0, 1.0), rotation_deg=0.0,
-                          flip=(False, False), points_per_frame=1.0, total_points=10_000)
+GEOMETRY = S.ScanGeometry(
+    size=(8, 8),
+    voltage_h=(-1.0, 1.0),
+    voltage_v=(-1.0, 1.0),
+    rotation_deg=0.0,
+    flip=(False, False),
+    points_per_frame=1.0,
+    total_points=10_000,
+)
 
 
 def _names():
@@ -81,8 +88,9 @@ class TestLayout:
         assert f"kHeaderBytes = {S.HEADER_BYTES}" in text
         assert "kCapacity    = 1ull << 20" in text and S.CAPACITY == 1 << 20
 
-    @pytest.mark.skipif(sys.platform != "win32" or not EXE.exists(),
-                        reason="build cpp/test_consumer.exe with cpp\\build.bat")
+    @pytest.mark.skipif(
+        sys.platform != "win32" or not EXE.exists(), reason="build cpp/test_consumer.exe with cpp\\build.bat"
+    )
     def test_offsets_match_compiled_cpp(self):
         out = subprocess.run([str(EXE), "layout"], capture_output=True, text=True, check=True).stdout
         cpp = {}
@@ -97,11 +105,20 @@ class TestLayout:
 
 
 class TestInverse:
-    @pytest.mark.parametrize("rotation, flip", [(0.0, (False, False)), (30.0, (False, False)),
-                                                (-75.0, (True, False)), (90.0, (True, True))])
+    @pytest.mark.parametrize(
+        "rotation, flip",
+        [(0.0, (False, False)), (30.0, (False, False)), (-75.0, (True, False)), (90.0, (True, True))],
+    )
     def test_voltages_give_back_the_point(self, rotation, flip):
-        scan = ScanRequest(enabled=True, size=(64, 48), voltage_h=(-2.0, 1.0), voltage_v=(-1.0, 1.5),
-                           rotation_deg=rotation, flip=flip, pixel_offset=(3.25, -1.5))
+        scan = ScanRequest(
+            enabled=True,
+            size=(64, 48),
+            voltage_h=(-2.0, 1.0),
+            voltage_v=(-1.0, 1.5),
+            rotation_deg=rotation,
+            flip=flip,
+            pixel_offset=(3.25, -1.5),
+        )
         for x, y in [(0, 0), (63, 47), (10.5, 20.25), (-4.0, 50.0)]:
             assert point_from_volts(scan, *point_volts(scan, x, y)) == pytest.approx((x, y))
 
@@ -133,16 +150,28 @@ class PointTwin:
             frame = np.zeros((4, 4), np.uint16)
             frame[0, 0], frame[0, 1] = x, y
             self.rendered += 1
-            yield frame, FrameMeta(frame_index=i, time_s=0.0, exposure_s=request.frame_time_s,
-                                   electrons_per_pixel=1.0, render_mode=RenderMode.STEM_4D, blanked=False,
-                                   scan_point=(x, y), microscope=self.column.state())
+            yield (
+                frame,
+                FrameMeta(
+                    frame_index=i,
+                    time_s=0.0,
+                    exposure_s=request.frame_time_s,
+                    electrons_per_pixel=1.0,
+                    render_mode=RenderMode.STEM_4D,
+                    blanked=False,
+                    scan_point=(x, y),
+                    microscope=self.column.state(),
+                ),
+            )
             i += 1
 
 
 def _scan_request():
     from de_twin.state import AcquisitionRequest
 
-    return AcquisitionRequest(frame_time_s=1e-4, total_frames=0, scan=ScanRequest(enabled=True, size=GEOMETRY.size))
+    return AcquisitionRequest(
+        frame_time_s=1e-4, total_frames=0, scan=ScanRequest(enabled=True, size=GEOMETRY.size)
+    )
 
 
 def _serve(twin, n_frames, write, **face_kw):
@@ -189,8 +218,9 @@ class TestSteeredFace:
     def test_a_held_probe_is_rendered_into_a_library_then_picked_from(self):
         scan = ScanRequest(enabled=True, size=GEOMETRY.size)
         twin = PointTwin()
-        points, face = _serve(twin, 300, lambda writer: writer.write(_volts(scan, 1, 1, 300)),
-                              reuse=10**9, pool_size=16)
+        points, face = _serve(
+            twin, 300, lambda writer: writer.write(_volts(scan, 1, 1, 300)), reuse=10**9, pool_size=16
+        )
         assert points == [(1, 1)] * 300
         assert twin.rendered == 16
         assert face.frames_reused == 300 - 16
@@ -220,8 +250,9 @@ class TestSteeredFace:
     def test_without_scan_output_the_twin_rasters_by_frame_index(self):
         _, frame_name = _names()
         consumer = FrameConsumer(frame_name, max_frame_bytes=4 * 4 * 2)
-        face = ShmFace(PointTwinRaster(), name=frame_name, scan_output=_names()[0], pace=False,
-                       warm_up=False).start()
+        face = ShmFace(
+            PointTwinRaster(), name=frame_name, scan_output=_names()[0], pace=False, warm_up=False
+        ).start()
         try:
             consumer.begin(frame_shape=(4, 4), frame_time_s=1e-4, total_frames=3, scan_size=(8, 8))
             points = [tuple(int(v) for v in consumer.read(timeout=20)[0][0, :2]) for _ in range(3)]
@@ -239,6 +270,16 @@ class PointTwinRaster(PointTwin):
         for i in range(request.total_frames):
             frame = np.zeros((4, 4), np.uint16)
             frame[0, 0], frame[0, 1] = i % nx, i // nx
-            yield frame, FrameMeta(frame_index=i, time_s=0.0, exposure_s=request.frame_time_s,
-                                   electrons_per_pixel=1.0, render_mode=RenderMode.STEM_4D, blanked=False,
-                                   scan_point=(i % nx, i // nx), microscope=0.0)
+            yield (
+                frame,
+                FrameMeta(
+                    frame_index=i,
+                    time_s=0.0,
+                    exposure_s=request.frame_time_s,
+                    electrons_per_pixel=1.0,
+                    render_mode=RenderMode.STEM_4D,
+                    blanked=False,
+                    scan_point=(i % nx, i // nx),
+                    microscope=0.0,
+                ),
+            )

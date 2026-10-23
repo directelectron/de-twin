@@ -10,6 +10,7 @@ from .errors import ColumnRefused
 # Vendor enumerations
 # ---------------------------------------------------------------------------
 
+
 def is_jeol(instrument_type: str) -> bool:
     return "JEOL" in str(instrument_type or "").upper()
 
@@ -19,10 +20,24 @@ def is_tfs(instrument_type: str) -> bool:
     return any(t in v for t in ("FEI", "TFS", "THERMO"))
 
 
-_JEOL_RAW = {ProbeMode.TEM: 0, ProbeMode.EDS: 1, ProbeMode.NBD: 2, ProbeMode.CBD: 3,
-             ProbeMode.MICROPROBE: 0, ProbeMode.NANOPROBE: 2, ProbeMode.UNKNOWN: 0}
-_FEI_RAW = {ProbeMode.NANOPROBE: 0, ProbeMode.MICROPROBE: 1, ProbeMode.TEM: 1,
-            ProbeMode.EDS: 0, ProbeMode.NBD: 0, ProbeMode.CBD: 0, ProbeMode.UNKNOWN: 1}
+_JEOL_RAW = {
+    ProbeMode.TEM: 0,
+    ProbeMode.EDS: 1,
+    ProbeMode.NBD: 2,
+    ProbeMode.CBD: 3,
+    ProbeMode.MICROPROBE: 0,
+    ProbeMode.NANOPROBE: 2,
+    ProbeMode.UNKNOWN: 0,
+}
+_FEI_RAW = {
+    ProbeMode.NANOPROBE: 0,
+    ProbeMode.MICROPROBE: 1,
+    ProbeMode.TEM: 1,
+    ProbeMode.EDS: 0,
+    ProbeMode.NBD: 0,
+    ProbeMode.CBD: 0,
+    ProbeMode.UNKNOWN: 1,
+}
 
 
 def probe_mode_to_raw(instrument_type: str, mode: ProbeMode) -> int:
@@ -36,7 +51,8 @@ def probe_mode_from_raw(instrument_type: str, raw: int) -> ProbeMode:
     raw = int(raw)
     if is_jeol(instrument_type):
         return {0: ProbeMode.TEM, 1: ProbeMode.EDS, 2: ProbeMode.NBD, 3: ProbeMode.CBD}.get(
-            raw, ProbeMode.UNKNOWN)
+            raw, ProbeMode.UNKNOWN
+        )
     return {0: ProbeMode.NANOPROBE, 1: ProbeMode.MICROPROBE}.get(raw, ProbeMode.UNKNOWN)
 
 
@@ -84,7 +100,16 @@ def function_mode_from_name(name: str) -> int:
     for i, n in enumerate(L.FUNCTION_MODE_NAMES):
         if n.upper() == key:
             return i
-    aliases = {"LOWMAG": L.FM_LOWMAG, "LM": L.FM_LOWMAG, "SMAG": L.FM_SAMAG, "SA": L.FM_SAMAG,
-               "M": L.FM_MAG1, "MH": L.FM_MAG2, "D": L.FM_DIFF, "LAD": L.FM_DIFF,
-               "DIFFRACTION": L.FM_DIFF, "SADIFF": L.FM_DIFF}
+    aliases = {
+        "LOWMAG": L.FM_LOWMAG,
+        "LM": L.FM_LOWMAG,
+        "SMAG": L.FM_SAMAG,
+        "SA": L.FM_SAMAG,
+        "M": L.FM_MAG1,
+        "MH": L.FM_MAG2,
+        "D": L.FM_DIFF,
+        "LAD": L.FM_DIFF,
+        "DIFFRACTION": L.FM_DIFF,
+        "SADIFF": L.FM_DIFF,
+    }
     return aliases.get(key, L.FM_MAG1)

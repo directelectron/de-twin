@@ -9,7 +9,6 @@ import numpy as np
 from .raster_nb import ELLIPSE, FLAT, RECT, RING, ROUGH_ELLIPSE, SPHERICAL, njit, prange
 
 try:
-
     AVAILABLE = True
 except Exception:
     AVAILABLE = False
@@ -30,7 +29,9 @@ def _inside_t(lx, ly, shape, profile, t0, inner, fn, fj, period, pin2, pout2):
         ins = r2 <= pin2
         if not ins and r2 <= pout2:
             th = math.atan2(ly, lx)
-            rm = 1.0 + 1.0 * (math.sin((th + 0.43) * period) / 15.0 + math.sin((th + 0.14) * period * 5) / 60.0)
+            rm = 1.0 + 1.0 * (
+                math.sin((th + 0.43) * period) / 15.0 + math.sin((th + 0.14) * period * 5) / 60.0
+            )
             ins = math.sqrt(r2) <= rm
     else:  # FACETED star polygon
         n = max(fn, 3)
@@ -54,8 +55,31 @@ def _inside_t(lx, ly, shape, profile, t0, inner, fn, fj, period, pin2, pout2):
 
 
 @njit(parallel=True)
-def _patch_contributions(nx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, period, pin2, pout2,
-                         item_k, item_a, counts, starts, flat, tt, owner, count_only):
+def _patch_contributions(
+    nx,
+    co,
+    r0s,
+    c0s,
+    hs,
+    ws,
+    shape,
+    profile,
+    t0s,
+    inner,
+    fn,
+    fj,
+    period,
+    pin2,
+    pout2,
+    item_k,
+    item_a,
+    counts,
+    starts,
+    flat,
+    tt,
+    owner,
+    count_only,
+):
     """Every (primitive, window row) item in parallel: its inside pixels, in the order of the
     NumPy mask (primitive, row, column)."""
     for it in prange(item_k.shape[0]):
@@ -136,13 +160,17 @@ def _all_unique(flat, mark):
     return bad == 0
 
 
-def paint_patch(ctx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, mats, grains, ows, period, pin2,
-                pout2):
+def paint_patch(
+    ctx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, mats, grains, ows, period, pin2, pout2
+):
     """One `raster.iter_patches` stack of primitives, rasterised and composited like
     `paint_drawn` + `RasterContext.apply` (the same contributions, the same claim rule)."""
     item_k = np.repeat(np.arange(co.shape[0], dtype=np.int64), hs)
-    item_a = (np.arange(item_k.shape[0], dtype=np.int64)
-              - np.repeat(np.cumsum(hs) - hs, hs)) if item_k.size else np.zeros(0, np.int64)
+    item_a = (
+        (np.arange(item_k.shape[0], dtype=np.int64) - np.repeat(np.cumsum(hs) - hs, hs))
+        if item_k.size
+        else np.zeros(0, np.int64)
+    )
     n = item_k.shape[0]
     if n == 0:
         return
@@ -150,8 +178,31 @@ def paint_patch(ctx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, m
     starts = np.zeros(n, np.int64)
     dummy_i = np.zeros(1, np.int64)
     dummy_f = np.zeros(1)
-    _patch_contributions(ctx.nx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, period, pin2, pout2,
-                         item_k, item_a, counts, starts, dummy_i, dummy_f, dummy_i, True)
+    _patch_contributions(
+        ctx.nx,
+        co,
+        r0s,
+        c0s,
+        hs,
+        ws,
+        shape,
+        profile,
+        t0s,
+        inner,
+        fn,
+        fj,
+        period,
+        pin2,
+        pout2,
+        item_k,
+        item_a,
+        counts,
+        starts,
+        dummy_i,
+        dummy_f,
+        dummy_i,
+        True,
+    )
     starts[1:] = np.cumsum(counts)[:-1]
     total = int(counts.sum())
     if total == 0:
@@ -159,8 +210,31 @@ def paint_patch(ctx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, m
     flat = np.empty(total, np.int64)
     tt = np.empty(total)
     owner = np.empty(total, np.int64)
-    _patch_contributions(ctx.nx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, period, pin2, pout2,
-                         item_k, item_a, counts, starts, flat, tt, owner, False)
+    _patch_contributions(
+        ctx.nx,
+        co,
+        r0s,
+        c0s,
+        hs,
+        ws,
+        shape,
+        profile,
+        t0s,
+        inner,
+        fn,
+        fj,
+        period,
+        pin2,
+        pout2,
+        item_k,
+        item_a,
+        counts,
+        starts,
+        flat,
+        tt,
+        owner,
+        False,
+    )
     if _all_unique(flat, ctx._mark):
         _apply_unique(ctx.thick, ctx.material, ctx.grain, flat, tt, owner, mats, grains, ows)
     else:

@@ -31,7 +31,7 @@ def test_induced_aberrations_textbook():
     t = 0.02 * np.exp(1j * 0.3)
     c1, a1 = induced_c1a1({"C3": 1e6}, t)
     assert c1 == pytest.approx(2 * 1e6 * abs(t) ** 2)
-    assert a1 == pytest.approx(1e6 * t ** 2)
+    assert a1 == pytest.approx(1e6 * t**2)
     c1, a1 = induced_c1a1({"C1": 5.0, "A1": 3 + 4j}, t)
     assert c1 == pytest.approx(5.0) and a1 == pytest.approx(3 + 4j)
 
@@ -214,9 +214,11 @@ def test_partial_correction_fraction():
 def auto_tune(corr, rounds=6):
     """What an automated tuning routine does: small tableau first, then larger ones,
     correcting what is significant (partially for the higher orders)."""
-    plan = (("Fast", ("C1", "A1", "A2", "B2")),
-            ("Standard", ("C1", "A1", "A2", "B2", "C3", "A3", "S3")),
-            ("Enhanced", ("C1", "A1", "A2", "B2", "C3", "A3", "S3")))
+    plan = (
+        ("Fast", ("C1", "A1", "A2", "B2")),
+        ("Standard", ("C1", "A1", "A2", "B2", "C3", "A3", "S3")),
+        ("Enhanced", ("C1", "A1", "A2", "B2", "C3", "A3", "S3")),
+    )
     for _ in range(rounds):
         for tab, names in plan:
             try:
@@ -271,8 +273,7 @@ def test_beam_tilt_relative_and_absolute():
     assert corr.beam_tilt == (0.0, 0.0, False)
     u = corr.served
     # absolute with no WD estimate refuses, like CEOS
-    completed, _running, why = u.set_beam_tilt(1e-3, 0.0, relative=False, wait_s=1.0,
-                                              sleeper=clk.sleep)
+    completed, _running, why = u.set_beam_tilt(1e-3, 0.0, relative=False, wait_s=1.0, sleeper=clk.sleep)
     assert not completed and "No value for aberration WD available" in why
     corr.set_beam_tilt(1e-3, 0.0)
     corr.set_beam_tilt(1e-3, 2e-3)
