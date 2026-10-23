@@ -16,6 +16,7 @@
       ~FrameProducer.__init__
       ~FrameProducer.acquiring
       ~FrameProducer.close
+      ~FrameProducer.free_slots
       ~FrameProducer.payload
       ~FrameProducer.poll_request
       ~FrameProducer.publish

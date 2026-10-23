@@ -496,6 +496,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mmap</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
@@ -506,6 +507,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">shm_layout</span> <span class="k">as</span> <span class="n">L</span>
 
 <span class="n">_WINDOWS</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">"win32"</span>
+<span class="c1">#: The hot path packs fields directly: a field at a time through ``L.View`` is ~1 us each,</span>
+<span class="c1">#: a third of the budget for a frame at 30,000 frames a second.</span>
+<span class="n">_READ_COUNT</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">HEADER</span><span class="p">[</span><span class="s2">"read_count"</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span>
+<span class="n">_WRITE_COUNT</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">HEADER</span><span class="p">[</span><span class="s2">"write_count"</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span>
+<span class="c1">#: A slot's fields after frame_number, in ``L.SLOT`` order: request_id .. flags.</span>
+<span class="n">_SLOT_FIELDS</span> <span class="o">=</span> <span class="s2">"&lt;QQIIII"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">mapping_exists</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -602,7 +609,8 @@
         <span class="n">head</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_map</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">L</span><span class="o">.</span><span class="n">mapping_size</span><span class="p">(</span><span class="n">slot_bytes</span><span class="p">,</span> <span class="n">slot_count</span><span class="p">)),</span> <span class="n">slot_bytes</span><span class="p">,</span> <span class="n">slot_count</span><span class="p">)</span>
         <span class="c1"># A request DE-Server is still acquiring for when we attach gets served; an old one does not.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_served</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">acquiring</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">request_id</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_served</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">acquiring</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">request_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">write_count</span>  <span class="c1"># only the producer writes it</span></div>
 
 
     <span class="nd">@property</span>
@@ -636,14 +644,22 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">request_id</span> <span class="o">!=</span> <span class="n">request_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">acquiring</span></div>
 
 
+<div class="viewcode-block" id="FrameProducer.free_slots">
+<a class="viewcode-back" href="../../../api/generated/de_twin.transport.shm.FrameProducer.html#de_twin.transport.shm.FrameProducer.free_slots">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">free_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_count</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_written</span> <span class="o">-</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s2">"&lt;Q"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">_READ_COUNT</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
 <div class="viewcode-block" id="FrameProducer.wait_slot_free">
 <a class="viewcode-back" href="../../../api/generated/de_twin.transport.shm.FrameProducer.html#de_twin.transport.shm.FrameProducer.wait_slot_free">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">wait_slot_free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Yield instead of sleeping: at tens of thousands of frames a second the whole ring</span>
+        <span class="c1"># drains in well under a millisecond, and Windows rounds any sleep up to about one.</span>
         <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">write_count</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">read_count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_count</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">free_slots</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">deadline</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.0005</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -654,20 +670,18 @@
         <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_frame_bytes</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"frame of </span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">nbytes</span><span class="si">}</span><span class="s2"> bytes exceeds the slot (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_frame_bytes</span><span class="si">}</span><span class="s2"> bytes)"</span><span class="p">)</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">write_count</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">frame_number</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># not ready while being written</span>
-        <span class="n">off</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">dst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">nbytes</span><span class="p">,</span> <span class="n">off</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_written</span>
+        <span class="n">slot</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">slot_offset</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_bytes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_count</span><span class="p">)</span>
+        <span class="n">struct</span><span class="o">.</span><span class="n">pack_into</span><span class="p">(</span><span class="s2">"&lt;Q"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># frame_number: not ready while being written</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">nbytes</span><span class="p">,</span> <span class="n">slot</span> <span class="o">+</span> <span class="n">L</span><span class="o">.</span><span class="n">SLOT_HEADER_BYTES</span><span class="p">)</span>
         <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>  <span class="c1"># one copy, no bytes object</span>
         <span class="k">del</span> <span class="n">dst</span>  <span class="c1"># a live view would keep the mapping from closing</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">request_id</span> <span class="o">=</span> <span class="n">request_id</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">frame_index</span> <span class="o">=</span> <span class="n">frame_index</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">bytes_per_pixel</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">frame_number</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># ready</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="o">.</span><span class="n">write_count</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">struct</span><span class="o">.</span><span class="n">pack_into</span><span class="p">(</span><span class="n">_SLOT_FIELDS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">slot</span> <span class="o">+</span> <span class="n">L</span><span class="o">.</span><span class="n">SLOT</span><span class="p">[</span><span class="s2">"request_id"</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+                         <span class="n">request_id</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="n">struct</span><span class="o">.</span><span class="n">pack_into</span><span class="p">(</span><span class="s2">"&lt;Q"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># frame_number: ready</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_written</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">struct</span><span class="o">.</span><span class="n">pack_into</span><span class="p">(</span><span class="s2">"&lt;Q"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="n">_WRITE_COUNT</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n</span></div>
 </div>
 

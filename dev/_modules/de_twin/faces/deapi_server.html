@@ -519,7 +519,13 @@
 
 <span class="sd">Extra commands answered (beyond deapi's fake server): ``SET_HW_ROI`` (16),</span>
 <span class="sd">``SET_SCAN_SIZE`` (27), ``SET_SCAN_ROI`` (28), ``SET_SCAN_XY_ARRAY`` (32),</span>
-<span class="sd">``GET_PROPERTY_SPECIFICATIONS`` (35).</span>
+<span class="sd">``GET_PROPERTY_SPECIFICATIONS`` (35) and ``GET_GPU_FRAMES`` (44): the twin's frames in</span>
+<span class="sd">shared GPU memory, as DE-Server shares its movie buffers (:mod:`de_twin.faces.gpu_frames`).</span>
+
+<span class="sd">A scan acquisition runs a repeat at a time, and each repeat scans with the coil settings</span>
+<span class="sd">(pixel offset, voltages, rotation, flips) DE-Server would have written for it:</span>
+<span class="sd">``Scan - Output Buffer (milliseconds)`` of scan output is queued ahead of the beam, so a</span>
+<span class="sd">change reaches the beam that much later, on a repeat boundary (:class:`_CoilTimeline`).</span>
 
 <span class="sd">Launcher (deapi-compatible CLI, "started .... " banner)::</span>
 
@@ -529,6 +535,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bisect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_socketmod</span>
@@ -586,6 +593,12 @@
 <span class="n">SET_SCAN_ROI</span> <span class="o">=</span> <span class="mi">28</span>
 <span class="n">SET_SCAN_XY_ARRAY</span> <span class="o">=</span> <span class="mi">32</span>
 <span class="n">GET_PROPERTY_SPECIFICATIONS</span> <span class="o">=</span> <span class="mi">35</span>
+<span class="n">GET_GPU_FRAMES</span> <span class="o">=</span> <span class="mi">44</span>
+
+<span class="c1">#: Frames per shared GPU buffer, and the longest a frame waits for its buffer to fill</span>
+<span class="c1">#: before it is handed over anyway (a live view should not wait for 64 frames).</span>
+<span class="n">GPU_BUFFER_FRAMES</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">GPU_PUBLISH_S</span> <span class="o">=</span> <span class="mf">0.02</span>
 
 <span class="n">TEMPERATURE_PROP</span> <span class="o">=</span> <span class="s2">"Simulator Virtual Specimen Temperature (C)"</span>
 
@@ -651,6 +664,10 @@
     <span class="s2">"Scan - Rotation"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">SCAN_FLIP_PROPERTIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"Scan - Flip Horizontally"</span><span class="p">,</span> <span class="s2">"Scan - Flip Vertically"</span><span class="p">)</span>
+<span class="c1">#: How much scan output DE-Server queues ahead of the beam, in milliseconds; 0 is its</span>
+<span class="c1">#: default, two quarter-FIFO blocks (DEFAULT_QUEUED_POINTS).</span>
+<span class="n">OUTPUT_BUFFER_PROPERTY</span> <span class="o">=</span> <span class="s2">"Scan - Output Buffer (milliseconds)"</span>
+<span class="n">DEFAULT_QUEUED_POINTS</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1048576</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">scan_coil_settings</span><span class="p">(</span><span class="n">get</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -677,6 +694,43 @@
         <span class="s2">"rotation_deg"</span><span class="p">:</span> <span class="n">number</span><span class="p">(</span><span class="s2">"Scan - Rotation"</span><span class="p">),</span>
         <span class="s2">"flip"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">flag</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">SCAN_FLIP_PROPERTIES</span><span class="p">),</span>
     <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">queued_scan_points</span><span class="p">(</span><span class="n">get</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How many scan points DE-Server has written ahead of the beam, so how many points</span>
+<span class="sd">    later a coil setting written now reaches it (ScanController's analog output: four</span>
+<span class="sd">    blocks of at least 2 ms when ``Scan - Output Buffer (milliseconds)`` is set)."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ms</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">OUTPUT_BUFFER_PROPERTY</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">ms</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">ms</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DEFAULT_QUEUED_POINTS</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.002</span> <span class="o">*</span> <span class="n">fps</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ms</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">block</span><span class="p">,</span> <span class="n">DEFAULT_QUEUED_POINTS</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_CoilTimeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The coil settings a client wrote during one acquisition, by the scan point the beam</span>
+<span class="sd">    was on when it wrote them.</span>
+
+<span class="sd">    DE-Server writes scan output ``queued`` points ahead of the beam and adds the offset</span>
+<span class="sd">    (and the rest of the coil settings) as it writes, so repeat ``r`` of an N-point</span>
+<span class="sd">    pattern scans with the settings as of point ``r * N - queued``: a change made now</span>
+<span class="sd">    lands ``queued`` points later, on a repeat boundary.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">settings</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bisect</span><span class="o">.</span><span class="n">bisect_right</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">request_from_properties</span><span class="p">(</span><span class="n">get</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">camera_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -739,6 +793,12 @@
     <span class="k">return</span> <span class="n">img</span><span class="p">[</span><span class="n">ys</span><span class="p">][:,</span> <span class="n">xs</span><span class="p">]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_gpu_image_dtype</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.gpu_frames</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMAGE</span>
+
+    <span class="k">return</span> <span class="n">IMAGE</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pixel_format</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">dtype</span> <span class="o">=</span> <span class="n">PIXEL_DTYPES</span><span class="p">[</span><span class="n">pixel_format</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
@@ -771,6 +831,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_info</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_batch_started</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">scan</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">virtual</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
@@ -824,12 +887,16 @@
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="n">replace</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="p">,</span> <span class="o">**</span><span class="n">scan_coil_settings</span><span class="p">(</span><span class="n">srv</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)))</span>
-                <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">srv</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">srv</span><span class="o">.</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
-                        <span class="k">break</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">srv</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">srv</span><span class="o">.</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                            <span class="k">break</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
                     <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_share_gpu_frames</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_store_references</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span>
@@ -838,6 +905,54 @@
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""One scan acquisition, a repeat at a time, each repeat with the coil settings</span>
+<span class="sd">        DE-Server would have written for it (see :class:`_CoilTimeline`)."""</span>
+        <span class="n">srv</span><span class="p">,</span> <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span>
+        <span class="n">scan</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span>
+        <span class="n">repeats</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">scan</span><span class="o">.</span><span class="n">repeats</span><span class="p">)</span>
+        <span class="n">frames_per_repeat</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">total_frames</span> <span class="o">//</span> <span class="n">repeats</span>
+        <span class="n">points_per_repeat</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frames_per_repeat</span> <span class="o">//</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">scan</span><span class="o">.</span><span class="n">frames_per_point</span><span class="p">))</span>
+        <span class="n">queued</span> <span class="o">=</span> <span class="n">queued_scan_points</span><span class="p">(</span><span class="n">srv</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">))</span>
+        <span class="n">timeline</span> <span class="o">=</span> <span class="n">_CoilTimeline</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scan</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">scan_coil_settings</span><span class="p">(</span><span class="n">srv</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)})</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">repeat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeats</span><span class="p">):</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">timeline</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">repeat</span> <span class="o">*</span> <span class="n">points_per_repeat</span> <span class="o">-</span> <span class="n">queued</span><span class="p">)</span>
+            <span class="n">this_repeat</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">total_frames</span><span class="o">=</span><span class="n">frames_per_repeat</span><span class="p">,</span>
+                                  <span class="n">scan</span><span class="o">=</span><span class="n">replace</span><span class="p">(</span><span class="n">scan</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">srv</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">this_repeat</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">srv</span><span class="o">.</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
+                <span class="n">frames</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">timeline</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">frames</span> <span class="o">//</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">scan</span><span class="o">.</span><span class="n">frames_per_point</span><span class="p">),</span> <span class="n">scan_coil_settings</span><span class="p">(</span><span class="n">srv</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                    <span class="k">return</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_share_gpu_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Hand the frames gathered so far to a GPU frames client, if one is attached."""</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">_shared_frames</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span> <span class="ow">or</span> <span class="n">shared</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_info</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">return</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">),</span> <span class="n">_gpu_image_dtype</span><span class="p">())</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">"scanX"</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">"scanY"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_info</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">"valid"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_info</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">shared</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">GPU_BUFFER_FRAMES</span><span class="p">,</span> <span class="o">*</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">shared</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gather_gpu_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">_shared_frames</span>
+        <span class="k">if</span> <span class="n">shared</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">shared</span><span class="o">.</span><span class="n">attached</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gpu_batch_started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"scan_point"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_info</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">point</span> <span class="k">if</span> <span class="n">point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_images</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">GPU_BUFFER_FRAMES</span> <span class="ow">or</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_batch_started</span> <span class="o">&gt;=</span> <span class="n">GPU_PUBLISH_S</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_share_gpu_frames</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -867,6 +982,7 @@
                 <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iy</span> <span class="o">&lt;</span> <span class="n">ny</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ix</span> <span class="o">&lt;</span> <span class="n">nx</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">virtual</span><span class="p">[:,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vi_vals</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gather_gpu_frame</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">wait_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="p">:</span>
@@ -899,6 +1015,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pace</span> <span class="o">=</span> <span class="n">pace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_acq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Acquisition</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_acq_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># de_twin.faces.gpu_frames.SharedFrames, made on first attach</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scan_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_specimen_name</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mask_cache</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -992,6 +1109,7 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">_set_specimen</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Simulator"</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">SCAN_COIL_PROPERTIES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Scan"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">OUTPUT_BUFFER_PROPERTY</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">"Float"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Scan"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">SCAN_FLIP_PROPERTIES</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plain</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"Off"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">"Scan"</span><span class="p">)</span>
         <span class="n">clock</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="p">,</span> <span class="s2">"clock"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1290,6 +1408,8 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_image_info</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">GET_VIRTUAL_IMAGE</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_image</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cid</span> <span class="o">==</span> <span class="n">GET_GPU_FRAMES</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpu_frames</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">LIST_CAMERAS</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">)),)</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_respond_to_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
@@ -1359,10 +1479,46 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_acq</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_acq</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span><span class="o">.</span><span class="n">new_acquisition</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_acq_count</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_requested</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">total_frames</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_acq</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_acq</span> <span class="o">=</span> <span class="n">_Acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">n_acq</span><span class="p">,</span> <span class="n">movie</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">),)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gpu_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""GET_GPU_FRAMES (client pid, attach): attach answers the client's handle to the</span>
+<span class="sd">        control block, as DE-Server does. Without GPU memory sharing on this computer it</span>
+<span class="sd">        answers "simulated", as deapi's fake server does."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">gpu_frames</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parameter</span>
+        <span class="n">pid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">p_string</span><span class="p">)</span>
+        <span class="n">attach</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">p_bool</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attach</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">),)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gpu_frames</span><span class="o">.</span><span class="n">sharing_available</span><span class="p">():</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"this GPU cannot share memory with another process: GPU frames are simulated"</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="s2">"simulated"</span><span class="p">),)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="o">=</span> <span class="n">gpu_frames</span><span class="o">.</span><span class="n">SharedFrames</span><span class="p">()</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shared_frames</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="p">(</span><span class="n">GPU_BUFFER_FRAMES</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"GPU frames: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">),)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">handle</span><span class="p">)),)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The shape of the frames the next acquisition will render."""</span>
+        <span class="n">detector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span> <span class="s2">"output_shape"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">detector</span><span class="o">.</span><span class="n">output_shape</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_shape</span><span class="p">()</span>
 
     <span class="c1"># ------------------------------------------------------------ results</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_result_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">timeout_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
@@ -1591,6 +1747,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fake</span><span class="p">,</span> <span class="s2">"_shared_frames"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shared</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">_acq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">_acq</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">shared</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">_shared_frames</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tcp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
