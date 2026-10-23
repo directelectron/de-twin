@@ -45,6 +45,11 @@ Column and corrector
    column.corrector.Corrector
    column.lowdose.LowDose
    column.lowdose.LowDoseArea
+   column.ColumnRefused
+   column.CorrectorError
+   column.MeasurementResult
+   column.CorrectorUnit
+   column.SoapError
    optics.aberrations.Aberrations
 
 Specimen and crystals
