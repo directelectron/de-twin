@@ -34,6 +34,7 @@ from ..geometry import NM_PER_UM
 from ..materials import MaterialId, absorption_lengths_nm
 from ..noise import LACUNARITY, cells, fbm
 from .. import raster_nb as _rnb
+from .. import replica_nb as _replica_nb
 from ..fieldmap import GRAINS_PER_MATERIAL
 from ..structures import _claim, _owner_pixels, _resolved
 from .common import StandardStructure
@@ -91,7 +92,7 @@ def _lattice_index(ctx, r: int, c: int) -> tuple[int, int]:
 def _level_lut(cov, half, levels, table):
     """`stamps._level_offset` on a fine coverage grid (built once: 8192 x 3 floats)."""
     if not _LEVEL_LUT:
-        _LEVEL_LUT.append(_rnb.level_offset_lut(cov, half, levels, table, __import__(
+        _LEVEL_LUT.append(_replica_nb.level_offset_lut(cov, half, levels, table, __import__(
             "de_twin.specimen.stamps", fromlist=["_OFFSETS"])._OFFSETS))
     return _LEVEL_LUT[0]
 
@@ -363,7 +364,7 @@ class ShadowedReplicaStructure(StandardStructure):
         return _rnb.AVAILABLE and (self.crumple_nm > 0 or self.rough_nm > 0)
 
     def _fill_fast(self, ctx, owner, seed, px, mean_c, flat, rough, islands, tile):
-        """`fill` through the numba kernel (:func:`..raster_nb.replica_block`): the same
+        """`fill` through the numba kernel (:func:`..replica_nb.replica_block`): the same
         per-pixel arithmetic, in parallel rows."""
         from ..noise import fbm_params
         from ..stamps import LABYRINTH, _OFFSETS, _coverage_table, period_px_cached, phase_tiles
@@ -475,9 +476,9 @@ class ShadowedReplicaStructure(StandardStructure):
                 if (on and ANALYTIC_SLOPE and s > 1) else (1, 1, 3)  # stride 1: evaluated per pixel
             nodes.append(np.zeros(shape))
         if ANALYTIC_SLOPE:
-            _rnb.replica_nodes(r0, r1, c0, c1, W, O, FS, FC, FSN, FA, FN, R, TX,
+            _replica_nb.replica_nodes(r0, r1, c0, c1, W, O, FS, FC, FSN, FA, FN, R, TX,
                                ST, OFF, *nodes)
-        _rnb.replica_block(ctx.thick, ctx.material, ctx.grain, uthick, umat, used, ctx.nx, r0, r1, c0, c1, W, O,
+        _replica_nb.replica_block(ctx.thick, ctx.material, ctx.grain, uthick, umat, used, ctx.nx, r0, r1, c0, c1, W, O,
                            FL, R, stack, FS, FC, FSN, FA, FN, TX, *sarr, SPB, SNB, BSO, bstep, D, M, I, tiles, fseed,
                            cseed, covs, lvx, levels, table, _OFFSETS, ST, OFF, *nodes, *_level_lut(cov, half, levels, table))
         if new_under and used[0]:

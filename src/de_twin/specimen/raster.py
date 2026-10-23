@@ -27,6 +27,7 @@ from typing import Optional
 import numpy as np
 
 from ..hashing import SeedKind, hash_seed, uniform_from_hash
+from . import patch_nb as _patch_nb
 from . import raster_nb as _nb
 from .fieldmap import LAYER_DESCAN, LAYER_STRAIN, FieldMap, GrainTable, ViewWindow
 from .geometry import AABB, DUST_THRESHOLD_PX, ROUGH_PEAK, ROUGH_PERIOD, rough_rmod
@@ -643,7 +644,7 @@ def paint_drawn(ctx: RasterContext, P: PrimitiveSet, idx: np.ndarray, curtain_de
 
 
 def _paint_patch_fast(ctx, P, sel, rows, cols, valid, shape: int, profile: int):
-    """One patch of `paint_drawn` through :func:`.raster_nb.paint_patch`."""
+    """One patch of `paint_drawn` through :func:`.raster_patch_nb.paint_patch`."""
     n = len(sel)
     ang = -P.rot[sel]
     c = np.cos(ang)
@@ -662,7 +663,7 @@ def _paint_patch_fast(ctx, P, sel, rows, cols, valid, shape: int, profile: int):
     r0s = np.ascontiguousarray(rows[:, 0, 0], np.int64)
     c0s = np.ascontiguousarray(cols[:, 0, 0], np.int64)
     fj = np.ascontiguousarray(P.facet_j[sel], np.float64).reshape(n, -1)
-    _nb.paint_patch(ctx, np.ascontiguousarray(co), r0s, c0s, hs, ws, shape, profile,
+    _patch_nb.paint_patch(ctx, np.ascontiguousarray(co), r0s, c0s, hs, ws, shape, profile,
                     P.thickness[sel].astype(np.float64), P.inner_frac[sel].astype(np.float64),
                     P.facet_n[sel].astype(np.int64), fj, P.material[sel].astype(np.uint8),
                     P.grain[sel].astype(np.int32), P.layer[sel] != Layer.SUPPORT_FILM, float(ROUGH_PERIOD),
