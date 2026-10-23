@@ -359,3 +359,50 @@ def test_texture_moves_with_the_specimen_when_the_view_is_rotated(make_realistic
     got = _shift_px(a, _img(twin))
     want = _predicted_px(truth, (-0.02, 0.0))
     assert got == pytest.approx(want, abs=1.0)
+
+
+def _grating_pixel_nm(twin, lines_per_mm: float = 2160.0) -> float:
+    """The pixel size a cross-grating image gives, found without the truth: the strongest
+    spot of the 4x zero-padded spectrum between 0.5 and 1.3 times the nominal first order."""
+    image = _img(twin)
+    n = 4 * image.shape[0]
+    window = np.hanning(image.shape[0])[:, None] * np.hanning(image.shape[1])[None, :]
+    F = np.abs(np.fft.fft2((image - image.mean()) * window, s=(n, n)))
+    ky = np.broadcast_to(np.fft.fftfreq(n)[:, None] * n, (n, n))
+    kx = np.broadcast_to(np.fft.fftfreq(n)[None, :] * n, (n, n))
+    r = np.hypot(kx, ky)
+    nominal = n * twin.calibration_truth()["nominal_pixel_nm"] / (1e6 / lines_per_mm)
+    peak_y, peak_x = np.unravel_index(
+        np.argmax(np.where((r > 0.5 * nominal) & (r < 1.3 * nominal), F, 0.0)), F.shape
+    )
+    rows = (peak_y + np.arange(-3, 4)) % n
+    cols = (peak_x + np.arange(-3, 4)) % n
+    weight = F[np.ix_(rows, cols)] ** 2
+    centroid_y = (ky[np.ix_(rows, cols)] * weight).sum() / weight.sum()
+    centroid_x = (kx[np.ix_(rows, cols)] * weight).sum() / weight.sum()
+    return (1e6 / lines_per_mm) / (n / math.hypot(centroid_x, centroid_y))
+
+
+def test_post_magnification_scales_the_rendered_grating_but_not_the_served_pixel(make_twin):
+    def build(post_magnification):
+        config = OpticsConfig(post_magnification=post_magnification)
+        twin = make_twin("Cross grating 2160 l/mm", magnification=2000.0, optics_config=config)
+        twin.column.set("Intensity", 0.7)
+        return twin
+
+    plain, behind_a_filter = build(1.0), build(1.4)
+    assert _grating_pixel_nm(behind_a_filter) / _grating_pixel_nm(plain) == pytest.approx(1 / 1.4, rel=0.01)
+    served = behind_a_filter.calibration.specimen_pixel_nm(
+        behind_a_filter.column.state(), behind_a_filter.detector.model
+    )
+    assert served == plain.calibration.specimen_pixel_nm(plain.column.state(), plain.detector.model)
+
+
+def test_calibration_truth_reports_the_post_magnification_and_the_true_pixel(make_twin):
+    twin = make_twin(
+        "Cross grating 2160 l/mm", magnification=2000.0, optics_config=OpticsConfig(post_magnification=1.4)
+    )
+    truth = twin.calibration_truth()
+    assert truth["post_magnification"] == 1.4
+    assert truth["true_pixel_nm"] == pytest.approx(truth["nominal_pixel_nm"] / 1.4)
+    assert make_twin(magnification=2000.0).calibration_truth()["post_magnification"] == 1.0

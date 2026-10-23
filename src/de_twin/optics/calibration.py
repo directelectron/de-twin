@@ -165,16 +165,17 @@ class Calibration:
         return out
 
     @classmethod
-    def default(cls, post_magnification: float = 1.0) -> Calibration:
+    def default(cls) -> Calibration:
         """Built-in JEOL-like ladders, computed geometrically.
 
-        Tables are nm per 1-um pixel (``1000 / (mag * post_magnification)``) and
-        are scaled by the camera's pixel pitch, so 20 kx on a 6.5 um pixel is
-        0.325 nm/px. Camera lengths are geometric (``None`` entries).
+        Tables are nm per 1-um pixel (``1000 / mag``) and are scaled by the camera's pixel
+        pitch, so 20 kx on a 6.5 um pixel is 0.325 nm/px. Camera lengths are geometric
+        (``None`` entries). A camera behind a post-column magnification is
+        ``OpticsConfig.post_magnification``: the calibration is what the column believes.
         """
 
         def mags(ladder):
-            return {float(m): 1000.0 / (m * post_magnification) for m in ladder}
+            return {float(m): 1000.0 / m for m in ladder}
 
         cl = {m / 10.0: None for m in DEFAULT_CAMERA_LENGTHS_MM}
         projects = [

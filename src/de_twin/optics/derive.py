@@ -187,9 +187,11 @@ def derive_optics(
             nm_per_px = float(config.fallback_pixel_nm)
     # What the column's calibration says, and (realism) what the camera really sees
     nominal_nm_per_px = nm_per_px
-    if config.realism is not None and mode == RenderMode.TEM_IMAGING and config.pixel_size_override_nm <= 0:
-        nm_per_px = nm_per_px * config.realism.pixel_scale(state.mag_mode, state.magnification)
-        nm_per_px *= config.realism.defocus_scale(state.defocus_um + config.defocus_offset_um)
+    if mode == RenderMode.TEM_IMAGING and config.pixel_size_override_nm <= 0:
+        nm_per_px /= config.post_magnification
+        if config.realism is not None:
+            nm_per_px = nm_per_px * config.realism.pixel_scale(state.mag_mode, state.magnification)
+            nm_per_px *= config.realism.defocus_scale(state.defocus_um + config.defocus_offset_um)
 
     # Reciprocal space
     cl_mm = state.camera_length_mm if state.camera_length_mm > 0 else config.default_camera_length_mm
