@@ -55,3 +55,13 @@ def _to_bool(value: Any) -> bool:
 
 #: The exposure a fresh face starts with, in seconds (see `_frame_count`).
 DEFAULT_EXPOSURE_S = 0.5
+
+
+def _recv_exact(conn, n: int) -> bytes:
+    buffer = b""
+    while len(buffer) < n:
+        chunk = conn.recv(n - len(buffer))
+        if not chunk:
+            raise ConnectionResetError(f"connection closed after {len(buffer)} of {n} bytes")
+        buffer += chunk
+    return buffer

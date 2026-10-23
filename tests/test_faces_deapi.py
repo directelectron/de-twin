@@ -456,7 +456,7 @@ def test_specimen_pixel_size_includes_binning():
 
 def test_a_fresh_face_exposes_for_half_a_second():
     """One frame per image reads as noise on a DE camera: a frame is sparse by design."""
-    from de_twin.faces import deapi_server as face_mod
+    from de_twin.faces import deapi_protocol as face_mod
     from de_twin.twin import DigitalTwin
 
     with TwinDeapiServer(DigitalTwin(camera="DESim"), port=0, pace=False) as srv:
