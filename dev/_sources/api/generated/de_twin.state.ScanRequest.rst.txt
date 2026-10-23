@@ -25,14 +25,18 @@
    
       ~ScanRequest.dwell_s
       ~ScanRequest.enabled
+      ~ScanRequest.flip
       ~ScanRequest.frames_per_point
       ~ScanRequest.park
       ~ScanRequest.park_position
+      ~ScanRequest.pixel_offset
       ~ScanRequest.points
       ~ScanRequest.repeats
       ~ScanRequest.roi
       ~ScanRequest.rotation_deg
       ~ScanRequest.size
       ~ScanRequest.step_um
+      ~ScanRequest.voltage_h
+      ~ScanRequest.voltage_v
    
    
