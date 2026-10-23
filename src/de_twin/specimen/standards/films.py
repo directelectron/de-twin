@@ -3,23 +3,17 @@
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 import numpy as np
 
-from ...hashing import SeedKind, hash_seed
 from .. import raster_nb as _rnb
 from ..fieldmap import GRAINS_PER_MATERIAL, grain_id_from_hash
 from ..geometry import NM_PER_UM
 from ..materials import MaterialId
 from ..noise import cells, fbm
 from ..structures import _claim, _owner_pixels, _resolved
-from .common import StandardStructure
-from .replica import carbon_equivalent, island_film
-
-
-def _seed(owner) -> int:
-    return int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
+from .common import StandardStructure, structure_seed
+from .replica import carbon_equivalent
 
 
 class PolycrystalFilmStructure(StandardStructure):
@@ -45,7 +39,7 @@ class PolycrystalFilmStructure(StandardStructure):
     def fill(self, ctx, owner):
         if not _resolved(self.grain_nm / NM_PER_UM, ctx):
             return
-        seed = _seed(owner)
+        seed = structure_seed(owner)
         L = self.grain_nm / NM_PER_UM
         if _rnb.AVAILABLE:
             b = owner.bounds

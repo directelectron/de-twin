@@ -10,12 +10,15 @@ import numpy as np
 
 from ...hashing import SeedKind, hash_seed, normal_from_hash, splitmix64, uniform_from_hash
 from ..fieldmap import GRAINS_PER_MATERIAL
-from ..geometry import NM_PER_UM
 from ..materials import MaterialId
-from ..noise import fbm
 from ..structures import Structure
 
 U64 = np.uint64
+
+
+def structure_seed(owner) -> int:
+    """The 32-bit seed a standard's structure draws its layout from."""
+    return int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
 
 
 class StandardStructure(Structure):

@@ -6,16 +6,10 @@ import math
 
 import numpy as np
 
-from ...hashing import SeedKind, hash_seed
-from ..geometry import NM_PER_UM
 from ..materials import MaterialId
 from ..structures import _claim, _owner_pixels, _resolved
-from .common import StandardStructure, angle_grain, angle_overrides, cell_rng, cells_near
+from .common import StandardStructure, structure_seed, angle_grain, angle_overrides, cell_rng, cells_near
 from .replica import carbon_equivalent
-
-
-def _seed(owner) -> int:
-    return int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
 
 
 class MoO3LathsStructure(StandardStructure):
@@ -61,7 +55,7 @@ class MoO3LathsStructure(StandardStructure):
     def fill(self, ctx, owner):
         if not _resolved(0.05, ctx):
             return
-        seed = _seed(owner)
+        seed = structure_seed(owner)
         mean = self.mean_nm()
         eq = carbon_equivalent(MaterialId.MOLYBDENUM_TRIOXIDE)
         for B in _owner_pixels(ctx, owner):
