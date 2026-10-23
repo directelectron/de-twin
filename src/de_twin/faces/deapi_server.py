@@ -551,20 +551,11 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
                 return (self._ack(command, str(self.twin.detector.model.name)),)
             return super()._respond_to_command(command)
 
-    def _recv_exact(self, n: int) -> bytes:
-        buf = b""
-        while len(buf) < n:
-            chunk = self.socket.recv(n - len(buf))
-            if not chunk:
-                raise ConnectionResetError("connection closed while receiving data")
-            buf += chunk
-        return buf
-
     def _set_virtual_mask(self, command):
         mask_id = command.command[0].parameter[0].p_int
         w = command.command[0].parameter[1].p_int
         h = command.command[0].parameter[2].p_int
-        data = self._recv_exact(w * h)
+        data = _recv_exact(self.socket, w * h)
         mask = np.frombuffer(data, dtype=np.int8).reshape((h, w)).copy()
         if 0 <= mask_id < len(self.virtual_masks):
             self.virtual_masks[mask_id] = mask
@@ -579,8 +570,8 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         self.socket.sendall(packet)
         points = []
         for n in counts:
-            xs = np.frombuffer(self._recv_exact(4 * n), np.int32)
-            ys = np.frombuffer(self._recv_exact(4 * n), np.int32)
+            xs = np.frombuffer(_recv_exact(self.socket, 4 * n), np.int32)
+            ys = np.frombuffer(_recv_exact(self.socket, 4 * n), np.int32)
             points.extend(zip(xs.tolist(), ys.tolist()))
         self._scan_points = points
         self["Scan - Size X"], self["Scan - Size Y"] = int(width), int(height)

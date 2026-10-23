@@ -161,12 +161,12 @@ class Specimen:
         return (float(area.center[0]), float(area.center[1]))
 
     # -- options --------------------------------------------------------------------------------
-    def set_options(self, **kw) -> None:
+    def set_options(self, **options) -> None:
         """Change options live. World-changing options regenerate the scene (and reset the
         thermal budget, as a new specimen is a new experiment); others apply in place."""
-        new = self.options.replace(**kw)
-        changed = {k for k in kw if getattr(new, k) != getattr(self.options, k)}
-        self.config.options.update(kw)
+        new = self.options.replace(**options)
+        changed = {k for k in options if getattr(new, k) != getattr(self.options, k)}
+        self.config.options.update(options)
         self.options = new
         if changed - NON_REGENERATING:
             self._build()

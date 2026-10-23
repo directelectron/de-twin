@@ -515,8 +515,8 @@ class _Ctx:
     allocations page-fault serially (notably on Windows) and kill thread scaling.
     """
 
-    def __init__(self, **kw):
-        self.__dict__.update(kw)
+    def __init__(self, **attributes):
+        self.__dict__.update(attributes)
 
     def _rng(self, band: int, stage: int) -> np.random.Generator:
         return rng_for(self.seed, SeedKind.SHOT_NOISE, self.frame_index, (band << 4) | stage)

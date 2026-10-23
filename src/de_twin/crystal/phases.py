@@ -66,11 +66,11 @@ def register_cif(path: str, name: Optional[str] = None, *, like: int = 5, debye_
     phase = Phase.from_cif(str(path))
     lat = phase.structure.lattice
     a = lat.a / 10.0
-    kw = dict(name=name or phase.name or str(path), density_g_cm3=base.density_g_cm3,
+    material_fields = dict(name=name or phase.name or str(path), density_g_cm3=base.density_g_cm3,
               absorption_length_200kv_nm=base.absorption_length_200kv_nm, z_eff=base.z_eff,
               mean_inner_potential_v=base.mean_inner_potential_v,
               scatterer_density_nm3=base.scatterer_density_nm3, crystal=Crystal(cif=str(path)),
               debye_waller_a2=debye_waller_a2,
               halos=((1.0 / max(a, 1e-3) * 1.7, 0.65), (1.0 / max(a, 1e-3) * 2.0, 0.25)))
-    kw.update(overrides)
-    return int(register_material(**kw).id)
+    material_fields.update(overrides)
+    return int(register_material(**material_fields).id)

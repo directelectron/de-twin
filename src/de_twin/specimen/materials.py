@@ -128,12 +128,12 @@ def n_materials() -> int:
     return len(MATERIALS)
 
 
-def register_material(**kw) -> Material:
+def register_material(**fields) -> Material:
     """Append a material (its ``id`` is assigned) and return it. Register before building a
     :class:`~de_twin.specimen.Specimen` so its grain table covers the new id."""
     if len(MATERIALS) >= 255:
         raise ValueError("material ids are uint8")
-    m = Material(id=len(MATERIALS), **kw)
+    m = Material(id=len(MATERIALS), **fields)
     MATERIALS.append(m)
     return m
 

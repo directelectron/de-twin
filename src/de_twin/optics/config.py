@@ -85,11 +85,11 @@ class OpticsConfig:
     realism: Optional[ColumnRealism] = None
 
     @classmethod
-    def realistic(cls, seed: int = 0, **kw) -> "OpticsConfig":
+    def realistic(cls, seed: int = 0, **overrides) -> "OpticsConfig":
         """A column as imperfect as a real one (:mod:`de_twin.optics.realism`), reproducibly."""
         from .realism import ColumnRealism
 
-        return cls(realism=ColumnRealism(seed=seed), **kw)
+        return cls(realism=ColumnRealism(seed=seed), **overrides)
 
     # ---- aberrations / coherence (twin additions) --------------------------
     cs_mm: float = 1.2

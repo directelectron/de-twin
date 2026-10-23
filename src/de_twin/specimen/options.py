@@ -176,9 +176,9 @@ class SpecimenOptions:
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
 
-    def replace(self, **kw) -> "SpecimenOptions":
+    def replace(self, **changes) -> "SpecimenOptions":
         out = copy.deepcopy(self)
-        for k, v in kw.items():
+        for k, v in changes.items():
             out.set(k, v)
         return out
 
@@ -235,9 +235,9 @@ class SpecimenConfig:
             return self.film
         return DEFAULT_FILM.get((self.holder, self.preparation), "holey")
 
-    def with_options(self, **kw) -> "SpecimenConfig":
+    def with_options(self, **changes) -> "SpecimenConfig":
         out = copy.deepcopy(self)
-        out.options.update(kw)
+        out.options.update(changes)
         return out
 
     def copy(self) -> "SpecimenConfig":

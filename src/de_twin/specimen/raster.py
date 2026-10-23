@@ -106,7 +106,7 @@ class PrimitiveSet:
 
     @classmethod
     def make(cls, cx, cy, rx, ry, *, rot=0.0, shape=Shape.ELLIPSE, bounds=None, bound_r=None,
-             structures=None, **kw) -> "PrimitiveSet":
+             structures=None, **extra_fields) -> "PrimitiveSet":
         cx = np.atleast_1d(np.asarray(cx, np.float64))
         n = cx.size
         cy = np.broadcast_to(np.asarray(cy, np.float64), (n,))
@@ -123,7 +123,7 @@ class PrimitiveSet:
             hy = np.where(shape_a == Shape.RECT, s * rx + c * ry, bound_r)
             bounds = (cx - hx, cy - hy, cx + hx, cy + hy)
         return cls(n, structures=structures, cx=cx, cy=cy, rx=rx, ry=ry, rot=rot, shape=shape_a,
-                   bound_r=bound_r, xmin=bounds[0], ymin=bounds[1], xmax=bounds[2], ymax=bounds[3], **kw)
+                   bound_r=bound_r, xmin=bounds[0], ymin=bounds[1], xmax=bounds[2], ymax=bounds[3], **extra_fields)
 
     def __len__(self) -> int:
         return self.n

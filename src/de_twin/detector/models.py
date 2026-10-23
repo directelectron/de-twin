@@ -152,11 +152,11 @@ def _loglog_extrapolate(kv, adu, ht):
     return float(np.exp(ly[0] + slope * (np.log(ht) - lx[0])))
 
 
-def _adele(name, de_model, *, sat=2192, aliases=(), **kw) -> CameraModel:
+def _adele(name, de_model, *, sat=2192, aliases=(), **overrides) -> CameraModel:
     base = dict(sensor_shape=(4096, 4096), pixel_um=6.5, bit_depth=12, bytes_per_pixel=2,
                 sensor_family="ADELE", full_frame_time_s=10.821e-3, saturation_adu=sat,
                 supports_hw_roi_x=True)
-    base.update(kw)
+    base.update(overrides)
     return CameraModel(name=name, de_model=de_model, aliases=aliases, **base)
 
 

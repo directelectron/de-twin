@@ -74,7 +74,7 @@ def cubic_resample(src: np.ndarray, wr: np.ndarray, wc: np.ndarray, shape) -> np
     return np.maximum(acc, 0.0, out=out)
 
 
-def gaussian_filter_threaded(a: np.ndarray, sigma: float, **kw) -> np.ndarray:
+def gaussian_filter_threaded(a: np.ndarray, sigma: float, **filter_options) -> np.ndarray:
     """``scipy.ndimage.gaussian_filter`` of a 2-D array, the same numbers, with each axis's
     1-D pass split into strips on the shared pool (ndimage releases the GIL)."""
     from scipy import ndimage
@@ -82,9 +82,9 @@ def gaussian_filter_threaded(a: np.ndarray, sigma: float, **kw) -> np.ndarray:
     tmp = np.empty_like(a)
     out = np.empty_like(a)
     parallel_rows(lambda c0, c1: ndimage.gaussian_filter1d(a[:, c0:c1], sigma, axis=0,
-                                                           output=tmp[:, c0:c1], **kw), a.shape[1], 32)
+                                                           output=tmp[:, c0:c1], **filter_options), a.shape[1], 32)
     parallel_rows(lambda r0, r1: ndimage.gaussian_filter1d(tmp[r0:r1], sigma, axis=1,
-                                                           output=out[r0:r1], **kw), a.shape[0], 32)
+                                                           output=out[r0:r1], **filter_options), a.shape[0], 32)
     return out
 
 

@@ -225,7 +225,7 @@ class CrystalLibrary:
 
     # ------------------------------------------------- orientation mapping
     def template_library(self, resolution_deg: float = 1.0, ht_kv: float = 200.0,
-                         max_excitation_error: float = 0.05, **kw):
+                         max_excitation_error: float = 0.05, **generator_options):
         """A diffsims ``Simulation2D`` over the reduced fundamental zone (orix
         ``get_sample_reduced_fundamental``), i.e. an orientation-mapping template library
         in the twin's own convention (pyxem ``get_orientation``)."""
@@ -233,7 +233,7 @@ class CrystalLibrary:
         from orix.sampling import get_sample_reduced_fundamental
 
         rot = get_sample_reduced_fundamental(resolution_deg, point_group=self.phase.point_group)
-        gen = SimulationGenerator(ht_kv, **kw)
+        gen = SimulationGenerator(ht_kv, **generator_options)
         return gen.calculate_diffraction2d(self.phase, rotation=rot, reciprocal_radius=self.max_g_inv_nm / 10.0,
                                            max_excitation_error=max_excitation_error, with_direct_beam=False)
 

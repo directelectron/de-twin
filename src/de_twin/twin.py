@@ -552,10 +552,10 @@ class DigitalTwin:
                           phase_list=PhaseList([phase_for(i) for i in ids], ids=ids) if ids else None,
                           prop={"grain_id": gid, "thickness_nm": gt["thickness_nm"].ravel()}, scan_unit="nm")
 
-    def request(self, **kw) -> AcquisitionRequest:
+    def request(self, **fields) -> AcquisitionRequest:
         """An AcquisitionRequest for this twin's camera."""
-        kw.setdefault("camera_model", self.detector.model.name)
-        return AcquisitionRequest(**kw)
+        fields.setdefault("camera_model", self.detector.model.name)
+        return AcquisitionRequest(**fields)
 
     def close(self) -> None:
         for obj in (self.holder, self.column):
