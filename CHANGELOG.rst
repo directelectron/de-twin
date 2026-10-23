@@ -27,11 +27,20 @@ API and Behaviour Changes
   ``DIFF_CAMLENGTHS_CM`` and ``STEM_CAMLENGTHS_CM`` became ``DIFF_CAMERA_LENGTHS_MM`` and
   ``STEM_CAMERA_LENGTHS_MM``. The ``CameraLength`` property is still centimeters, as on the
   DE-TEM-Channel protocol.
+- Arguments are spelled out: ``cfg`` is ``config`` everywhere (``beam_current_pa(state,
+  config=...)``, and so on), and catch-all ``**kw`` arguments have names that say what they
+  carry. Several large modules were split by job, so a few names moved: the column's property
+  tables, vendor tables and errors (``column.properties``, ``column.vendor``,
+  ``column.errors``), the CEOS corrector (``column.ceos``), coherent-imaging setup
+  (``render.coherent_setup``), TEM contrast (``render.tem_contrast``) and the deapi server's
+  protocol, request, acquisition, property and result parts (``faces.deapi_*``).
+- ``Calibration.default`` no longer takes ``post_magnification``, which scaled the served and the rendered pixel together and so could not express a calibration error. Set ``OpticsConfig.post_magnification`` instead. (`#39 <https://github.com/directelectron/de-twin/pull/39>`_)
 
 
 New Features
 ------------
 
+- ``OpticsConfig.post_magnification`` puts the camera behind a constant post-column magnification: the rendered pixel is the calibrated one divided by it at every magnification, while the served ``Specimen Pixel Size`` keeps reporting the nominal value. ``calibration_truth()`` reports the factor and the true pixel size. (`#39 <https://github.com/directelectron/de-twin/pull/39>`_)
 - A scan follows DE-Server's timing for coil changes: it runs a repeat at a time, and a pixel
   offset (or voltage, rotation or flip) written mid-scan reaches the beam one
   ``Scan - Output Buffer (milliseconds)`` later, on a repeat boundary, as the new DE-Server
@@ -49,9 +58,8 @@ New Features
   rendered where its point's voltages put the beam, so a pixel offset, an XY array or drift
   correction moves the beam with DE-Server's output-buffer latency. A probe held on one point
   is rendered ``pool_size`` times and then picked from (about 25,000 frames a second at 256x256).
-- Calibration standards now cover the Ted Pella TEM/STEM catalogue: diffraction and lattice standards (619 evaporated Al, 625 MoO3 laths tied to their crystal axis, 646 oriented Au foil, 645 graphitized carbon black, 675 MAG*I*CAL), resolution standards (612 catalase, 608 ferritin, 613 Au and 611 Pt/Ir on holey carbon, 609 holey carbon, 638 combined), and the 610 latex catalogue with the certified nanosphere standards. New materials: graphite, MoO3, SiGe, uranyl stain, ferrihydrite; an ``oriented`` grain texture.
-- Calibration standards: the Ted Pella TEM calibration specimens as presets ("Ted Pella 607-A - ..."), grouped in ``CALIBRATION_STANDARDS`` with their published numbers in ``specimen.standards.PRODUCTS``. Shadowed replicas (607, 607-A, 606, 603, 603-A, 677, 673, 628-B) are conformal carbon films shadowed with metal at an angle (embossed at low magnification, a nanocrystalline island film with dense and sparse regions and soft shadows at high magnification); 610 latex spheres in eight sizes.
-- Faster live-view re-renders on a magnification step or a stage move: the Bragg excitation is computed once per grain and thickness and kept across views, a stage move beyond the pan margin rasterises only the strips of specimen it brings into view (``RenderConfig.reuse_rasters``), large rasters are rasterised in parallel strips (``RenderConfig.raster_threads``), and the exit wave, crops and upsampling are threaded or numba-compiled. Padded TEM rasters now sit on a world-fixed pixel lattice, with sub-pixel view offsets applied as a phase ramp and crops interpolated to a fraction of a pixel (a move inside the margin was rounded to whole raster pixels). ``de-twin serve --interactive`` turns on the fast previews for a live view.
+- Calibration standards: Ted Pella's TEM calibration specimens as presets ("Ted Pella 607 - ..."), grouped in ``CALIBRATION_STANDARDS`` with their published numbers in ``specimen.standards.PRODUCTS``: the grating replicas (607, 607-A, 606, 603, 603-A, 677, 673), gold-shadowed latex (628-B), evaporated aluminum (619) and MoO3 laths tied to their crystal axis (625). The replicas are conformal carbon films shadowed with metal at an angle (embossed at low magnification; a nanocrystalline island film with dense and sparse regions and soft shadows at high magnification). New: MoO3, and an ``oriented`` grain texture.
+- Faster live-view re-renders on a magnification step or a stage move: the Bragg excitation is computed once per grain and thickness and kept across views, a stage move beyond the pan margin rasterizes only the strips of specimen it brings into view (``RenderConfig.reuse_rasters``), large rasters are rasterised in parallel strips (``RenderConfig.raster_threads``), and the exit wave, crops and upsampling are threaded or numba-compiled. Padded TEM rasters now sit on a world-fixed pixel lattice, with sub-pixel view offsets applied as a phase ramp and crops interpolated to a fraction of a pixel (a move inside the margin was rounded to whole raster pixels). ``de-twin serve --interactive`` turns on the fast previews for a live view.
 - STEM scans now follow DE-Server's scan coil voltages: ``Scan - Voltage H/V Min/Max`` is the
   field the full scan grid spans (a smaller range zooms in, moving it pans), and
   ``Scan - Pixel Offset X/Y`` moves the probe by whole or fractional scan points. ``Scan - Rotation``
@@ -65,13 +73,13 @@ New Features
 Bug Fixes
 ---------
 
+- The cross grating's second and fourth orders no longer outweigh its first. The renderer removed the electrons wherever the specimen's phase changed quickly between raster pixels, and a raster pixel wider than a ridge wall (every frame larger than 1024 x 1024) put that dark rim on every edge of every hole. Rendered images change slightly wherever a specimen has steep edges: the mean frame intensity moves by under 1 % for most presets and by up to 5 % for a few. (`#39 <https://github.com/directelectron/de-twin/pull/39>`_)
 - The twin no longer aborts on macOS when two threads render at once (a prefetch alongside a live frame, say). numba's only threading layer there, the workqueue, aborts the process when two threads launch a parallel kernel together, so on it the kernels are compiled serial; each still releases the GIL, and the twin's own threads run them side by side.
 
 
 Removals
 --------
 
-- Calibration standards are narrowed to the ones matched to Ted Pella's images: the grating replicas (607, 607-A, 606, 603, 603-A, 677, 673), gold-shadowed latex (628-B), evaporated aluminium (619) and MoO3 (625). The latex spheres, biological, holey-film, lattice and MAG*I*CAL standards are removed, with the materials only they used.
 - The ``legacy`` TEM imaging model and the ``legacy`` dose model are removed. The physical
   models were already the defaults and are now the only ones, so ``RenderConfig.tem_model``,
   ``OpticsConfig.dose_model`` and ``OpticsConfig.legacy_dose_rate_counts_per_s`` no longer exist.
@@ -82,6 +90,7 @@ Removals
 Maintenance
 -----------
 
+- Project links, the docs site URL and the trusted-publishing instructions now point at the directelectron organization (https://directelectron.github.io/de-twin/).
 - Structural cleanup with no change to rendered output: one shared numba kernel decorator
   (``de_twin.parallel.numba_jit``) replaces the per-module copies, the column-realism classes
   share their derived values, and unused helpers (``log_snap``, ``resample_object``,

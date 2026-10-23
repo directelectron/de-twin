@@ -1,1 +1,0 @@
-``OpticsConfig.post_magnification`` puts the camera behind a constant post-column magnification: the rendered pixel is the calibrated one divided by it at every magnification, while the served ``Specimen Pixel Size`` keeps reporting the nominal value. ``calibration_truth()`` reports the factor and the true pixel size.
