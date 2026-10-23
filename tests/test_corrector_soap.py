@@ -8,7 +8,7 @@ import pytest
 
 from de_twin.clock import Clock, ManualClock
 from de_twin.column import Column, MirrorColumn, SoapTemChannelClient
-from de_twin.column.corrector import ABSENT, DONE, FAILED, RUNNING, parse_aberration_set
+from de_twin.column.ceos import ABSENT, DONE, FAILED, RUNNING, parse_aberration_set
 from de_twin.column.soap import envelope, parse_body
 from de_twin.faces.temchannel_soap import TemChannelServer
 from de_twin.optics.aberrations import Aberrations

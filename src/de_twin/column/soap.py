@@ -379,7 +379,7 @@ class SoapTemChannelClient:
 
     def corrector_info(self) -> dict[str, str]:
         """``getCorrectorInfo`` parsed (``correctorType``, ``mode``, ``currentLabel``, ...)."""
-        from .corrector import parse_info
+        from .ceos import parse_info
 
         return parse_info(self.call("getCorrectorInfo", val=0).get("r", ""))
 
@@ -395,7 +395,7 @@ class SoapTemChannelClient:
 
     def aberrations(self) -> list[tuple[str, tuple[float, float]]]:
         """Last measurement, ``[(name, (x, y))]`` in the corrector's order and units."""
-        from .corrector import parse_aberration_set
+        from .ceos import parse_aberration_set
 
         return parse_aberration_set(self.call("getAberrations", val=0).get("r", ""))
 

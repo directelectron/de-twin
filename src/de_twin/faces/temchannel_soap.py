@@ -429,7 +429,7 @@ class TemChannelServer:
         return corr.units.get(side, corr.served)
 
     def _corrector_handlers(self) -> dict[str, Callable[[dict], tuple[str, list]]]:
-        from ..column.corrector import ABSENT, DONE
+        from ..column.ceos import ABSENT, DONE
 
         unit = self.corrector_unit
 

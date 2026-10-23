@@ -363,7 +363,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             s, _, ab = corr_ab()
             if not ab:
                 return 0.0
-            from ..column.corrector import pi4_angle_mrad
+            from ..column.ceos import pi4_angle_mrad
             from ..optics.aberrations import Aberrations
             return pi4_angle_mrad(Aberrations(ab), s.ht_kv)
 

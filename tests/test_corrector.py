@@ -7,7 +7,7 @@ import pytest
 
 from de_twin.clock import ManualClock
 from de_twin.column import Column, Corrector, CorrectorError
-from de_twin.column.corrector import (
+from de_twin.column.ceos import (
     DONE,
     FAILED,
     IDLE,

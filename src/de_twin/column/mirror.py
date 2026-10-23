@@ -165,7 +165,7 @@ def state_from_batch(
 
 def _apply_corrector(state: MicroscopeState, side: str, items: list) -> None:
     """Fill ``state``'s corrector fields from a real channel's last measurement."""
-    from .corrector import ceos_to_nm, operator_c1a1
+    from .ceos import ceos_to_nm, operator_c1a1
 
     if side == "none":
         state.corrector = "none"
