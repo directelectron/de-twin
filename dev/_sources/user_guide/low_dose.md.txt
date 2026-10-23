@@ -6,10 +6,10 @@ from de_twin import DigitalTwin, ManualClock
 twin = DigitalTwin("Apoferritin in ice", camera="DESim", clock=ManualClock())
 col = twin.column
 col.set("Magnification", 30000)
-col.set("LowDose", True)                  # the current state becomes Record
+col.set("LowDose", True)  # the current state becomes Record
 col.set("LowDoseAreas", {"View": {"magnification": 3000, "defocus_offset_um": -150.0}})
-col.set("LowDoseArea", "View")            # Search | View | Focus | Record
-col.get("LowDoseAreas")                   # every area's settings
+col.set("LowDoseArea", "View")  # Search | View | Focus | Record
+col.get("LowDoseAreas")  # every area's settings
 ```
 
 The column has a low-dose mode, as TFS and JEOL columns do. There are four areas: Search,

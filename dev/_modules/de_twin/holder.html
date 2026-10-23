@@ -539,11 +539,14 @@
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">return</span> <span class="n">follower</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
                 <span class="k">raise</span>
-            <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"impulsePy is not installed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span>
-                      <span class="k">else</span> <span class="sa">f</span><span class="s2">"Impulse did not answer (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"impulsePy is not installed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">"Impulse did not answer (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">; using the simulated heating holder"</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">SimHeatingHolder</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="n">reason</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown holder spec </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2"> (none | sim-heating | sim-biasing | impulse)"</span><span class="p">)</span></div>
@@ -551,8 +554,15 @@
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"Reading"</span><span class="p">,</span> <span class="s2">"NoHolder"</span><span class="p">,</span> <span class="s2">"SimHeatingHolder"</span><span class="p">,</span> <span class="s2">"ImpulseFollower"</span><span class="p">,</span> <span class="s2">"connect_holder"</span><span class="p">,</span>
-    <span class="s2">"HeaterUnavailable"</span><span class="p">,</span> <span class="s2">"ChannelUnsupported"</span><span class="p">,</span> <span class="s2">"DEFAULT_TOLERANCE_C"</span><span class="p">,</span> <span class="s2">"DEFAULT_RAMP_RATE"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_RAMP_RATE"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_TOLERANCE_C"</span><span class="p">,</span>
+    <span class="s2">"ChannelUnsupported"</span><span class="p">,</span>
+    <span class="s2">"HeaterUnavailable"</span><span class="p">,</span>
+    <span class="s2">"ImpulseFollower"</span><span class="p">,</span>
+    <span class="s2">"NoHolder"</span><span class="p">,</span>
+    <span class="s2">"Reading"</span><span class="p">,</span>
+    <span class="s2">"SimHeatingHolder"</span><span class="p">,</span>
+    <span class="s2">"connect_holder"</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

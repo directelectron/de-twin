@@ -576,7 +576,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig" title="de_twin.specimen.SpecimenConfig"><em>SpecimenConfig</em></a><em>]</em>)</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="de_twin.specimen.SpecimenConfig.html#de_twin.specimen.SpecimenConfig" title="de_twin.specimen.SpecimenConfig"><em>SpecimenConfig</em></a><em> | </em><em>None</em>)</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -625,7 +625,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.reset_clock" title="de_twin.specimen.Specimen.reset_clock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_clock</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.set_options" title="de_twin.specimen.Specimen.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_options</span></code></a>(**kw)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.set_options" title="de_twin.specimen.Specimen.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_options</span></code></a>(**options)</p></td>
 <td><p>Change options live.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.specimen.Specimen.update" title="de_twin.specimen.Specimen.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(time_s[, holder])</p></td>
@@ -687,7 +687,7 @@ else the area’s centre.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.specimen.Specimen.set_options">
-<span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.set_options" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/specimen/model.html#Specimen.set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.specimen.Specimen.set_options" title="Link to this definition">#</a></dt>
 <dd><p>Change options live. World-changing options regenerate the scene (and reset the
 thermal budget, as a new specimen is a new experiment); others apply in place.</p>
 <dl class="field-list simple">

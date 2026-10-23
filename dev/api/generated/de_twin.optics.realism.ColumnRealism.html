@@ -647,22 +647,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.is_astig_nm" title="de_twin.optics.realism.ColumnRealism.is_astig_nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_astig_nm</span></code></a>(isx_um, isy_um)</p></td>
 <td><p>The axial astigmatism A1 (complex nm) an image shift of (x, y) um adds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.is_matrix" title="de_twin.optics.realism.ColumnRealism.is_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_matrix</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.is_matrix" title="de_twin.optics.realism.ColumnRealism.is_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_matrix</span></code></a>(mag_mode, magnification)</p></td>
 <td><p>2x2: specimen micrometres (world frame) per image-shift unit.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.is_tilt_mrad" title="de_twin.optics.realism.ColumnRealism.is_tilt_mrad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_tilt_mrad</span></code></a>(isx_um, isy_um)</p></td>
 <td><p>The effective beam tilt (mrad) of an image shift of (x, y) specimen micrometres.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.mag_offset_um" title="de_twin.optics.realism.ColumnRealism.mag_offset_um"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_offset_um</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.mag_offset_um" title="de_twin.optics.realism.ColumnRealism.mag_offset_um"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_offset_um</span></code></a>(mag_mode, magnification)</p></td>
 <td><p>Where this magnification puts the image centre, relative to the ideal, micrometres: <cite>mag_offset_fraction</cite> of a nominal field of 1e5 / mag um (5 um at 20 kx).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.pixel_scale" title="de_twin.optics.realism.ColumnRealism.pixel_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pixel_scale</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.pixel_scale" title="de_twin.optics.realism.ColumnRealism.pixel_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pixel_scale</span></code></a>(mag_mode, magnification)</p></td>
 <td><p>True pixel size / nominal pixel size.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.rotation_rad" title="de_twin.optics.realism.ColumnRealism.rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_rad</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.realism.ColumnRealism.rotation_rad" title="de_twin.optics.realism.ColumnRealism.rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_rad</span></code></a>(mag_mode, magnification)</p></td>
 <td><p>How far the image is rotated on the camera, radians (world -&gt; camera).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code>(mag_mode, mag)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code>(mag_mode, magnification)</p></td>
 <td><p>Every value at one magnification, for tests that calibrate against the twin.</p></td>
 </tr>
 </tbody>
@@ -862,11 +862,11 @@ high-defocus magnification / image-shift calibrations; -200 um: ~4 %, ~2 deg).</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.realism.ColumnRealism.rotation_rad">
-<span class="sig-name descname"><span class="pre">rotation_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.rotation_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.rotation_rad" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rotation_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.rotation_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.rotation_rad" title="Link to this definition">#</a></dt>
 <dd><p>How far the image is rotated on the camera, radians (world -&gt; camera).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
@@ -876,11 +876,11 @@ high-defocus magnification / image-shift calibrations; -200 um: ~4 %, ~2 deg).</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.realism.ColumnRealism.pixel_scale">
-<span class="sig-name descname"><span class="pre">pixel_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.pixel_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.pixel_scale" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pixel_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.pixel_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.pixel_scale" title="Link to this definition">#</a></dt>
 <dd><p>True pixel size / nominal pixel size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
@@ -890,11 +890,11 @@ high-defocus magnification / image-shift calibrations; -200 um: ~4 %, ~2 deg).</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.realism.ColumnRealism.is_matrix">
-<span class="sig-name descname"><span class="pre">is_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.is_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.is_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.is_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.is_matrix" title="Link to this definition">#</a></dt>
 <dd><p>2x2: specimen micrometres (world frame) per image-shift unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
@@ -904,12 +904,12 @@ high-defocus magnification / image-shift calibrations; -200 um: ~4 %, ~2 deg).</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.realism.ColumnRealism.mag_offset_um">
-<span class="sig-name descname"><span class="pre">mag_offset_um</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.mag_offset_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.mag_offset_um" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mag_offset_um</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/realism.html#ColumnRealism.mag_offset_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.realism.ColumnRealism.mag_offset_um" title="Link to this definition">#</a></dt>
 <dd><p>Where this magnification puts the image centre, relative to the ideal, micrometres:
 <cite>mag_offset_fraction</cite> of a nominal field of 1e5 / mag um (5 um at 20 kx).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>]</p>

@@ -634,7 +634,7 @@ orientation and the stage tilt at render time.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">recip_pixel_inv_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">camera</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span>
     <span class="n">mag_ladder</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="o">/</span> <span class="n">cl_ladder</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">beam_current_pa</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">derive_optics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">camera</span><span class="p">:</span> <span class="n">CameraModel</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpticsState</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_optics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">camera</span><span class="p">:</span> <span class="n">CameraModel</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpticsState</span>
 </pre></div>
 </div>
 <p>Aberrations (<code class="docutils literal notranslate"><span class="pre">aberrations.py</span></code>, CEOS notation, complex nm; <code class="docutils literal notranslate"><span class="pre">chi</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient</span></code>) are wired by
@@ -695,7 +695,7 @@ diffraction-pattern LRU cache.</p>
 <ul>
 <li><p><strong>kinematic</strong> (<code class="docutils literal notranslate"><span class="pre">stem.py</span></code>): cached disk patterns per (grain, thickness, crystallinity).
 It is fast, but the bright-field disk has no interference.</p></li>
-<li><p><strong>coherent</strong> (<code class="docutils literal notranslate"><span class="pre">coherent.py</span></code>): the probe <code class="docutils literal notranslate"><span class="pre">IFFT[A(k)</span> <span class="pre">exp(-i</span> <span class="pre">chi(k))]</span></code> times the specimen
+<li><p><strong>coherent</strong> (<code class="docutils literal notranslate"><span class="pre">coherent.py</span></code>, with its sampling, probe and specimen tile in <code class="docutils literal notranslate"><span class="pre">coherent_setup.py</span></code>): the probe <code class="docutils literal notranslate"><span class="pre">IFFT[A(k)</span> <span class="pre">exp(-i</span> <span class="pre">chi(k))]</span></code> times the specimen
 transmission <code class="docutils literal notranslate"><span class="pre">t(r)</span></code>, then <code class="docutils literal notranslate"><span class="pre">|FFT|^2</span></code> integrated over each binned detector pixel. <code class="docutils literal notranslate"><span class="pre">t(r)</span></code>
 comes from <code class="docutils literal notranslate"><span class="pre">tem.transmission_function</span></code>, the same object model as TEM imaging, built on a
 fine world-locked grid over the scan field. Scattering beyond the object band limit
@@ -747,15 +747,15 @@ reconstructs against <code class="docutils literal notranslate"><span class="pre
     <span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>     <span class="c1"># DE-TEM-Channel property names</span>
     <span class="n">set_stage</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">...</span>  <span class="c1"># plus typed setters for everything</span>
     <span class="n">on_change</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-    <span class="n">mag_ladder</span><span class="p">,</span> <span class="n">cl_ladder</span>            <span class="c1"># lists (empty when the mode has none); camera lengths in mm</span>
+    <span class="n">mag_ladder</span><span class="p">,</span> <span class="n">cl_ladder</span>            <span class="c1"># `Ladder`s (empty when the mode has none); camera lengths in mm</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MirrorColumn</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>          <span class="c1"># follows a real DE-TEM-Channel (SOAP client); sets are forwarded</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SoapTemChannelClient</span>           <span class="c1"># stdlib-only SOAP client (executeBatchCommands, get*, set*)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ColumnAdapter</span>                  <span class="c1"># de_microscope/autopilot SimColumn duck type</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Corrector</span>                      <span class="c1"># column.corrector when Column(corrector="probe"|"image"|"both")</span>
 </pre></div>
 </div>
-<section id="aberration-corrector-column-corrector-py">
-<h4>Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>)<a class="headerlink" href="#aberration-corrector-column-corrector-py" title="Link to this heading">#</a></h4>
+<section id="aberration-corrector-column-corrector-py-ceos-conventions-and-the-measurement-model-in-column-ceos-py">
+<h4>Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>; CEOS conventions and the measurement model in <code class="docutils literal notranslate"><span class="pre">column/ceos.py</span></code>)<a class="headerlink" href="#aberration-corrector-column-corrector-py-ceos-conventions-and-the-measurement-model-in-column-ceos-py" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">Corrector</span></code> holds one <code class="docutils literal notranslate"><span class="pre">CorrectorUnit</span></code> per fitted side. Each unit models one
 CEOS-RPC server as DE-TEM-Channel’s <code class="docutils literal notranslate"><span class="pre">CorrectorService</span></code> sees it: probe/CESCOR on
 7072, image/CETCOR on 7071.</p>
@@ -811,7 +811,12 @@ on port 5002. It is backed by a <code class="docutils literal notranslate"><span
 <code class="docutils literal notranslate"><span class="pre">executeBatchCommands</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">deapi_server.py</span></code>: <code class="docutils literal notranslate"><span class="pre">TwinFakeServer</span></code>, a subclass of
 <code class="docutils literal notranslate"><span class="pre">deapi.simulated_server.fake_server.FakeServer</span></code> that renders through the
-twin, plus a launcher with deapi’s CLI (positional port and “started” banner).</p></li>
+twin, plus a launcher with deapi’s CLI (positional port and “started” banner).
+Its parts: <code class="docutils literal notranslate"><span class="pre">deapi_properties.py</span></code> (the property table), <code class="docutils literal notranslate"><span class="pre">deapi_results.py</span></code>
+(GET_RESULT, movie buffers, virtual images), <code class="docutils literal notranslate"><span class="pre">deapi_acquisition.py</span></code> (one
+acquisition), <code class="docutils literal notranslate"><span class="pre">deapi_request.py</span></code> (properties to an <code class="docutils literal notranslate"><span class="pre">AcquisitionRequest</span></code>),
+<code class="docutils literal notranslate"><span class="pre">deapi_protocol.py</span></code> (command ids and names) and <code class="docutils literal notranslate"><span class="pre">deapi_compat.py</span></code> (stand-ins
+for the optional <code class="docutils literal notranslate"><span class="pre">deapi</span></code> package).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">shm_face.py</span></code>: runs the producer loop. It reads DE-Server’s request, renders
 frames and publishes them.</p></li>
 </ul>
@@ -902,7 +907,7 @@ layout, <code class="docutils literal notranslate"><span class="pre">CheckBuffer
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstruction-checks-tests-reconstruction">Reconstruction checks (<code class="docutils literal notranslate"><span class="pre">tests/reconstruction/</span></code>)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-detector"><code class="docutils literal notranslate"><span class="pre">de_twin.detector</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-column"><code class="docutils literal notranslate"><span class="pre">de_twin.column</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aberration-corrector-column-corrector-py">Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aberration-corrector-column-corrector-py-ceos-conventions-and-the-measurement-model-in-column-ceos-py">Aberration corrector (<code class="docutils literal notranslate"><span class="pre">column/corrector.py</span></code>; CEOS conventions and the measurement model in <code class="docutils literal notranslate"><span class="pre">column/ceos.py</span></code>)</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-holder"><code class="docutils literal notranslate"><span class="pre">de_twin.holder</span></code></a></li>

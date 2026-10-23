@@ -579,7 +579,7 @@
 <a class="reference internal" href="de_twin.faces.temchannel_soap.TemChannelServer.html#de_twin.faces.temchannel_soap.TemChannelServer" title="de_twin.faces.temchannel_soap.TemChannelServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemChannelServer</span></code></a>).</p></li>
 <li><p><strong>period_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – Poll period. The first poll happens in the constructor (errors are
 logged, not raised, unless <code class="docutils literal notranslate"><span class="pre">strict=True</span></code>).</p></li>
-<li><p><strong>client</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient" title="de_twin.column.SoapTemChannelClient"><em>SoapTemChannelClient</em></a><em>]</em>) – An existing <a class="reference internal" href="de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient" title="de_twin.column.SoapTemChannelClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoapTemChannelClient</span></code></a> (overrides host/port).</p></li>
+<li><p><strong>client</strong> (<a class="reference internal" href="de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient" title="de_twin.column.SoapTemChannelClient"><em>SoapTemChannelClient</em></a><em> | </em><em>None</em>) – An existing <a class="reference internal" href="de_twin.column.SoapTemChannelClient.html#de_twin.column.SoapTemChannelClient" title="de_twin.column.SoapTemChannelClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoapTemChannelClient</span></code></a> (overrides host/port).</p></li>
 <li><p><strong>poll_intensity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Also read <code class="docutils literal notranslate"><span class="pre">getProperty(&quot;Intensity&quot;)</span></code> each cycle (not in the batch).</p></li>
 <li><p><strong>corrector_every</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – Read the channel’s aberration corrector every N polls (0 = never):
 <code class="docutils literal notranslate"><span class="pre">getCorrectorPresent</span></code>, <code class="docutils literal notranslate"><span class="pre">getCorrectorInfo</span></code> (mode STEM -&gt; probe side,
@@ -713,7 +713,7 @@ corrector operations is asked once.</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_intensity</span></code>(value)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_magnification</span></code>(mag)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_magnification</span></code>(magnification)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_magnification_index</span></code>(index)</p></td>

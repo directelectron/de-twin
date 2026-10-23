@@ -581,7 +581,7 @@ magnification) of its own range (LM or not), where it has one. Compared and hash
 identity (it holds mutable tables).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>lm_max_mag</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>]</em>)</p>
+<dd class="field-odd"><p><strong>lm_max_mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> | </em><em>None</em>)</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -615,22 +615,22 @@ identity (it holds mutable tables).</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.is_astig_nm" title="de_twin.optics.serialem.ColumnDefinition.is_astig_nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_astig_nm</span></code></a>(isx_um, isy_um)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.is_matrix" title="de_twin.optics.serialem.ColumnDefinition.is_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_matrix</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.is_matrix" title="de_twin.optics.serialem.ColumnDefinition.is_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_matrix</span></code></a>(mag_mode, magnification)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.is_tilt_mrad" title="de_twin.optics.serialem.ColumnDefinition.is_tilt_mrad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_tilt_mrad</span></code></a>(isx_um, isy_um)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.mag_offset_um" title="de_twin.optics.serialem.ColumnDefinition.mag_offset_um"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_offset_um</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.mag_offset_um" title="de_twin.optics.serialem.ColumnDefinition.mag_offset_um"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_offset_um</span></code></a>(mag_mode, magnification)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.pixel_scale" title="de_twin.optics.serialem.ColumnDefinition.pixel_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pixel_scale</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.pixel_scale" title="de_twin.optics.serialem.ColumnDefinition.pixel_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pixel_scale</span></code></a>(mag_mode, magnification)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.rotation_rad" title="de_twin.optics.serialem.ColumnDefinition.rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_rad</span></code></a>(mag_mode, mag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.rotation_rad" title="de_twin.optics.serialem.ColumnDefinition.rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_rad</span></code></a>(mag_mode, magnification)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code>(mag_mode, mag)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code>(mag_mode, magnification)</p></td>
 <td><p>Every value at one magnification, for tests that calibrate against the twin.</p></td>
 </tr>
 </tbody>
@@ -638,10 +638,10 @@ identity (it holds mutable tables).</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.rotation_rad">
-<span class="sig-name descname"><span class="pre">rotation_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.rotation_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.rotation_rad" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rotation_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.rotation_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.rotation_rad" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
@@ -651,10 +651,10 @@ identity (it holds mutable tables).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.pixel_scale">
-<span class="sig-name descname"><span class="pre">pixel_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.pixel_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.pixel_scale" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pixel_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.pixel_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.pixel_scale" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
@@ -664,10 +664,10 @@ identity (it holds mutable tables).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.is_matrix">
-<span class="sig-name descname"><span class="pre">is_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.is_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.is_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.is_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.is_matrix" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
@@ -677,10 +677,10 @@ identity (it holds mutable tables).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.mag_offset_um">
-<span class="sig-name descname"><span class="pre">mag_offset_um</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.mag_offset_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.mag_offset_um" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mag_offset_um</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.mag_offset_um"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.mag_offset_um" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+<dd class="field-odd"><p><strong>magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>]</p>

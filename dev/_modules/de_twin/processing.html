@@ -499,7 +499,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -507,14 +506,21 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_key</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">roi</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">roi</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">roi</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">roi</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">hw_binning</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">counting</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">roi</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+        <span class="n">roi</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+        <span class="n">roi</span><span class="o">.</span><span class="n">w</span><span class="p">,</span>
+        <span class="n">roi</span><span class="o">.</span><span class="n">h</span><span class="p">,</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">hw_binning</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">counting</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">References</span><span class="p">:</span>
     <span class="n">dark</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># mean dark frame (ADU), output shape</span>
-    <span class="n">gain</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>  <span class="c1"># flat-field, normalised to mean 1 (None = not acquired)</span>
+    <span class="n">gain</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># flat-field, normalised to mean 1 (None = not acquired)</span>
     <span class="n">n_dark</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">n_gain</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">frame_time_s</span><span class="p">:</span> <span class="nb">float</span>
@@ -527,8 +533,9 @@
 
 <div class="viewcode-block" id="Processor.__init__">
 <a class="viewcode-back" href="../../api/generated/de_twin.processing.Processor.html#de_twin.processing.Processor.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">dark_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">gain_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
-                 <span class="n">gain_dose_e_per_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">dark_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">gain_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">gain_dose_e_per_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">twin</span> <span class="o">=</span> <span class="n">twin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dark_frames</span> <span class="o">=</span> <span class="n">dark_frames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gain_frames</span> <span class="o">=</span> <span class="n">gain_frames</span>
@@ -545,7 +552,7 @@
 
 <div class="viewcode-block" id="Processor.lookup">
 <a class="viewcode-back" href="../../api/generated/de_twin.processing.Processor.html#de_twin.processing.Processor.lookup">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">References</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Stored references matching ``request`` (no acquisition)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_key</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">roi</span><span class="p">(</span><span class="n">request</span><span class="p">)))</span></div>
 
@@ -555,8 +562,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">store_dark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">mean_dark</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">_key</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">roi</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
         <span class="n">old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">refs</span> <span class="o">=</span> <span class="n">References</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mean_dark</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">old</span><span class="o">.</span><span class="n">gain</span> <span class="k">if</span> <span class="n">old</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">,</span>
-                          <span class="n">old</span><span class="o">.</span><span class="n">n_gain</span> <span class="k">if</span> <span class="n">old</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">)</span>
+        <span class="n">refs</span> <span class="o">=</span> <span class="n">References</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mean_dark</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">old</span><span class="o">.</span><span class="n">gain</span> <span class="k">if</span> <span class="n">old</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_frames</span><span class="p">,</span>
+            <span class="n">old</span><span class="o">.</span><span class="n">n_gain</span> <span class="k">if</span> <span class="n">old</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">refs</span>
         <span class="k">return</span> <span class="n">refs</span></div>
 
@@ -578,27 +590,31 @@
 
 <div class="viewcode-block" id="Processor.take_dark">
 <a class="viewcode-back" href="../../api/generated/de_twin.processing.Processor.html#de_twin.processing.Processor.take_dark">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">take_dark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">take_dark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">n_frames</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dark_frames</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_dark</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">ExposureMode</span><span class="o">.</span><span class="n">DARK</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Processor.take_gain">
 <a class="viewcode-back" href="../../api/generated/de_twin.processing.Processor.html#de_twin.processing.Processor.take_gain">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">take_gain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">take_gain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">n_frames</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">gain_frames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">references</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">flood</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">ExposureMode</span><span class="o">.</span><span class="n">GAIN</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
         <span class="n">sat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"saturation_adu"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sat</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">flood</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">sat</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"gain reference flood is near saturation (median </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">flood</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> ADU, "</span>
-                          <span class="sa">f</span><span class="s2">"saturation </span><span class="si">{</span><span class="n">sat</span><span class="si">}</span><span class="s2">); lower the dose or frame time"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"gain reference flood is near saturation (median </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">flood</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> ADU, "</span>
+                <span class="sa">f</span><span class="s2">"saturation </span><span class="si">{</span><span class="n">sat</span><span class="si">}</span><span class="s2">); lower the dose or frame time"</span><span class="p">,</span>
+                <span class="ne">RuntimeWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_gain</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">flood</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Processor.synthesize_gain">
 <a class="viewcode-back" href="../../api/generated/de_twin.processing.Processor.html#de_twin.processing.Processor.synthesize_gain">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">synthesize_gain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">dose_e_per_px</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">synthesize_gain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">AcquisitionRequest</span><span class="p">,</span> <span class="n">dose_e_per_px</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">References</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A well-dosed gain reference without simulating hundreds of flood frames.</span>
 
 <span class="sd">        A good gain reference integrates thousands of electrons per pixel, which</span>
@@ -686,7 +702,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">frames_for_exposure</span><span class="p">(</span><span class="n">exposure_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""(frame_time_s, n_frames) that integrate ``exposure_s`` at ``fps``."""</span>
     <span class="n">frame_time</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">exposure_s</span> <span class="o">*</span> <span class="n">fps</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">)))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">exposure_s</span> <span class="o">*</span> <span class="n">fps</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">))</span>
     <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">frame_time</span><span class="p">,</span> <span class="n">exposure_s</span><span class="p">),</span> <span class="n">n</span>
 </pre></div>
 

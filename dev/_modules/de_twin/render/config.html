@@ -591,7 +591,9 @@
     <span class="c1"># t(r) band limit K_t, 1/nm: scattering to |g| &lt;= K_t is coherent, beyond it incoherent. 0 = auto:</span>
     <span class="c1"># k_det + alpha/lambda (everything that can reach the detector is coherent)</span>
     <span class="n">coherent_object_bandwidth_inv_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">coherent_field_max_px</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8_000_000</span>  <span class="c1"># larger scan fields build transmission tiles per block (~1 GB peak at 8M)</span>
+    <span class="n">coherent_field_max_px</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">8_000_000</span>  <span class="c1"># larger scan fields build transmission tiles per block (~1 GB peak at 8M)</span>
+    <span class="p">)</span>
     <span class="n">coherent_cache_mb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span>  <span class="c1"># computed pattern blocks kept for frame-by-frame rendering</span>
     <span class="n">coherent_read_ahead</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># live 4D-STEM: blocks of the scan computed ahead in the background</span>
 

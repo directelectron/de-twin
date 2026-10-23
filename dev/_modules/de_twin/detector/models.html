@@ -537,8 +537,15 @@
 
 <span class="c1"># DE-Server HT tables (kV, ADU per primary electron).</span>
 <span class="n">ADU_TABLE_DE_SERIES</span> <span class="o">=</span> <span class="p">((</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">1379.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">120.0</span><span class="p">,</span> <span class="mf">791.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">316.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">206.0</span><span class="p">))</span>
-<span class="n">ADU_TABLE_DE16ER</span> <span class="o">=</span> <span class="p">((</span><span class="mf">40.0</span><span class="p">,</span> <span class="mf">628.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">374.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">269.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">205.0</span><span class="p">),</span>
-                    <span class="p">(</span><span class="mf">120.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">129.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">86.0</span><span class="p">))</span>
+<span class="n">ADU_TABLE_DE16ER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mf">40.0</span><span class="p">,</span> <span class="mf">628.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">374.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">269.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">205.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">120.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">129.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">86.0</span><span class="p">),</span>
+<span class="p">)</span>
 <span class="n">ADU_TABLE_CELERITAS</span> <span class="o">=</span> <span class="p">((</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">1148.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">301.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">208.0</span><span class="p">))</span>
 
 
@@ -636,7 +643,7 @@
 
 <div class="viewcode-block" id="CameraModel.with_">
 <a class="viewcode-back" href="../../../api/generated/de_twin.detector.CameraModel.html#de_twin.detector.CameraModel.with_">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">with_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"CameraModel"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">)</span></div>
 </div>
 
@@ -649,41 +656,85 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">ly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ht</span><span class="p">)</span> <span class="o">-</span> <span class="n">lx</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_adele</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2192</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span> <span class="n">pixel_um</span><span class="o">=</span><span class="mf">6.5</span><span class="p">,</span> <span class="n">bit_depth</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">bytes_per_pixel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                <span class="n">sensor_family</span><span class="o">=</span><span class="s2">"ADELE"</span><span class="p">,</span> <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">10.821e-3</span><span class="p">,</span> <span class="n">saturation_adu</span><span class="o">=</span><span class="n">sat</span><span class="p">,</span>
-                <span class="n">supports_hw_roi_x</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_adele</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2192</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">overrides</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"sensor_shape"</span><span class="p">:</span> <span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span>
+        <span class="s2">"pixel_um"</span><span class="p">:</span> <span class="mf">6.5</span><span class="p">,</span>
+        <span class="s2">"bit_depth"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">"bytes_per_pixel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">"sensor_family"</span><span class="p">:</span> <span class="s2">"ADELE"</span><span class="p">,</span>
+        <span class="s2">"full_frame_time_s"</span><span class="p">:</span> <span class="mf">10.821e-3</span><span class="p">,</span>
+        <span class="s2">"saturation_adu"</span><span class="p">:</span> <span class="n">sat</span><span class="p">,</span>
+        <span class="s2">"supports_hw_roi_x"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">CameraModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="o">=</span><span class="n">de_model</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span> <span class="o">**</span><span class="n">base</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_desiree</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sat</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">CameraModel</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="o">=</span><span class="n">de_model</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span> <span class="n">pixel_um</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
-        <span class="n">bit_depth</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">bytes_per_pixel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="s2">"topbottom"</span><span class="p">,</span> <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">sensor_family</span><span class="o">=</span><span class="s2">"DESIREE"</span><span class="p">,</span> <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.51e-3</span><span class="p">,</span> <span class="n">saturation_adu</span><span class="o">=</span><span class="n">sat</span><span class="p">,</span>
-        <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="n">adu_table</span><span class="o">=</span><span class="n">ADU_TABLE_CELERITAS</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">de_model</span><span class="o">=</span><span class="n">de_model</span><span class="p">,</span>
+        <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
+        <span class="n">pixel_um</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
+        <span class="n">bit_depth</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">bytes_per_pixel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">topology</span><span class="o">=</span><span class="s2">"topbottom"</span><span class="p">,</span>
+        <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">sensor_family</span><span class="o">=</span><span class="s2">"DESIREE"</span><span class="p">,</span>
+        <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.51e-3</span><span class="p">,</span>
+        <span class="n">saturation_adu</span><span class="o">=</span><span class="n">sat</span><span class="p">,</span>
+        <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+        <span class="n">adu_table</span><span class="o">=</span><span class="n">ADU_TABLE_CELERITAS</span><span class="p">,</span>
         <span class="n">charge_spread</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>  <span class="c1"># 15 um pixels: less charge sharing per pixel</span>
-        <span class="n">read_noise_adu</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">)</span>
+        <span class="n">read_noise_adu</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_caspar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">CameraModel</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">de_model</span><span class="o">=</span><span class="n">de_model</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span> <span class="n">pixel_um</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
-        <span class="n">bit_depth</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">bytes_per_pixel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span> <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">sensor_family</span><span class="o">=</span><span class="s2">"CASPAR2"</span><span class="p">,</span> <span class="n">hardware_counting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.418e-3</span><span class="p">,</span>
-        <span class="n">hw_quanta</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">saturation_adu</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span> <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
-        <span class="n">read_noise_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dark_offset_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dark_current_adu_per_s</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">dsnu_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fpn_column_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fpn_pattern</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">gain_pixel_sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">gain_column_sigma</span><span class="o">=</span><span class="mf">0.003</span><span class="p">,</span> <span class="n">gain_radial</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">gain_stitch</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">de_model</span><span class="o">=</span><span class="n">de_model</span><span class="p">,</span>
+        <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span>
+        <span class="n">pixel_um</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+        <span class="n">bit_depth</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">bytes_per_pixel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span>
+        <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">sensor_family</span><span class="o">=</span><span class="s2">"CASPAR2"</span><span class="p">,</span>
+        <span class="n">hardware_counting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.418e-3</span><span class="p">,</span>
+        <span class="n">hw_quanta</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">saturation_adu</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
+        <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
+        <span class="n">read_noise_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dark_offset_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dark_current_adu_per_s</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dsnu_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">fpn_column_adu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">fpn_pattern</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">gain_pixel_sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">gain_column_sigma</span><span class="o">=</span><span class="mf">0.003</span><span class="p">,</span>
+        <span class="n">gain_radial</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+        <span class="n">gain_stitch</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
         <span class="n">hot_dark_current_adu_per_s</span><span class="o">=</span><span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">),</span>  <span class="c1"># hot pixels: spurious counts per second</span>
-        <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">)</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="n">_MODELS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">_adele</span><span class="p">(</span><span class="s2">"DESim"</span><span class="p">,</span> <span class="s2">"SIMULATOR"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2100</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span> <span class="n">pixel_um</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
-           <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.1e-3</span><span class="p">,</span> <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="n">supports_hw_roi_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-           <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"SIMULATOR"</span><span class="p">,</span> <span class="s2">"Simulator"</span><span class="p">,</span> <span class="s2">"DE-Sim"</span><span class="p">)),</span>
+    <span class="n">_adele</span><span class="p">(</span>
+        <span class="s2">"DESim"</span><span class="p">,</span>
+        <span class="s2">"SIMULATOR"</span><span class="p">,</span>
+        <span class="n">sat</span><span class="o">=</span><span class="mi">2100</span><span class="p">,</span>
+        <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
+        <span class="n">pixel_um</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">0.1e-3</span><span class="p">,</span>
+        <span class="n">segment_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+        <span class="n">supports_hw_roi_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"SIMULATOR"</span><span class="p">,</span> <span class="s2">"Simulator"</span><span class="p">,</span> <span class="s2">"DE-Sim"</span><span class="p">),</span>
+    <span class="p">),</span>
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"DE16"</span><span class="p">,</span> <span class="s2">"DE16"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2192</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE-16"</span><span class="p">,)),</span>
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"DE16ER"</span><span class="p">,</span> <span class="s2">"DE16"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2100</span><span class="p">,</span> <span class="n">adu_table</span><span class="o">=</span><span class="n">ADU_TABLE_DE16ER</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE-16ER"</span><span class="p">,)),</span>
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"LV16"</span><span class="p">,</span> <span class="s2">"LV16"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2100</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE16LV"</span><span class="p">,</span> <span class="s2">"LV-16"</span><span class="p">)),</span>
@@ -691,10 +742,26 @@
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"DirectView2"</span><span class="p">,</span> <span class="s2">"DIRECTVIEW2"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2100</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE-DirectView2"</span><span class="p">,</span> <span class="s2">"DIRECTVIEW2"</span><span class="p">)),</span>
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"SEMCam"</span><span class="p">,</span> <span class="s2">"SEMCAM"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2192</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DESEMCam"</span><span class="p">,</span> <span class="s2">"SEMCAM"</span><span class="p">)),</span>
     <span class="n">_adele</span><span class="p">(</span><span class="s2">"Meridian"</span><span class="p">,</span> <span class="s2">"MERIDIAN"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2192</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"MERIDIAN"</span><span class="p">,)),</span>
-    <span class="n">_adele</span><span class="p">(</span><span class="s2">"DE64"</span><span class="p">,</span> <span class="s2">"DE64"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2600</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span> <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span>
-           <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">21.58e-3</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE-64"</span><span class="p">,)),</span>
-    <span class="n">_adele</span><span class="p">(</span><span class="s2">"Vision64"</span><span class="p">,</span> <span class="s2">"VISION64"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">2600</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span> <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span>
-           <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">21.58e-3</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"VISION64"</span><span class="p">,)),</span>
+    <span class="n">_adele</span><span class="p">(</span>
+        <span class="s2">"DE64"</span><span class="p">,</span>
+        <span class="s2">"DE64"</span><span class="p">,</span>
+        <span class="n">sat</span><span class="o">=</span><span class="mi">2600</span><span class="p">,</span>
+        <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span>
+        <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span>
+        <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">21.58e-3</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"DE-64"</span><span class="p">,),</span>
+    <span class="p">),</span>
+    <span class="n">_adele</span><span class="p">(</span>
+        <span class="s2">"Vision64"</span><span class="p">,</span>
+        <span class="s2">"VISION64"</span><span class="p">,</span>
+        <span class="n">sat</span><span class="o">=</span><span class="mi">2600</span><span class="p">,</span>
+        <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span>
+        <span class="n">topology</span><span class="o">=</span><span class="s2">"leftright"</span><span class="p">,</span>
+        <span class="n">num_parts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">full_frame_time_s</span><span class="o">=</span><span class="mf">21.58e-3</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"VISION64"</span><span class="p">,),</span>
+    <span class="p">),</span>
     <span class="n">_desiree</span><span class="p">(</span><span class="s2">"Celeritas"</span><span class="p">,</span> <span class="s2">"CELERITAS"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">4022</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"CELERITAS"</span><span class="p">,)),</span>
     <span class="n">_desiree</span><span class="p">(</span><span class="s2">"CeleritasXS"</span><span class="p">,</span> <span class="s2">"CELERITASXS"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">4022</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"CELERITASXS"</span><span class="p">,)),</span>
     <span class="n">_desiree</span><span class="p">(</span><span class="s2">"Zenith"</span><span class="p">,</span> <span class="s2">"ZENITH"</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="mi">4061</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"ZENITH"</span><span class="p">,)),</span>
@@ -715,7 +782,7 @@
 
 <div class="viewcode-block" id="camera">
 <a class="viewcode-back" href="../../../api/generated/de_twin.detector.camera.html#de_twin.detector.camera">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">camera</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="s2">"str | CameraModel"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">camera</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CameraModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Look up a camera model by name, alias or DE-Server enum name (case-insensitive)."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">CameraModel</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">name</span>

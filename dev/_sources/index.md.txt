@@ -10,8 +10,8 @@ from de_twin import DigitalTwin
 
 twin = DigitalTwin("Dense Au on holey C", camera="DE16")
 twin.column.set("Magnification", 50_000)
-twin.column.move_stage(x=12.5, y=-3.0)   # um
-image = twin.snap(1.0)                   # dark/gain-corrected electrons, like DE-Server
+twin.column.move_stage(x=12.5, y=-3.0)  # um
+image = twin.snap(1.0)  # dark/gain-corrected electrons, like DE-Server
 ```
 
 ::::{grid} 1 2 2 2

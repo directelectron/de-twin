@@ -5,11 +5,11 @@ from de_twin import DigitalTwin, ManualClock
 
 twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
 col = twin.column
-col.set_beam_tilt_mrad(2.0, 0.0)          # tilt the illumination
-col.set("Precession", True)               # sweep the tilt round a cone...
-col.set("PrecessionAngle", 20.0)          # ...of this half-angle, mrad
-col.set("PrecessionFrequency", 100.0)     # Hz
-col.set("PrecessionDescan", True)         # descan brings the pattern back (the default)
+col.set_beam_tilt_mrad(2.0, 0.0)  # tilt the illumination
+col.set("Precession", True)  # sweep the tilt round a cone...
+col.set("PrecessionAngle", 20.0)  # ...of this half-angle, mrad
+col.set("PrecessionFrequency", 100.0)  # Hz
+col.set("PrecessionDescan", True)  # descan brings the pattern back (the default)
 ```
 
 ## Beam tilt

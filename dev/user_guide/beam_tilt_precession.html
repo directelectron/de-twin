@@ -523,11 +523,11 @@
 
 <span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span><span class="s2">"Dense Au on holey C"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"DESim"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">ManualClock</span><span class="p">())</span>
 <span class="n">col</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">column</span>
-<span class="n">col</span><span class="o">.</span><span class="n">set_beam_tilt_mrad</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>          <span class="c1"># tilt the illumination</span>
-<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Precession"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>               <span class="c1"># sweep the tilt round a cone...</span>
-<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionAngle"</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>          <span class="c1"># ...of this half-angle, mrad</span>
-<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionFrequency"</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>     <span class="c1"># Hz</span>
-<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionDescan"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>         <span class="c1"># descan brings the pattern back (the default)</span>
+<span class="n">col</span><span class="o">.</span><span class="n">set_beam_tilt_mrad</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># tilt the illumination</span>
+<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Precession"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># sweep the tilt round a cone...</span>
+<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionAngle"</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>  <span class="c1"># ...of this half-angle, mrad</span>
+<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionFrequency"</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>  <span class="c1"># Hz</span>
+<span class="n">col</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"PrecessionDescan"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># descan brings the pattern back (the default)</span>
 </pre></div>
 </div>
 <section id="beam-tilt">

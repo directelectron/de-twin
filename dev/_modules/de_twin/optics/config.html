@@ -493,9 +493,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProbeMode</span><span class="p">,</span> <span class="n">RenderMode</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.realism</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnRealism</span>
 
 
 <div class="viewcode-block" id="OpticsConfig">
@@ -515,7 +518,7 @@
     <span class="n">eucentric_height_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">flip_x</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">render_mode_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RenderMode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None = Auto</span>
+    <span class="n">render_mode_override</span><span class="p">:</span> <span class="n">RenderMode</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None = Auto</span>
     <span class="c1">#: The largest raster a TEM image is rendered at (pixels); a bigger frame is upsampled</span>
     <span class="c1">#: from it (`OpticsState.raster_downsample` says by how much). 0 renders at the</span>
     <span class="c1">#: frame's own sampling: what a CTF or MTF measurement needs, since an upsampled frame</span>
@@ -536,15 +539,17 @@
     <span class="n">reference_current_pa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">600.0</span>  <span class="c1"># TEM-mode probe current at the reference spot</span>
     <span class="n">reference_spot</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">spot_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># I ~ (ref/spot)^exponent (C++ law)</span>
-    <span class="n">probe_mode_current_factor</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">TEM</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">MICROPROBE</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">EDS</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">NANOPROBE</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">NBD</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">CBD</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-        <span class="n">ProbeMode</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="p">})</span>
+    <span class="n">probe_mode_current_factor</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">TEM</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">MICROPROBE</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">EDS</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">NANOPROBE</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">NBD</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">CBD</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">ProbeMode</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
     <span class="n">stem_current_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># STEM with a TEM/unknown probe mode behaves like nanoprobe</span>
     <span class="c1"># Condenser aperture diameters (um) by 1-based index; current ~ (d/d_ref)^2.</span>
     <span class="n">condenser_apertures_um</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">150.0</span><span class="p">,</span> <span class="mf">70.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
@@ -566,16 +571,16 @@
     <span class="n">intensity_zoom_reference_mag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span>
     <span class="c1">#: A real column's geometry (image rotation, true pixel size, image-shift matrices,</span>
     <span class="c1">#: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.</span>
-    <span class="n">realism</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"ColumnRealism"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">realism</span><span class="p">:</span> <span class="n">ColumnRealism</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="OpticsConfig.realistic">
 <a class="viewcode-back" href="../../../api/generated/de_twin.optics.OpticsConfig.html#de_twin.optics.OpticsConfig.realistic">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">realistic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OpticsConfig"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">realistic</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">overrides</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpticsConfig</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A column as imperfect as a real one (:mod:`de_twin.optics.realism`), reproducibly."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.realism</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnRealism</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">realism</span><span class="o">=</span><span class="n">ColumnRealism</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">),</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">realism</span><span class="o">=</span><span class="n">ColumnRealism</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">),</span> <span class="o">**</span><span class="n">overrides</span><span class="p">)</span></div>
 
 
     <span class="c1"># ---- aberrations / coherence (twin additions) --------------------------</span>

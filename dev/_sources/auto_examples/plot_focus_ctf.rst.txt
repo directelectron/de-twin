@@ -50,8 +50,8 @@ can be tested against known values.
     twin.column.set("Magnification", 300000)
 
 
-    def power_spectrum(img):
-        a = (img - img.mean()) * np.outer(np.hanning(img.shape[0]), np.hanning(img.shape[1]))
+    def power_spectrum(image):
+        a = (image - image.mean()) * np.outer(np.hanning(image.shape[0]), np.hanning(image.shape[1]))
         return np.log1p(np.fft.fftshift(np.abs(np.fft.fft2(a)) ** 2))
 
 
@@ -73,7 +73,7 @@ can be tested against known values.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.719 seconds)
+   **Total running time of the script:** (0 minutes 1.110 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_focus_ctf.py:

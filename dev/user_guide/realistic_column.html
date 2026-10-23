@@ -522,8 +522,9 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">de_twin</span><span class="w"> </span><span class="kn">import</span> <span class="n">DigitalTwin</span><span class="p">,</span> <span class="n">ManualClock</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">de_twin.optics</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpticsConfig</span>
 
-<span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span><span class="s2">"Dense Au on holey C"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"DESim"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">ManualClock</span><span class="p">(),</span>
-                   <span class="n">optics_config</span><span class="o">=</span><span class="n">OpticsConfig</span><span class="o">.</span><span class="n">realistic</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span>
+    <span class="s2">"Dense Au on holey C"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"DESim"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">ManualClock</span><span class="p">(),</span> <span class="n">optics_config</span><span class="o">=</span><span class="n">OpticsConfig</span><span class="o">.</span><span class="n">realistic</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="p">)</span>
 <span class="n">twin</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Magnification"</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
 <span class="n">truth</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">calibration_truth</span><span class="p">()</span>
 <span class="n">truth</span><span class="p">[</span><span class="s2">"image_rotation_deg"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"true_pixel_nm"</span><span class="p">],</span> <span class="n">truth</span><span class="p">[</span><span class="s2">"nominal_pixel_nm"</span><span class="p">]</span>
@@ -604,7 +605,7 @@ focus-dependent image shift and the tilt induced by image shift.</p>
 </section>
 <section id="intensity-zoom">
 <h2>Intensity zoom<a class="headerlink" href="#intensity-zoom" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">OpticsConfig</span><span class="p">(</span><span class="n">intensity_zoom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>      <span class="c1"># or OpticsConfig.realistic(seed, intensity_zoom=True)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">OpticsConfig</span><span class="p">(</span><span class="n">intensity_zoom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># or OpticsConfig.realistic(seed, intensity_zoom=True)</span>
 </pre></div>
 </div>
 <p>Without intensity zoom, the dose per detector pixel goes as 1/mag². Zooming out from a
