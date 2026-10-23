@@ -6,7 +6,7 @@ import pytest
 
 from de_twin.clock import ManualClock
 from de_twin.crystal import effective_matrices, library_for
-from de_twin.render import tem
+from de_twin.render import tem, tem_contrast
 from de_twin.render.diffraction import THICKNESS_BIN_NM, bragg_fraction, thickness_bin_for
 from de_twin.specimen.materials import GRAINS_PER_MATERIAL
 from de_twin.twin import DigitalTwin
@@ -49,16 +49,16 @@ def test_the_bragg_memo_is_the_dense_excitation_in_any_order(name):
     tw = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=1)
     req = tw.request()
     r = tw.renderer
-    tem._BRAGG_MEMOS.clear()
+    tem_contrast._BRAGG_MEMOS.clear()
     views = []
     for mag in (25000.0, 20000.0, 300000.0):
         tw.column.set("Magnification", mag)
         o = tw.optics(req)
         views.append((o, r.field_map(o)[0]))
-    first = [tem.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config) for o, fm in views]
-    assert tem._BRAGG_MEMOS, "the excitations are kept"
-    tem._BRAGG_MEMOS.clear()
-    again = [tem.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config)
+    first = [tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config) for o, fm in views]
+    assert tem_contrast._BRAGG_MEMOS, "the excitations are kept"
+    tem_contrast._BRAGG_MEMOS.clear()
+    again = [tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config)
              for o, fm in reversed(views)][::-1]
     for (o, fm), a, b in zip(views, first, again):
         np.testing.assert_array_equal(a.loss, b.loss)
@@ -76,10 +76,10 @@ def test_a_stage_tilt_is_a_new_excitation():
     r = tw.renderer
     o = tw.optics(req)
     fm = r.field_map(o)[0]
-    a = tem.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config)
+    a = tem_contrast.bragg_contrast(fm, o, r.grains, r.crystallinity, r.config)
     tw.column.move_stage(alpha=4.0)
     o2 = tw.optics(req)
-    b = tem.bragg_contrast(fm, o2, r.grains, r.crystallinity, r.config)
+    b = tem_contrast.bragg_contrast(fm, o2, r.grains, r.crystallinity, r.config)
     assert not np.array_equal(a.loss, b.loss)
     np.testing.assert_allclose(b.loss, _dense_loss(fm, o2, r.grains, r.crystallinity, r.config),
                                rtol=1e-6, atol=1e-9)
@@ -348,7 +348,7 @@ def test_the_bragg_table_is_the_exact_excitation(name):
     g = fm.grain_id[fm.grain_id >= 0]
     mid = int(np.bincount(g // GRAINS_PER_MATERIAL).argmax())
     lib = library_for(mid, r.config.max_g_inv_nm)
-    memo = tem._BraggMemo(r.grains)
+    memo = tem_contrast._BraggMemo(r.grains)
     memo._g_obj = 0.0
     table = memo.table(lib, r.grains, mid, o)
     rng = np.random.default_rng(0)
@@ -362,16 +362,16 @@ def test_a_tilt_series_keeps_its_tables(make_render_twin):
     tw = make_render_twin()
     req = tw.request()
     tw.flux(req)
-    tem._BRAGG_MEMOS.clear()
+    tem_contrast._BRAGG_MEMOS.clear()
     for a in (0.5, 1.0):
         tw.column.move_stage(alpha=a)
         tw.flux(req)
-    kept = dict(tem._BRAGG_MEMOS)
+    kept = dict(tem_contrast._BRAGG_MEMOS)
     assert len(kept) == 2
     tw.column.move_stage(alpha=0.5)
     tw.renderer.invalidate()  # not a crop: the frame is rendered again, the table is reused
     tw.flux(req)
-    assert dict(tem._BRAGG_MEMOS) == kept, "a return to a tilt reuses its table"
+    assert dict(tem_contrast._BRAGG_MEMOS) == kept, "a return to a tilt reuses its table"
 
 
 # ------------------------------------------------------------------ fused kernels
@@ -398,7 +398,7 @@ def test_the_fused_kernels_are_the_numpy_reference(name, mag, defocus, monkeypat
     out = []
     for fast in (False, True):
         monkeypatch.setattr(tem._fp, "AVAILABLE", fast)
-        tem._BRAGG_MEMOS.clear()
+        tem_contrast._BRAGG_MEMOS.clear()
         out.append(tem.render_tem_raster(fm, po, r.grains, r.crystallinity, r.config, r.seed, TransferCache(),
                                          tok, sh))
     ref, fast = out

@@ -103,7 +103,7 @@ def loss_table(lib, geom: list, optics, g_obj: float, n_bins: int) -> tuple[np.n
     """(``frac * p_out``, ``total``), each (len(geom), n_bins): for each grain's reflections
     ``geom[i] = (index, gx, gy, s, |g_xy|)`` at thickness bins 0..n_bins-1, the fraction of
     the beam lost outside ``g_obj`` (all of it when 0; see
-    `de_twin.render.tem.bragg_contrast`) and the total kinematic intensity."""
+    `de_twin.render.tem_contrast.bragg_contrast`) and the total kinematic intensity."""
     from .diffraction import THICKNESS_BIN_NM, bragg_fraction
 
     lens = np.array([len(g[0]) for g in geom], np.int64)
