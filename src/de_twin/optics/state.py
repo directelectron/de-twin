@@ -52,10 +52,6 @@ class OpticsState:
 
     # Focus / aberrations
     defocus_um: float  # effective: defocus + offsets + (z - eucentric)
-    blur_sigma_px: float  # defocus blur on the rasterised view, raster pixels
-    fresnel_gain: float
-    fresnel_sign: float
-    fresnel_sigma_px: float
     objective_stig: tuple[float, float] = (0.0, 0.0)
     beam_tilt_mrad: tuple[float, float] = (0.0, 0.0)
     # TEM imaging: where beam shift puts the illuminated disc, raster px from the centre

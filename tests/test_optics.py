@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from de_twin.optics import (Calibration, OpticsConfig, beam_current_pa, derive_optics,
@@ -194,19 +193,7 @@ def test_defocus_includes_z_offsets_and_eucentric():
     o = _derive(s, cfg=OpticsConfig(defocus_offset_um=0.5, eucentric_height_um=1.0,
                                     stage_offset_um=(0, 0, 0.25)))
     assert o.defocus_um == pytest.approx(-1.0 + 0.5 + (3.0 + 0.25 - 1.0))
-    assert o.fresnel_sign == -1.0  # overfocus
-    o = _derive(_state(defocus_um=-10.0))
-    assert o.fresnel_sign == 1.0 and o.fresnel_gain == pytest.approx(0.6)
 
-
-def test_blur_matches_cpp_formula():
-    cfg = OpticsConfig(illumination_semi_angle_mrad=0.1)
-    small = StubCamera(sensor_shape=(1024, 1024))
-    o = _derive(_state(defocus_um=5.0), camera=small, cfg=OpticsConfig(
-        illumination_semi_angle_mrad=0.1, pixel_size_override_nm=0.5))
-    assert o.blur_sigma_px == pytest.approx(1.0)  # 5000 nm * 1e-4 / 0.5
-    o = _derive(_state(defocus_um=0.0), camera=small, cfg=cfg)
-    assert o.blur_sigma_px == pytest.approx(0.5)
 
 
 def test_probe_and_disk():

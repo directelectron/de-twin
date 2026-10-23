@@ -42,11 +42,6 @@ from .state import OpticsState
 MAX_RASTER_PIXELS = 1024 * 1024
 MIN_RASTER_SIDE = 32
 SAED_RASTER_SIDE = 256
-EDGE_SOFTENING_SIGMA_PX = 0.5
-FRESNEL_GAIN = 0.6
-FRESNEL_SATURATION_UM = 5.0
-FRESNEL_MIN_SIGMA_RASTER_PX = 1.0
-FRESNEL_WIDTH_RATIO = 2.0
 MIN_ALPHA_RAD = 1.0e-6
 MAX_ALPHA_RAD = 0.1
 MIN_DISK_RADIUS_PX = 0.75
@@ -288,12 +283,6 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     alpha = float(np.clip(alpha, MIN_ALPHA_RAD, MAX_ALPHA_RAD))
 
     render_nm = nm_per_px if not scanning else step_nm
-    sigma_geo = abs(defocus_um) * 1000.0 * theta_ill / max(render_nm, 1e-12)
-    blur_sigma_render = max(sigma_geo, EDGE_SOFTENING_SIGMA_PX)
-    sigma_raster = blur_sigma_render / max(1, downsample)
-    fresnel_sign = 1.0 if defocus_um < 0 else (-1.0 if defocus_um > 0 else 0.0)
-    fresnel_gain = FRESNEL_GAIN * min(1.0, abs(defocus_um) / FRESNEL_SATURATION_UM)
-    fresnel_sigma = max(FRESNEL_WIDTH_RATIO * sigma_raster, FRESNEL_MIN_SIGMA_RASTER_PX)
 
     # Probe
     d0 = probe_d0_nm(state, cfg)
@@ -375,7 +364,6 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         "probe_d0_nm": d0,
         "probe_mode": int(state.probe_mode),
         "spot_size": int(state.spot_size),
-        "blur_sigma_render_px": blur_sigma_render,
         "illumination_semi_angle_mrad": theta_ill_mrad,
         "stem_step_nm": step_nm,
         "scan_nm_per_volt": nm_per_v,
@@ -411,10 +399,6 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         dose_e_per_px_s=float(dose),
         beam_current_pa=float(current_pa),
         defocus_um=float(defocus_um),
-        blur_sigma_px=float(sigma_raster),
-        fresnel_gain=float(fresnel_gain),
-        fresnel_sign=float(fresnel_sign),
-        fresnel_sigma_px=float(fresnel_sigma),
         objective_stig=(float(stig.x), float(stig.y)),
         beam_tilt_mrad=img_tilt,
         beam_offset_px=beam_offset_px,

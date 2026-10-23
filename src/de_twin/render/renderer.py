@@ -377,7 +377,6 @@ class Renderer:
         pview = dataclasses.replace(view, shape=(ny // f, nx // f), pixel_um=view.pixel_um * f)
         poptics = dataclasses.replace(
             optics, view=pview, raster_downsample=max(1, optics.raster_downsample) * f,
-            blur_sigma_px=optics.blur_sigma_px / f, fresnel_sigma_px=optics.fresnel_sigma_px / f,
             beam_offset_px=tuple(v / f for v in getattr(optics, "beam_offset_px", (0.0, 0.0))))
         pbase = dataclasses.replace(poptics, view=dataclasses.replace(pview, center_um=(0.0, 0.0)),
                                     beam_offset_px=(0.0, 0.0))

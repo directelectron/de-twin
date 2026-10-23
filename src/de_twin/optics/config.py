@@ -8,9 +8,12 @@ render-side ones live in :class:`de_twin.render.RenderConfig`).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from ..state import ProbeMode, RenderMode
+
+if TYPE_CHECKING:
+    from .realism import ColumnRealism
 
 
 @dataclass
@@ -79,7 +82,7 @@ class OpticsConfig:
     intensity_zoom_reference_mag: float = 20000.0
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
-    realism: Optional["ColumnRealism"] = None
+    realism: Optional[ColumnRealism] = None
 
     @classmethod
     def realistic(cls, seed: int = 0, **kw) -> "OpticsConfig":
