@@ -10,7 +10,6 @@ import pytest
 
 from de_twin.optics import Calibration, OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.tem import bragg_contrast
 from de_twin.render.testing import (Particle, StubCamera, SyntheticSpecimen, fit_defocus, on_zone_grains,
                                     phase_correlation_shift)
 from de_twin.specimen.materials import MaterialId
@@ -192,31 +191,7 @@ def test_fresnel_fringe_at_hole_edge_flips_with_defocus():
     assert rows[-3.0].mean() > rows[3.0].mean()
 
 
-def test_legacy_model_matches_cpp_pipeline():
-    """C++ port: mass thickness, then Gaussian blur, then the signed Fresnel unsharp mask."""
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 15.0)])
-    r = Renderer(spec, RenderConfig(tem_model="legacy", illumination_profile=False))
-    ocfg = OpticsConfig(illumination_semi_angle_mrad=1.0)
-    o0 = _optics(magnification=40000, defocus_um=0.0, cfg=ocfg)
-    sharp = r.render(o0)
-    o1 = _optics(magnification=40000, defocus_um=-2.0, cfg=ocfg)
-    under = r.render(o1)
-    over = r.render(_optics(magnification=40000, defocus_um=2.0, cfg=ocfg))
-    dose = o0.dose_e_per_px_s
-    for img in (sharp, under, over):
-        assert img.min() >= 0 and img.max() <= dose * (1 + 1e-5)
-    # the core of a 30 nm gold ball: exp(-30/25) (1 - D_out) at focus (0.5 px blur barely matters),
-    # D_out = Bragg loss of the grain at its orientation from the crystal library
-    c = sharp.shape[0] // 2
-    fm, _ = r.field_map(o0)
-    loss = bragg_contrast(fm, o0, spec.grains, spec.crystallinity, r.config).loss
-    ci = fm.material_id.shape[0] // 2
-    assert 0.0 <= loss[ci, ci] <= 0.75
-    assert sharp[c, c] / dose == pytest.approx(math.exp(-30.0 / 25.0) * (1 - loss[ci, ci]), rel=0.02)
-    # underfocus darkens just inside the edge (fresnel_sign +1), overfocus brightens it
-    edge = int(15.0 / o0.specimen_pixel_nm)
-    inside = slice(c + edge - 6, c + edge - 1)
-    assert under[c, inside].mean() < over[c, inside].mean()
+
 
 
 def test_lattice_fringes_resolved_at_high_mag():

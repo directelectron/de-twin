@@ -1,6 +1,6 @@
 """TEM imaging.
 
-Two models share the amplitude term, mass-thickness plus diffraction contrast::
+The image starts from the amplitude term, mass-thickness plus diffraction contrast::
 
     T = exp(-t * f_tilt / Lambda(material, HT))       (f_tilt = 1/(cos a cos b))
     I_amp = clamp(T * (1 - s * c * D_out), 0, 1)
@@ -12,10 +12,7 @@ the diffraction patterns); ``c`` is the crystallinity and ``s`` ``diffraction_co
 Tilting the stage therefore moves grains in and out of Bragg conditions (bend/thickness
 contours included).
 
-``legacy``: Gaussian defocus blur of ``I_amp`` (sigma = |df| theta_ill / px, floored at
-0.5 px), the signed Fresnel unsharp mask, gold lattice fringes as an intensity modulation.
-
-``physical`` (default): a proper exit wave propagated through the objective transfer function::
+A proper exit wave propagated through the objective transfer function::
 
     psi(r)   = sqrt(I_amp) * exp(i phi - kappa phi_tex)
     phi      = sigma V0(material) t                    mean inner potential (Fresnel fringes)
@@ -45,13 +42,12 @@ from dataclasses import dataclass
 
 import numpy as np
 from scipy import fft as sfft
-from scipy import ndimage
 
 from ..crystal import effective_matrices, library_for
 from ..hashing import SeedKind, hash_seed, uniform_from_hash
 from ..optics.physics import interaction_constant
 from ..optics.state import image_aberrations_of
-from ..specimen.materials import (GRAINS_PER_MATERIAL, MATERIALS, MaterialId, absorption_lengths_nm,
+from ..specimen.materials import (GRAINS_PER_MATERIAL, MATERIALS, absorption_lengths_nm,
                                   material_array)
 from . import fastpath as _fp
 from .diffraction import MAX_THICKNESS_BIN, THICKNESS_BIN_NM, bragg_fraction, thickness_bin_for
@@ -59,7 +55,6 @@ from .samples import DIFFUSE_CUTOFF_LENGTHS
 from .util import (chi_and_gradient, disk_profile, gaussian_filter_threaded, parallel_rows, pool, upsample_to,
                    world_normal_noise)
 
-GOLD_LATTICE_CONTRAST = 0.12
 LATTICE_MIN_SAMPLES = 2.25
 FRINGE_BEAM_FRACTION = 0.02  # a beam carrying this fraction of the electrons gives full-strength fringes
 MAX_FRINGE_BEAMS = 3
@@ -354,10 +349,10 @@ def amplitude_rows(fm, optics, r0, r1, loss) -> tuple:
 
 
 # ------------------------------------------------------------- lattice
-def lattice_field(fm, optics, bc: BraggContrast, t, gold_only: bool = False):
+def lattice_field(fm, optics, bc: BraggContrast, t):
     """sum_w a_w cos(g_w . r + phase_w) / n_w over each grain's strongest resolved beams,
     times min(1, t / 10 nm). Returns ((rows, cols), weighted, unweighted) or None."""
-    gids = [g for g in bc.fringes if not gold_only or g // GRAINS_PER_MATERIAL == MaterialId.GOLD]
+    gids = list(bc.fringes)
     mask = np.isin(bc.gid, gids) if gids else None
     if mask is None or not mask.any():
         return None
@@ -396,28 +391,6 @@ def lattice_field(fm, optics, bc: BraggContrast, t, gold_only: bool = False):
             weight[sel] = np.clip(t[rows[sel], cols[sel]] / bc.t_typ[gg], 0.0, 2.0)
     list(pool().map(one, jobs))
     return (rows, cols), (acc * weight).astype(np.float32), raw.astype(np.float32)
-
-
-# --------------------------------------------------------------- legacy
-def render_legacy(fm, optics, grains, crystallinity, cfg) -> np.ndarray:
-    bc = bragg_contrast(fm, optics, grains, crystallinity, cfg)
-    I, t = amplitude_rows(fm, optics, 0, fm.material_id.shape[0], bc.loss)
-    lat = lattice_field(fm, optics, bc, t, gold_only=True)
-    if lat is not None:
-        (rows, cols), _, raw = lat
-        I[rows, cols] *= 1.0 + GOLD_LATTICE_CONTRAST * raw
-        np.clip(I, 0.0, 1.0, out=I)
-    unblurred = I.copy()
-    sigma = max(optics.blur_sigma_px, 1e-3)
-    radius = min(31, int(math.ceil(3.0 * sigma - 1e-6)))
-    out = ndimage.gaussian_filter(I, sigma, truncate=max(1.0, radius / sigma), mode="nearest")
-    if optics.fresnel_gain > 0:
-        fs = optics.fresnel_sigma_px
-        fr = min(31, int(math.ceil(3.0 * fs - 1e-6)))
-        low = ndimage.gaussian_filter(unblurred, fs, truncate=max(1.0, fr / fs), mode="nearest")
-        out = out + np.float32(optics.fresnel_gain * optics.fresnel_sign) * (unblurred - low)
-        np.clip(out, 0.0, 1.0, out=out)
-    return out.astype(np.float32)
 
 
 # ------------------------------------------------------------- physical
@@ -917,13 +890,6 @@ def render_tem_raster(fm, optics, grains, crystallinity, cfg, seed: int, cache: 
     """The specimen's image in RASTER space, before the illumination disc and upsampling —
     what moves rigidly with the stage (see `Renderer` panning). ``shift_px`` (rows, cols)
     translates it by a fraction of a pixel."""
-    if cfg.tem_model == "legacy":
-        img = render_legacy(fm, optics, grains, crystallinity, cfg)
-        ramps = _shift_ramps(img.shape, shift_px)
-        if ramps is None:
-            return img
-        spec = sfft.fft2(img, workers=-1) * ramps[0][:, None] * ramps[1][None, :]
-        return np.clip(sfft.ifft2(spec, workers=-1).real, 0.0, None).astype(np.float32)
     return render_physical(fm, optics, grains, crystallinity, cfg, seed, cache, fm_token, shift_px)
 
 
