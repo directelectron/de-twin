@@ -52,13 +52,13 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/de_twin.faces.temchannel_soap.TemChannelServer';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/dev/api/generated/de_twin.faces.temchannel_soap.TemChannelServer.html" />
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/api/generated/de_twin.faces.temchannel_soap.TemChannelServer.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="de_twin.faces.deapi_server.TwinDeapiServer" href="de_twin.faces.deapi_server.TwinDeapiServer.html" />
@@ -270,7 +270,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -424,7 +424,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -468,6 +468,11 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.corrector.Corrector.html">de_twin.column.corrector.Corrector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.lowdose.LowDose.html">de_twin.column.lowdose.LowDose</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.column.lowdose.LowDoseArea.html">de_twin.column.lowdose.LowDoseArea</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.ColumnRefused.html">de_twin.column.ColumnRefused</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.CorrectorError.html">de_twin.column.CorrectorError</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.MeasurementResult.html">de_twin.column.MeasurementResult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.CorrectorUnit.html">de_twin.column.CorrectorUnit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.column.SoapError.html">de_twin.column.SoapError</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.optics.aberrations.Aberrations.html">de_twin.optics.aberrations.Aberrations</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -617,7 +622,7 @@ recorded samples).</p>
 <td><p>One executeBatchCommands field, formatted like the channel's stringstream.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit" title="de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrector_unit</span></code></a>()</p></td>
-<td><p>The served <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrectorUnit</span></code>, or None.</p></td>
+<td><p>The served <a class="reference internal" href="de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit" title="de_twin.column.corrector.CorrectorUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrectorUnit</span></code></a>, or None.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.handle" title="de_twin.faces.temchannel_soap.TemChannelServer.handle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle</span></code></a>(xml)</p></td>
 <td><p>Answer one SOAP request.</p></td>
@@ -732,7 +737,7 @@ recorded samples).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit">
 <span class="sig-name descname"><span class="pre">corrector_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/faces/temchannel_soap.html#TemChannelServer.corrector_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit" title="Link to this definition">#</a></dt>
-<dd><p>The served <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrectorUnit</span></code>, or None.</p>
+<dd><p>The served <a class="reference internal" href="de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit" title="de_twin.column.corrector.CorrectorUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrectorUnit</span></code></a>, or None.</p>
 </dd></dl>
 
 <dl class="py method">

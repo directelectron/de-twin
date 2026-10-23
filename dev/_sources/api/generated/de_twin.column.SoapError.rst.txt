@@ -1,0 +1,6 @@
+﻿de\_twin.column.SoapError
+=========================
+
+.. currentmodule:: de_twin.column
+
+.. autoexception:: SoapError

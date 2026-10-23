@@ -52,13 +52,13 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'dev/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/dev/dev/index.html" />
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/dev/index.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Changelog" href="../changelog.html" />
@@ -270,7 +270,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -424,7 +424,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -505,7 +505,7 @@
 <h1>Development and releases<a class="headerlink" href="#development-and-releases" title="Link to this heading">#</a></h1>
 <section id="setting-up">
 <h2>Setting up<a class="headerlink" href="#setting-up" title="Link to this heading">#</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">CSSFrancis</span><span class="o">/</span><span class="n">de</span><span class="o">-</span><span class="n">twin</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">directelectron</span><span class="o">/</span><span class="n">de</span><span class="o">-</span><span class="n">twin</span>
 <span class="n">cd</span> <span class="n">de</span><span class="o">-</span><span class="n">twin</span>
 <span class="n">uv</span> <span class="n">sync</span> <span class="o">--</span><span class="n">group</span> <span class="n">dev</span>          <span class="c1"># the package (editable), deapi, pytest, towncrier, ruff</span>
 <span class="n">uv</span> <span class="n">run</span> <span class="n">pytest</span>                <span class="c1"># ~340 tests, a few minutes</span>
@@ -552,7 +552,7 @@ to the GitHub Release. Pushing the tag also builds that version’s documentatio
 <h3>One-time setup<a class="headerlink" href="#one-time-setup" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>PyPI</strong>: on pypi.org, <em>Your projects → Publishing → Add a pending publisher</em>: project
-<code class="docutils literal notranslate"><span class="pre">de-twin</span></code>, owner <code class="docutils literal notranslate"><span class="pre">CSSFrancis</span></code>, repository <code class="docutils literal notranslate"><span class="pre">de-twin</span></code>, workflow <code class="docutils literal notranslate"><span class="pre">release.yml</span></code>,
+<code class="docutils literal notranslate"><span class="pre">de-twin</span></code>, owner <code class="docutils literal notranslate"><span class="pre">directelectron</span></code>, repository <code class="docutils literal notranslate"><span class="pre">de-twin</span></code>, workflow <code class="docutils literal notranslate"><span class="pre">release.yml</span></code>,
 environment <code class="docutils literal notranslate"><span class="pre">pypi</span></code>.</p></li>
 <li><p><strong>GitHub</strong>: create an environment named <code class="docutils literal notranslate"><span class="pre">pypi</span></code> (<em>Settings → Environments</em>); optionally
 require a reviewer for it. Enable GitHub Pages from the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch once the Docs

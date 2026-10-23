@@ -51,13 +51,13 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/column/corrector';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cssfrancis.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
-    <link rel="canonical" href="https://cssfrancis.github.io/de-twin/dev/_modules/de_twin/column/corrector.html" />
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/_modules/de_twin/column/corrector.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -267,7 +267,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -419,7 +419,7 @@
           
           
           
-          <a href="https://github.com/CSSFrancis/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -594,6 +594,8 @@
     <span class="n">run</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>  <span class="c1"># t -&gt; (ok, result text, error)</span>
 
 
+<div class="viewcode-block" id="CorrectorUnit">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CorrectorUnit</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One corrector (one CEOS-RPC server): probe (STEM, port 7072) or image (TEM, 7071).</span>
 
@@ -601,6 +603,8 @@
 <span class="sd">    injected clock. Thread-safe through the owner's lock.</span>
 <span class="sd">    """</span>
 
+<div class="viewcode-block" id="CorrectorUnit.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -673,30 +677,40 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_commanded</span> <span class="o">=</span> <span class="mi">0</span><span class="n">j</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_known</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span> <span class="n">_Pending</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
 
     <span class="c1"># ------------------------------------------------------------ aberrations</span>
+<div class="viewcode-block" id="CorrectorUnit.residual">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.residual">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Ground truth: native + corrector offset + drift at time ``t`` (default now)."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">()</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">t</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">t</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">native</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drift</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
+<div class="viewcode-block" id="CorrectorUnit.total">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""What a measurement sees: residual + the operator's focus (C1) and stig (A1)."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">t</span>
             <span class="n">c1</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">side</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="n">c1</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="n">a1</span><span class="p">}</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="n">c1</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="n">a1</span><span class="p">}</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.set_residual">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.set_residual">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_nm</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Test / expert knob: make the residual ``name`` exactly ``value_nm`` now."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">())[</span><span class="n">name</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">complex</span><span class="p">(</span><span class="n">value_nm</span><span class="p">)</span> <span class="o">-</span> <span class="n">cur</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">complex</span><span class="p">(</span><span class="n">value_nm</span><span class="p">)</span> <span class="o">-</span> <span class="n">cur</span><span class="p">}</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_kick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="p">{</span>
@@ -704,13 +718,16 @@
             <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
 
+<div class="viewcode-block" id="CorrectorUnit.perturb">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.perturb">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mode"</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Detune: ``"ht"`` (HT change, cold start) or ``"mode"`` (probe/function mode)."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_kick</span><span class="p">(</span><span class="n">DETUNE_HT</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"ht"</span> <span class="k">else</span> <span class="n">DETUNE_MODE</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"ht"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
 
     <span class="c1"># ------------------------------------------------------------ status</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_advance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -727,20 +744,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">ok</span> <span class="k">else</span> <span class="n">err</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">t_done</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">ok</span><span class="p">))</span>
 
+<div class="viewcode-block" id="CorrectorUnit.status">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">()</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">busy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">()</span> <span class="o">==</span> <span class="n">RUNNING</span>
 
+<div class="viewcode-block" id="CorrectorUnit.time_to_idle">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.time_to_idle">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">time_to_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">()</span>
-            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="o">.</span><span class="n">t_done</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">())</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="o">.</span><span class="n">t_done</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">())</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="k">else</span> <span class="mf">0.0</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.info">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.info">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""``CorrectorInfo::toString`` (getCorrectorInfo)."""</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.9g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">MEASUREMENT_RANGE_M</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -748,20 +773,29 @@
             <span class="sa">f</span><span class="s2">"correctorType=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">corrector_type</span><span class="si">}</span><span class="s2">;mode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">;host=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">;"</span>
             <span class="sa">f</span><span class="s2">"version=v1.9-0-de_twin;kernelVersion=0-00-00;currentLabel=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">()</span><span class="si">}</span><span class="s2">;"</span>
             <span class="sa">f</span><span class="s2">"currentSetting=de_twin;protocolVersion=</span><span class="si">{</span><span class="n">PROTOCOL_VERSION</span><span class="si">}</span><span class="s2">;measurementRange=</span><span class="si">{</span><span class="n">rng</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.endpoint">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.endpoint">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""``CorrectorFactory::describe``."""</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">corrector_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2"> corrector at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2"> "</span>
             <span class="sa">f</span><span class="s2">"(protocol </span><span class="si">{</span><span class="n">PROTOCOL_VERSION</span><span class="si">}</span><span class="s2">)"</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.aberrations_string">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.aberrations_string">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aberrations_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">format_aberration_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aberrations</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">format_aberration_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aberrations</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.aberration">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.aberration">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aberration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""getAberration: (x, y, status) from the last measurement (metres / rad)."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -769,7 +803,8 @@
             <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aberrations</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">1</span>
-            <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span></div>
+
 
     <span class="c1"># ------------------------------------------------------------ posting</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -784,6 +819,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="n">_Pending</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">),</span> <span class="n">run</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">""</span>
 
+<div class="viewcode-block" id="CorrectorUnit.wait">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.wait">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sleeper</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Wait (on the clock) until the running command finishes. Returns the state."""</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span>
@@ -799,12 +836,18 @@
             <span class="k">if</span> <span class="n">sleeper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">sleeper</span><span class="p">(</span><span class="n">rem</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-4</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-4</span><span class="p">)</span></div>
+
 
     <span class="c1"># measureC1A1 ------------------------------------------------------------</span>
+<div class="viewcode-block" id="CorrectorUnit.post_measure_c1a1">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_measure_c1a1">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_measure_c1a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"measureC1A1"</span><span class="p">,</span> <span class="n">T_MEASURE_C1A1</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_measure</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">"C1A1"</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"measureC1A1"</span><span class="p">,</span> <span class="n">T_MEASURE_C1A1</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_measure</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">"C1A1"</span><span class="p">))</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_tableau">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_tableau">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_tableau</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tab_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">max_fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -820,7 +863,8 @@
         <span class="n">dur</span> <span class="o">=</span> <span class="n">T_TABLEAU_OVERHEAD</span> <span class="o">+</span> <span class="n">T_TABLEAU_PER_IMAGE</span> <span class="o">*</span> <span class="n">n_images</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span>
             <span class="s2">"acquireTableau"</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_measure</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">"tableau"</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">,</span> <span class="n">max_fit</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_measure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Standard"</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">max_fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
@@ -837,6 +881,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">to_string</span><span class="p">(),</span> <span class="s2">""</span>
 
+<div class="viewcode-block" id="CorrectorUnit.simulate_measurement">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.simulate_measurement">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">simulate_measurement</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"tableau"</span><span class="p">,</span>
@@ -919,9 +965,12 @@
             <span class="n">t_done</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
             <span class="n">side</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">side</span><span class="p">,</span>
             <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="c1"># correctAberration ------------------------------------------------------</span>
+<div class="viewcode-block" id="CorrectorUnit.post_correct">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_correct">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_correct</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -938,7 +987,8 @@
             <span class="s2">"correctAberration"</span><span class="p">,</span>
             <span class="n">T_CORRECT</span><span class="p">,</span>
             <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_correct</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">beam_tilt_managed</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_correct</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">select</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">managed</span><span class="p">:</span> <span class="nb">bool</span>
@@ -985,6 +1035,8 @@
             <span class="p">}</span>
 
     <span class="c1"># alignment / config / housekeeping ---------------------------------------</span>
+<div class="viewcode-block" id="CorrectorUnit.alignment_json">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.alignment_json">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">alignment_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
             <span class="p">{</span>
@@ -997,7 +1049,8 @@
                 <span class="s2">"WD"</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">wd</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span><span class="o">.</span><span class="n">imag</span><span class="p">],</span>
             <span class="p">},</span>
             <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1012,18 +1065,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_known</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span>
 
+<div class="viewcode-block" id="CorrectorUnit.post_fetch_alignment">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_fetch_alignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_fetch_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment_json</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"getAlignmentFile"</span><span class="p">,</span> <span class="n">T_ALIGNMENT</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"getAlignmentFile"</span><span class="p">,</span> <span class="n">T_ALIGNMENT</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_put_alignment">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_put_alignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_put_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"the alignment file was empty"</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"putAlignmentFile"</span><span class="p">,</span> <span class="n">T_ALIGNMENT</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_alignment</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"putAlignmentFile"</span><span class="p">,</span> <span class="n">T_ALIGNMENT</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_alignment</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_get_config">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_get_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"no configuration option name was given"</span>
@@ -1034,8 +1095,11 @@
                 <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">_server_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown configuration option "</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"true"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"false"</span><span class="p">,</span> <span class="s2">""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"getConfigOption"</span><span class="p">,</span> <span class="n">T_CONFIG</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"getConfigOption"</span><span class="p">,</span> <span class="n">T_CONFIG</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_set_config">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_set_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"no configuration option name was given"</span>
@@ -1057,19 +1121,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"setConfigOption"</span><span class="p">,</span> <span class="n">T_CONFIG</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"setConfigOption"</span><span class="p">,</span> <span class="n">T_CONFIG</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_readback">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_readback">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_readback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"readBack"</span><span class="p">,</span> <span class="n">T_READBACK</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"readBack"</span><span class="p">,</span> <span class="n">T_READBACK</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span></div>
 
+
+<div class="viewcode-block" id="CorrectorUnit.post_reconnect">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.post_reconnect">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_reconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_known</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"reconnect"</span><span class="p">,</span> <span class="n">T_RECONNECT</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="s2">"reconnect"</span><span class="p">,</span> <span class="n">T_RECONNECT</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span></div>
+
 
     <span class="c1"># beam tilt (WD) -----------------------------------------------------------</span>
+<div class="viewcode-block" id="CorrectorUnit.set_beam_tilt">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit.set_beam_tilt">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_beam_tilt</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">wait_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sleeper</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -1093,7 +1166,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_commanded</span> <span class="o">=</span> <span class="n">tgt</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">beam_tilt_known</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">""</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">""</span></div>
+</div>
+
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -1102,7 +1177,7 @@
 
 
 <div class="viewcode-block" id="Corrector">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Corrector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Probe and/or image corrector of a column.</span>
 
@@ -1117,7 +1192,7 @@
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Corrector.__init__">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"probe"</span><span class="p">,</span>
@@ -1174,7 +1249,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">served_side</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Corrector.unit">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.unit">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.unit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CorrectorUnit</span><span class="p">:</span>
         <span class="n">side</span> <span class="o">=</span> <span class="n">side</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">served_side</span>
         <span class="k">if</span> <span class="n">side</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">:</span>
@@ -1183,13 +1258,13 @@
 
 
 <div class="viewcode-block" id="Corrector.has">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.has">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.has">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">side</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span></div>
 
 
 <div class="viewcode-block" id="Corrector.residual_dict">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.residual_dict">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.residual_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">residual_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""For MicroscopeState.{probe,image}_aberrations ({} when that side has none)."""</span>
         <span class="k">if</span> <span class="n">side</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">:</span>
@@ -1198,27 +1273,27 @@
 
 
 <div class="viewcode-block" id="Corrector.get">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.get">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Ground-truth residual of a side (nm)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span><span class="o">.</span><span class="n">residual</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Corrector.set">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.set">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_nm</span><span class="p">:</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Set a residual coefficient exactly (an ideal correction; tests / scenarios)."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span><span class="o">.</span><span class="n">set_residual</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value_nm</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Corrector.pi4_angle_mrad">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.pi4_angle_mrad">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.pi4_angle_mrad">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pi4_angle_mrad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pi4_angle_mrad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">side</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Corrector.status">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.status">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span><span class="o">.</span><span class="n">status</span><span class="p">()</span></div>
 
@@ -1234,7 +1309,7 @@
         <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">beam_tilt_commanded</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">beam_tilt_commanded</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">beam_tilt_known</span>
 
 <div class="viewcode-block" id="Corrector.set_beam_tilt">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.set_beam_tilt">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.set_beam_tilt">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_beam_tilt</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x_rad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_rad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1246,7 +1321,7 @@
 
 
 <div class="viewcode-block" id="Corrector.endpoints">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.endpoints">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.endpoints">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">u</span><span class="o">.</span><span class="n">endpoint</span><span class="p">()</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">served</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">served_side</span><span class="p">])</span>
@@ -1263,7 +1338,7 @@
             <span class="k">raise</span> <span class="n">CorrectorError</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">last_error</span> <span class="ow">or</span> <span class="s2">"the corrector command failed"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Corrector.measure">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.measure">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.measure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">measure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tab_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Standard"</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">max_fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeasurementResult</span><span class="p">:</span>
@@ -1281,7 +1356,7 @@
 
 
 <div class="viewcode-block" id="Corrector.correct">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.correct">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.correct">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">correct</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1303,7 +1378,7 @@
 
 
 <div class="viewcode-block" id="Corrector.save_alignment">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.save_alignment">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.save_alignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_finish</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">post_fetch_alignment</span><span class="p">())</span>
@@ -1311,28 +1386,28 @@
 
 
 <div class="viewcode-block" id="Corrector.load_alignment">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.load_alignment">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.load_alignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_finish</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">post_put_alignment</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Corrector.wait">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.wait">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.wait">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">(</span><span class="n">side</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sleeper</span><span class="p">)</span></div>
 
 
     <span class="c1"># ------------------------------------------------------------ column events</span>
 <div class="viewcode-block" id="Corrector.perturb">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.perturb">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.perturb">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mode"</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">u</span><span class="o">.</span><span class="n">perturb</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Corrector.on_ht_change">
-<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.corrector.Corrector.on_ht_change">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.corrector.Corrector.html#de_twin.column.Corrector.on_ht_change">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_ht_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ht_kv</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
