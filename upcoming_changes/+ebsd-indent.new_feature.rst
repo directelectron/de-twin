@@ -1,0 +1,1 @@
+Indented Si for HR-EBSD: presets ``EBSD Si (001) Vickers indent`` and ``EBSD Si (001) Berkovich indent`` (``de_twin.specimen.indent``) carry a residual strain / rotation field, plastic zone and cracks that distort the EBSD patterns; ``ground_truth`` adds the deformation gradient, strain, rotation and a GND density proxy per scan point.
