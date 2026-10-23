@@ -24,6 +24,7 @@ the orientation average ``<P> = t sum_g pi^2 / (2 g xi_g^2)`` as Debye-Scherrer 
 from __future__ import annotations
 
 import math
+import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
@@ -544,15 +545,19 @@ class DiffractionCacheStats:
 
 
 class DiffractionCache:
-    """Byte-budgeted LRU of rendered patterns, any hashable key (never evicts the newest)."""
+    """Byte-budgeted LRU of rendered patterns, any hashable key (never evicts the newest).
+    Thread-safe (the coherent STEM read-ahead fills it off the render thread); a pattern is
+    rendered outside the lock."""
 
     def __init__(self, budget_mb: int = 256):
         self._lru: "OrderedDict[object, np.ndarray]" = OrderedDict()
+        self._lock = threading.RLock()
         self.stats = DiffractionCacheStats(budget_bytes=max(1, int(budget_mb)) * 1024 * 1024)
 
     def set_budget_mb(self, mb: int) -> None:
-        self.stats.budget_bytes = max(1, int(mb)) * 1024 * 1024
-        self._evict()
+        with self._lock:
+            self.stats.budget_bytes = max(1, int(mb)) * 1024 * 1024
+            self._evict()
 
     def __len__(self) -> int:
         return len(self._lru)
@@ -561,25 +566,30 @@ class DiffractionCache:
         return key in self._lru
 
     def get(self, key, render: Callable[[object], np.ndarray]) -> np.ndarray:
-        arr = self._lru.get(key)
-        if arr is not None:
-            self._lru.move_to_end(key)
-            self.stats.hits += 1
-            return arr
+        with self._lock:
+            arr = self._lru.get(key)
+            if arr is not None:
+                self._lru.move_to_end(key)
+                self.stats.hits += 1
+                return arr
         t0 = time.perf_counter()
         arr = render(key)
         arr.setflags(write=False)
-        self.stats.last_render_ms = (time.perf_counter() - t0) * 1000.0
-        self._lru[key] = arr
-        self.stats.bytes += arr.nbytes
-        self.stats.misses += 1
-        self._evict()
+        with self._lock:
+            self.stats.last_render_ms = (time.perf_counter() - t0) * 1000.0
+            if key in self._lru:  # rendered meanwhile by another thread
+                return self._lru[key]
+            self._lru[key] = arr
+            self.stats.bytes += arr.nbytes
+            self.stats.misses += 1
+            self._evict()
         return arr
 
     def clear(self) -> None:
-        self._lru.clear()
-        self.stats.bytes = 0
-        self.stats.entries = 0
+        with self._lock:
+            self._lru.clear()
+            self.stats.bytes = 0
+            self.stats.entries = 0
 
     def _evict(self) -> None:
         while self.stats.bytes > self.stats.budget_bytes and len(self._lru) > 1:

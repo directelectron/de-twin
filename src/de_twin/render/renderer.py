@@ -224,6 +224,9 @@ class Renderer:
         self.cache = DiffractionCache(self.config.diffraction_cache_mb)
         self._fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
         self._preview_fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
+        # the coherent STEM engine's fine views: their own store, so the transmission tiles of a
+        # sparse scan (one per point) do not push out the scan's own field map
+        self._fine_fieldmaps: "OrderedDict[tuple, tuple]" = OrderedDict()
         self._tokens = itertools.count(1)
         self._tem_cache = TransferCache()
         self._frame: Optional[tuple] = None
@@ -298,10 +301,10 @@ class Renderer:
                                            threads=max(1, int(self.config.raster_threads)))
         return self.specimen.rasterize(view, layers)
 
-    def _keep_field_map(self, store, key, fm, token) -> None:
+    def _keep_field_map(self, store, key, fm, token, size: Optional[int] = None) -> None:
         store[key] = (fm, token, getattr(fm, "generation", 0))
         store.move_to_end(key)
-        while len(store) > max(1, self.config.fieldmap_cache_size):
+        while len(store) > max(1, self.config.fieldmap_cache_size if size is None else size):
             store.popitem(last=False)
 
     def _render_tem_panned(self, optics, time_s: float) -> np.ndarray:
@@ -513,6 +516,7 @@ class Renderer:
         self._last_req = None
         self._fieldmaps.clear()
         self._preview_fieldmaps.clear()
+        self._fine_fieldmaps.clear()
         self._tem_cache = TransferCache()
         self._frame = None
         self.cache.clear()
@@ -538,7 +542,11 @@ class Renderer:
         """Render the TEM view ``optics`` into the caches, off the caller's thread: the padded
         raster and its field map, so asking for that view later is a crop. The heavy work
         runs without the renderer's lock (a live frame is not held up); only looking up and
-        storing take it. Returns whether anything was rendered."""
+        storing take it. Coherent 4D-STEM: the probe, transmission tile and first block of
+        patterns. Returns whether anything was rendered."""
+        if (not optics.beam_blanked and optics.render_mode in (RenderMode.STEM_4D, RenderMode.STEM_PARKED)
+                and self.stem_model(optics) == "coherent"):
+            return self._prefetch_coherent(optics, time_s)
         if (optics.beam_blanked or optics.render_mode != RenderMode.TEM_IMAGING or self.config.pan_margin <= 0
                 or self._time_dependent()):
             return False
@@ -628,8 +636,44 @@ class Renderer:
         from types import SimpleNamespace
 
         def fine(view):
-            return self.field_map(dataclasses.replace(optics, view=view), frozenset(), time_s)
+            return self._fine_field_map(dataclasses.replace(optics, view=view), time_s)
         return SimpleNamespace(field_map=fine, grains=self.grains, crystallinity=self.crystallinity)
+
+    def _fine_field_map(self, optics, time_s: float):
+        """``field_map`` of a coherent-STEM fine view in its own store, rasterised without the
+        renderer's lock (a prefetch thread does not hold up live frames)."""
+        store = self._fine_fieldmaps
+        tq = self.config.time_quantum_s
+        tkey = round(time_s / tq) if (self._time_dependent() and tq > 0) else 0
+        gen = getattr(self.specimen, "generation", 0)
+        key = (optics.view, frozenset(), gen, tkey)
+        with self._lock:
+            hit = store.get(key)
+            if hit is not None and getattr(hit[0], "generation", 0) == hit[2]:
+                store.move_to_end(key)
+                return hit[0], hit[1]
+        fm = self._rasterize(optics.view, frozenset())
+        with self._lock:
+            hit = store.get(key)
+            if hit is not None and getattr(hit[0], "generation", 0) == hit[2]:
+                return hit[0], hit[1]
+            self.rasters_built += 1
+            token = (next(self._tokens), getattr(fm, "generation", 0))
+            self._keep_field_map(store, key, fm, token, size=2)  # as many as the engine keeps tiles
+            return fm, token
+
+    def _prefetch_coherent(self, optics, time_s: float) -> bool:
+        """The coherent STEM engine's probe, transmission tile and first block of ``optics``,
+        off the render thread (the renderer's lock only for the small scan raster)."""
+        optics = _precession_frame(optics, time_s)
+        with self._lock:
+            fm, token = self.field_map(optics, STEM_LAYERS, time_s)
+            engine = self._coherent
+        done = engine.prefetch(self._ctx(optics, time_s), optics, fm, token)
+        if done:
+            with self._lock:
+                self.prefetched += 1
+        return done
 
     def stem_model(self, optics) -> str:
         """The STEM model used for these optics: "coherent" or "kinematic"

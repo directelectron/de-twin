@@ -9,7 +9,7 @@ import pytest
 
 pytest.importorskip("numba")
 
-#: Four threads launching a parallel kernel at once, over and over: under numba's
+#: Four threads launching parallel kernels at once, over and over: under numba's
 #: workqueue threading layer (macOS's only one) this aborted the process.
 _CONCURRENT = textwrap.dedent(
     """
@@ -19,14 +19,21 @@ _CONCURRENT = textwrap.dedent(
 
     from de_twin.parallel import PARALLEL
     from de_twin.render.fastpath import transpose
+    from de_twin.render.stem_nb import window_dots
 
     x = np.arange(512 * 384, dtype=np.float32).reshape(512, 384)
+    corners = np.arange(0, 256, 4, dtype=np.int64)
+    window = np.ones((16, 16), np.float32)
+    expected = np.array([x[r:r + 16, r:r + 16].sum(dtype=np.float64) for r in corners])
 
     def launch(_):
         for _ in range(50):
             out = np.empty((384, 512), np.float32)
             transpose(x, out)
             assert np.array_equal(out, x.T)
+            dots = np.empty(len(corners))
+            window_dots(x, corners, corners, window, dots)
+            assert np.allclose(dots, expected)
 
     with ThreadPoolExecutor(4) as pool:
         list(pool.map(launch, range(4)))

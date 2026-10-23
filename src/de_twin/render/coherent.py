@@ -94,6 +94,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
+import threading
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -110,8 +111,10 @@ from .diffraction import (THICKNESS_BIN_NM, Pattern, PatternOptions, PatternSet,
 from .samples import DIFFUSE_CUTOFF_LENGTHS
 from .stem import _tilt_key, resolve_scan_point
 from .tem import transmission_function
+from . import stem_nb as _snb
 from .util import chi_and_gradient, pool, shift_bilinear
 
+BLOCK_WORK = 4e8  # n^2 log2(n) x modes per block of scan points (~ 32 points of a 576^2, 4-mode grid)
 FIELD_MARGIN_PX = 64  # transmission tiles are built this much larger (edge filters, texture band limit)
 _GH3 = (np.array([-math.sqrt(3.0), 0.0, math.sqrt(3.0)]), np.array([1 / 6, 2 / 3, 1 / 6]))
 _GH5 = (np.array([-2.856970013872806, -1.355626179974266, 0.0, 1.355626179974266, 2.856970013872806]),
@@ -276,9 +279,15 @@ def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) ->
     lam = optics.wavelength_nm
     n, dk, ka = s.n, s.dk, s.k_alpha
     f = sfft.fftfreq(n, d=1.0 / (n * dk))
-    KX, KY = f[None, :], f[:, None]
-    kr = np.hypot(KX, KY)
-    A = np.clip((ka - kr) / dk + 0.5, 0.0, 1.0)
+    # The probe lives on the aperture: every sample (focal / source node) is evaluated on the
+    # k pixels with A > 0 only, the mode decomposition is done there (the FFT is unitary, so
+    # the Gram matrix of the k-space samples is that of the real-space ones), and only the
+    # kept modes are transformed to real space.
+    iy, ix = np.nonzero(np.hypot(f[None, :], f[:, None]) < ka + 0.5 * dk)
+    KX, KY = f[ix], f[iy]
+    A = np.clip((ka - np.hypot(KX, KY)) / dk + 0.5, 0.0, 1.0)
+    sel = A > 0
+    iy, ix, KX, KY, A = iy[sel], ix[sel], KX[sel], KY[sel], A[sel]
     ab = probe_aberrations_of(optics)
     tilt = _tilt_k(optics, cfg)
     chi0 = probe_phase(ab, KX, KY, lam, tilt)
@@ -300,19 +309,37 @@ def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) ->
         x3, w3 = _GH3
         snodes = [(sig * a, sig * b, wa * wb) for a, wa in zip(x3, w3) for b, wb in zip(x3, w3)]
 
-    samples = []
-    wts = []
-    for df, wf in zip(fnodes, fweights):
-        base = A * np.exp(-1j * (chi0 + math.pi * lam * df * k2t))
-        for sx, sy, ws in snodes:
-            P = base if (sx == 0 and sy == 0) else base * np.exp(-2j * math.pi * (KX * sx + KY * sy))
-            psi = sfft.fftshift(sfft.ifft2(P, norm="ortho", workers=-1))
-            psi /= math.sqrt(float(np.vdot(psi, psi).real))
-            samples.append(psi.astype(np.complex64).ravel())
-            wts.append(wf * ws)
+    if _snb.AVAILABLE:
+        sn = np.asarray(snodes, np.float64)
+        samples = np.empty((len(fnodes) * len(sn), len(A)), np.complex64)
+        wts = np.empty(len(samples))
+        _snb.probe_samples(np.ascontiguousarray(chi0, np.float64), k2t, KX, KY, A,
+                           np.asarray(fnodes, np.float64), np.asarray(fweights, np.float64),
+                           np.ascontiguousarray(sn[:, 0]), np.ascontiguousarray(sn[:, 1]),
+                           np.ascontiguousarray(sn[:, 2]), math.pi * lam, samples, wts)
+        samples = list(samples)
+    else:
+        samples = []
+        wts = []
+        for df, wf in zip(fnodes, fweights):
+            base = A * np.exp(-1j * (chi0 + math.pi * lam * df * k2t))
+            for sx, sy, ws in snodes:
+                P = base if (sx == 0 and sy == 0) else base * np.exp(-2j * math.pi * (KX * sx + KY * sy))
+                P = P / math.sqrt(float(np.vdot(P, P).real))  # Parseval: the real-space norm
+                samples.append(P.astype(np.complex64))
+                wts.append(wf * ws)
     wts = np.asarray(wts) / np.sum(wts)
+    # real space, centred at (n/2, n/2): fftshift of the ifft = ifft of (-1)^(i+j) x the k grid
+    # (n even); ortho norm
+    ksign = np.where((iy + ix) % 2 == 0, 1.0, -1.0).astype(np.float32)
+
+    def to_real(Pk):
+        full = np.zeros((len(Pk), n, n), np.complex64)
+        full[:, iy, ix] = Pk * ksign
+        return sfft.ifft2(full, norm="ortho", workers=-1, overwrite_x=True).astype(np.complex64, copy=False)
+
     if len(samples) == 1:
-        modes = samples[0].reshape(1, n, n)
+        modes = to_real(samples[0][None])
         mw = np.ones(1)
         first = 1.0
     else:
@@ -331,8 +358,9 @@ def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) ->
         # machine-dependent. Keep whole groups: their summed intensity is basis-independent.
         while keep < len(ev) and ev[keep] > 0 and abs(ev[keep - 1] - ev[keep]) <= 1e-3 * ev[keep - 1]:
             keep += 1
-        modes = (V[:, :keep].conj().T.astype(np.complex64) @ M) / np.sqrt(ev[:keep])[:, None].astype(np.float32)
-        modes = modes.reshape(keep, n, n)
+        # (a null mode, possible when every mode is kept, is 0 rather than 0 / 0)
+        norm = np.sqrt(np.where(ev[:keep] > 0, ev[:keep], np.inf))[:, None].astype(np.float32)
+        modes = to_real((V[:, :keep].conj().T.astype(np.complex64) @ M) / norm)
         mw = frac[:keep] / frac[:keep].sum()
     center = s.center_px if center_px is None else center_px
     ix, ex, iy, ey = _placement(s, center)
@@ -349,8 +377,8 @@ class Tile:
     view: ViewWindow  # fine grid, rotation 0, lab-aligned (x = detector columns)
     t: np.ndarray  # (Ny, Nx) complex64 transmission
     bragg: Optional[np.ndarray]  # (Ny, Nx) float32 T x Bragg loss (None: no crystal in the tile)
-    gid: np.ndarray  # (Ny, Nx) int64 own grain (-1 none)
-    tbin: np.ndarray  # (Ny, Nx) int64 thickness bin
+    gid: np.ndarray  # (Ny, Nx) int32 own grain (-1 none)
+    tbin: np.ndarray  # (Ny, Nx) int16 thickness bin
     mat: np.ndarray  # (Ny, Nx) uint8
     diffuse: dict  # material id -> (Ny, Nx) float32 diffuse weight (1 - T) exp(-t / 10 Lambda)
     cache: dict = dataclasses.field(default_factory=dict)  # probe-weighted add-on maps
@@ -405,9 +433,14 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
                                   coherent_k_max=kmax)
     if bandwidth > 0:
         t = band_limit(t, fm.view.pixel_um * 1000.0, bandwidth)
-    thick = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     mat = fm.material_id
     lam_all = absorption_lengths_nm(optics.ht_kv)
+    theta_c = 1000.0 * optics.wavelength_nm * kmax
+    fb = np.array([diffuse_beyond_fraction(m, optics.wavelength_nm, theta_c) if kmax > 0 else (1.0 if m else 0.0)
+                   for m in range(len(MATERIALS))], np.float32)
+    if _snb.AVAILABLE:
+        return _tile_fast(fm, optics, cfg, t, bc, mat, lam_all, fb, kmax)
+    thick = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     lam_px = lam_all[mat]
     T = np.exp(-thick / lam_px).astype(np.float32)
     dw = ((1.0 - T) * np.exp(-thick / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32)
@@ -419,9 +452,6 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
         under = (umat, ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam_all[umat]))).astype(np.float32))
         T = T * Tu
         dw = dw * Tu
-    theta_c = 1000.0 * optics.wavelength_nm * kmax
-    fb = np.array([diffuse_beyond_fraction(m, optics.wavelength_nm, theta_c) if kmax > 0 else (1.0 if m else 0.0)
-                   for m in range(len(MATERIALS))], np.float32)
     kept = T + (dw * (1.0 - fb[mat]) if (kmax > 0 and cfg.diffuse_scattering) else 0.0)
     bragg = None
     if (bc.loss > 0).any():
@@ -442,8 +472,44 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
                     continue
                 add = np.where(umat == m, uw * fb[m], np.float32(0.0))
                 diffuse[int(m)] = diffuse[int(m)] + add if int(m) in diffuse else add
-    return Tile(fm.view, t, bragg if cfg.coherent_incoherent_scattering else None, bc.gid,
-                thickness_bin_for(thick), mat, diffuse)
+    return Tile(fm.view, t, bragg if cfg.coherent_incoherent_scattering else None, bc.gid.astype(np.int32),
+                thickness_bin_for(thick).astype(np.int16), mat, diffuse)
+
+
+def _tile_fast(fm, optics, cfg, t, bc, mat, lam_all, fb, kmax) -> Tile:
+    """`build_tile`'s add-on maps in one numba pass (:func:`de_twin.render.stem_nb.tile_maps`)."""
+    ny, nx = mat.shape
+    has_under = fm.under_thickness_nm is not None
+    umat = fm.under_material if has_under else mat
+    uthick = fm.under_thickness_nm if has_under else fm.thickness_nm
+    diffuse_on = bool(cfg.diffuse_scattering and cfg.coherent_incoherent_scattering)
+    has_loss = bool(cfg.coherent_incoherent_scattering and (bc.loss > 0).any())
+    present = np.bincount(mat.ravel(), minlength=256)
+    upresent = np.bincount(umat.ravel(), minlength=256) if has_under else np.zeros(256, np.int64)
+    mids = [m for m in range(1, 256) if present[m] or upresent[m]] if diffuse_on else []
+    slot = np.zeros(256, np.int64)
+    for k, m in enumerate(mids):
+        slot[m] = k
+    dmaps = np.zeros((max(1, len(mids)), ny, nx) if diffuse_on else (1, 1, 1), np.float32)
+    dmax = np.zeros((ny, max(1, len(mids))) if diffuse_on else (1, 1), np.float32)
+    bragg = np.empty((ny, nx), np.float32) if has_loss else np.zeros((1, 1), np.float32)
+    tbin = np.empty((ny, nx), np.int16)
+    _snb.tile_maps(mat, fm.thickness_nm, np.float32(optics.thickness_tilt_factor), np.asarray(lam_all, np.float64),
+                   has_under, umat, uthick, float(DIFFUSE_CUTOFF_LENGTHS), fb,
+                   bool(kmax > 0 and cfg.diffuse_scattering), bc.loss if has_loss else bragg, has_loss,
+                   diffuse_on, slot, bragg, dmaps, dmax, tbin)
+    diffuse = {}
+    if diffuse_on:
+        mx = dmax.max(axis=0)
+        # the reference's order: the primary layer's materials (with a diffuse part), then the
+        # under layer's others
+        for m in mids:
+            if present[m] and mx[slot[m]] > 0:
+                diffuse[m] = dmaps[slot[m]]
+        for m in mids:
+            if upresent[m] and m not in diffuse:
+                diffuse[m] = dmaps[slot[m]]
+    return Tile(fm.view, t, bragg if has_loss else None, bc.gid.astype(np.int32), tbin, mat, diffuse)
 
 
 # -------------------------------------------------------------- the engine
@@ -457,10 +523,13 @@ class CoherentStem:
         self.cache = cache  # DiffractionCache (Bragg / diffuse add-on patterns)
         self.cfg = cfg
         self.seed = seed
+        self._lock = threading.RLock()  # the caches below; the read-ahead thread shares them
         self._probes: "OrderedDict[tuple, Probe]" = OrderedDict()
         self._samplings: "OrderedDict[tuple, Sampling]" = OrderedDict()
         self._tiles: "OrderedDict[tuple, Tile]" = OrderedDict()
         self._blocks: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+        self._inflight: dict = {}  # block key -> Future of the read-ahead computing it
+        self._ahead = None  # single-thread executor of the read-ahead
         self._block_bytes = 0
         self.blocks_computed = 0
         self.points_computed = 0
@@ -480,31 +549,47 @@ class CoherentStem:
     def _optics_key(self, optics) -> tuple:
         return (optics, probe_aberrations_of(optics).key(), tuple(optics.extras.get("hw_binning", (1, 1))))
 
+    @staticmethod
+    def _probe_key(optics) -> tuple:
+        """What of the optics the sampling and the probe depend on (not the scan, the view or
+        the stage: a stage move or a new scan step keeps the probe)."""
+        return (optics.wavelength_nm, optics.convergence_mrad, tuple(optics.output_shape),
+                optics.recip_pixel_inv_nm, tuple(optics.diffraction_center_px),
+                probe_aberrations_of(optics).key(), tuple(optics.beam_tilt_mrad), optics.source_size_nm,
+                optics.focal_spread_nm, tuple(optics.extras.get("hw_binning", (1, 1))))
+
     def sampling(self, optics) -> Sampling:
         """The simulation sampling (cheap: no probe is built)."""
-        key = (self._optics_key(optics), self._cfg_key())
-        p = self._probes.get(key)
-        if p is not None:
-            return p.sampling
-        hit = self._samplings.get(key)
-        if hit is None:
-            hit = plan_sampling(optics, self.cfg)
-            self._samplings[key] = hit
-            while len(self._samplings) > 8:
-                self._samplings.popitem(last=False)
-        return hit
+        key = (self._probe_key(optics), self._cfg_key())
+        with self._lock:
+            p = self._probes.get(key)
+            if p is not None:
+                return p.sampling
+            hit = self._samplings.get(key)
+            if hit is None:
+                hit = plan_sampling(optics, self.cfg)
+                self._samplings[key] = hit
+                while len(self._samplings) > 8:
+                    self._samplings.popitem(last=False)
+            return hit
 
-    def probe(self, optics) -> Probe:
-        key = (self._optics_key(optics), self._cfg_key())
-        p = self._probes.get(key)
-        if p is None:
-            p = build_probe(optics, self.cfg, self.sampling(optics))
+    def probe(self, optics, build: bool = True) -> Optional[Probe]:
+        key = (self._probe_key(optics), self._cfg_key())
+        with self._lock:
+            p = self._probes.get(key)
+            if p is not None:
+                self._probes.move_to_end(key)
+                return p
+        if not build:
+            return None
+        p = build_probe(optics, self.cfg, self.sampling(optics))  # outside the lock (prefetch thread)
+        with self._lock:
+            if key in self._probes:
+                return self._probes[key]
             self._probes[key] = p
             while len(self._probes) > 2:
                 self._probes.popitem(last=False)
-        else:
-            self._probes.move_to_end(key)
-        return p
+            return p
 
     # ------------------------------------------------------------ tiles
     def _scan_world(self, optics, points) -> tuple[np.ndarray, np.ndarray]:
@@ -517,29 +602,95 @@ class CoherentStem:
         iy, ix = np.mgrid[0:ny, 0:nx]
         return np.stack([ix.ravel(), iy.ravel()], 1)
 
-    def tile_for(self, ctx, optics, s: Sampling, points) -> Tile:
-        """Transmission tile covering the probe windows of ``points``: the whole scan field when
-        it fits ``coherent_field_max_px``, else just these points."""
+    def _field_views(self, optics, s: Sampling, points) -> list:
+        """[(indices into points, fine view)]: the whole scan field when it fits
+        ``coherent_field_max_px``; else the scan is cut into a fixed grid of scan tiles (whole
+        rows if they fit, else runs of one row) each of whose fields fits, and the points are
+        grouped by scan tile - the same tiles whichever block asks (live frames and the
+        datacube agree), and a sparse scan is never one tile spanning all its points."""
+        limit = self.cfg.coherent_field_max_px
+        ny, nx = optics.view.shape
         allx, ally = self._scan_world(optics, self._full_scan_points(optics))
         full = field_view(allx, ally, s, optics.view)
-        if full.shape[0] * full.shape[1] <= self.cfg.coherent_field_max_px:
-            view = full
-        else:
-            xs, ys = self._scan_world(optics, points)
-            view = field_view(xs, ys, s, optics.view)
+        pts = np.asarray(points, np.int64).reshape(-1, 2)
+        if full.shape[0] * full.shape[1] <= limit:
+            return [(np.arange(len(pts)), full)]
+        R, C = self._scan_tiling(optics, s, limit)
+        tid = (pts[:, 1] // R) * (-(-nx // C)) + pts[:, 0] // C
+        out = []
+        for t in dict.fromkeys(tid.tolist()):  # in order of first appearance
+            r, c = divmod(t, -(-nx // C))
+            iy, ix = np.mgrid[r * R:min(ny, (r + 1) * R), c * C:min(nx, (c + 1) * C)]
+            xs, ys = self._scan_world(optics, np.stack([ix.ravel(), iy.ravel()], 1))
+            out.append((np.flatnonzero(tid == t), field_view(xs, ys, s, optics.view)))
+        return out
+
+    def _scan_tiling(self, optics, s: Sampling, limit: int) -> tuple[int, int]:
+        """(rows, columns) of scan points per scan tile: as many whole rows as fit
+        ``limit`` fine pixels, else one row cut into as many columns as fit."""
+        ny, nx = optics.view.shape
+
+        def px(rows, cols):
+            iy, ix = np.mgrid[0:rows, 0:cols]
+            xs, ys = self._scan_world(optics, np.stack([ix.ravel(), iy.ravel()], 1))
+            v = field_view(xs, ys, s, optics.view)
+            return v.shape[0] * v.shape[1]
+
+        def largest(fits, hi):  # the largest k in 1..hi with fits(k) (fits is monotone)
+            lo = 1
+            while lo < hi:
+                mid = (lo + hi + 1) // 2
+                if fits(mid):
+                    lo = mid
+                else:
+                    hi = mid - 1
+            return lo
+        if px(1, nx) <= limit:
+            return largest(lambda r: px(r, nx) <= limit, ny), nx
+        return 1, largest(lambda c: px(1, c) <= limit, nx)
+
+    def _tile(self, ctx, optics, s: Sampling, view, build: bool = True) -> Optional[Tile]:
         fm, token = ctx.field_map(view)
         key = (token, view, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
                optics.convergence_mrad, self.seed, self._cfg_key())
-        tile = self._tiles.get(key)
-        if tile is None:
-            tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.cfg, self.seed,
-                              s.object_bandwidth)
+        with self._lock:
+            tile = self._tiles.get(key)
+            if tile is not None:
+                self._tiles.move_to_end(key)
+                return tile
+        if not build:
+            return None
+        tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.cfg, self.seed,
+                          s.object_bandwidth)  # outside the lock (prefetch thread)
+        with self._lock:
+            if key in self._tiles:
+                return self._tiles[key]
             self._tiles[key] = tile
             while len(self._tiles) > 2:
                 self._tiles.popitem(last=False)
-        else:
-            self._tiles.move_to_end(key)
-        return tile
+            return tile
+
+    def tile_for(self, ctx, optics, s: Sampling, points) -> Tile:
+        """Transmission tile covering the probe windows of ``points`` (the whole scan field when
+        it fits ``coherent_field_max_px``; ``points`` must then lie in one part)."""
+        (_, view), *rest = self._field_views(optics, s, points)
+        if rest:
+            raise ValueError("coherent STEM: these scan points need several transmission tiles")
+        return self._tile(ctx, optics, s, view)
+
+    def _prepare(self, ctx, optics, points, build: bool = True):
+        """(probe, [(indices, tile)]) for rendering ``points``; None when ``build`` is False and
+        something is not cached yet."""
+        probe = self.probe(optics, build)
+        if probe is None:
+            return None
+        groups = []
+        for idx, view in self._field_views(optics, probe.sampling, points):
+            tile = self._tile(ctx, optics, probe.sampling, view, build)
+            if tile is None:
+                return None
+            groups.append((idx, tile))
+        return probe, groups
 
     # ------------------------------------------------------------ descan
     def _descan_px(self, optics, fm, ix: int, iy: int) -> tuple[float, float]:
@@ -667,22 +818,64 @@ class CoherentStem:
                 for j, m in enumerate(amask):
                     anns[lo:hi, j] = np.tensordot(full, m, axes=([1, 2], [0, 1]))
 
+        if annuli_mrad:  # the annuli's k pixels, for the fused sums
+            ann_idx = [tuple(np.ascontiguousarray(v, np.int64) for v in np.nonzero(m)) for m in amask]
+
+        def run_nb(lo, hi):
+            # fused: exit waves, FFT, w |F|^2 binned straight into the patterns / annulus sums
+            B = hi - lo
+            rr = np.ascontiguousarray(rows[lo:hi] - h2)
+            cc = np.ascontiguousarray(cols[lo:hi] - h2)
+            ry = rx = np.zeros((1, 1), np.complex64)
+            if any_ramp:
+                ar = np.arange(n)
+                ry = np.exp(-2j * np.pi * place[lo:hi, 3, None] * ar / n).astype(np.complex64)
+                rx = np.exp(-2j * np.pi * place[lo:hi, 1, None] * ar / n).astype(np.complex64)
+            acc = np.zeros((B, hd, wd), np.float32) if want_patterns else None
+            x0s = np.ascontiguousarray(place[lo:hi, 0].astype(np.int64))
+            y0s = np.ascontiguousarray(place[lo:hi, 2].astype(np.int64))
+            if amask is None and (int(x0s.min()) >= n or int(x0s.max()) + W <= 0 or int(y0s.min()) >= n
+                                  or int(y0s.max()) + H <= 0):
+                return  # the detector sees none of the simulated k range: zeros
+            e = np.empty((B, n, n), np.complex64)
+            for mode, w in zip(work, mw):
+                _snb.fill_exit(tile.t, rr, cc, mode, ry, rx, any_ramp, e)
+                F = sfft.fft2(e, norm="ortho", workers=1, overwrite_x=True)
+                if want_patterns:
+                    _snb.accumulate(F, y0s, x0s, H, W, fy, fx, np.float32(w), acc)
+                if amask is not None:
+                    for j, (iy_, ix_) in enumerate(ann_idx):
+                        _snb.annulus_sums(F, iy_, ix_, float(w), anns[lo:hi], j)
+            if want_patterns:
+                pats[lo:hi] = acc
+
         nw = pool()._max_workers
         bs = int(max(1, min(64, (24 << 20) // (n * n * 8), -(-npts // (2 * nw)))))
         edges = list(range(0, npts, bs)) + [npts]
         jobs = [(edges[i], edges[i + 1]) for i in range(len(edges) - 1)]
+        job = run_nb if _snb.AVAILABLE else run
         if len(jobs) == 1:
-            run(*jobs[0])
+            job(*jobs[0])
         else:
-            list(pool().map(lambda j: run(*j), jobs))
+            list(pool().map(lambda j: job(*j), jobs))
 
         # incoherent add-on weights (probe-intensity weighted over the window)
-        wts = self._weights(tile, probe)
         r0, c0 = rows - h2, cols - h2
+        if _snb.AVAILABLE:  # the points' own windows (no whole-tile correlation)
+            wts = {}
+            maps = ([("bragg", tile.bragg)] if tile.bragg is not None else []) + list(tile.diffuse.items())
+            for m, a in maps:
+                v = np.empty(npts)
+                _snb.window_dots(a, np.ascontiguousarray(r0), np.ascontiguousarray(c0), probe.intensity, v)
+                wts[m] = v
+            per_point = True  # already one value per point
+        else:
+            wts = self._weights(tile, probe)
+            per_point = False
         bragg_w = np.zeros(npts)
         keys: list = [None] * npts
         if "bragg" in wts:
-            bragg_w = np.maximum(wts["bragg"][r0, c0], 0.0).astype(np.float64)
+            bragg_w = np.maximum(wts["bragg"] if per_point else wts["bragg"][r0, c0], 0.0).astype(np.float64)
             for k in np.flatnonzero(bragg_w > 1e-12):
                 r, c = int(rows[k]), int(cols[k])
                 g = int(tile.gid[r, c])
@@ -695,7 +888,8 @@ class CoherentStem:
                     keys[k] = (g // GRAINS_PER_MATERIAL, g, int(tile.tbin[r, c]))
                 else:
                     bragg_w[k] = 0.0
-        diffuse = {m: np.maximum(v[r0, c0], 0.0).astype(np.float64) for m, v in wts.items() if m != "bragg"}
+        diffuse = {m: np.maximum(v if per_point else v[r0, c0], 0.0).astype(np.float64)
+                   for m, v in wts.items() if m != "bragg"}
         self.points_computed += npts
         return pats, anns, bragg_w, keys, diffuse, shifts
 
@@ -755,21 +949,55 @@ class CoherentStem:
         return self.cache.get(ck, render)
 
     # ------------------------------------------------------------- blocks
+    def _compute_groups(self, ctx, optics, probe: Probe, groups, points, fm_scan=None, **kw) -> tuple:
+        """:meth:`_compute` over the tiles of ``groups``, merged back into points order."""
+        pts = np.asarray(points, np.int64).reshape(-1, 2)
+        if len(groups) == 1:
+            return self._compute(ctx, optics, probe, groups[0][1], pts, fm_scan, **kw)
+        parts = [(idx, self._compute(ctx, optics, probe, tile, pts[idx], fm_scan, **kw)) for idx, tile in groups]
+        npts = len(pts)
+
+        def merged(i, shape_of):
+            first = parts[0][1][i]
+            if first is None:
+                return None
+            out = np.zeros((npts,) + shape_of(first), first.dtype)
+            for idx, r in parts:
+                out[idx] = r[i]
+            return out
+        pats = merged(0, lambda a: a.shape[1:])
+        anns = merged(1, lambda a: a.shape[1:])
+        bragg_w = merged(2, lambda a: ())
+        keys: list = [None] * npts
+        shifts: list = [None] * npts
+        diffuse: dict = {}
+        for idx, r in parts:
+            for k, i in enumerate(idx):
+                keys[i] = r[3][k]
+                shifts[i] = r[5][k]
+            for m, v in r[4].items():
+                diffuse.setdefault(m, np.zeros(npts))[idx] = v
+        return pats, anns, bragg_w, keys, diffuse, shifts
+
     def _block_size(self, optics, s: Sampling) -> int:
+        """Points per block: about the same work per block whatever the grid (a first pattern
+        waits for one block), a block at most 32 MB of patterns."""
         ny, nx = optics.view.shape
         total = max(1, ny * nx)
         per = s.det_shape[0] * s.det_shape[1] * 4
-        rows = max(1, int(math.ceil(1024 / max(nx, 1))))  # whole rows, >= 1024 points (all threads busy)
-        b = min(total, rows * nx)
-        b = min(b, max(1, (128 << 20) // per))
+        work = s.n * s.n * max(1.0, math.log2(s.n)) * max(1, int(self.cfg.coherent_max_modes))
+        b = int(min(256, max(16, BLOCK_WORK // work)))
+        b = min(total, b, max(1, (32 << 20) // per))
         return int(b)
 
     def patterns(self, ctx, optics, points, fm_scan=None) -> np.ndarray:
         """(P, Hd, Wd) float32 binned detector patterns (electrons / binned pixel / s)."""
-        probe = self.probe(optics)
+        probe, groups = self._prepare(ctx, optics, points)
+        return self._patterns(ctx, optics, points, fm_scan, probe, groups)
+
+    def _patterns(self, ctx, optics, points, fm_scan, probe: Probe, groups) -> np.ndarray:
         s = probe.sampling
-        tile = self.tile_for(ctx, optics, s, points)
-        out, _, bragg_w, keys, diffuse, shifts = self._compute(ctx, optics, probe, tile, points, fm_scan)
+        out, _, bragg_w, keys, diffuse, shifts = self._compute_groups(ctx, optics, probe, groups, points, fm_scan)
         cb = s.det_center_px
         bx, by = s.binning
         for k in range(len(out)):
@@ -788,17 +1016,18 @@ class CoherentStem:
         out *= np.float32(optics.pattern_e_per_s)
         return out
 
-    def _block(self, ctx, optics, fm_scan, fm_token, index: int) -> tuple[np.ndarray, int]:
-        s = self.sampling(optics)
+    def _block_key(self, optics, fm_token, bsz: int, b: int) -> tuple:
+        return (self._optics_key(optics), self._cfg_key(), fm_token, bsz, b)
+
+    def _block_points(self, optics, bsz: int, b: int) -> np.ndarray:
         ny, nx = optics.view.shape
-        bsz = self._block_size(optics, s)
-        b = index // bsz
-        key = (self._optics_key(optics), self._cfg_key(), fm_token, bsz, b)
-        blk = self._blocks.get(key)
-        if blk is None:
-            idx = np.arange(b * bsz, min(ny * nx, (b + 1) * bsz))
-            pts = np.stack([idx % nx, idx // nx], 1)
-            blk = self.patterns(ctx, optics, pts, fm_scan)
+        idx = np.arange(b * bsz, min(ny * nx, (b + 1) * bsz))
+        return np.stack([idx % nx, idx // nx], 1)
+
+    def _store(self, key, blk: np.ndarray) -> None:
+        with self._lock:
+            if key in self._blocks:
+                return
             blk.setflags(write=False)
             self.blocks_computed += 1
             self._blocks[key] = blk
@@ -807,14 +1036,99 @@ class CoherentStem:
             while self._block_bytes > budget and len(self._blocks) > 1:
                 _, v = self._blocks.popitem(last=False)
                 self._block_bytes -= v.nbytes
-        else:
-            self._blocks.move_to_end(key)
+
+    def _block(self, ctx, optics, fm_scan, fm_token, index: int,
+               read_ahead: bool = False) -> tuple[np.ndarray, int]:
+        s = self.sampling(optics)
+        ny, nx = optics.view.shape
+        bsz = self._block_size(optics, s)
+        b = index // bsz
+        key = self._block_key(optics, fm_token, bsz, b)
+        with self._lock:
+            blk = self._blocks.get(key)
+            if blk is not None:
+                self._blocks.move_to_end(key)
+            fut = self._inflight.get(key) if blk is None else None
+        if blk is None and fut is not None:
+            try:
+                blk = fut.result()  # being read ahead: wait for it (it takes no lock we hold)
+            except Exception:  # noqa: BLE001 - compute it here instead
+                blk = None
+        if blk is None:
+            with self._lock:  # a new view: what is read ahead for another one is not wanted
+                for k, f in list(self._inflight.items()):
+                    if k[:3] != key[:3] and f.cancel():
+                        self._inflight.pop(k, None)
+            blk = self.patterns(ctx, optics, self._block_points(optics, bsz, b), fm_scan)
+            self._store(key, blk)
+        if read_ahead:
+            self._read_ahead(ctx, optics, fm_scan, fm_token, bsz, b, -(-(ny * nx) // bsz))
         return blk, index - b * bsz
+
+    def _read_ahead(self, ctx, optics, fm_scan, fm_token, bsz: int, b: int, nblocks: int) -> None:
+        """Compute the next ``coherent_read_ahead`` blocks of the scan in the background (live
+        4D-STEM walks the scan in order), when their probe and tile are already built."""
+        n_ahead = int(getattr(self.cfg, "coherent_read_ahead", 0))
+        if n_ahead <= 0 or nblocks <= 1:
+            return
+        for d in range(1, min(n_ahead, nblocks - 1) + 1):
+            nb_ = (b + d) % nblocks
+            key = self._block_key(optics, fm_token, bsz, nb_)
+            with self._lock:
+                if key in self._blocks or key in self._inflight:
+                    continue
+            pts = self._block_points(optics, bsz, nb_)
+            prep = self._prepare(ctx, optics, pts, build=False)
+            if prep is None:
+                return  # needs a new tile: left to the render thread
+            if self._ahead is None:
+                from concurrent.futures import ThreadPoolExecutor
+
+                self._ahead = ThreadPoolExecutor(1, thread_name_prefix="de-twin-4dstem-ahead")
+
+            def job(key=key, pts=pts, prep=prep):
+                try:
+                    blk = self._patterns(ctx, optics, pts, fm_scan, *prep)
+                    self._store(key, blk)
+                    return blk
+                finally:
+                    with self._lock:
+                        self._inflight.pop(key, None)
+            with self._lock:
+                self._inflight[key] = self._ahead.submit(job)
+
+    def prefetch(self, ctx, optics, fm_scan, fm_token) -> bool:
+        """Build the probe and transmission tile of ``optics`` and compute its first block (a
+        view the caller predicts), so the first pattern there is a cache hit. Runs on the
+        caller's (prefetch) thread; the render thread waits for the block if it gets there
+        first. Returns whether anything was computed."""
+        s = self.sampling(optics)
+        bsz = self._block_size(optics, s)
+        key = self._block_key(optics, fm_token, bsz, 0)
+        from concurrent.futures import Future
+
+        fut = Future()
+        fut.set_running_or_notify_cancel()  # running: the render thread waits, never cancels it
+        with self._lock:
+            if key in self._blocks or key in self._inflight:
+                return False
+            self._inflight[key] = fut
+        try:
+            blk = self.patterns(ctx, optics, self._block_points(optics, bsz, 0), fm_scan)
+            self._store(key, blk)
+            fut.set_result(blk)
+            return True
+        except BaseException as e:  # noqa: BLE001 - the waiting render thread computes it itself
+            fut.set_exception(e)
+            raise
+        finally:
+            with self._lock:
+                self._inflight.pop(key, None)
 
     def binned(self, ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None) -> np.ndarray:
         ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, self.cfg)
         nx = optics.view.shape[1]
-        blk, j = self._block(ctx, optics, fm_scan, fm_token, iy * nx + ix)
+        blk, j = self._block(ctx, optics, fm_scan, fm_token, iy * nx + ix, read_ahead=scan_point is None)
         return blk[j]
 
     def render(self, ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None) -> np.ndarray:
@@ -857,9 +1171,9 @@ class CoherentStem:
         bfrac: dict = {}
         for b0 in range(0, len(pts), bsz):
             chunk = pts[b0:b0 + bsz]
-            tile = self.tile_for(ctx, optics, s, chunk)
-            _, anns, bragg_w, keys, diffuse, _ = self._compute(
-                ctx, optics, probe, tile, chunk, fm_scan, annuli_mrad=[(inner_mrad, outer_mrad)],
+            _, groups = self._prepare(ctx, optics, chunk)
+            _, anns, bragg_w, keys, diffuse, _ = self._compute_groups(
+                ctx, optics, probe, groups, chunk, fm_scan, annuli_mrad=[(inner_mrad, outer_mrad)],
                 want_patterns=False)
             v = anns[:, 0].copy()
             for k, key in enumerate(keys):

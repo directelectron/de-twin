@@ -67,24 +67,53 @@ def test_tcbf_fits_defocus_astigmatism_and_rotation(tcbf_data):
     assert len(k) > 50
 
 
+def _counts(lam, seed):
+    """Poisson counts of mean ``lam``, by inverse CDF on one uniform per pixel.
+
+    ``rng.poisson`` draws a ``lam``-dependent number of uniforms per value, so a rounding-level
+    change to the simulated patterns (another platform's libm, another kernel) reshuffles the
+    whole realization; here it changes a count only where the uniform sits on a CDF step.
+    """
+    u = np.random.default_rng(seed).random(lam.shape)
+    p = np.exp(-lam)
+    cdf = p.copy()
+    k = np.zeros(lam.shape)
+    kmax = int(lam.max() + 10 * math.sqrt(lam.max()) + 20)
+    for n in range(1, kmax):
+        above = u > cdf
+        if not above.any():
+            break
+        k += above
+        p *= lam / n
+        cdf += p
+    return k
+
+
 def test_tcbf_image_beats_single_pixel_and_plain_bf(tcbf_data):
     o, dc, gt = tcbf_data
     s = gt["sampling"]
     truth = _gt_phase_at_scan(gt)
     dose = 2e4  # electrons per pattern, counting noise
-    noisy = np.random.default_rng(0).poisson(dc / dc.sum((2, 3)).mean() * dose).astype(float)
-    res = tcbf(noisy, recip_px_inv_nm=s.det_recip_px[0], scan_step_nm=gt["scan_step_nm"],
-               wavelength_nm=o.wavelength_nm, rotation_hint_rad=math.radians(30.0), ctf_correct=True)
-    assert res.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)
+    lam = dc / dc.sum((2, 3)).mean() * dose
 
     def corr(a):
         return np.corrcoef(a.ravel(), truth.ravel())[0, 1]
-    cx, cy = res.center_px
-    single = noisy[:, :, int(round(cy)), int(round(cx + 0.5 * res.radius_px))]
-    c_tcbf = corr(res.image)
+
+    # one realization scores anywhere from ~0.2 to ~0.5: judge the median of several
+    c_tcbf, c_single, c_bf = [], [], []
+    for seed in range(5):
+        noisy = _counts(lam, seed)
+        res = tcbf(noisy, recip_px_inv_nm=s.det_recip_px[0], scan_step_nm=gt["scan_step_nm"],
+                   wavelength_nm=o.wavelength_nm, rotation_hint_rad=math.radians(30.0), ctf_correct=True)
+        assert res.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)
+        cx, cy = res.center_px
+        c_tcbf.append(corr(res.image))
+        c_single.append(abs(corr(noisy[:, :, int(round(cy)), int(round(cx + 0.5 * res.radius_px))])))
+        c_bf.append(abs(corr(res.bf_image)))
+    c_tcbf = np.median(c_tcbf)
     assert c_tcbf > 0.35
-    assert c_tcbf > abs(corr(single)) + 0.2
-    assert c_tcbf > abs(corr(res.bf_image)) + 0.2
+    assert c_tcbf > np.median(c_single) + 0.2
+    assert c_tcbf > np.median(c_bf) + 0.2
 
 
 def test_tcbf_overfocus_sign():
