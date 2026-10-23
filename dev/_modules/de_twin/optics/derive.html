@@ -817,10 +817,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pattern_e_s</span> <span class="o">=</span> <span class="n">beam_e_s</span>
         <span class="n">dose</span> <span class="o">=</span> <span class="n">pattern_e_s</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">ow</span> <span class="o">*</span> <span class="n">oh</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">dose_model</span> <span class="o">==</span> <span class="s2">"legacy"</span><span class="p">:</span>
-        <span class="n">spot</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">spot_size</span> <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">spot_size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">3</span>
-        <span class="n">dose</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">legacy_dose_rate_counts_per_s</span> <span class="o">*</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="n">spot</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="n">pattern_e_s</span> <span class="o">=</span> <span class="n">dose</span> <span class="o">*</span> <span class="n">ow</span> <span class="o">*</span> <span class="n">oh</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="n">RenderMode</span><span class="o">.</span><span class="n">TEM_IMAGING</span> <span class="k">else</span> <span class="mf">0.0</span>
 
     <span class="c1"># Park position (world um) for the parked probe / explicit park request</span>
     <span class="n">park</span> <span class="o">=</span> <span class="kc">None</span>

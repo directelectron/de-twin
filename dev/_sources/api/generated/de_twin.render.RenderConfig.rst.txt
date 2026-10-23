@@ -39,6 +39,7 @@
       ~RenderConfig.coherent_mode_power
       ~RenderConfig.coherent_object_bandwidth_inv_nm
       ~RenderConfig.coherent_probe_tail
+      ~RenderConfig.coherent_read_ahead
       ~RenderConfig.coherent_source_size
       ~RenderConfig.descan_ramp_px
       ~RenderConfig.descan_ramp_scale
@@ -73,7 +74,6 @@
       ~RenderConfig.scaled_diffraction_saturation
       ~RenderConfig.settle_s
       ~RenderConfig.stem_model
-      ~RenderConfig.tem_model
       ~RenderConfig.texture_bandlimit_nm
       ~RenderConfig.texture_seed_salt
       ~RenderConfig.time_quantum_s

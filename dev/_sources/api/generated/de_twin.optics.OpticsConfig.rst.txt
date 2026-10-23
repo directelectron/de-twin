@@ -31,7 +31,6 @@
       ~OpticsConfig.cs_mm
       ~OpticsConfig.default_camera_length_mm
       ~OpticsConfig.defocus_offset_um
-      ~OpticsConfig.dose_model
       ~OpticsConfig.energy_spread_ev
       ~OpticsConfig.eucentric_height_um
       ~OpticsConfig.fallback_pixel_nm
@@ -46,7 +45,6 @@
       ~OpticsConfig.illumination_semi_angle_mrad
       ~OpticsConfig.intensity_zoom
       ~OpticsConfig.intensity_zoom_reference_mag
-      ~OpticsConfig.legacy_dose_rate_counts_per_s
       ~OpticsConfig.lowmag_illumination_factor
       ~OpticsConfig.max_raster_pixels
       ~OpticsConfig.nanoprobe_illuminated_um

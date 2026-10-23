@@ -568,7 +568,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">de_twin.optics.serialem.</span></span><span class="sig-name descname"><span class="pre">ColumnDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lm_max_mag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DefocusAndTruth</span></code></p>
 <p>A column defined by tables (from calibrations) rather than drawn from a seed: the same
 interface as <a class="reference internal" href="de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism" title="de_twin.optics.realism.ColumnRealism"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnRealism</span></code></a>, so it goes in
 <code class="docutils literal notranslate"><span class="pre">OpticsConfig(realism=...)</span></code>.</p>
@@ -606,11 +606,11 @@ identity (it holds mutable tables).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.crossover" title="de_twin.optics.serialem.ColumnDefinition.crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crossover</span></code></a>(spot[, probe_mode])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad" title="de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defocus_rotation_rad</span></code></a>(defocus_um)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">defocus_rotation_rad</span></code>(defocus_um)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.defocus_scale" title="de_twin.optics.serialem.ColumnDefinition.defocus_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defocus_scale</span></code></a>(defocus_um)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">defocus_scale</span></code>(defocus_um)</p></td>
+<td><p>True pixel size factor at this defocus (the magnification drops as it grows).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.is_astig_nm" title="de_twin.optics.serialem.ColumnDefinition.is_astig_nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_astig_nm</span></code></a>(isx_um, isy_um)</p></td>
 <td><p></p></td>
@@ -630,8 +630,8 @@ identity (it holds mutable tables).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.rotation_rad" title="de_twin.optics.serialem.ColumnDefinition.rotation_rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_rad</span></code></a>(mag_mode, mag)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.serialem.ColumnDefinition.truth" title="de_twin.optics.serialem.ColumnDefinition.truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code></a>(mag_mode, mag)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">truth</span></code>(mag_mode, mag)</p></td>
+<td><p>Every value at one magnification, for tests that calibrate against the twin.</p></td>
 </tr>
 </tbody>
 </table>
@@ -746,45 +746,6 @@ identity (it holds mutable tables).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.defocus_scale">
-<span class="sig-name descname"><span class="pre">defocus_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defocus_um</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.defocus_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.defocus_scale" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>defocus_um</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad">
-<span class="sig-name descname"><span class="pre">defocus_rotation_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defocus_um</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.defocus_rotation_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>defocus_um</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="de_twin.optics.serialem.ColumnDefinition.truth">
-<span class="sig-name descname"><span class="pre">truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mag_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/serialem.html#ColumnDefinition.truth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.serialem.ColumnDefinition.truth" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mag</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -846,9 +807,6 @@ identity (it holds mutable tables).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.crossover"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.crossover()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.is_tilt_mrad"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.is_tilt_mrad()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.is_astig_nm"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.is_astig_nm()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.defocus_scale"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.defocus_scale()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.defocus_rotation_rad"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.defocus_rotation_rad()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.optics.serialem.ColumnDefinition.truth"><code class="docutils literal notranslate"><span class="pre">ColumnDefinition.truth()</span></code></a></li>
 </ul>
 </li>
 </ul>

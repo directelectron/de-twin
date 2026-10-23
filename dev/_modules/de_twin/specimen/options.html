@@ -703,9 +703,9 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># preset / pattern name it came from (informational)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">_snake_case_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="o">=</span> <span class="n">_snake_case_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="o">=</span> <span class="n">_snake_case_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">HOLDERS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"holder must be one of </span><span class="si">{</span><span class="n">HOLDERS</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PREPARATIONS</span><span class="p">:</span>
@@ -744,7 +744,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_norm</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_snake_case_name</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
 
 

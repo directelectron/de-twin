@@ -496,7 +496,6 @@
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RenderConfig</span><span class="p">:</span>
     <span class="c1"># ---- TEM imaging ------------------------------------------------------</span>
-    <span class="n">tem_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"physical"</span>  <span class="c1"># "physical" (exit wave + CTF) | "legacy" (C++ port)</span>
     <span class="n">diffraction_contrast_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># scales the Bragg loss from the bright-field beam</span>
     <span class="n">mip_phase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># mean-inner-potential phase (gives Fresnel fringes)</span>
     <span class="n">edge_taper_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Gaussian roughness of specimen edges applied to the MIP phase</span>
@@ -592,8 +591,9 @@
     <span class="c1"># t(r) band limit K_t, 1/nm: scattering to |g| &lt;= K_t is coherent, beyond it incoherent. 0 = auto:</span>
     <span class="c1"># k_det + alpha/lambda (everything that can reach the detector is coherent)</span>
     <span class="n">coherent_object_bandwidth_inv_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">coherent_field_max_px</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">36_000_000</span>  <span class="c1"># larger scan fields build transmission tiles per block</span>
-    <span class="n">coherent_cache_mb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># computed pattern blocks kept for frame-by-frame rendering</span>
+    <span class="n">coherent_field_max_px</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8_000_000</span>  <span class="c1"># larger scan fields build transmission tiles per block (~1 GB peak at 8M)</span>
+    <span class="n">coherent_cache_mb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span>  <span class="c1"># computed pattern blocks kept for frame-by-frame rendering</span>
+    <span class="n">coherent_read_ahead</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># live 4D-STEM: blocks of the scan computed ahead in the background</span>
 
     <span class="c1"># ---- caching --------------------------------------------------------</span>
     <span class="n">fieldmap_cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>

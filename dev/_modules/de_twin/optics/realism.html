@@ -538,10 +538,38 @@
     <span class="k">return</span> <span class="n">_MODES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">DefocusAndTruth</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What every source of column geometry derives from its per-magnification values.</span>
+
+<span class="sd">    The subclass supplies ``hd_scale_per_um``, ``hd_rotation_deg_per_um``, ``backlash_um``</span>
+<span class="sd">    and the ``rotation_rad`` / ``pixel_scale`` / ``is_matrix`` / ``mag_offset_um`` /</span>
+<span class="sd">    ``bs_matrix`` lookups; this derives the rest the same way for the synthetic</span>
+<span class="sd">    :class:`ColumnRealism` and for a table read from SerialEM.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True pixel size factor at this defocus (the magnification drops as it grows)."""</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hd_scale_per_um</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_rotation_rad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hd_rotation_deg_per_um</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">truth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Every value at one magnification, for tests that calibrate against the twin."""</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"image_rotation_deg"</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation_rad</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)),</span>
+            <span class="s2">"pixel_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_scale</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
+            <span class="s2">"is_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s2">"mag_offset_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_offset_um</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
+            <span class="s2">"backlash_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backlash_um</span><span class="p">,</span>
+            <span class="s2">"bs_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+
 <div class="viewcode-block" id="ColumnRealism">
 <a class="viewcode-back" href="../../../api/generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ColumnRealism</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColumnRealism</span><span class="p">(</span><span class="n">DefocusAndTruth</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""The imperfect geometry of a real column (see the module docstring)."""</span>
 
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -661,33 +689,6 @@
 <span class="w">        </span><span class="sd">"""The axial astigmatism A1 (complex nm) an image shift of (x, y) um adds."""</span>
         <span class="n">phase</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">_u</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="mi">72</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_astig_nm_per_um</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase</span><span class="p">))</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="n">isx_um</span><span class="p">,</span> <span class="n">isy_um</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ColumnRealism.defocus_scale">
-<a class="viewcode-back" href="../../../api/generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism.defocus_scale">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""True pixel size factor at this defocus (the magnification drops as it grows)."""</span>
-        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hd_scale_per_um</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="ColumnRealism.defocus_rotation_rad">
-<a class="viewcode-back" href="../../../api/generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism.defocus_rotation_rad">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">defocus_rotation_rad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defocus_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hd_rotation_deg_per_um</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">defocus_um</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="ColumnRealism.truth">
-<a class="viewcode-back" href="../../../api/generated/de_twin.optics.realism.ColumnRealism.html#de_twin.optics.realism.ColumnRealism.truth">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">truth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Every value at one magnification, for tests that calibrate against the twin."""</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"image_rotation_deg"</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation_rad</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)),</span>
-            <span class="s2">"pixel_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_scale</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
-            <span class="s2">"is_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-            <span class="s2">"mag_offset_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_offset_um</span><span class="p">(</span><span class="n">mag_mode</span><span class="p">,</span> <span class="n">mag</span><span class="p">),</span>
-            <span class="s2">"backlash_um"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backlash_um</span><span class="p">,</span>
-            <span class="s2">"bs_matrix_um_per_unit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-        <span class="p">}</span></div>
 </div>
 
 </pre></div>

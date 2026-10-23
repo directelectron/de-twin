@@ -713,7 +713,8 @@ they do not push out the full-resolution field maps a stage move reuses).</p>
 <dd><p>Render the TEM view <code class="docutils literal notranslate"><span class="pre">optics</span></code> into the caches, off the caller’s thread: the padded
 raster and its field map, so asking for that view later is a crop. The heavy work
 runs without the renderer’s lock (a live frame is not held up); only looking up and
-storing take it. Returns whether anything was rendered.</p>
+storing take it. Coherent 4D-STEM: the probe, transmission tile and first block of
+patterns. Returns whether anything was rendered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
