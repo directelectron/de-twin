@@ -15,8 +15,15 @@ from enum import IntEnum
 
 import numpy as np
 
+from .parallel import numba_jit
+
 _M64 = (1 << 64) - 1
 _U64 = np.uint64
+
+#: SplitMix64's increment and its two finalizer multipliers.
+GOLDEN_GAMMA = 0x9E3779B97F4A7C15
+MIX_MULTIPLIER_1 = 0xBF58476D1CE4E5B9
+MIX_MULTIPLIER_2 = 0x94D049BB133111EB
 
 # Kinds used as the second argument of hash_seed (values match the C++ enum).
 
@@ -41,20 +48,38 @@ class SeedKind(IntEnum):
     DRIFT = 37
 
 
-def _splitmix64_int(x: int) -> int:
-    x = (x + 0x9E3779B97F4A7C15) & _M64
-    z = x
-    z = ((z ^ (z >> 30)) * 0xBF58476D1CE4E5B9) & _M64
-    z = ((z ^ (z >> 27)) * 0x94D049BB133111EB) & _M64
+def mix64_int(x: int) -> int:
+    """SplitMix64's finalizer (no increment) of a 64-bit int."""
+    z = ((x ^ (x >> 30)) * MIX_MULTIPLIER_1) & _M64
+    z = ((z ^ (z >> 27)) * MIX_MULTIPLIER_2) & _M64
     return z ^ (z >> 31)
+
+
+def _splitmix64_int(x: int) -> int:
+    return mix64_int((x + GOLDEN_GAMMA) & _M64)
 
 
 def _splitmix64_arr(x: np.ndarray) -> np.ndarray:
     with np.errstate(over="ignore"):
-        z = x.astype(_U64, copy=False) + _U64(0x9E3779B97F4A7C15)
-        z = (z ^ (z >> _U64(30))) * _U64(0xBF58476D1CE4E5B9)
-        z = (z ^ (z >> _U64(27))) * _U64(0x94D049BB133111EB)
+        z = x.astype(_U64, copy=False) + _U64(GOLDEN_GAMMA)
+        z = (z ^ (z >> _U64(30))) * _U64(MIX_MULTIPLIER_1)
+        z = (z ^ (z >> _U64(27))) * _U64(MIX_MULTIPLIER_2)
         return z ^ (z >> _U64(31))
+
+
+@numba_jit(fastmath=False, inline="always")
+def mix64(x):
+    """:func:`mix64_int` for numba kernels: the same finalizer on a uint64."""
+    x = (x ^ (x >> np.uint64(30))) * np.uint64(MIX_MULTIPLIER_1)
+    x = (x ^ (x >> np.uint64(27))) * np.uint64(MIX_MULTIPLIER_2)
+    return x ^ (x >> np.uint64(31))
+
+
+@numba_jit(fastmath=False, inline="always")
+def splitmix64_kernel(x):
+    """:func:`splitmix64` for numba kernels (one uint64 in, one out). Kernels that call it
+    cache their compilation, and numba does not notice when this function changes."""
+    return mix64(x + np.uint64(GOLDEN_GAMMA))
 
 
 def splitmix64(x):
@@ -89,10 +114,10 @@ def mix_cell(i, j):
     """Combine two signed lattice indices into one 64-bit key."""
     if isinstance(i, np.ndarray) or isinstance(j, np.ndarray):
         with np.errstate(over="ignore"):
-            a = np.asarray(i).astype(np.int64).astype(_U64) * _U64(0x9E3779B97F4A7C15)
+            a = np.asarray(i).astype(np.int64).astype(_U64) * _U64(GOLDEN_GAMMA)
             b = np.asarray(j).astype(np.int64).astype(_U64) * _U64(0xC2B2AE3D27D4EB4F)
             return a ^ b
-    a = ((int(i) & _M64) * 0x9E3779B97F4A7C15) & _M64
+    a = ((int(i) & _M64) * GOLDEN_GAMMA) & _M64
     b = ((int(j) & _M64) * 0xC2B2AE3D27D4EB4F) & _M64
     return a ^ b
 

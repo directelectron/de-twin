@@ -36,3 +36,19 @@ def test_snap_takes_a_seed(make_twin):
     tw.snap(0.1)
     b = tw.snap(0.1, seed=11)
     np.testing.assert_array_equal(a, b)
+
+
+def test_the_numba_and_numpy_hashes_agree():
+    """Kernels hash with the numba functions, the specimen's NumPy code with the others."""
+    import numpy as np
+
+    from de_twin.hashing import mix64, mix64_int, splitmix64, splitmix64_kernel
+
+    rng = np.random.default_rng(0)
+    values = np.concatenate([rng.integers(0, 2**64, 64, dtype=np.uint64),
+                             np.array([0, 1, 2**63, 2**64 - 1], np.uint64)])
+    expected = splitmix64(values)
+    for value, want in zip(values, expected):
+        assert splitmix64_kernel(value) == want
+        assert splitmix64(int(value)) == int(want)
+        assert mix64(value) == mix64_int(int(value))
