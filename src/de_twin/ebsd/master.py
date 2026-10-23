@@ -63,7 +63,7 @@ class MasterPattern:
     n_bands: int
     build_s: float
     resolution_deg: float
-    #: Southern hemisphere (same coding), read at Lambert(x, y, |z|) for z < 0 as EMsoft stores
+    #: Southern hemisphere (same coding), read at ``Lambert(x, y, |z|)`` for z < 0 as EMsoft stores
     #: it; None for a centrosymmetric pattern (the north read at -direction).
     south: np.ndarray | None = None
     source: str = "kinematic"  # or the file / "array" a user master came from
@@ -156,7 +156,7 @@ def quantise(*arrays):
 
 def lambert_sample(north, south, dirs) -> np.ndarray:
     """Bilinear values of float Lambert hemispheres (``south`` None: centrosymmetric) at unit
-    directions (..., 3), EMsoft's convention (south read at Lambert(x, y, |z|))."""
+    directions (..., 3), EMsoft's convention (south read at ``Lambert(x, y, |z|)``)."""
     v = np.asarray(dirs, np.float64)
     neg = v[..., 2] < 0
     if south is not None:

@@ -20,7 +20,7 @@ A user master replaces the kinematic one for its phase at its beam energy
 Conventions (EMsoft's, which kikuchipy shares): the northern hemisphere ``z >= 0`` of the
 crystal's Cartesian frame (orix's: x || a, z || c* ... for the cubic phases here the standard
 frame) on ``[-L, L]^2``, ``L = sqrt(pi / 2)``, rows = Lambert Y, columns = Lambert X (an
-HDF5 dataset read in C order); the southern array is read at Lambert(x, y, |z|).
+HDF5 dataset read in C order); the southern array is read at ``Lambert(x, y, |z|)``.
 Stereographic: ``(x, y) / (1 + |z|)`` on ``[-1, 1]^2``, same row/column order.
 """
 
