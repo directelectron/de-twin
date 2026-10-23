@@ -62,12 +62,12 @@ class _BraggMemo:
         m = effective_matrices(grains.matrices[np.asarray(new_g)], optics.alpha_rad, optics.beta_rad)
 
         def geo(r0, r1):
-            own, idx, gx, gy, s = lib.geometry(m[r0:r1], optics.wavelength_nm, optics.convergence_mrad)
+            own, index, gx, gy, s = lib.geometry(m[r0:r1], optics.wavelength_nm, optics.convergence_mrad)
             cuts = np.searchsorted(own, np.arange(r1 - r0 + 1))
             gxy = np.hypot(gx, gy)
             for j in range(r1 - r0):
                 a, b = cuts[j], cuts[j + 1]
-                self.geom[new_g[r0 + j]] = (idx[a:b], gx[a:b], gy[a:b], s[a:b], gxy[a:b])
+                self.geom[new_g[r0 + j]] = (index[a:b], gx[a:b], gy[a:b], s[a:b], gxy[a:b])
 
         parallel_rows(geo, len(new_g), min_chunk=16)
 
@@ -110,14 +110,14 @@ class _BraggMemo:
         if missing:
             self._ensure_geometry(lib, grains, sorted({g for g, _ in missing}), optics)
             lens = np.array([len(self.geom[g][0]) for g, _ in missing], np.int64)
-            idx = np.concatenate([self.geom[g][0] for g, _ in missing])
+            index = np.concatenate([self.geom[g][0] for g, _ in missing])
             s = np.concatenate([self.geom[g][3] for g, _ in missing])
             t = np.repeat(np.array([tb for _, tb in missing], np.float64) * THICKNESS_BIN_NM, lens)
-            inten = np.empty(len(idx))
+            inten = np.empty(len(index))
 
             def work(r0, r1):
                 inten[r0:r1] = lib.intensity_at(
-                    idx[r0:r1],
+                    index[r0:r1],
                     s[r0:r1],
                     t[r0:r1],
                     optics.ht_kv,
@@ -125,7 +125,7 @@ class _BraggMemo:
                     optics.convergence_mrad,
                 )
 
-            parallel_rows(work, len(idx), min_chunk=8192)
+            parallel_rows(work, len(index), min_chunk=8192)
             out = np.concatenate([self.geom[g][4] for g, _ in missing]) > self._g_obj
             owner = np.repeat(np.arange(len(missing)), lens)
             total = np.bincount(owner, weights=inten, minlength=len(missing))
@@ -176,14 +176,14 @@ _BRAGG_LOCK = threading.RLock()
 
 
 def bragg_contrast(
-    fm, optics, grains, crystallinity, config, coherent_k_max: float = 0.0, _scratch: bool = False
+    field_map, optics, grains, crystallinity, config, coherent_k_max: float = 0.0, _scratch: bool = False
 ) -> BraggContrast:
     with _BRAGG_LOCK:
-        return _bragg_contrast(fm, optics, grains, crystallinity, config, coherent_k_max, _scratch)
+        return _bragg_contrast(field_map, optics, grains, crystallinity, config, coherent_k_max, _scratch)
 
 
 def _bragg_contrast(
-    fm, optics, grains, crystallinity, config, coherent_k_max: float = 0.0, _scratch: bool = False
+    field_map, optics, grains, crystallinity, config, coherent_k_max: float = 0.0, _scratch: bool = False
 ) -> BraggContrast:
     """Per-pixel Bragg loss from the grain at its effective orientation and thickness bin,
     and the lattice fringes (strongest excited, resolvable, transmitted beams) per grain.
@@ -192,7 +192,7 @@ def _bragg_contrast(
     on the raster) are not a loss but a phase grating of kinematic strength (all of them, up to
     ``MAX_COHERENT_BEAMS`` Friedel pairs); only the beams beyond are removed (the renderer adds
     them back incoherently)."""
-    mat = fm.material_id
+    mat = field_map.material_id
     f_t = np.float32(optics.thickness_tilt_factor)
     n = len(grains) if grains is not None else 0
     nb = MAX_THICKNESS_BIN + 1
@@ -203,17 +203,26 @@ def _bragg_contrast(
     pix_all = alloc("bragg_pix", mat.shape, np.int64)
 
     def pixel_rows(r0, r1):
-        g = fm.grain_id[r0:r1].astype(np.int64)
+        g = field_map.grain_id[r0:r1].astype(np.int64)
         ok = (g >= 0) & (g < n) & (g // GRAINS_PER_MATERIAL == mat[r0:r1])
         gid[r0:r1] = np.where(ok, g, -1)
-        tb = thickness_bin_for(fm.thickness_nm[r0:r1].astype(np.float32) * f_t)
+        tb = thickness_bin_for(field_map.thickness_nm[r0:r1].astype(np.float32) * f_t)
         pix_all[r0:r1] = np.where(ok, g * nb + tb, -1)
 
     maxbin = None  # the largest thickness bin of each grain in view (numba path)
     if _fp.AVAILABLE and n > 0:
         maxb = np.full((max(1, min(64, mat.shape[0] // 16)), n), -1, np.int16)
         _fp.bragg_pixels(
-            fm.grain_id, mat, fm.thickness_nm, f_t, n, nb, GRAINS_PER_MATERIAL, gid, pix_all, maxb
+            field_map.grain_id,
+            mat,
+            field_map.thickness_nm,
+            f_t,
+            n,
+            nb,
+            GRAINS_PER_MATERIAL,
+            gid,
+            pix_all,
+            maxb,
         )
         maxbin = maxb.max(axis=0)
     else:
@@ -335,15 +344,15 @@ def _bragg_contrast(
     return BraggContrast(loss, gid, fringes, coherent, t_typ, kinematic)
 
 
-def amplitude_rows(fm, optics, r0, r1, loss) -> tuple:
+def amplitude_rows(field_map, optics, r0, r1, loss) -> tuple:
     """(I_amp, t_eff) for raster rows r0:r1."""
-    mat = fm.material_id[r0:r1]
+    mat = field_map.material_id[r0:r1]
     f = np.float32(optics.thickness_tilt_factor)
-    t = fm.thickness_nm[r0:r1].astype(np.float32) * f
+    t = field_map.thickness_nm[r0:r1].astype(np.float32) * f
     lam = absorption_lengths_nm(optics.ht_kv)
     e = t / lam[mat]
-    if fm.under_thickness_nm is not None:  # the amorphous layer under it absorbs too
-        e = e + fm.under_thickness_nm[r0:r1] * f / lam[fm.under_material[r0:r1]]
+    if field_map.under_thickness_nm is not None:  # the amorphous layer under it absorbs too
+        e = e + field_map.under_thickness_nm[r0:r1] * f / lam[field_map.under_material[r0:r1]]
     T = np.exp(-e)
     return np.clip(T * (1.0 - loss[r0:r1]), 0.0, 1.0).astype(np.float32), t
 

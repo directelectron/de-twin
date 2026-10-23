@@ -135,9 +135,9 @@ def epie(
             psi = P * ow[None]
             F = np.fft.fft2(psi * ramp[None], norm="ortho")
             I = (F.real**2 + F.imag**2).sum(axis=0)
-            mag = np.sqrt(I)
-            err += float(((mag - amps[j]) ** 2).sum())
-            F *= (amps[j] / np.maximum(mag, 1e-12))[None]
+            magnification = np.sqrt(I)
+            err += float(((magnification - amps[j]) ** 2).sum())
+            F *= (amps[j] / np.maximum(magnification, 1e-12))[None]
             d = np.fft.ifft2(F, norm="ortho") * cramp[None] - psi
             O[r : r + qy, c : c + qx] = ow + alpha * (np.conj(P) * d).sum(axis=0) / denom
             if beta > 0 and it >= beta_start:
@@ -146,9 +146,9 @@ def epie(
                 pmax = float(pint.max())
                 denom = ((1.0 - rpie) * pint + rpie * pmax).astype(np.float32)
         errors.append(err / norm)
-    res = PtychoResult(O, P[0] if P.shape[0] == 1 else P, errors, dx_nm)
-    res.offset_px = off  # object pixel (0, 0) = position frame pixel (-off)
-    return res
+    result = PtychoResult(O, P[0] if P.shape[0] == 1 else P, errors, dx_nm)
+    result.offset_px = off  # object pixel (0, 0) = position frame pixel (-off)
+    return result
 
 
 def probe_modes_on_grid(gt: dict, shape: tuple[int, int]) -> tuple[np.ndarray, np.ndarray]:

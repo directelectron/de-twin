@@ -111,8 +111,8 @@ def test_frame_by_frame_matches_datacube_and_uses_blocks():
     assert cube.shape == (10, 12, 64, 64)
     before = r._coherent.blocks_computed
     for fi in (0, 17, 63, 119):
-        img = r.render(o, frame_index=fi)
-        assert np.array_equal(img, cube[fi // 12, fi % 12])
+        image = r.render(o, frame_index=fi)
+        assert np.array_equal(image, cube[fi // 12, fi % 12])
     assert r._coherent.blocks_computed == before  # served from the block cache
 
 
@@ -224,36 +224,36 @@ def test_twin_frames_on_a_binned_integrating_camera_reproduce_the_patterns():
     spec = SyntheticSpecimen(
         film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=5, particles=[Particle(0.0, 0.0, 1.5)]
     )
-    tw = DigitalTwin(spec, camera="Celeritas", clock=ManualClock())
-    c = tw.column
+    twin = DigitalTwin(spec, camera="Celeritas", clock=ManualClock())
+    c = twin.column
     c.set_tem_stem(TemStem.STEM)
     c.set_convergence_mrad(10.0)
     c.set_defocus_um(-0.02)
     c.set_camera_length_mm(40.0)
     c.set_spot_size(8)
     dwell = 1e-4
-    req = tw.request(
+    request = twin.request(
         hw_roi=Roi(384, 384, 256, 256),
         hw_binning=(2, 2),
         frame_time_s=dwell,
         total_frames=36,
         scan=ScanRequest(enabled=True, size=(6, 6), step_um=0.0005, dwell_s=dwell),
     )
-    assert tw.stem_model(req) == "coherent"
-    cube = tw.datacube(req)
+    assert twin.stem_model(request) == "coherent"
+    cube = twin.datacube(request)
     assert cube.shape == (6, 6, 128, 128)
-    refs = tw.processor.references(req)
-    ape = tw.detector.model.adu_per_electron_at(c.state().ht_kv)
+    refs = twin.processor.references(request)
+    ape = twin.detector.model.adu_per_electron_at(c.state().ht_kv)
     frames, points = [], []
-    for raw, meta in tw.frames(req):
+    for raw, meta in twin.frames(request):
         assert raw.shape == (128, 128)
-        frames.append(tw.processor.correct(raw, refs) / ape * 4.0)  # hardware binning averages 2x2
+        frames.append(twin.processor.correct(raw, refs) / ape * 4.0)  # hardware binning averages 2x2
         points.append(meta.scan_point)
     x = np.array(frames)
     mu = np.array([cube[iy, ix] for ix, iy in points]) * dwell
     assert x.sum() / mu.sum() == pytest.approx(1.0, rel=0.03)
     bright = mu > 5
     z = (x[bright] - mu[bright]) / np.sqrt(mu[bright])
-    cv = tw.detector.model.adu_cv if hasattr(tw.detector.model, "adu_cv") else 0.7
+    cv = twin.detector.model.adu_cv if hasattr(twin.detector.model, "adu_cv") else 0.7
     assert abs(z.mean()) < 0.1
     assert 0.6 < z.std() < 1.5 * math.sqrt(1 + cv * cv)  # shot noise (+ deposit statistics), no bias

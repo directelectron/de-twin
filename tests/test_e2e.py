@@ -34,12 +34,12 @@ def test_soap_stage_move_shifts_deapi_images():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim")
     with (
         TemChannelServer(twin.column, host="127.0.0.1", port=0) as soap,
-        TwinDeapiServer(twin, port=0, pace=False) as cam,
+        TwinDeapiServer(twin, port=0, pace=False) as camera,
     ):
         scope = SoapTemChannelClient(port=soap.port)
         c = deapi.Client()
         c.usingMmf = False
-        c.connect(port=cam.port)
+        c.connect(port=camera.port)
         c["Frames Per Second"] = 40
         c["Frame Count"] = 8
 

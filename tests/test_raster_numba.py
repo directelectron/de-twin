@@ -23,14 +23,14 @@ SPECIMENS = [
 ]
 
 
-def _raster(tw, view, fast, monkeypatch):
+def _raster(twin, view, fast, monkeypatch):
     from de_twin.specimen.standards import replica
 
     # the replica's exact arithmetic (finite-difference slope, per-pixel noise); its fast mode
     # is checked statistically in test_calibration_standards / below
     monkeypatch.setattr(replica, "ANALYTIC_SLOPE", False)
     monkeypatch.setattr(raster_nb, "AVAILABLE", fast)
-    return tw.specimen.rasterize(view)
+    return twin.specimen.rasterize(view)
 
 
 @pytest.mark.skipif(not raster_nb.AVAILABLE, reason="no numba")
@@ -39,11 +39,11 @@ def _raster(tw, view, fast, monkeypatch):
 def test_the_numba_raster_is_the_numpy_raster(name, mag, monkeypatch):
     import dataclasses
 
-    tw = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=4)
-    tw.column.set("Magnification", mag)
-    view = dataclasses.replace(tw.optics(tw.request()).view, shape=(384, 448))
-    ref = _raster(tw, view, False, monkeypatch)
-    new = _raster(tw, view, True, monkeypatch)
+    twin = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=4)
+    twin.column.set("Magnification", mag)
+    view = dataclasses.replace(twin.optics(twin.request()).view, shape=(384, 448))
+    ref = _raster(twin, view, False, monkeypatch)
+    new = _raster(twin, view, True, monkeypatch)
     np.testing.assert_array_equal(new.material_id, ref.material_id)
     np.testing.assert_array_equal(new.grain_id, ref.grain_id)
     np.testing.assert_allclose(new.thickness_nm, ref.thickness_nm, rtol=1e-6, atol=1e-5)
@@ -57,17 +57,17 @@ def test_the_numba_raster_is_the_numpy_raster(name, mag, monkeypatch):
 def test_a_rotated_tilted_view(monkeypatch):
     import dataclasses
 
-    tw = DigitalTwin(
+    twin = DigitalTwin(
         "Ted Pella 603 - 2160 l/mm grating replica with 0.261 um latex spheres",
         camera="DESim",
         clock=ManualClock(),
         seed=4,
     )
     view = dataclasses.replace(
-        tw.optics(tw.request()).view, shape=(300, 340), rotation_rad=0.6, flip_y=True, cos_alpha=0.93
+        twin.optics(twin.request()).view, shape=(300, 340), rotation_rad=0.6, flip_y=True, cos_alpha=0.93
     )
-    ref = _raster(tw, view, False, monkeypatch)
-    new = _raster(tw, view, True, monkeypatch)
+    ref = _raster(twin, view, False, monkeypatch)
+    new = _raster(twin, view, True, monkeypatch)
     np.testing.assert_array_equal(new.material_id, ref.material_id)
     np.testing.assert_array_equal(new.grain_id, ref.grain_id)
     np.testing.assert_allclose(new.thickness_nm, ref.thickness_nm, rtol=1e-6, atol=1e-5)
@@ -86,13 +86,13 @@ def test_the_fast_replica_is_statistically_the_exact_one(name, mag, monkeypatch)
 
     from de_twin.specimen.standards import replica
 
-    tw = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=4)
-    tw.column.set("Magnification", mag)
-    view = dataclasses.replace(tw.optics(tw.request()).view, shape=(512, 512))
+    twin = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=4)
+    twin.column.set("Magnification", mag)
+    view = dataclasses.replace(twin.optics(twin.request()).view, shape=(512, 512))
     out = []
     for fast in (False, True):
         monkeypatch.setattr(replica, "ANALYTIC_SLOPE", fast)
-        out.append(tw.specimen.rasterize(view).thickness_nm.astype(float))
+        out.append(twin.specimen.rasterize(view).thickness_nm.astype(float))
     a, b = out
 
     def slope(t):

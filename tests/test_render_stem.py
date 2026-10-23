@@ -40,16 +40,16 @@ def test_vacuum_cbed_is_the_probe_current(make_stem_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     o = make_stem_optics()
     r = Renderer(spec)
-    img = r.render(o, scan_point=(3, 4))
-    assert img.shape == (256, 256) and img.dtype == np.float32 and img.min() >= 0
-    ratio = img.sum() / o.pattern_e_per_s
+    image = r.render(o, scan_point=(3, 4))
+    assert image.shape == (256, 256) and image.dtype == np.float32 and image.min() >= 0
+    ratio = image.sum() / o.pattern_e_per_s
     assert 1 / 1.1 - 1e-3 <= ratio <= 1 / 0.9 + 1e-3  # intensity jitter 0.9 .. 1.1
     r2 = Renderer(spec, RenderConfig(intensity_jitter=False))
     assert r2.render(o, scan_point=(3, 4)).sum() == pytest.approx(o.pattern_e_per_s, rel=1e-4)
     # a centred disk of the convergence angle
-    y, x = np.indices(img.shape)
+    y, x = np.indices(image.shape)
     rr = np.hypot(x - 128, y - 128)
-    assert img[rr > o.disk_radius_px + 12].sum() < 1e-5 * img.sum()
+    assert image[rr > o.disk_radius_px + 12].sum() < 1e-5 * image.sum()
 
 
 def test_scan_point_addressing_and_frame_index(make_stem_optics):
@@ -99,13 +99,13 @@ def test_descan_ramp_and_layer_shift_the_pattern(make_stem_optics):
 
 class _LayeredSpecimen(SyntheticSpecimen):
     def rasterize(self, view, layers=frozenset()):
-        fm = super().rasterize(view, layers)
-        if fm.descan is not None:
-            fm.descan[0] = 3.0
-            fm.descan[1] = -2.0
-        if fm.strain is not None:
-            fm.strain[0, :, :16] = 1.05  # xx strain on the left half
-        return fm
+        field_map = super().rasterize(view, layers)
+        if field_map.descan is not None:
+            field_map.descan[0] = 3.0
+            field_map.descan[1] = -2.0
+        if field_map.strain is not None:
+            field_map.strain[0, :, :16] = 1.05  # xx strain on the left half
+        return field_map
 
 
 def test_descan_and_strain_layers(make_stem_optics):

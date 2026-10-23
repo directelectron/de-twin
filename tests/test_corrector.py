@@ -19,11 +19,13 @@ from de_twin.column.ceos import (
 from de_twin.optics.aberrations import Aberrations
 
 
-def stem_column(seed=0, corrector="probe", **opts):
+def stem_column(seed=0, corrector="probe", **options):
     clk = ManualClock()
-    col = Column(clock=clk, corrector=corrector, seed=seed, allow_ht=True, corrector_options=opts or None)
-    col.set_tem_stem(1)  # the probe corrector measures on the Ronchigram
-    return col, clk
+    column = Column(
+        clock=clk, corrector=corrector, seed=seed, allow_ht=True, corrector_options=options or None
+    )
+    column.set_tem_stem(1)  # the probe corrector measures on the Ronchigram
+    return column, clk
 
 
 # ------------------------------------------------------------------ physics
@@ -38,21 +40,21 @@ def test_induced_aberrations_textbook():
 
 @pytest.mark.parametrize("seed", range(4))
 def test_native_vs_corrected_pi4_angle(seed):
-    col = Column(corrector="probe", seed=seed, clock=ManualClock())
-    unit = col.corrector.served
+    column = Column(corrector="probe", seed=seed, clock=ManualClock())
+    unit = column.corrector.served
     native = pi4_angle_mrad(unit.native)
-    tuned = col.corrector.pi4_angle_mrad()
+    tuned = column.corrector.pi4_angle_mrad()
     assert 4.5 < native < 7.5  # C3 ~1.2 mm at 200 kV
     assert 22.0 < tuned < 33.0  # a good CEOS tune
-    r = col.corrector.get()
+    r = column.corrector.get()
     assert abs(r["C3"]) < 1500 and abs(r["B2"]) < 50 and abs(r["A2"]) < 50
     assert 1e6 < abs(r["C5"]) < 4e6  # C5 is not corrected: a few mm
     assert abs(unit.native["C3"]) == pytest.approx(1.2e6, rel=0.05)
 
 
 def test_state_carries_the_residual():
-    col = Column(corrector="both", seed=3, clock=ManualClock())
-    s = col.state()
+    column = Column(corrector="both", seed=3, clock=ManualClock())
+    s = column.state()
     assert s.corrector == "both"
     assert Aberrations(s.probe_aberrations)["C3"] != 0 and Aberrations(s.image_aberrations)["C3"] != 0
     assert Aberrations(s.probe_aberrations).key() != Aberrations(s.image_aberrations).key()
@@ -74,16 +76,16 @@ def test_deterministic_from_seed():
 def test_drift_grows_and_is_read_pattern_independent():
     def run(read_every):
         clk = ManualClock()
-        col = Column(corrector="probe", seed=2, clock=clk)
-        r0 = col.corrector.get()
+        column = Column(corrector="probe", seed=2, clock=clk)
+        r0 = column.corrector.get()
         t = 0.0
         while t < 3600:
             step = read_every or 3600
             clk.advance(step)
             t += step
             if read_every:
-                col.state()
-        return r0, col.corrector.get()
+                column.state()
+        return r0, column.corrector.get()
 
     r0, r1 = run(0)
     _, r1b = run(36.0)
@@ -97,42 +99,42 @@ def test_drift_grows_and_is_read_pattern_independent():
 
 def test_drift_rates_configurable():
     clk = ManualClock()
-    col = Column(corrector="probe", seed=2, clock=clk, corrector_options={"drift_rates": {}})
-    r0 = col.corrector.get()
+    column = Column(corrector="probe", seed=2, clock=clk, corrector_options={"drift_rates": {}})
+    r0 = column.corrector.get()
     clk.advance(10_000)
-    assert (col.corrector.get() - r0).coeffs == {}
+    assert (column.corrector.get() - r0).coeffs == {}
 
 
 # ------------------------------------------------------------------ tune perturbations
 def test_ht_change_detunes():
-    col, _clk = stem_column(4)
-    before = col.corrector.get()
-    angle = col.corrector.pi4_angle_mrad()
-    col.set_ht_kv(300)
-    after = col.corrector.get()
+    column, _clk = stem_column(4)
+    before = column.corrector.get()
+    angle = column.corrector.pi4_angle_mrad()
+    column.set_ht_kv(300)
+    after = column.corrector.get()
     d = after - before
     assert abs(d["C3"]) > 1000 and abs(d["B2"]) > 100
-    assert col.corrector.pi4_angle_mrad() < angle / 2
-    assert "300kV" in col.corrector.served.info()
+    assert column.corrector.pi4_angle_mrad() < angle / 2
+    assert "300kV" in column.corrector.served.info()
 
 
 def test_mode_change_kicks_low_orders():
     clk = ManualClock()
-    col = Column(corrector="probe", seed=4, clock=clk)
-    before = col.corrector.get()
-    col.set_probe_mode("NBD")
-    d = col.corrector.get() - before
+    column = Column(corrector="probe", seed=4, clock=clk)
+    before = column.corrector.get()
+    column.set_probe_mode("NBD")
+    d = column.corrector.get() - before
     assert abs(d["C1"]) > 1 and abs(d["B2"]) > 1
     assert abs(d["C3"]) == pytest.approx(0, abs=1e-6)
-    before = col.corrector.get()
-    col.set_defocus_um(0.1)  # focus is the operator's, not the corrector's
-    assert (col.corrector.get() - before).coeffs == {}
+    before = column.corrector.get()
+    column.set_defocus_um(0.1)  # focus is the operator's, not the corrector's
+    assert (column.corrector.get() - before).coeffs == {}
 
 
 # ------------------------------------------------------------------ measure
 def test_tableau_status_timing_and_result():
-    col, clk = stem_column(1)
-    u = col.corrector.served
+    column, clk = stem_column(1)
+    u = column.corrector.served
     assert u.status() == IDLE
     ok, _why = u.post_tableau("Standard")
     assert ok and u.status() == RUNNING
@@ -144,7 +146,7 @@ def test_tableau_status_timing_and_result():
     r = u.last_measurement
     assert r.names == ("C1", "A1", "A2", "B2", "C3", "A3", "S3", "A4")  # CEOS order, up to A4
     assert u.last_result.startswith("C1=") and ";A4=" in u.last_result
-    truth = col.corrector.get()
+    truth = column.corrector.get()
     for n in ("C1", "A1", "B2", "A2"):
         assert abs(r.aberrations[n] - truth[n]) < 5 * r.sigma_nm[n] + 1.0, n
     x, y, st = u.aberration("B2")
@@ -153,42 +155,42 @@ def test_tableau_status_timing_and_result():
 
 
 def test_measurement_includes_operator_focus_and_stig():
-    col, _clk = stem_column(1)
-    truth = col.corrector.get()
-    col.set_defocus_um(0.05)
-    col.set_condenser_stig(0.01, -0.02)
-    r = col.corrector.measure("C1A1")
+    column, _clk = stem_column(1)
+    truth = column.corrector.get()
+    column.set_defocus_um(0.05)
+    column.set_condenser_stig(0.01, -0.02)
+    r = column.corrector.measure("C1A1")
     assert r.names == ("C1", "A1")
     assert r.aberrations["C1"].real == pytest.approx(truth["C1"].real + 50.0, abs=3.0)
     assert r.aberrations["A1"] == pytest.approx(truth["A1"] + complex(10, -20), abs=3.0)
 
 
 def test_measure_refused_without_beam_or_wrong_mode():
-    col = Column(corrector="probe", seed=1, clock=ManualClock())  # TEM mode
+    column = Column(corrector="probe", seed=1, clock=ManualClock())  # TEM mode
     with pytest.raises(CorrectorError, match="STEM"):
-        col.corrector.measure("Fast")
-    assert col.corrector.status() == FAILED
-    col.set_tem_stem(1)
-    col.set_beam_blank(True)
+        column.corrector.measure("Fast")
+    assert column.corrector.status() == FAILED
+    column.set_tem_stem(1)
+    column.set_beam_blank(True)
     with pytest.raises(CorrectorError, match="no beam"):
-        col.corrector.measure("Fast")
-    img = Column(corrector="image", seed=1, clock=ManualClock())
-    assert img.corrector.measure("Fast").side == "image"
+        column.corrector.measure("Fast")
+    image = Column(corrector="image", seed=1, clock=ManualClock())
+    assert image.corrector.measure("Fast").side == "image"
 
 
 def test_out_of_tune_needs_small_tableau():
-    col, _clk = stem_column(7)
-    col.corrector.set("C3", 5e5)  # 0.5 mm of C3 left: outer tilts defocus beyond range
+    column, _clk = stem_column(7)
+    column.corrector.set("C3", 5e5)  # 0.5 mm of C3 left: outer tilts defocus beyond range
     with pytest.raises(CorrectorError, match="measurement range"):
-        col.corrector.measure("Enhanced")
-    r = col.corrector.measure("Fast")  # 9 mrad still works
+        column.corrector.measure("Enhanced")
+    r = column.corrector.measure("Fast")  # 9 mrad still works
     assert r.images_lost == 0
 
 
 # ------------------------------------------------------------------ correct
 def test_correct_needs_an_estimate_and_is_imperfect():
-    col, _clk = stem_column(2)
-    corr = col.corrector
+    column, _clk = stem_column(2)
+    corr = column.corrector
     with pytest.raises(CorrectorError, match="No value for aberration B2 available"):
         corr.correct("B2")
     corr.set("B2", 500 + 0j)
@@ -203,8 +205,8 @@ def test_correct_needs_an_estimate_and_is_imperfect():
 
 
 def test_partial_correction_fraction():
-    col, _clk = stem_column(2)
-    corr = col.corrector
+    column, _clk = stem_column(2)
+    corr = column.corrector
     corr.set("A2", 400 + 0j)
     corr.correct("A2", fraction=0.5, value_nm=400 + 0j)
     assert abs(corr.get()["A2"]) == pytest.approx(200, rel=0.25)
@@ -233,10 +235,10 @@ def auto_tune(corr, rounds=6):
 
 @pytest.mark.parametrize("seed", [1, 3])
 def test_auto_tune_converges_after_ht_change(seed):
-    col, clk = stem_column(seed)
-    corr = col.corrector
-    col.set_ht_kv(300)
-    col.set_ht_kv(200)
+    column, clk = stem_column(seed)
+    corr = column.corrector
+    column.set_ht_kv(300)
+    column.set_ht_kv(200)
     assert corr.pi4_angle_mrad() < 12
     auto_tune(corr)
     r = corr.get()
@@ -252,13 +254,13 @@ def test_auto_tune_converges_after_ht_change(seed):
 
 # ------------------------------------------------------------------ misc ops
 def test_alignment_save_and_load_restores_the_tune():
-    col, _clk = stem_column(3)
-    corr = col.corrector
+    column, _clk = stem_column(3)
+    corr = column.corrector
     good = corr.get()
     data = corr.save_alignment()
     assert json.loads(data)["correctorType"] == "CESCOR"
-    col.set_ht_kv(300)
-    col.set_ht_kv(200)
+    column.set_ht_kv(300)
+    column.set_ht_kv(200)
     assert abs((corr.get() - good)["C3"]) > 1000
     corr.load_alignment(data)
     d = corr.get() - good  # only the drift of the few seconds of save / load remains
@@ -268,8 +270,8 @@ def test_alignment_save_and_load_restores_the_tune():
 
 
 def test_beam_tilt_relative_and_absolute():
-    col, clk = stem_column(3)
-    corr = col.corrector
+    column, clk = stem_column(3)
+    corr = column.corrector
     assert corr.beam_tilt == (0.0, 0.0, False)
     u = corr.served
     # absolute with no WD estimate refuses, like CEOS
@@ -288,8 +290,8 @@ def test_beam_tilt_relative_and_absolute():
 
 
 def test_config_options():
-    col, clk = stem_column(3)
-    u = col.corrector.served
+    column, clk = stem_column(3)
+    u = column.corrector.served
     assert u.post_get_config("detilt")[0]
     assert u.wait(sleeper=clk.sleep) == DONE and u.last_result == "true"
     u.post_set_config("use2ndOrder", "false")

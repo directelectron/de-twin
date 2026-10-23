@@ -133,27 +133,27 @@ class DigitalTwin:
         """
         from .optics.derive import stage_for_view_center
 
-        opts = getattr(self.specimen, "options", None)
-        if opts is None or not hasattr(self.specimen, "home_um"):
+        options = getattr(self.specimen, "options", None)
+        if options is None or not hasattr(self.specimen, "home_um"):
             return  # a synthetic test specimen has no holder to find
         # `home_um` is a point on the SPECIMEN; the stage carries the specimen, so the stage
         # position that puts it on axis is not the point itself.
         x, y = stage_for_view_center(self.specimen.home_um(), self.column.state(), self.optics_config)
         self.column.move_stage(x=x, y=y)
-        self.column.set_defocus_um(self._start_defocus_um(opts))
-        target = float(opts.start_dose_e_per_px_s) or self.safe_dose_e_per_px_s()
+        self.column.set_defocus_um(self._start_defocus_um(options))
+        target = float(options.start_dose_e_per_px_s) or self.safe_dose_e_per_px_s()
         if target > 0:
             self.column.set("Intensity", self._intensity_for_dose(target))
 
-    def _start_defocus_um(self, opts) -> float:
+    def _start_defocus_um(self, options) -> float:
         """The preset's start defocus; for unstained proteins in ice with none set,
         1.5 um underfocus — a phase object shows almost nothing in focus, and that is
         how cryo is imaged."""
-        df = float(opts.start_defocus_um)
+        df = float(options.start_defocus_um)
         if (
             df == 0.0
             and getattr(self.specimen.config, "preparation", "") == "proteins"
-            and float(getattr(opts, "negative_stain_fraction", 0.0)) < 0.5
+            and float(getattr(options, "negative_stain_fraction", 0.0)) < 0.5
         ):
             return -1.5
         return df
@@ -282,14 +282,14 @@ class DigitalTwin:
             self.specimen.update(t, self.holder_state(t))
             if scan_point is None:
                 scan_point = self.scan_point(request, frame_index)
-            img = self.renderer.render(optics, frame_index=frame_index, scan_point=scan_point, time_s=t)
+            image = self.renderer.render(optics, frame_index=frame_index, scan_point=scan_point, time_s=t)
             if self.renderer.config.prefetch and (
                 optics.render_mode == RenderMode.TEM_IMAGING or self.renderer.stem_model(optics) == "coherent"
             ):
                 self._prefetch_next(request, state, t)
-            if img.shape != shape:
-                img = _fit(img, shape)
-            return img
+            if image.shape != shape:
+                image = _fit(image, shape)
+            return image
 
     # -------------------------------------------------------------- prefetch
     _VIEW_FIELDS = ("magnification", "defocus_um")
@@ -585,13 +585,13 @@ class DigitalTwin:
                     pass
 
 
-def _fit(img: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
+def _fit(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     """Resize (nearest/linear) a render to the detector ROI if they disagree."""
     from scipy.ndimage import zoom
 
-    zy = shape[0] / img.shape[0]
-    zx = shape[1] / img.shape[1]
-    out = zoom(img, (zy, zx), order=1)
+    zy = shape[0] / image.shape[0]
+    zx = shape[1] / image.shape[1]
+    out = zoom(image, (zy, zx), order=1)
     if out.shape != shape:  # rounding
         fixed = np.zeros(shape, np.float32)
         h = min(shape[0], out.shape[0])

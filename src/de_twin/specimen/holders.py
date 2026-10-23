@@ -490,10 +490,10 @@ class FilmParams:
 class Holder:
     """A generated holder: analytic bulk + film samplers, placement areas and a few primitives."""
 
-    def __init__(self, kind: str, seed: int, film: str, opts: SpecimenOptions):
+    def __init__(self, kind: str, seed: int, film: str, options: SpecimenOptions):
         self.kind = kind
         self.seed = int(seed)
-        self.opts = opts
+        self.opts = options
         self.mesh = MeshParams()
         self.film = FilmParams()
         self.areas: list[PlacementArea] = []
@@ -805,19 +805,19 @@ class Holder:
                     lam_seed,
                 ),
             ]
-        col = list(zip(*rects))
+        column = list(zip(*rects))
         self.primitives = PrimitiveSet.make(
-            np.array(col[0]),
-            np.array(col[1]),
-            np.array(col[2]),
-            np.array(col[3]),
+            np.array(column[0]),
+            np.array(column[1]),
+            np.array(column[2]),
+            np.array(column[3]),
             rot=rot,
             shape=Shape.RECT,
-            thickness=np.array(col[4]),
-            profile=np.array(col[5]),
-            layer=np.array(col[6]),
-            material=np.array(col[7]),
-            seed=np.array(col[8], dtype=np.uint64),
+            thickness=np.array(column[4]),
+            profile=np.array(column[5]),
+            layer=np.array(column[6]),
+            material=np.array(column[7]),
+            seed=np.array(column[8], dtype=np.uint64),
         )
         self.bounds = AABB.from_center_radius(dcx, dcy, self._fib_disk_r)
 
@@ -892,42 +892,42 @@ class Holder:
     # ------------------------------------------------------------------------------------------
     # Per-pixel sampling
     # ------------------------------------------------------------------------------------------
-    def paint(self, ctx) -> None:
+    def paint(self, context) -> None:
         """Holder bulk pass then support-film pass (FieldMap::Rasterize steps 1 and 2)."""
-        nx = ctx.nx
-        if not self.bounds.intersects(ctx.aabb):
+        nx = context.nx
+        if not self.bounds.intersects(context.aabb):
             return
         film_on = self.film.type != "none" and bool(self.areas) and bool(self.area_film_ok.any())
         lacey = film_on and self.film.type == "lacey"
         cols = np.arange(nx, dtype=np.float64)[None, :]
-        for r0, r1 in ctx.row_blocks(0, ctx.ny, nx):
+        for r0, r1 in context.row_blocks(0, context.ny, nx):
             rows = np.arange(r0, r1, dtype=np.float64)[:, None]
-            mat, thick, area = self._sample_bulk(ctx, rows, cols, r0, r1)
+            mat, thick, area = self._sample_bulk(context, rows, cols, r0, r1)
             sl = slice(r0 * nx, r1 * nx)
-            ctx.material[sl] = mat.ravel()
-            ctx.thick[sl] = thick.ravel()
-            ctx.area[sl] = area.ravel()
+            context.material[sl] = mat.ravel()
+            context.thick[sl] = thick.ravel()
+            context.area[sl] = area.ravel()
             if film_on and not lacey:
-                self._film_block(ctx, rows, cols, r0, r1, None)
+                self._film_block(context, rows, cols, r0, r1, None)
         if lacey:
-            removed = self._lacey_mask(ctx)
-            for r0, r1 in ctx.row_blocks(0, ctx.ny, nx):
+            removed = self._lacey_mask(context)
+            for r0, r1 in context.row_blocks(0, context.ny, nx):
                 rows = np.arange(r0, r1, dtype=np.float64)[:, None]
-                self._film_block(ctx, rows, cols, r0, r1, removed[r0 * nx : r1 * nx])
+                self._film_block(context, rows, cols, r0, r1, removed[r0 * nx : r1 * nx])
 
-    def _lattice(self, ctx, rows, cols):
+    def _lattice(self, context, rows, cols):
         """Mesh lattice coordinates (rotate by -rotation, remove offset) as affine outer sums."""
         c, s = self._cos, self._sin
         ox, oy = self.mesh.offset_um
-        lx = ctx.linear(c, s, -ox, rows, cols)
-        ly = ctx.linear(-s, c, -oy, rows, cols)
+        lx = context.linear(c, s, -ox, rows, cols)
+        ly = context.linear(-s, c, -oy, rows, cols)
         return lx, ly
 
-    def _mesh_block_single_hole(self, ctx, r0, r1):
+    def _mesh_block_single_hole(self, context, r0, r1):
         """Area index when every pixel centre of the block lies in one hole's safe square."""
         rr = np.array([r0, r0, r1 - 1, r1 - 1], np.float64)
-        cc = np.array([0, ctx.nx - 1, 0, ctx.nx - 1], np.float64)
-        X, Y = ctx.world(rr, cc)
+        cc = np.array([0, context.nx - 1, 0, context.nx - 1], np.float64)
+        X, Y = context.world(rr, cc)
         if np.any(X * X + Y * Y > self._usable2):
             return None
         m = self.mesh
@@ -946,30 +946,30 @@ class Holder:
             return -1
         return int(self._cell_area[j, i])
 
-    def _sample_bulk(self, ctx, rows, cols, r0, r1):
+    def _sample_bulk(self, context, rows, cols, r0, r1):
         shape = (rows.shape[0], cols.shape[1])
         if self.kind in ("mesh_grid", "waffle_grid"):
             m = self.mesh
-            k = self._mesh_block_single_hole(ctx, r0, r1)
+            k = self._mesh_block_single_hole(context, r0, r1)
             if k is not None:
                 return (np.zeros(shape, np.uint8), np.zeros(shape, np.float32), np.full(shape, k, np.int32))
-            if _rnb.AVAILABLE and shape[1] == ctx.nx:
+            if _rnb.AVAILABLE and shape[1] == context.nx:
                 c, s = self._cos, self._sin
                 ox, oy = m.offset_um
                 LC = np.empty(6)
                 for q, (p1, p2, kk) in enumerate(((c, s, -ox), (-s, c, -oy))):
-                    LC[3 * q] = kk + p1 * ctx.ox + p2 * ctx.oy
-                    LC[3 * q + 1] = p1 * ctx.axc + p2 * ctx.ayc
-                    LC[3 * q + 2] = p1 * ctx.axr + p2 * ctx.ayr
+                    LC[3 * q] = kk + p1 * context.ox + p2 * context.oy
+                    LC[3 * q + 1] = p1 * context.axc + p2 * context.ayc
+                    LC[3 * q + 2] = p1 * context.axr + p2 * context.ayr
                 mat = np.empty(shape, np.uint8)
                 thick = np.empty(shape, np.float32)
                 area = np.empty(shape, np.int32)
                 _rnb.mesh_bulk(
                     r0,
                     r1,
-                    ctx.nx,
+                    context.nx,
                     LC,
-                    np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]),
+                    np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr]),
                     float(m.pitch_um),
                     float(self._half),
                     float(self._corner),
@@ -985,7 +985,7 @@ class Holder:
                     area,
                 )
                 return mat, thick, area
-            lx, ly = self._lattice(ctx, rows, cols)
+            lx, ly = self._lattice(context, rows, cols)
             inv = 1.0 / m.pitch_um
             qx = np.floor(lx * inv + 0.5)
             qy = np.floor(ly * inv + 0.5)
@@ -998,7 +998,7 @@ class Holder:
                 du = np.maximum(u - ic, 0.0)
                 dv = np.maximum(v - ic, 0.0)
                 hole &= (du * du + dv * dv) < self._corner**2
-            X, Y = ctx.world(rows, cols)
+            X, Y = context.world(rows, cols)
             r2 = X * X + Y * Y
             in_disk = r2 <= self._disk2
             hole &= r2 <= self._usable2
@@ -1013,15 +1013,15 @@ class Holder:
             cj = np.clip(cj, 0, n - 1).astype(np.int64)
             area = np.where(okc, self._cell_area[cj, ci], -1).astype(np.int32)
             return mat, thick, area
-        X, Y = ctx.world(rows, cols)
+        X, Y = context.world(rows, cols)
         X = np.broadcast_to(X, shape)
         Y = np.broadcast_to(Y, shape)
         mat = np.zeros(shape, np.uint8)
         thick = np.zeros(shape, np.float32)
         area = np.full(shape, -1, np.int32)
         rr = np.array([r0, r0, r1 - 1, r1 - 1], np.float64)
-        cc = np.array([0, ctx.nx - 1, 0, ctx.nx - 1], np.float64)
-        bx, by = ctx.world(rr, cc)
+        cc = np.array([0, context.nx - 1, 0, context.nx - 1], np.float64)
+        bx, by = context.world(rr, cc)
         bb = AABB(bx.min(), by.min(), bx.max(), by.max())  # world box of the block's pixel centres
         if self.kind == "fib_liftout":
             cx0, cy0 = self._fib_centre
@@ -1038,7 +1038,7 @@ class Holder:
                 opaque = in_disk & (r2 >= self._usable2)
             box = self._fib_body_box
             if box.intersects(bb):
-                body = self._poly_mask(ctx, self._fib_body, r0, r1) & in_disk & box.contains(X, Y)
+                body = self._poly_mask(context, self._fib_body, r0, r1) & in_disk & box.contains(X, Y)
                 hx, hy, hrx, hry = self._fib_holes
                 near = np.flatnonzero(
                     (hx + hrx >= bb.xmin)
@@ -1062,7 +1062,9 @@ class Holder:
         thick[inm] = self._chip_membrane_nm
         if self._chip_heater_box.intersects(bb):
             on_heater = (
-                inm & self._poly_mask(ctx, self._chip_heater, r0, r1) & self._chip_heater_box.contains(X, Y)
+                inm
+                & self._poly_mask(context, self._chip_heater, r0, r1)
+                & self._chip_heater_box.contains(X, Y)
             )
             mat[on_heater] = MaterialId.PLATINUM
             thick[on_heater] = self._chip_trace_nm + self._chip_membrane_nm
@@ -1072,10 +1074,10 @@ class Holder:
             if not AABB.from_center_half(cx, cy, max(rx, grx), max(ry, gry)).intersects(bb):
                 continue
             if grx > 0:
-                col = inm & (((X - gcx) / grx) ** 2 + ((Y - gcy) / gry) ** 2 <= 1.0)
-                mat[col] = MaterialId.SILICON_NITRIDE
-                thick[col] = 2.0 * self._chip_membrane_nm
-                area[col] = -1
+                column = inm & (((X - gcx) / grx) ** 2 + ((Y - gcy) / gry) ** 2 <= 1.0)
+                mat[column] = MaterialId.SILICON_NITRIDE
+                thick[column] = 2.0 * self._chip_membrane_nm
+                area[column] = -1
             dx, dy = X - cx, Y - cy
             if ell:
                 ins = (dx / rx) ** 2 + (dy / ry) ** 2 <= 1.0
@@ -1096,35 +1098,35 @@ class Holder:
             area[ins] = k
         return mat, thick, area
 
-    def _poly_mask(self, ctx, poly, r0, r1):
-        r, c = ctx.to_pixel(poly[0], poly[1])
-        return polygon_mask_rows(c, r, r0, r1, ctx.nx)
+    def _poly_mask(self, context, poly, r0, r1):
+        r, c = context.to_pixel(poly[0], poly[1])
+        return polygon_mask_rows(c, r, r0, r1, context.nx)
 
-    def _lacey_mask(self, ctx) -> np.ndarray:
-        removed = np.zeros(ctx.npix, bool)
+    def _lacey_mask(self, context) -> np.ndarray:
+        removed = np.zeros(context.npix, bool)
         if self._lacey is None:
             return removed
         cx, cy, rad, ai = self._lacey
-        box = ctx.aabb
+        box = context.aabb
         vis = np.flatnonzero(
             (cx + rad >= box.xmin) & (cx - rad <= box.xmax) & (cy + rad >= box.ymin) & (cy - rad <= box.ymax)
         )
         if vis.size == 0:
             return removed
         cx, cy, rad, ai = cx[vis], cy[vis], rad[vis], ai[vis]
-        for sub, rows, cols, valid in iter_patches(ctx, cx - rad, cy - rad, cx + rad, cy + rad):
-            X, Y = ctx.world(rows, cols)
+        for sub, rows, cols, valid in iter_patches(context, cx - rad, cy - rad, cx + rad, cy + rad):
+            X, Y = context.world(rows, cols)
             d2 = (X - cx[sub][:, None, None]) ** 2 + (Y - cy[sub][:, None, None]) ** 2
-            flat = np.broadcast_to(rows * ctx.nx + cols, d2.shape)
+            flat = np.broadcast_to(rows * context.nx + cols, d2.shape)
             m = valid & (d2 < (rad[sub] ** 2)[:, None, None])
-            m &= ctx.area[np.where(m, flat, 0)] == ai[sub][:, None, None]
+            m &= context.area[np.where(m, flat, 0)] == ai[sub][:, None, None]
             removed[flat[m]] = True
         return removed
 
-    def _film_block_fast(self, ctx, rows, cols, r0, r1, removed, amin, amax) -> None:
+    def _film_block_fast(self, context, rows, cols, r0, r1, removed, amin, amax) -> None:
         """`_film_block` through :func:`..raster_nb.film_block` (the same arithmetic)."""
         f = self.film
-        nx = ctx.nx
+        nx = context.nx
         same = -1
         if amin == amax and removed is None:
             if not self.area_film_ok[amin]:
@@ -1133,7 +1135,7 @@ class Holder:
         holey = False
         LC = np.zeros(6)
         if f.type == "holey" and f.hole_pitch_um > 0:
-            state = self._holey_block_state(ctx, r0, r1)
+            state = self._holey_block_state(context, r0, r1)
             if state == "perforated":
                 return
             if state != "film":
@@ -1141,9 +1143,9 @@ class Holder:
                 c, s = self._cos, self._sin
                 ox, oy = self.mesh.offset_um
                 for k, (p, q, kk) in enumerate(((c, s, -ox), (-s, c, -oy))):
-                    LC[3 * k] = kk + p * ctx.ox + q * ctx.oy
-                    LC[3 * k + 1] = p * ctx.axc + q * ctx.ayc
-                    LC[3 * k + 2] = p * ctx.axr + q * ctx.ayr
+                    LC[3 * k] = kk + p * context.ox + q * context.oy
+                    LC[3 * k + 1] = p * context.axc + q * context.ayc
+                    LC[3 * k + 2] = p * context.axr + q * context.ayr
         noise_mode = 0
         lodg = 0.0
         G = np.zeros((2, 2))
@@ -1151,35 +1153,35 @@ class Holder:
         gtx = gty = np.zeros(1)
         narr = np.zeros(1)
         if f.granularity_nm > 0 and self._noise_scale > 0:
-            cpp = ctx.step_um * self._noise_scale
+            cpp = context.step_um * self._noise_scale
             lod = 1.0 if cpp <= 0.5 else (0.0 if cpp >= 1.0 else 2.0 * (1.0 - cpp))
             if lod > 0:
                 sc = self._noise_scale
                 lodg = lod * f.granularity_nm
                 sep = None
-                if ctx.axis_aligned:
-                    xs = (ctx.ox + ctx.axc * cols[0]) * sc
-                    ys = (ctx.oy + ctx.ayr * rows[:, 0]) * sc
+                if context.axis_aligned:
+                    xs = (context.ox + context.axc * cols[0]) * sc
+                    ys = (context.oy + context.ayr * rows[:, 0]) * sc
                     sep = _separable_noise_tables(self.seed, xs, ys)
                 if sep is not None:
                     noise_mode = 1
                     G, gix, gtx, giy, gty = sep
                 else:
                     noise_mode = 2
-                    if ctx.axis_aligned:
+                    if context.axis_aligned:
                         narr = value_noise_separable(self.seed, xs, ys).ravel()
                     else:
-                        X, Y = ctx.world(rows, cols)
+                        X, Y = context.world(rows, cols)
                         shape = (rows.shape[0], cols.shape[1])
                         narr = value_noise(
                             self.seed, np.broadcast_to(X, shape) * sc, np.broadcast_to(Y, shape) * sc
                         ).ravel()
-        W = np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr])
+        W = np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr])
         rem = np.ascontiguousarray(removed) if removed is not None else np.zeros(1, bool)
         _rnb.film_block(
-            ctx.thick,
-            ctx.material,
-            ctx.area,
+            context.thick,
+            context.material,
+            context.area,
             nx,
             r0,
             r1,
@@ -1210,12 +1212,12 @@ class Holder:
             np.uint8(f.material),
         )
 
-    def _holey_block_state(self, ctx, r0, r1) -> str:
+    def _holey_block_state(self, context, r0, r1) -> str:
         """'film' if no perforation touches the block, 'perforated' if one covers it, else 'mixed'."""
         f = self.film
         rr = np.array([r0, r0, r1 - 1, r1 - 1], np.float64)
-        cc = np.array([0, ctx.nx - 1, 0, ctx.nx - 1], np.float64)
-        X, Y = ctx.world(rr, cc)
+        cc = np.array([0, context.nx - 1, 0, context.nx - 1], np.float64)
+        X, Y = context.world(rr, cc)
         m = self.mesh
         lx = X * self._cos + Y * self._sin - m.offset_um[0]
         ly = -X * self._sin + Y * self._cos - m.offset_um[1]
@@ -1237,18 +1239,18 @@ class Holder:
             return "perforated"
         return "mixed"
 
-    def _film_block(self, ctx, rows, cols, r0, r1, removed) -> None:
+    def _film_block(self, context, rows, cols, r0, r1, removed) -> None:
         """SampleFilmAt over one row block: film thickness ADDED, material only claims vacuum."""
-        nx = ctx.nx
+        nx = context.nx
         sl = slice(r0 * nx, r1 * nx)
-        a = ctx.area[sl]
+        a = context.area[sl]
         f = self.film
         R, W = rows.shape[0], cols.shape[1]
         amin, amax = int(a.min()), int(a.max())
         if amax < 0:
             return
         if _rnb.AVAILABLE:
-            self._film_block_fast(ctx, rows, cols, r0, r1, removed, amin, amax)
+            self._film_block_fast(context, rows, cols, r0, r1, removed, amin, amax)
             return
         if amin == amax and removed is None:
             # the whole block is one placement area (the usual high-magnification case)
@@ -1268,45 +1270,45 @@ class Holder:
             t = self.area_film_nm[ai].reshape(R, W)
             keep = ok.reshape(R, W)
         if f.type == "holey" and f.hole_pitch_um > 0:
-            state = self._holey_block_state(ctx, r0, r1)
+            state = self._holey_block_state(context, r0, r1)
             if state == "perforated":
                 return
             if state != "film":
-                lx, ly = self._lattice(ctx, rows, cols)
+                lx, ly = self._lattice(context, rows, cols)
                 p = f.hole_pitch_um
                 hu = lx - np.floor(lx / p + 0.5) * p
                 hv = ly - np.floor(ly / p + 0.5) * p
                 keep = keep & ((hu * hu + hv * hv) >= (0.5 * f.hole_diameter_um) ** 2)
         if f.type == "vitreous_ice":
-            X, Y = ctx.world(rows, cols)
+            X, Y = context.world(rows, cols)
             aa = ai.reshape(R, W)
             hx = np.where(self.area_hx[aa] > 0, self.area_hx[aa], 1.0)
             hy = np.where(self.area_hy[aa] > 0, self.area_hy[aa], 1.0)
             d = np.clip(np.hypot((X - self.area_cx[aa]) / hx, (Y - self.area_cy[aa]) / hy), 0.0, 1.0)
             t = t * (1.0 + ICE_EDGE_GRADIENT * d * d)
         if f.granularity_nm > 0 and self._noise_scale > 0:
-            cpp = ctx.step_um * self._noise_scale
+            cpp = context.step_um * self._noise_scale
             lod = 1.0 if cpp <= 0.5 else (0.0 if cpp >= 1.0 else 2.0 * (1.0 - cpp))
             if lod > 0:
                 sc = self._noise_scale
-                if ctx.axis_aligned:
-                    xs = (ctx.ox + ctx.axc * cols[0]) * sc
-                    ys = (ctx.oy + ctx.ayr * rows[:, 0]) * sc
+                if context.axis_aligned:
+                    xs = (context.ox + context.axc * cols[0]) * sc
+                    ys = (context.oy + context.ayr * rows[:, 0]) * sc
                     n = value_noise_separable(self.seed, xs, ys)
                 else:
-                    X, Y = ctx.world(rows, cols)
+                    X, Y = context.world(rows, cols)
                     n = value_noise(
                         self.seed, np.broadcast_to(X, (R, W)) * sc, np.broadcast_to(Y, (R, W)) * sc
                     )
                 t = t + lod * f.granularity_nm * (n - 0.5)
         t = np.maximum(t, 0.0)
         if keep.all():
-            ctx.thick[sl] = np.clip(ctx.thick[sl] + t.ravel(), 0.0, 65535.0)
-            m = ctx.material[sl]
-            ctx.material[sl] = np.where(m == 0, np.uint8(f.material), m)
+            context.thick[sl] = np.clip(context.thick[sl] + t.ravel(), 0.0, 65535.0)
+            m = context.material[sl]
+            context.material[sl] = np.where(m == 0, np.uint8(f.material), m)
             return
         kf = np.flatnonzero(keep.ravel())
         flat = kf + r0 * nx
-        ctx.add_thickness(flat, t.ravel()[kf])
-        vac = ctx.material[flat] == 0
-        ctx.material[flat[vac]] = f.material
+        context.add_thickness(flat, t.ravel()[kf])
+        vac = context.material[flat] == 0
+        context.material[flat[vac]] = f.material

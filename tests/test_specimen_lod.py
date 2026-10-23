@@ -5,14 +5,14 @@ from de_twin.specimen import MaterialId, Specimen, SpecimenConfig, ViewWindow
 from de_twin.specimen.raster import Shape
 
 
-def _mesh(lod=0.5, **opts):
+def _mesh(lod=0.5, **options):
     return Specimen(
         SpecimenConfig(
             seed=5,
             holder="mesh_grid",
             preparation="nanoparticles",
             film="continuous",
-            options=dict(lod_threshold_px=lod, **opts),
+            options=dict(lod_threshold_px=lod, **options),
         )
     )
 

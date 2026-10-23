@@ -69,13 +69,13 @@ class DefocusAndTruth:
     def defocus_rotation_rad(self, defocus_um: float) -> float:
         return math.radians(self.hd_rotation_deg_per_um * float(defocus_um))
 
-    def truth(self, mag_mode, mag: float) -> dict:
+    def truth(self, mag_mode, magnification: float) -> dict:
         """Every value at one magnification, for tests that calibrate against the twin."""
         return {
-            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, mag)),
-            "pixel_scale": self.pixel_scale(mag_mode, mag),
-            "is_matrix_um_per_unit": self.is_matrix(mag_mode, mag).tolist(),
-            "mag_offset_um": self.mag_offset_um(mag_mode, mag),
+            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, magnification)),
+            "pixel_scale": self.pixel_scale(mag_mode, magnification),
+            "is_matrix_um_per_unit": self.is_matrix(mag_mode, magnification).tolist(),
+            "mag_offset_um": self.mag_offset_um(mag_mode, magnification),
             "backlash_um": self.backlash_um,
             "bs_matrix_um_per_unit": self.bs_matrix().tolist(),
         }
@@ -121,25 +121,25 @@ class ColumnRealism(DefocusAndTruth):
     hd_scale_per_um: float = 2.0e-4
     hd_rotation_deg_per_um: float = 0.01
 
-    def _key(self, mag_mode, mag: float) -> tuple[int, int]:
-        return _mode_id(mag_mode), round(float(mag))
+    def _key(self, mag_mode, magnification: float) -> tuple[int, int]:
+        return _mode_id(mag_mode), round(float(magnification))
 
-    def rotation_rad(self, mag_mode, mag: float) -> float:
+    def rotation_rad(self, mag_mode, magnification: float) -> float:
         """How far the image is rotated on the camera, radians (world -> camera)."""
         if not self.image_rotation:
             return 0.0
-        mode, m = self._key(mag_mode, mag)
+        mode, m = self._key(mag_mode, magnification)
         base = 2.0 * math.pi * _u(self.seed, 11, mode)
         return base + math.radians(self.rotation_jitter_deg) * _n(self.seed, 12, mode, m)
 
-    def pixel_scale(self, mag_mode, mag: float) -> float:
+    def pixel_scale(self, mag_mode, magnification: float) -> float:
         """True pixel size / nominal pixel size."""
-        mode, m = self._key(mag_mode, mag)
+        mode, m = self._key(mag_mode, magnification)
         return 1.0 + self.pixel_scale_sigma * _n(self.seed, 21, mode, m)
 
-    def is_matrix(self, mag_mode, mag: float) -> np.ndarray:
+    def is_matrix(self, mag_mode, magnification: float) -> np.ndarray:
         """2x2: specimen micrometres (world frame) per image-shift unit."""
-        mode, m = self._key(mag_mode, mag)
+        mode, m = self._key(mag_mode, magnification)
         sx = 1.0 + self.is_scale_sigma * _n(self.seed, 31, mode, m)
         sy = 1.0 + self.is_scale_sigma * _n(self.seed, 32, mode, m)
         k = self.is_skew_sigma * _n(self.seed, 33, mode, m)
@@ -147,11 +147,11 @@ class ColumnRealism(DefocusAndTruth):
         c, s = math.cos(r), math.sin(r)
         return np.array([[c, -s], [s, c]]) @ np.array([[sx, k], [0.0, sy]])
 
-    def mag_offset_um(self, mag_mode, mag: float) -> tuple[float, float]:
+    def mag_offset_um(self, mag_mode, magnification: float) -> tuple[float, float]:
         """Where this magnification puts the image centre, relative to the ideal, micrometres:
         `mag_offset_fraction` of a nominal field of 1e5 / mag um (5 um at 20 kx)."""
-        mode, m = self._key(mag_mode, mag)
-        f = self.mag_offset_fraction * 1.0e5 / max(float(mag), 1.0)
+        mode, m = self._key(mag_mode, magnification)
+        f = self.mag_offset_fraction * 1.0e5 / max(float(magnification), 1.0)
         return f * _n(self.seed, 41, mode, m), f * _n(self.seed, 42, mode, m)
 
     def bs_matrix(self) -> np.ndarray:

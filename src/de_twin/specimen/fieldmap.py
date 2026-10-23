@@ -134,19 +134,19 @@ class FieldMap:
     @classmethod
     def empty(cls, view: ViewWindow, layers: frozenset[str] | set[str] = frozenset()) -> FieldMap:
         ny, nx = view.shape
-        fm = cls(
+        field_map = cls(
             view=view,
             material_id=np.zeros((ny, nx), np.uint8),
             thickness_nm=np.zeros((ny, nx), np.float32),
             grain_id=np.full((ny, nx), -1, np.int32),
         )
         if LAYER_DESCAN in layers:
-            fm.descan = np.zeros((2, ny, nx), np.float32)
+            field_map.descan = np.zeros((2, ny, nx), np.float32)
         if LAYER_STRAIN in layers:
-            fm.strain = np.zeros((3, ny, nx), np.float32)
-            fm.strain[0] = 1.0
-            fm.strain[2] = 1.0
-        return fm
+            field_map.strain = np.zeros((3, ny, nx), np.float32)
+            field_map.strain[0] = 1.0
+            field_map.strain[2] = 1.0
+        return field_map
 
 
 @dataclass

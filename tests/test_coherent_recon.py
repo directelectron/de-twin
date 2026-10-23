@@ -70,28 +70,28 @@ def _gt_phase_at_scan(gt, smooth_nm=0.5):
 def test_tcbf_fits_defocus_astigmatism_and_rotation(tcbf_data):
     o, dc, gt = tcbf_data
     s = gt["sampling"]
-    res = tcbf(
+    result = tcbf(
         dc,
         recip_px_inv_nm=s.det_recip_px[0],
         scan_step_nm=gt["scan_step_nm"],
         wavelength_nm=o.wavelength_nm,
         rotation_hint_rad=math.radians(30.0),
     )
-    assert res.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)  # -500 nm, sign included
-    assert res.C1_nm < 0
-    assert abs(res.A1_nm - gt["A1_nm"]) < 0.15 * abs(gt["A1_nm"])  # magnitude and azimuth
-    assert math.degrees(res.rotation_rad) == pytest.approx(30.0, abs=2.0)
-    assert res.residual_px < 0.5
+    assert result.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)  # -500 nm, sign included
+    assert result.C1_nm < 0
+    assert abs(result.A1_nm - gt["A1_nm"]) < 0.15 * abs(gt["A1_nm"])  # magnitude and azimuth
+    assert math.degrees(result.rotation_rad) == pytest.approx(30.0, abs=2.0)
+    assert result.residual_px < 0.5
     # parallax: d_k = lambda C1 k (underfocus: pixel images move against k)
-    k = res.k_inv_nm
+    k = result.k_inv_nm
     assert (
         np.corrcoef(
-            res.shifts_fit_px[:, 0] - res.shifts_fit_px[:, 0].mean(),
-            res.shifts_px[:, 0] - res.shifts_px[:, 0].mean(),
+            result.shifts_fit_px[:, 0] - result.shifts_fit_px[:, 0].mean(),
+            result.shifts_px[:, 0] - result.shifts_px[:, 0].mean(),
         )[0, 1]
         > 0.98
     )
-    assert res.aberrations["C1"].real == pytest.approx(res.C1_nm)
+    assert result.aberrations["C1"].real == pytest.approx(result.C1_nm)
     assert len(k) > 50
 
 
@@ -131,7 +131,7 @@ def test_tcbf_image_beats_single_pixel_and_plain_bf(tcbf_data):
     c_tcbf, c_single, c_bf = [], [], []
     for seed in range(5):
         noisy = _counts(lam, seed)
-        res = tcbf(
+        result = tcbf(
             noisy,
             recip_px_inv_nm=s.det_recip_px[0],
             scan_step_nm=gt["scan_step_nm"],
@@ -139,11 +139,11 @@ def test_tcbf_image_beats_single_pixel_and_plain_bf(tcbf_data):
             rotation_hint_rad=math.radians(30.0),
             ctf_correct=True,
         )
-        assert res.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)
-        cx, cy = res.center_px
-        c_tcbf.append(corr(res.image))
-        c_single.append(abs(corr(noisy[:, :, round(cy), round(cx + 0.5 * res.radius_px)])))
-        c_bf.append(abs(corr(res.bf_image)))
+        assert result.C1_nm == pytest.approx(gt["C1_nm"], rel=0.10)
+        cx, cy = result.center_px
+        c_tcbf.append(corr(result.image))
+        c_single.append(abs(corr(noisy[:, :, round(cy), round(cx + 0.5 * result.radius_px)])))
+        c_bf.append(abs(corr(result.bf_image)))
     c_tcbf = np.median(c_tcbf)
     assert c_tcbf > 0.35
     assert c_tcbf > np.median(c_single) + 0.2
@@ -170,16 +170,16 @@ def test_tcbf_overfocus_sign():
     r = Renderer(spec, RenderConfig(stem_model="coherent", coherent_max_modes=1))
     dc = r.datacube(o)
     s = r.coherent_sampling(o)
-    res = tcbf(
+    result = tcbf(
         dc,
         recip_px_inv_nm=s.det_recip_px[0],
         scan_step_nm=1.0,
         wavelength_nm=o.wavelength_nm,
         rotation_hint_rad=math.radians(-20.0),
     )
-    assert res.C1_nm == pytest.approx(400.0, rel=0.10)
-    assert math.degrees(res.rotation_rad) == pytest.approx(-20.0, abs=2.0)
-    assert abs(res.A1_nm) < 20.0
+    assert result.C1_nm == pytest.approx(400.0, rel=0.10)
+    assert math.degrees(result.rotation_rad) == pytest.approx(-20.0, abs=2.0)
+    assert abs(result.A1_nm) < 20.0
 
 
 # ---------------------------------------------------------------- ptychography
@@ -225,9 +225,9 @@ def test_ptychography_known_probe_with_counting_noise(ptycho_data):
     )
     dose = 1e5  # electrons per pattern
     noisy = np.random.default_rng(3).poisson(data / data.sum(axis=(1, 2)).mean() * dose).astype(float)
-    res = epie(noisy, pos, probe, object_shape=obj.shape, iterations=20, center=s.det_center_px, rpie=0.2)
-    assert res.errors[-1] < res.errors[0]
-    assert phase_correlation(res.object, obj, mask) > 0.8
+    result = epie(noisy, pos, probe, object_shape=obj.shape, iterations=20, center=s.det_center_px, rpie=0.2)
+    assert result.errors[-1] < result.errors[0]
+    assert phase_correlation(result.object, obj, mask) > 0.8
 
 
 def test_ptychography_mixed_state_recovers_the_phase(ptycho_data):
@@ -236,7 +236,7 @@ def test_ptychography_mixed_state_recovers_the_phase(ptycho_data):
     n = data.shape[-1]
     modes, weights = probe_modes_on_grid(gt, (n, n))
     assert modes.shape[0] == len(gt["mode_weights"]) > 1  # partial coherence at the defaults
-    res = epie(
+    result = epie(
         data,
         pos,
         modes,
@@ -246,4 +246,4 @@ def test_ptychography_mixed_state_recovers_the_phase(ptycho_data):
         center=s.det_center_px,
         rpie=0.2,
     )
-    assert phase_correlation(res.object, obj, mask) > 0.85
+    assert phase_correlation(result.object, obj, mask) > 0.85

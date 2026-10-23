@@ -127,12 +127,12 @@ def interp1(x, xp, fp):
     if xp[j] == x:
         return fp[j]
     slope = (fp[j + 1] - fp[j]) / (xp[j + 1] - xp[j])
-    res = slope * (x - xp[j]) + fp[j]
-    if np.isnan(res):
-        res = slope * (x - xp[j + 1]) + fp[j + 1]
-        if np.isnan(res) and fp[j] == fp[j + 1]:
-            res = fp[j]
-    return res
+    result = slope * (x - xp[j]) + fp[j]
+    if np.isnan(result):
+        result = slope * (x - xp[j + 1]) + fp[j + 1]
+        if np.isnan(result) and fp[j] == fp[j + 1]:
+            result = fp[j]
+    return result
 
 
 @njit()

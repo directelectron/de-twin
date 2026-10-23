@@ -66,9 +66,9 @@ def test_probe_normalisation_and_modes():
     assert 0.5 < p.coherent_fraction < 1.0
     # vacuum pattern carries exactly the probe current
     r = Renderer(SyntheticSpecimen(film_material=MaterialId.VACUUM), RenderConfig(stem_model="coherent"))
-    img = r.render(o, scan_point=(3, 4))
-    assert img.shape == o.output_shape and img.dtype == np.float32
-    assert img.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
+    image = r.render(o, scan_point=(3, 4))
+    assert image.shape == o.output_shape and image.dtype == np.float32
+    assert image.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
 
 
 def test_corrector_allows_large_convergence():

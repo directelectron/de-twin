@@ -156,10 +156,10 @@ def test_stem_convergence_table(col):
 
 
 def test_safety_refuses_ht(clock):
-    col = Column(clock=clock)
+    column = Column(clock=clock)
     for name in ("HighTension", "HTState", "Filament"):
         with pytest.raises(ColumnRefused):
-            col.set(name, 1)
+            column.set(name, 1)
     ok = Column(clock=clock, allow_ht=True)
     ok.set_ht_kv(300)
     assert ok.state().ht_kv == 300.0
@@ -192,22 +192,22 @@ def test_screen_and_blank(col):
 
 
 def test_fei_vendor_reporting(clock):
-    col = Column(clock=clock, instrument_type="FEI")
-    assert col.get("SubMode") == 2  # MAG1 -> TFS "M"
-    assert col.get("ScreenPosition") == 2  # up
-    col.set("ScreenPosition", 3)
-    assert col.state().screen_position == 1
-    col.set("ProbeMode", 0)
-    assert col.state().probe_mode == ProbeMode.NANOPROBE
-    col.set("SubMode", 1)
-    assert col.get("MagMode") == "LowMAG"
+    column = Column(clock=clock, instrument_type="FEI")
+    assert column.get("SubMode") == 2  # MAG1 -> TFS "M"
+    assert column.get("ScreenPosition") == 2  # up
+    column.set("ScreenPosition", 3)
+    assert column.state().screen_position == 1
+    column.set("ProbeMode", 0)
+    assert column.state().probe_mode == ProbeMode.NANOPROBE
+    column.set("SubMode", 1)
+    assert column.get("MagMode") == "LowMAG"
 
 
 def test_initial_state_is_resnapped(clock):
     st = MicroscopeState(magnification=23456.0, tem_stem=TemStem.STEM, mag_mode="MAG1")
-    col = Column(st, clock=clock)
-    assert col.get("MagMode") == "LowMAG"
-    assert col.get("Magnification") in ladders.STEM_MAGS
+    column = Column(st, clock=clock)
+    assert column.get("MagMode") == "LowMAG"
+    assert column.get("Magnification") in ladders.STEM_MAGS
 
 
 def test_on_change_and_every_property_roundtrips(col):
@@ -234,10 +234,10 @@ def test_on_change_and_every_property_roundtrips(col):
 
 def test_real_clock_callable():
     t = [0.0]
-    col = Column(clock=lambda: t[0])
-    col.set_stage(x=10)
+    column = Column(clock=lambda: t[0])
+    column.set_stage(x=10)
     t[0] = 0.05
-    assert col.get("StageX") == pytest.approx(5.0)
+    assert column.get("StageX") == pytest.approx(5.0)
 
 
 def test_column_adapter_duck_type(col, clock):

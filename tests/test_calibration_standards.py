@@ -31,30 +31,32 @@ def make_standard_twin(make_twin):
     return build
 
 
-def _centre_on(tw, kind, pixel_um, n=512):
+def _centre_on(twin, kind, pixel_um, n=512):
     """Put the densest spot of a feature (``latex``, on top or under a metal island, or
     ``moo3``) on axis: rasterize coarse windows around home, then move the stage."""
     from scipy import ndimage
 
     from de_twin.optics.derive import stage_for_view_center
 
-    home = tw.specimen.home_um()
+    home = twin.specimen.home_um()
     for k in range(25):
         r = 0.0 if k == 0 else n * pixel_um * (0.5 + 0.5 * k**0.5)
         c = (home[0] + r * math.cos(2.4 * k), home[1] + r * math.sin(2.4 * k))
-        fm = tw.specimen.rasterize(ViewWindow(center_um=c, pixel_um=pixel_um, shape=(n, n)))
-        m = fm.material_id
-        um = fm.under_material if fm.under_material is not None else np.zeros_like(m)
+        field_map = twin.specimen.rasterize(ViewWindow(center_um=c, pixel_um=pixel_um, shape=(n, n)))
+        m = field_map.material_id
+        um = field_map.under_material if field_map.under_material is not None else np.zeros_like(m)
         hit = {
             "latex": (m == int(MaterialId.PROTEIN)) | (um == int(MaterialId.PROTEIN)),
             "moo3": m == int(MaterialId.MOLYBDENUM_TRIOXIDE),
         }[kind]
         if hit.any():
             i, j = np.unravel_index(np.argmax(ndimage.uniform_filter(hit.astype(float), 9) * hit), hit.shape)
-            x, y = stage_for_view_center(fm.view.pixel_to_world(i, j), tw.column.state(), tw.optics_config)
-            tw.column.set_stage(x=x, y=y)
-            tw.clock.advance(30.0)  # let the stage get there
-            return fm
+            x, y = stage_for_view_center(
+                field_map.view.pixel_to_world(i, j), twin.column.state(), twin.optics_config
+            )
+            twin.column.set_stage(x=x, y=y)
+            twin.clock.advance(30.0)  # let the stage get there
+            return field_map
     raise AssertionError(f"no {kind} found")
 
 
@@ -66,12 +68,12 @@ def test_every_product_is_a_preset():
         build_structure(number)
 
 
-def _period_nm(img, pixel_nm, near_nm):
+def _period_nm(image, pixel_nm, near_nm):
     """The strongest spatial period of *img* within 30% of *near_nm* (the fundamental, not a
     harmonic or the crumple), refined by a zoomed DFT around the FFT peak."""
-    n = img.shape[0]
+    n = image.shape[0]
     w = np.hanning(n)
-    f = (img - img.mean()) * np.outer(w, w)
+    f = (image - image.mean()) * np.outer(w, w)
     F = np.abs(np.fft.rfft2(f))
     ky = np.fft.fftfreq(n)[:, None]
     kx = np.fft.rfftfreq(n)[None, :]
@@ -90,13 +92,15 @@ def _period_nm(img, pixel_nm, near_nm):
 
 @pytest.mark.parametrize("number", ["607", "607-A", "606", "677"])
 def test_the_grating_period_is_the_published_one(number, make_standard_twin):
-    tw = make_standard_twin(number, 2000)
-    tw.column.set("Intensity", 0.95)  # a beam spread past the field: no disc edge
-    tw.column.set_defocus_um(-3.0)
-    req = tw.request()
-    img = tw.flux(req).astype(float)
+    twin = make_standard_twin(number, 2000)
+    twin.column.set("Intensity", 0.95)  # a beam spread past the field: no disc edge
+    twin.column.set_defocus_um(-3.0)
+    request = twin.request()
+    image = twin.flux(request).astype(float)
     published = PRODUCTS[number].numbers["period_nm"]
-    assert _period_nm(img, tw.optics(req).specimen_pixel_nm, published) == pytest.approx(published, rel=0.005)
+    assert _period_nm(image, twin.optics(request).specimen_pixel_nm, published) == pytest.approx(
+        published, rel=0.005
+    )
 
 
 @pytest.mark.parametrize("number", ["603", "673", "628-B"])
@@ -104,9 +108,9 @@ def test_latex_spheres_have_the_published_diameter(number, make_standard_twin):
     """The spheres on the gratings (262 nm, the tech notes) and 628-B's 204 nm: their chords
     peak at the published size (for 628-B under its gold: the layer under the metal)."""
     d = {"603": 262.0, "673": 262.0, "628-B": 204.0}[number]
-    tw = make_standard_twin(number, 4000)
-    _centre_on(tw, "latex", 0.004)
-    gt = tw.ground_truth(as_arrays=True)
+    twin = make_standard_twin(number, 4000)
+    _centre_on(twin, "latex", 0.004)
+    gt = twin.ground_truth(as_arrays=True)
     latex = gt["material_id"] == int(MaterialId.PROTEIN)
     chord = gt["thickness_nm"][latex]
     if "under_material" in gt:  # latex under a metal island
@@ -121,17 +125,17 @@ def test_the_aluminium_rings_are_at_the_published_spacings(make_standard_twin):
     length calibration: K = S d must agree across the rings)."""
     from scipy import ndimage
 
-    tw = make_standard_twin("619", 20000)
-    tw.column.set("Intensity", 0.95)  # SAED: a parallel beam
-    tw.column.set("ProjectionMode", 2)
-    req = tw.request()
-    img = tw.flux(req).astype(float)
-    recip = tw.optics(req).recip_pixel_inv_nm
-    m = img > np.percentile(img, 99.99)
-    cy, cx = ndimage.center_of_mass(img * m)
-    yy, xx = np.indices(img.shape)
+    twin = make_standard_twin("619", 20000)
+    twin.column.set("Intensity", 0.95)  # SAED: a parallel beam
+    twin.column.set("ProjectionMode", 2)
+    request = twin.request()
+    image = twin.flux(request).astype(float)
+    recip = twin.optics(request).recip_pixel_inv_nm
+    m = image > np.percentile(image, 99.99)
+    cy, cx = ndimage.center_of_mass(image * m)
+    yy, xx = np.indices(image.shape)
     r2 = (np.hypot(yy - cy, xx - cx) * 2).astype(int)
-    prof = np.bincount(r2.ravel(), img.ravel()) / np.maximum(np.bincount(r2.ravel()), 1)
+    prof = np.bincount(r2.ravel(), image.ravel()) / np.maximum(np.bincount(r2.ravel()), 1)
     rr = np.arange(prof.size) / 2.0
     for hkl in ("111", "200", "220", "311"):
         e = 1.0 / PRODUCTS["619"].numbers["d_nm"][hkl] / recip
@@ -174,8 +178,8 @@ def test_shadowing_coats_the_facing_side_and_leaves_a_shadow_behind_a_ridge():
 
 
 def test_the_shadowed_replica_has_gold_islands_at_high_magnification(make_standard_twin):
-    tw = make_standard_twin("607", 16000)
-    gt = tw.ground_truth(as_arrays=True)
+    twin = make_standard_twin("607", 16000)
+    gt = twin.ground_truth(as_arrays=True)
     au = gt["material_id"] == int(MaterialId.GOLD)
     assert 0.2 < au.mean() < 0.8
     assert np.unique(gt["grain_id"][au]).size > 200, "nanocrystalline islands"
@@ -188,30 +192,30 @@ def test_a_moo3_lath_long_edge_is_its_crystal_long_axis(make_standard_twin):
 
     from de_twin.specimen.fieldmap import _direct_basis
 
-    tw = make_standard_twin("625", 2500)
-    fm = _centre_on(tw, "moo3", 0.02)
+    twin = make_standard_twin("625", 2500)
+    field_map = _centre_on(twin, "moo3", 0.02)
     mid = int(MaterialId.MOLYBDENUM_TRIOXIDE)
-    lab, n = ndimage.label(fm.material_id == mid)
+    lab, n = ndimage.label(field_map.material_id == mid)
     checked = 0
     for k in range(1, n + 1):
         one = lab == k
-        g = fm.grain_id[one]
+        g = field_map.grain_id[one]
         if one.sum() < 300 or (g == g[0]).mean() < 0.99:
             continue  # small, or laths overlapping
         ring = ndimage.binary_dilation(one, iterations=3) & ~one
-        if ((fm.material_id[ring] == mid) & (fm.grain_id[ring] != g[0])).any() or (
-            fm.grain_id == g[0]
+        if ((field_map.material_id[ring] == mid) & (field_map.grain_id[ring] != g[0])).any() or (
+            field_map.grain_id == g[0]
         ).sum() > one.sum():
             continue  # another lath touches it (and may hide part of it)
         rows, cols = np.nonzero(one)
-        wx, wy = fm.view.pixel_to_world(rows, cols)  # world coordinates: no raster flips
+        wx, wy = field_map.view.pixel_to_world(rows, cols)  # world coordinates: no raster flips
         evals, evecs = np.linalg.eigh(np.cov(np.vstack([wx, wy])))
         if evals[1] < 6.0 * evals[0]:
             continue  # cut by the window's edge
         box = 12.0 * math.sqrt(evals[0] * evals[1])  # the area of a rectangle with these moments
-        if one.sum() * fm.view.pixel_um**2 < 0.85 * box:
+        if one.sum() * field_map.view.pixel_um**2 < 0.85 * box:
             continue  # not one clean lath (overlapping laths)
-        b = tw.specimen.grains.matrices[int(g[0])] @ _direct_basis(mid) @ np.array([0.0, 1.0, 0.0])
+        b = twin.specimen.grains.matrices[int(g[0])] @ _direct_basis(mid) @ np.array([0.0, 1.0, 0.0])
         b = b[:2] / np.linalg.norm(b[:2])
         assert abs(float(np.dot(evecs[:, 1], b))) > math.cos(math.radians(2.0))
         checked += 1

@@ -50,8 +50,10 @@ def test_a_beam_tilted_by_the_bragg_angle_towards_minus_g_excites_g():
     j = int(np.argmin(np.abs(lib.g[:, 0] - G200) + np.abs(lib.g[:, 1]) + np.abs(lib.g[:, 2])))  # +g = (200)
 
     def s(tilt):
-        gl = beam_tilt_rotation(tilt) @ lib.g[j]
-        return float(1 / LAM - math.sqrt(1 / LAM**2 - gl[0] ** 2 - gl[1] ** 2) - gl[2])
+        lab_vector = beam_tilt_rotation(tilt) @ lib.g[j]
+        return float(
+            1 / LAM - math.sqrt(1 / LAM**2 - lab_vector[0] ** 2 - lab_vector[1] ** 2) - lab_vector[2]
+        )
 
     assert abs(s((0.0, 0.0))) > 1e-3
     assert s((-theta_b, 0.0)) == pytest.approx(0.0, abs=1e-6), "towards -g: +g on the sphere"
@@ -192,12 +194,12 @@ def test_stem_tables_are_not_rebuilt_as_the_precession_phase_moves(monkeypatch):
     builds = []
     real = st.build_tables
     monkeypatch.setattr(st, "build_tables", lambda *a, **k: builds.append(1) or real(*a, **k))
-    tw = DigitalTwin("Dense Au on holey C", camera="DESim", clock=MC(), seed=3)
-    tw.column.set_tem_stem(TemStem.STEM)
-    tw.column.set("Precession", True)
-    req = tw.request(frame_time_s=0.001)
-    req.scan.enabled = True
-    req.scan.size = (16, 16)
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=MC(), seed=3)
+    twin.column.set_tem_stem(TemStem.STEM)
+    twin.column.set("Precession", True)
+    request = twin.request(frame_time_s=0.001)
+    request.scan.enabled = True
+    request.scan.size = (16, 16)
     for i in range(12):
-        tw.flux(req, frame_index=i, time_s=i * 0.001)
+        twin.flux(request, frame_index=i, time_s=i * 0.001)
     assert len(builds) == 1

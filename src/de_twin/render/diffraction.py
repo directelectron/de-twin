@@ -134,8 +134,8 @@ def saturation_thickness_nm(material_id: int, options: PatternOptions = PatternO
 
 def amorphous_fraction(material_id: int, t_nm, options: PatternOptions = PatternOptions()):
     m = material(material_id)
-    tw = np.clip(np.asarray(t_nm, float) / saturation_thickness_nm(material_id, options), 0.0, 1.0)
-    return MAX_DIFFRACTED_FRACTION * tw * sum(w for _, w in m.halos)
+    twin = np.clip(np.asarray(t_nm, float) / saturation_thickness_nm(material_id, options), 0.0, 1.0)
+    return MAX_DIFFRACTED_FRACTION * twin * sum(w for _, w in m.halos)
 
 
 def bragg_fraction(p):
@@ -421,16 +421,16 @@ def splat_blur(shape, x, y, w, sigma: float) -> np.ndarray:
     """Bilinear splat of point weights, blurred by a Gaussian (sum kept, off-detector lost)."""
     h, wd = shape
     pad = math.ceil(4 * sigma) + 2
-    img = np.zeros((h + 2 * pad, wd + 2 * pad), np.float64)  # margin: spots just off the edge
+    image = np.zeros((h + 2 * pad, wd + 2 * pad), np.float64)  # margin: spots just off the edge
     ix, iy = np.floor(x).astype(np.int64), np.floor(y).astype(np.int64)
     fx, fy = x - ix, y - iy
     for dy, wy in ((0, 1 - fy), (1, fy)):
         for dx, wx in ((0, 1 - fx), (1, fx)):
             r, c = iy + dy + pad, ix + dx + pad
             m = (r >= 0) & (r < h + 2 * pad) & (c >= 0) & (c < wd + 2 * pad)
-            np.add.at(img, (r[m], c[m]), (w * wx * wy)[m])
+            np.add.at(image, (r[m], c[m]), (w * wx * wy)[m])
     s = math.sqrt(max(sigma * sigma - 1.0 / 6.0, 0.25))  # the splat itself adds ~1/6 px^2
-    return ndimage.gaussian_filter(img, s, mode="constant", truncate=4.0)[pad:-pad, pad:-pad].astype(
+    return ndimage.gaussian_filter(image, s, mode="constant", truncate=4.0)[pad:-pad, pad:-pad].astype(
         np.float32
     )
 
@@ -613,23 +613,23 @@ class DiffractionCache:
 
     def get(self, key, render: Callable[[object], np.ndarray]) -> np.ndarray:
         with self._lock:
-            arr = self._lru.get(key)
-            if arr is not None:
+            array = self._lru.get(key)
+            if array is not None:
                 self._lru.move_to_end(key)
                 self.stats.hits += 1
-                return arr
+                return array
         t0 = time.perf_counter()
-        arr = render(key)
-        arr.setflags(write=False)
+        array = render(key)
+        array.setflags(write=False)
         with self._lock:
             self.stats.last_render_ms = (time.perf_counter() - t0) * 1000.0
             if key in self._lru:  # rendered meanwhile by another thread
                 return self._lru[key]
-            self._lru[key] = arr
-            self.stats.bytes += arr.nbytes
+            self._lru[key] = array
+            self.stats.bytes += array.nbytes
             self.stats.misses += 1
             self._evict()
-        return arr
+        return array
 
     def clear(self) -> None:
         with self._lock:

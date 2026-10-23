@@ -175,11 +175,13 @@ class Column:
         if instrument_type is not None:
             s.instrument_type = str(instrument_type)
         self._s = s
-        fm = L.FM_DIFF if s.projection == Projection.DIFFRACTION else function_mode_from_name(s.mag_mode)
-        if s.tem_stem == TemStem.STEM and fm not in (L.FM_LOWMAG, L.FM_DIFF):
-            fm = L.FM_LOWMAG
-        self._fm = fm
-        self._last_imaging_fm = fm if fm != L.FM_DIFF else L.FM_MAG1
+        field_map = (
+            L.FM_DIFF if s.projection == Projection.DIFFRACTION else function_mode_from_name(s.mag_mode)
+        )
+        if s.tem_stem == TemStem.STEM and field_map not in (L.FM_LOWMAG, L.FM_DIFF):
+            field_map = L.FM_LOWMAG
+        self._fm = field_map
+        self._last_imaging_fm = field_map if field_map != L.FM_DIFF else L.FM_MAG1
         self._convergence_explicit: float | None = (
             float(s.convergence_semi_angle_mrad) if s.convergence_semi_angle_mrad > 0 else None
         )
@@ -224,8 +226,8 @@ class Column:
         if kind != "none":
             from .corrector import Corrector
 
-            opts = dict(corrector_options or {})
-            opts.setdefault("sleeper", getattr(clock, "sleep", None))
+            options = dict(corrector_options or {})
+            options.setdefault("sleeper", getattr(clock, "sleep", None))
             self.corrector = Corrector(
                 kind,
                 clock=self._now,
@@ -235,7 +237,7 @@ class Column:
                 operator=self._operator_c1a1,
                 beam_check=self._corrector_beam_check,
                 label=self._corrector_label,
-                **opts,
+                **options,
             )
 
     # ------------------------------------------------------------ corrector
@@ -450,8 +452,8 @@ class Column:
 
     # --------------------------------------------------------- typed setters
     # These route through set() so a MirrorColumn forwards them unchanged.
-    def set_magnification(self, mag: float) -> None:
-        self.set("Magnification", mag)
+    def set_magnification(self, magnification: float) -> None:
+        self.set("Magnification", magnification)
 
     def set_magnification_index(self, index: int) -> None:
         self.set("MagnificationIndex", index)
@@ -600,19 +602,19 @@ class Column:
 
     # ---- setters (under the lock) ----
     def _s_mag(self, value) -> None:
-        mag = float(value)
-        if mag <= 0:
+        magnification = float(value)
+        if magnification <= 0:
             raise ColumnRefused("magnification must be > 0")
         s = self._s
         if s.tem_stem == TemStem.TEM and self._fm != L.FM_DIFF:
-            wanted = L.imaging_mode_for(self._fm, mag)
+            wanted = L.imaging_mode_for(self._fm, magnification)
             if wanted != self._fm:
                 self._fm = wanted
                 self._last_imaging_fm = wanted
         mags, _ = self._ladders()
         if mags is None:
             raise ColumnRefused("no magnification in TEM diffraction")
-        s.magnification = mags.snap_linear(mag)
+        s.magnification = mags.snap_linear(magnification)
 
     def _s_mag_index(self, value) -> None:
         idx = int(value)
@@ -641,14 +643,14 @@ class Column:
             raise ColumnRefused("no camera length in TEM imaging")
         self._s.camera_length_mm = cams.snap_linear(cl)
 
-    def _s_function_mode(self, fm: int) -> None:
-        if not 0 <= fm <= 4:
-            raise ColumnRefused(f"function mode {fm} out of range")
-        if self._s.tem_stem == TemStem.STEM and fm not in (L.FM_LOWMAG, L.FM_DIFF):
+    def _s_function_mode(self, field_map: int) -> None:
+        if not 0 <= field_map <= 4:
+            raise ColumnRefused(f"function mode {field_map} out of range")
+        if self._s.tem_stem == TemStem.STEM and field_map not in (L.FM_LOWMAG, L.FM_DIFF):
             raise ColumnRefused("MAG1/MAG2/SAMAG have no STEM project; use LowMAG or DIFF")
-        self._fm = fm
-        if fm != L.FM_DIFF:
-            self._last_imaging_fm = fm
+        self._fm = field_map
+        if field_map != L.FM_DIFF:
+            self._last_imaging_fm = field_map
         self._resnap()
 
     def _s_submode(self, value) -> None:
@@ -781,10 +783,12 @@ class Column:
         with self.lock:
             before = self.values()
             self._s = s.copy()
-            fm = L.FM_DIFF if s.projection == Projection.DIFFRACTION else function_mode_from_name(s.mag_mode)
-            self._fm = fm
-            if fm != L.FM_DIFF:
-                self._last_imaging_fm = fm
+            field_map = (
+                L.FM_DIFF if s.projection == Projection.DIFFRACTION else function_mode_from_name(s.mag_mode)
+            )
+            self._fm = field_map
+            if field_map != L.FM_DIFF:
+                self._last_imaging_fm = field_map
             pos = [s.stage.x_um, s.stage.y_um, s.stage.z_um, s.stage.alpha_deg, s.stage.beta_deg]
             self._stage_start = list(pos)
             self._stage_target = list(pos)

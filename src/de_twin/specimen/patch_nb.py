@@ -121,12 +121,12 @@ def _apply_sorted(thick, material, grain, flat, tt, owner, mats, grains, ows):
             j += 1
             s = s + tt[order[j]]
         w = order[j]
-        tw = tt[w]
+        twin = tt[w]
         existing = np.float64(thick[f])
         wasvac = material[f] == 0
         thick[f] = np.float32(min(max(existing + s, 0.0), 65535.0))
         k = owner[w]
-        if wasvac or (ows[k] and tw >= existing):
+        if wasvac or (ows[k] and twin >= existing):
             material[f] = mats[k]
         if grains[k] >= 0:
             grain[f] = grains[k]
@@ -161,7 +161,7 @@ def _all_unique(flat, mark):
 
 
 def paint_patch(
-    ctx, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, mats, grains, ows, period, pin2, pout2
+    context, co, r0s, c0s, hs, ws, shape, profile, t0s, inner, fn, fj, mats, grains, ows, period, pin2, pout2
 ):
     """One `raster.iter_patches` stack of primitives, rasterised and composited like
     `paint_drawn` + `RasterContext.apply` (the same contributions, the same claim rule)."""
@@ -179,7 +179,7 @@ def paint_patch(
     dummy_i = np.zeros(1, np.int64)
     dummy_f = np.zeros(1)
     _patch_contributions(
-        ctx.nx,
+        context.nx,
         co,
         r0s,
         c0s,
@@ -211,7 +211,7 @@ def paint_patch(
     tt = np.empty(total)
     owner = np.empty(total, np.int64)
     _patch_contributions(
-        ctx.nx,
+        context.nx,
         co,
         r0s,
         c0s,
@@ -235,7 +235,7 @@ def paint_patch(
         owner,
         False,
     )
-    if _all_unique(flat, ctx._mark):
-        _apply_unique(ctx.thick, ctx.material, ctx.grain, flat, tt, owner, mats, grains, ows)
+    if _all_unique(flat, context._mark):
+        _apply_unique(context.thick, context.material, context.grain, flat, tt, owner, mats, grains, ows)
     else:
-        _apply_sorted(ctx.thick, ctx.material, ctx.grain, flat, tt, owner, mats, grains, ows)
+        _apply_sorted(context.thick, context.material, context.grain, flat, tt, owner, mats, grains, ows)

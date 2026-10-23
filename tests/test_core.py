@@ -14,12 +14,12 @@ def test_splitmix64_reference_value():
 
 
 def test_vectorised_hash_matches_scalar():
-    idx = np.arange(-50, 50, dtype=np.int64)
-    vec = hash_seed(np.uint64(42), SeedKind.GRAIN, idx, 7)
-    for i, v in zip(idx, vec):
+    index = np.arange(-50, 50, dtype=np.int64)
+    vec = hash_seed(np.uint64(42), SeedKind.GRAIN, index, 7)
+    for i, v in zip(index, vec):
         assert int(v) == hash_seed(42, SeedKind.GRAIN, int(i) & ((1 << 64) - 1), 7)
-    cells = mix_cell(idx, idx[::-1])
-    for i, j, v in zip(idx, idx[::-1], cells):
+    cells = mix_cell(index, index[::-1])
+    for i, j, v in zip(index, index[::-1], cells):
         assert int(v) == mix_cell(int(i), int(j))
 
 

@@ -25,18 +25,18 @@ def test_raw_frames_carry_detector_signature(twin):
 
 
 def test_corrected_image_matches_flux_in_electrons(twin):
-    req = twin.request(frame_time_s=0.025, total_frames=8)
-    flux = twin.flux(req)
-    img = twin.processor.acquire(req, units="electrons")
+    request = twin.request(frame_time_s=0.025, total_frames=8)
+    flux = twin.flux(request)
+    image = twin.processor.acquire(request, units="electrons")
     expected = flux.mean() * 0.025 * 8
-    assert img.mean() == pytest.approx(expected, rel=0.08)
+    assert image.mean() == pytest.approx(expected, rel=0.08)
 
 
 def test_blanked_beam_gives_no_signal(twin):
     twin.column.set_beam_blank(True)
     try:
-        img = twin.snap(0.2)
-        assert abs(img.mean()) < 0.05
+        image = twin.snap(0.2)
+        assert abs(image.mean()) < 0.05
     finally:
         twin.column.set_beam_blank(False)
 
@@ -78,8 +78,10 @@ def test_diffraction_mode_centres_the_direct_beam(twin):
 def test_stem_frames_follow_the_scan(twin):
     twin.column.set_tem_stem(TemStem.STEM)
     try:
-        req = twin.request(frame_time_s=0.001, total_frames=4, scan=ScanRequest(enabled=True, size=(2, 2)))
-        points = [meta.scan_point for _, meta in twin.frames(req)]
+        request = twin.request(
+            frame_time_s=0.001, total_frames=4, scan=ScanRequest(enabled=True, size=(2, 2))
+        )
+        points = [meta.scan_point for _, meta in twin.frames(request)]
         assert points == [(0, 0), (1, 0), (0, 1), (1, 1)]
         vi = twin.virtual_image(twin.request(scan=ScanRequest(enabled=True, size=(32, 32))), 40, 150)
         assert vi.shape == (32, 32) and np.isfinite(vi).all()
@@ -91,9 +93,9 @@ def test_stem_frames_follow_the_scan(twin):
 def test_gain_reference_is_measured_not_ground_truth(twin):
     from scipy.ndimage import gaussian_filter
 
-    req = twin.request(frame_time_s=0.025)
-    refs = twin.processor.take_gain(req, n_frames=5)
-    truth = twin.detector.expected_gain(req)
+    request = twin.request(frame_time_s=0.025)
+    refs = twin.processor.take_gain(request, n_frames=5)
+    truth = twin.detector.expected_gain(request)
     truth = truth / truth.mean()
     good = ~twin.detector.bad_pixel_mask
     # Per pixel, a 5-frame reference is dominated by shot noise (a real, under-dosed
@@ -127,8 +129,8 @@ def test_repeated_acquisitions_do_not_repeat_the_noise():
 
     def two_frames():
         tw = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=1)
-        req = tw.request(frame_time_s=0.025, total_frames=1)
-        return [next(tw.frames(req))[0].astype(np.int64) for _ in range(2)]
+        request = tw.request(frame_time_s=0.025, total_frames=1)
+        return [next(tw.frames(request))[0].astype(np.int64) for _ in range(2)]
 
     a, b = two_frames()
     assert np.abs(a - b).mean() > 1.0  # different shot and read noise

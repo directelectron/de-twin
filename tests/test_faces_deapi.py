@@ -62,8 +62,8 @@ class StubTwin:
                 if request.exposure_mode == ExposureMode.GAIN:
                     frame += 400.0
                 else:
-                    col = int(state.stage.x_um) % w
-                    frame[:, col] += 3000.0
+                    column = int(state.stage.x_um) % w
+                    frame[:, column] += 3000.0
                     frame += 50.0
             meta = FrameMeta(
                 frame_index=i,
@@ -116,8 +116,8 @@ def _acquire(client, frame_type="singleframe_integrated", n=1):
     deadline = time.time() + 10
     while client.acquiring and time.time() < deadline:
         time.sleep(0.01)
-    img, _pixel_format, attrs, _hist = client.get_result(frame_type)
-    return img, attrs
+    image, _pixel_format, attrs, _hist = client.get_result(frame_type)
+    return image, attrs
 
 
 def test_connect_and_properties(client, twin):
@@ -219,8 +219,8 @@ def test_hw_roi_and_binning_shape(client):
     client.set_hw_roi(16, 8, 64, 32)
     client["Hardware Binning X"] = 2
     client.update_image_size()
-    img, attrs = _acquire(client)
-    assert img.shape == (16, 32)
+    image, attrs = _acquire(client)
+    assert image.shape == (16, 32)
     assert (attrs.frameWidth, attrs.frameHeight) == (32, 16)
 
 
@@ -248,13 +248,13 @@ def test_movie_buffer_has_real_frames(client):
     info = client.get_movie_buffer_info()
     frames = []
     while True:
-        status, _total, n, buf = client.get_movie_buffer(
+        status, _total, n, buffer = client.get_movie_buffer(
             None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer
         )
         if status.name != "OK":
             break
         assert (info.imageW, info.imageH) == (96, 64)
-        data = np.frombuffer(buf, np.uint16, offset=info.headerBytes).reshape(n, 64, 96)
+        data = np.frombuffer(buffer, np.uint16, offset=info.headerBytes).reshape(n, 64, 96)
         frames.extend(data)
     assert len(frames) == 4
     assert np.mean(frames) > 120
@@ -431,8 +431,8 @@ def test_deapi_own_loop_with_patched_factory(twin, monkeypatch):
         except OSError:
             time.sleep(0.05)
     assert c["Camera Name"] == "StubCam"
-    img, _ = _acquire(c)
-    assert img.shape == (64, 96) and img.mean() > 120
+    image, _ = _acquire(c)
+    assert image.shape == (64, 96) and image.mean() > 120
     c.disconnect()
 
 

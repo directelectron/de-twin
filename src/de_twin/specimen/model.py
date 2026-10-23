@@ -294,18 +294,18 @@ class Specimen:
         span = int(span_px) if span_px else max(view.shape)
         n = max(1, min(int(threads), max(view.shape) // MIN_STRIP_ROWS))
         if n > 1 and _numba_threadsafe() and self._numpy_work(drifted, span):
-            fm = self._rasterize_strips(drifted, layers, span, n)
+            field_map = self._rasterize_strips(drifted, layers, span, n)
         else:
-            ctx = self._rasterize_ctx(drifted, layers, span)
-            self.last_stats = dict(ctx.stats, **self.scene.last_stats)
-            fm = ctx.to_fieldmap(time_s=self._time_s)
+            context = self._rasterize_ctx(drifted, layers, span)
+            self.last_stats = dict(context.stats, **self.scene.last_stats)
+            field_map = context.to_fieldmap(time_s=self._time_s)
         self._generation += 1
-        fm.generation = self._generation
-        fm.view = view
-        return fm
+        field_map.generation = self._generation
+        field_map.view = view
+        return field_map
 
     def _rasterize_ctx(self, view: ViewWindow, layers: frozenset, span: int) -> RasterContext:
-        ctx = RasterContext(
+        context = RasterContext(
             view,
             layers,
             grains=self.grains,
@@ -313,8 +313,8 @@ class Specimen:
             lod_threshold_px=self.options.lod_threshold_px,
             span_px=span,
         )
-        rasterize_scene(self.scene, ctx, curtain_depth=min(max(self.options.curtain_depth, 0.0), 1.0))
-        return ctx
+        rasterize_scene(self.scene, context, curtain_depth=min(max(self.options.curtain_depth, 0.0), 1.0))
+        return context
 
     def _numpy_work(self, view: ViewWindow, span: int) -> bool:
         """Whether rasterising ``view`` runs NumPy code (a structure or primitive profile without
@@ -370,22 +370,22 @@ class Specimen:
 
         with ThreadPoolExecutor(n, thread_name_prefix="de-twin-raster") as ex:
             parts = list(ex.map(strip, range(n)))
-        fm = FieldMap.empty(view, layers)
-        fm.time_s = self._time_s
+        field_map = FieldMap.empty(view, layers)
+        field_map.time_s = self._time_s
         if any(p.under_thickness_nm is not None for _, p in parts):
-            fm.under_material = np.zeros((ny, nx), np.uint8)
-            fm.under_thickness_nm = np.zeros((ny, nx), np.float32)
+            field_map.under_material = np.zeros((ny, nx), np.uint8)
+            field_map.under_thickness_nm = np.zeros((ny, nx), np.float32)
         for (r0, r1, c0, c1), p in parts:
             for name in ("material_id", "thickness_nm", "grain_id", "under_material", "under_thickness_nm"):
                 a = getattr(p, name)
                 if a is not None:
-                    getattr(fm, name)[r0:r1, c0:c1] = a
+                    getattr(field_map, name)[r0:r1, c0:c1] = a
             for name in ("descan", "strain"):
                 a = getattr(p, name)
-                if a is not None and getattr(fm, name) is not None:
-                    getattr(fm, name)[:, r0:r1, c0:c1] = a
+                if a is not None and getattr(field_map, name) is not None:
+                    getattr(field_map, name)[:, r0:r1, c0:c1] = a
         self.last_stats = dict(self.scene.last_stats, strips=n)
-        return fm
+        return field_map
 
     def drift_um(self) -> tuple[float, float]:
         """Accumulated specimen drift (um) at the current time index."""
@@ -405,5 +405,5 @@ class Specimen:
         cx, cy = 0.5 * (xmin + xmax), 0.5 * (ymin + ymax)
         ny, nx = int(shape[0]), int(shape[1])
         px = max(1.05 * (xmax - xmin) / nx, 1.05 * (ymax - ymin) / ny)
-        fm = self.rasterize(ViewWindow(center_um=(cx, cy), pixel_um=px, shape=(ny, nx)))
-        return fm.thickness_nm
+        field_map = self.rasterize(ViewWindow(center_um=(cx, cy), pixel_um=px, shape=(ny, nx)))
+        return field_map.thickness_nm

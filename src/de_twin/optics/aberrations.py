@@ -72,10 +72,10 @@ class Aberrations:
         out = {}
         for k, v in mag_angle.items():
             if isinstance(v, (tuple, list)):
-                mag, ang = v
+                magnification, ang = v
                 n = TERMS[k][0] - TERMS[k][1]  # symmetry order of the term
                 phi = math.radians(ang) * max(abs(n), 1)
-                out[k] = mag * complex(math.cos(phi), math.sin(phi))
+                out[k] = magnification * complex(math.cos(phi), math.sin(phi))
             else:
                 out[k] = complex(v)
         return cls(out)

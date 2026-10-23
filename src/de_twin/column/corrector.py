@@ -150,7 +150,7 @@ class CorrectorUnit:
         self._rng_events = np.random.default_rng([self.seed, tag, 11])
         self._rng_measure = np.random.default_rng([self.seed, tag, 12])
         self._rng_correct = np.random.default_rng([self.seed, tag, 13])
-        cal = np.random.default_rng([self.seed, tag, 14])
+        calibration = np.random.default_rng([self.seed, tag, 14])
 
         self.native = native_aberrations(self.seed, side)
         target = tuned_residual(self._rng_events)
@@ -166,8 +166,13 @@ class CorrectorUnit:
         self._cal: dict[str, tuple[float, float]] = {}
         for n in NAMES:
             g, rot, _ = CORRECT_ERRORS.get(n, CORRECT_ERRORS_DEFAULT)
-            self._cal[n] = (float(cal.normal(0.0, g)), float(cal.normal(0.0, math.radians(rot))))
-        self._tilt_cal = complex(1.0 + cal.normal(0.0, TILT_CAL_ERROR), cal.normal(0.0, TILT_CAL_ERROR))
+            self._cal[n] = (
+                float(calibration.normal(0.0, g)),
+                float(calibration.normal(0.0, math.radians(rot))),
+            )
+        self._tilt_cal = complex(
+            1.0 + calibration.normal(0.0, TILT_CAL_ERROR), calibration.normal(0.0, TILT_CAL_ERROR)
+        )
 
         # CorrectorService-shaped state
         self.state = IDLE
@@ -338,14 +343,14 @@ class CorrectorUnit:
         why = self._beam_check(self.side)
         if why:
             return False, "", _server_error(why)
-        res = self.simulate_measurement(kind, tab, angle_mrad, max_fit, t=t)
-        if isinstance(res, str):
-            return False, "", _server_error(res)
-        self.last_measurement = res
-        self.aberrations = res.ceos()
+        result = self.simulate_measurement(kind, tab, angle_mrad, max_fit, t=t)
+        if isinstance(result, str):
+            return False, "", _server_error(result)
+        self.last_measurement = result
+        self.aberrations = result.ceos()
         for n, (x, y) in self.aberrations:
             self.soc[n] = complex(x * 1e9, y * 1e9)
-        return True, res.to_string(), ""
+        return True, result.to_string(), ""
 
     def simulate_measurement(
         self,
@@ -373,7 +378,7 @@ class CorrectorUnit:
             names = tuple(n for n in upto if n in TERMS)
             tilts = tableau_tilts(tab, angle)
         params = _params(names)
-        rows, obs, sig = [], [], []
+        rows, obs, sigma = [], [], []
         lost = 0
         rng_c1 = MEASUREMENT_RANGE_M["C1"] * 1e9
         rng_a1 = MEASUREMENT_RANGE_M["A1"] * 1e9
@@ -394,7 +399,7 @@ class CorrectorUnit:
             m = (c1 + rng.normal(0.0, s_c1), a1.real + rng.normal(0.0, s_a1), a1.imag + rng.normal(0.0, s_a1))
             rows.append(_design_rows(params, tilt))
             obs.extend(m)
-            sig.extend((s_c1, s_a1, s_a1))
+            sigma.extend((s_c1, s_a1, s_a1))
         n_ok = len(tilts) - lost
         if kind == "tableau" and (lost > len(tilts) // 3 or 3 * n_ok < 2 * len(params)):
             return (
@@ -402,7 +407,7 @@ class CorrectorUnit:
                 f"range; reduce the tilt angle or use a Fast tableau"
             )
         a = np.vstack(rows)
-        w = 1.0 / np.asarray(sig)
+        w = 1.0 / np.asarray(sigma)
         aw = a * w[:, None]
         bw = np.asarray(obs) * w
         x, *_ = np.linalg.lstsq(aw, bw, rcond=None)
@@ -488,9 +493,11 @@ class CorrectorUnit:
             rot = scale * (r0 + rng.normal(0.0, math.radians(jit * 30.0))) * n
             change = -applied * gain * complex(math.cos(rot), math.sin(rot))
             self.offset = self.offset + {name: change}
-        mag = abs(applied)
+        magnification = abs(applied)
         for dst, k in COUPLING.get(name, {}).items():
-            self.offset = self.offset + {dst: _random_coeff(rng, dst, k * mag * rng.uniform(0.5, 1.5))}
+            self.offset = self.offset + {
+                dst: _random_coeff(rng, dst, k * magnification * rng.uniform(0.5, 1.5))
+            }
 
     # alignment / config / housekeeping ---------------------------------------
     def alignment_json(self) -> str:

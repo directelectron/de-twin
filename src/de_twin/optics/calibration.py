@@ -204,11 +204,11 @@ class Calibration:
             return None
         mode = _alphanumeric_key(state.mag_mode)
         aliases = _MODE_ALIASES.get(mode, (mode,))
-        mag = float(state.magnification)
+        magnification = float(state.magnification)
         for alias in aliases:
             for p in cands:
                 if _alphanumeric_key(p.name) == alias and (
-                    want_cl or _lookup(p.mags, mag, self.tolerance) is not _MISSING
+                    want_cl or _lookup(p.mags, magnification, self.tolerance) is not _MISSING
                 ):
                     return p
         # Diffraction: the TEM Diff project regardless of the imaging mode name
@@ -277,16 +277,18 @@ class Calibration:
         if not cands:
             return 0.0
         mode = _alphanumeric_key(state.mag_mode)
-        mag = float(state.magnification)
+        magnification = float(state.magnification)
         proj = next((p for p in cands if _alphanumeric_key(p.name) in _MODE_ALIASES.get(mode, (mode,))), None)
-        proj = proj or next((p for p in cands if _lookup(p.mags, mag, self.tolerance) is not _MISSING), None)
+        proj = proj or next(
+            (p for p in cands if _lookup(p.mags, magnification, self.tolerance) is not _MISSING), None
+        )
         if proj is None:
             return 0.0
-        v = _lookup(proj.mags, mag, self.tolerance)
+        v = _lookup(proj.mags, magnification, self.tolerance)
         if v is _MISSING:
             return 0.0
         if v is None:  # geometric ladder
-            return self.stem_fov_nm_at_1x / mag / n
+            return self.stem_fov_nm_at_1x / magnification / n
         return float(v) * self.stem_scan_span_v / n * self._ht(state, "stem_virt")
 
     # -------------------------------------------------------------- ladders
@@ -318,8 +320,8 @@ class Calibration:
             return Ladder()
         return Ladder(sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm))
 
-    def snap_mag(self, mode: str | None, mag: float, tem_stem: int = 0) -> float:
-        return self.mag_ladder(mode, tem_stem).snap_logarithmic(mag)
+    def snap_mag(self, mode: str | None, magnification: float, tem_stem: int = 0) -> float:
+        return self.mag_ladder(mode, tem_stem).snap_logarithmic(magnification)
 
     def snap_cl(self, cl_mm: float, tem_stem: int = 0) -> float:
         return self.cl_ladder(tem_stem).snap_logarithmic(cl_mm)

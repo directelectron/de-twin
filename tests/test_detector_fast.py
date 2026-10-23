@@ -53,8 +53,8 @@ def test_binned_and_dark_frames():
     flux = _flux(camera(name).sensor_shape)
     req = AcquisitionRequest(camera_model=name, hw_binning=(2, 2))
     d = Detector(camera(name), seed=1)
-    img, info = d.expose(flux, 0.025, req, 0)
-    assert img.shape == (512, 512) and info["dose_e_per_px"] == pytest.approx(flux.mean() * 0.025, rel=0.01)
+    image, info = d.expose(flux, 0.025, req, 0)
+    assert image.shape == (512, 512) and info["dose_e_per_px"] == pytest.approx(flux.mean() * 0.025, rel=0.01)
     dark, info = d.expose(None, 0.025, AcquisitionRequest(camera_model=name), 0)
     m = camera(name)
     assert abs(float(np.median(dark)) - m.dark_offset_adu) < 20 and info["dose_e_per_px"] == 0.0
@@ -63,8 +63,8 @@ def test_binned_and_dark_frames():
 def test_saturation_is_counted():
     name = "DESim"
     d = Detector(camera(name), seed=1)
-    img, info = d.expose(
+    image, info = d.expose(
         np.full(camera(name).sensor_shape, 1e5, np.float32), 0.025, AcquisitionRequest(camera_model=name), 0
     )
-    assert info["saturated"] and info["saturated_pixels"] > 0.9 * img.size
-    assert int(img.max()) == camera(name).max_value
+    assert info["saturated"] and info["saturated_pixels"] > 0.9 * image.size
+    assert int(image.max()) == camera(name).max_value

@@ -83,11 +83,11 @@ def test_each_droplet_crystallises_on_heating():
     area = s.scene.holder.areas[4]
     v = ViewWindow(center_um=area.center, pixel_um=0.01, shape=(512, 512))  # populated, not aggregated
     s.update(0.0, heat(25))
-    fm = s.rasterize(v)
-    au = fm.material_id == MaterialId.GOLD
+    field_map = s.rasterize(v)
+    au = field_map.material_id == MaterialId.GOLD
     assert au.sum() > 100
-    assert np.all(fm.grain_id[au] >= 0)  # droplets carry grains (orientations) from the start
-    gids = np.unique(fm.grain_id[au])
+    assert np.all(field_map.grain_id[au] >= 0)  # droplets carry grains (orientations) from the start
+    gids = np.unique(field_map.grain_id[au])
     assert len(gids) > 1
     assert np.all(s.crystallinity(gids) == 0.0)  # as deposited: glassy
     s.update(40.0, heat(25))  # time alone does nothing

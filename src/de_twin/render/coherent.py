@@ -296,8 +296,8 @@ class CoherentStem:
             return largest(lambda r: px(r, nx) <= limit, ny), nx
         return 1, largest(lambda c: px(1, c) <= limit, nx)
 
-    def _tile(self, ctx, optics, s: Sampling, view, build: bool = True) -> Tile | None:
-        fm, token = ctx.field_map(view)
+    def _tile(self, context, optics, s: Sampling, view, build: bool = True) -> Tile | None:
+        field_map, token = context.field_map(view)
         key = (
             token,
             view,
@@ -317,7 +317,13 @@ class CoherentStem:
         if not build:
             return None
         tile = build_tile(
-            fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed, s.object_bandwidth
+            field_map,
+            optics,
+            context.grains,
+            context.crystallinity,
+            self.config,
+            self.seed,
+            s.object_bandwidth,
         )  # outside the lock (prefetch thread)
         with self._lock:
             if key in self._tiles:
@@ -327,15 +333,15 @@ class CoherentStem:
                 self._tiles.popitem(last=False)
             return tile
 
-    def tile_for(self, ctx, optics, s: Sampling, points) -> Tile:
+    def tile_for(self, context, optics, s: Sampling, points) -> Tile:
         """Transmission tile covering the probe windows of ``points`` (the whole scan field when
         it fits ``coherent_field_max_px``; ``points`` must then lie in one part)."""
         (_, view), *rest = self._field_views(optics, s, points)
         if rest:
             raise ValueError("coherent STEM: these scan points need several transmission tiles")
-        return self._tile(ctx, optics, s, view)
+        return self._tile(context, optics, s, view)
 
-    def _prepare(self, ctx, optics, points, build: bool = True):
+    def _prepare(self, context, optics, points, build: bool = True):
         """(probe, [(indices, tile)]) for rendering ``points``; None when ``build`` is False and
         something is not cached yet."""
         probe = self.probe(optics, build)
@@ -343,14 +349,14 @@ class CoherentStem:
             return None
         groups = []
         for idx, view in self._field_views(optics, probe.sampling, points):
-            tile = self._tile(ctx, optics, probe.sampling, view, build)
+            tile = self._tile(context, optics, probe.sampling, view, build)
             if tile is None:
                 return None
             groups.append((idx, tile))
         return probe, groups
 
     # ------------------------------------------------------------ descan
-    def _descan_px(self, optics, fm, ix: int, iy: int) -> tuple[float, float]:
+    def _descan_px(self, optics, field_map, ix: int, iy: int) -> tuple[float, float]:
         config = self.config
         dx = dy = 0.0
         ny, nx = optics.view.shape
@@ -358,9 +364,9 @@ class CoherentStem:
             xs, ys, dg = config.descan_ramp_px
             dx += config.descan_ramp_scale * (2.0 * (ix - nx / 2.0) / nx * xs + xs + iy * dg / ny)
             dy += config.descan_ramp_scale * (2.0 * (iy - ny / 2.0) / ny * ys + ys)
-        if fm is not None and fm.descan is not None:
-            dx += float(fm.descan[0, iy, ix])
-            dy += float(fm.descan[1, iy, ix])
+        if field_map is not None and field_map.descan is not None:
+            dx += float(field_map.descan[0, iy, ix])
+            dy += float(field_map.descan[1, iy, ix])
         return dx, dy
 
     # ------------------------------------------------------------ core
@@ -384,7 +390,7 @@ class CoherentStem:
 
     def _compute(
         self,
-        ctx,
+        context,
         optics,
         probe: Probe,
         tile: Tile,
@@ -579,7 +585,7 @@ class CoherentStem:
         return pats, anns, bragg_w, keys, diffuse, shifts
 
     # ------------------------------------------------------ add-on patterns
-    def _bragg_pattern(self, ctx, optics, s: Sampling, key, center_b) -> np.ndarray | None:
+    def _bragg_pattern(self, context, optics, s: Sampling, key, center_b) -> np.ndarray | None:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
         ck = (
@@ -605,7 +611,7 @@ class CoherentStem:
                 [gid],
                 [tb * THICKNESS_BIN_NM],
                 [1.0],
-                ctx.grains,
+                context.grains,
                 optics,
                 PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm),
             )
@@ -663,13 +669,14 @@ class CoherentStem:
         return self.cache.get(ck, render)
 
     # ------------------------------------------------------------- blocks
-    def _compute_groups(self, ctx, optics, probe: Probe, groups, points, fm_scan=None, **kw) -> tuple:
+    def _compute_groups(self, context, optics, probe: Probe, groups, points, fm_scan=None, **kw) -> tuple:
         """:meth:`_compute` over the tiles of ``groups``, merged back into points order."""
         pts = np.asarray(points, np.int64).reshape(-1, 2)
         if len(groups) == 1:
-            return self._compute(ctx, optics, probe, groups[0][1], pts, fm_scan, **kw)
+            return self._compute(context, optics, probe, groups[0][1], pts, fm_scan, **kw)
         parts = [
-            (idx, self._compute(ctx, optics, probe, tile, pts[idx], fm_scan, **kw)) for idx, tile in groups
+            (idx, self._compute(context, optics, probe, tile, pts[idx], fm_scan, **kw))
+            for idx, tile in groups
         ]
         npts = len(pts)
 
@@ -707,22 +714,22 @@ class CoherentStem:
         b = min(total, b, max(1, (32 << 20) // per))
         return int(b)
 
-    def patterns(self, ctx, optics, points, fm_scan=None) -> np.ndarray:
+    def patterns(self, context, optics, points, fm_scan=None) -> np.ndarray:
         """(P, Hd, Wd) float32 binned detector patterns (electrons / binned pixel / s)."""
-        probe, groups = self._prepare(ctx, optics, points)
-        return self._patterns(ctx, optics, points, fm_scan, probe, groups)
+        probe, groups = self._prepare(context, optics, points)
+        return self._patterns(context, optics, points, fm_scan, probe, groups)
 
-    def _patterns(self, ctx, optics, points, fm_scan, probe: Probe, groups) -> np.ndarray:
+    def _patterns(self, context, optics, points, fm_scan, probe: Probe, groups) -> np.ndarray:
         s = probe.sampling
         out, _, bragg_w, keys, diffuse, shifts = self._compute_groups(
-            ctx, optics, probe, groups, points, fm_scan
+            context, optics, probe, groups, points, fm_scan
         )
         cb = s.det_center_px
         bx, by = s.binning
         for k in range(len(out)):
             add = None
             if keys[k] is not None and bragg_w[k] > 0:
-                add = np.float32(bragg_w[k]) * self._bragg_pattern(ctx, optics, s, keys[k], cb)
+                add = np.float32(bragg_w[k]) * self._bragg_pattern(context, optics, s, keys[k], cb)
             for m, wm in diffuse.items():
                 if wm[k] > 0:
                     d = np.float32(wm[k]) * self._diffuse_pattern(optics, s, m, cb)
@@ -757,7 +764,7 @@ class CoherentStem:
                 self._block_bytes -= v.nbytes
 
     def _block(
-        self, ctx, optics, fm_scan, fm_token, index: int, read_ahead: bool = False
+        self, context, optics, fm_scan, fm_token, index: int, read_ahead: bool = False
     ) -> tuple[np.ndarray, int]:
         s = self.sampling(optics)
         ny, nx = optics.view.shape
@@ -779,13 +786,13 @@ class CoherentStem:
                 for k, f in list(self._inflight.items()):
                     if k[:3] != key[:3] and f.cancel():
                         self._inflight.pop(k, None)
-            blk = self.patterns(ctx, optics, self._block_points(optics, bsz, b), fm_scan)
+            blk = self.patterns(context, optics, self._block_points(optics, bsz, b), fm_scan)
             self._store(key, blk)
         if read_ahead:
-            self._read_ahead(ctx, optics, fm_scan, fm_token, bsz, b, -(-(ny * nx) // bsz))
+            self._read_ahead(context, optics, fm_scan, fm_token, bsz, b, -(-(ny * nx) // bsz))
         return blk, index - b * bsz
 
-    def _read_ahead(self, ctx, optics, fm_scan, fm_token, bsz: int, b: int, nblocks: int) -> None:
+    def _read_ahead(self, context, optics, fm_scan, fm_token, bsz: int, b: int, nblocks: int) -> None:
         """Compute the next ``coherent_read_ahead`` blocks of the scan in the background (live
         4D-STEM walks the scan in order), when their probe and tile are already built."""
         n_ahead = int(getattr(self.config, "coherent_read_ahead", 0))
@@ -798,7 +805,7 @@ class CoherentStem:
                 if key in self._blocks or key in self._inflight:
                     continue
             pts = self._block_points(optics, bsz, nb_)
-            prep = self._prepare(ctx, optics, pts, build=False)
+            prep = self._prepare(context, optics, pts, build=False)
             if prep is None:
                 return  # needs a new tile: left to the render thread
             if self._ahead is None:
@@ -808,7 +815,7 @@ class CoherentStem:
 
             def job(key=key, pts=pts, prep=prep):
                 try:
-                    blk = self._patterns(ctx, optics, pts, fm_scan, *prep)
+                    blk = self._patterns(context, optics, pts, fm_scan, *prep)
                     self._store(key, blk)
                     return blk
                 finally:
@@ -818,7 +825,7 @@ class CoherentStem:
             with self._lock:
                 self._inflight[key] = self._ahead.submit(job)
 
-    def prefetch(self, ctx, optics, fm_scan, fm_token) -> bool:
+    def prefetch(self, context, optics, fm_scan, fm_token) -> bool:
         """Build the probe and transmission tile of ``optics`` and compute its first block (a
         view the caller predicts), so the first pattern there is a cache hit. Runs on the
         caller's (prefetch) thread; the render thread waits for the block if it gets there
@@ -835,7 +842,7 @@ class CoherentStem:
                 return False
             self._inflight[key] = fut
         try:
-            blk = self.patterns(ctx, optics, self._block_points(optics, bsz, 0), fm_scan)
+            blk = self.patterns(context, optics, self._block_points(optics, bsz, 0), fm_scan)
             self._store(key, blk)
             fut.set_result(blk)
             return True
@@ -846,32 +853,38 @@ class CoherentStem:
             with self._lock:
                 self._inflight.pop(key, None)
 
-    def binned(self, ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None) -> np.ndarray:
+    def binned(
+        self, context, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None
+    ) -> np.ndarray:
         ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, self.config)
         nx = optics.view.shape[1]
-        blk, j = self._block(ctx, optics, fm_scan, fm_token, iy * nx + ix, read_ahead=scan_point is None)
+        blk, j = self._block(context, optics, fm_scan, fm_token, iy * nx + ix, read_ahead=scan_point is None)
         return blk[j]
 
-    def render(self, ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None) -> np.ndarray:
+    def render(
+        self, context, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None
+    ) -> np.ndarray:
         """float32 (h, w) = optics.output_shape, electrons / unbinned pixel / s."""
-        pat = self.binned(ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen)
+        pat = self.binned(context, fm_scan, fm_token, optics, scan_point, frame_index, specimen)
         return expand_binned(pat, optics)
 
-    def datacube(self, ctx, optics, fm_scan=None, fm_token=None) -> np.ndarray:
+    def datacube(self, context, optics, fm_scan=None, fm_token=None) -> np.ndarray:
         """(ny, nx, Hd, Wd) float32: every scan point's binned pattern (electrons / pixel / s)."""
         ny, nx = optics.view.shape
         s = self.sampling(optics)
         out = np.empty((ny * nx,) + s.det_shape, np.float32)
         i = 0
         while i < ny * nx:
-            blk, j = self._block(ctx, optics, fm_scan, fm_token, i)
+            blk, j = self._block(context, optics, fm_scan, fm_token, i)
             k = min(len(blk) - j, ny * nx - i)
             out[i : i + k] = blk[j : j + k]
             i += k
         return out.reshape(ny, nx, *s.det_shape)
 
     # ------------------------------------------------------ virtual images
-    def virtual_image(self, ctx, optics, inner_mrad: float, outer_mrad: float, fm_scan=None) -> np.ndarray:
+    def virtual_image(
+        self, context, optics, inner_mrad: float, outer_mrad: float, fm_scan=None
+    ) -> np.ndarray:
         """Annular detector image over the scan: the coherent part integrated on the full
         simulation grid, the incoherent Bragg / diffuse parts analytically (not truncated by
         the camera, like the kinematic model)."""
@@ -895,9 +908,9 @@ class CoherentStem:
         bfrac: dict = {}
         for b0 in range(0, len(pts), bsz):
             chunk = pts[b0 : b0 + bsz]
-            _, groups = self._prepare(ctx, optics, chunk)
+            _, groups = self._prepare(context, optics, chunk)
             _, anns, bragg_w, keys, diffuse, _ = self._compute_groups(
-                ctx,
+                context,
                 optics,
                 probe,
                 groups,
@@ -917,7 +930,7 @@ class CoherentStem:
                         [gid],
                         [tb * THICKNESS_BIN_NM],
                         [1.0],
-                        ctx.grains,
+                        context.grains,
                         optics,
                         PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm),
                     )
@@ -941,13 +954,13 @@ class CoherentStem:
         return (out.reshape(ny, nx) * optics.pattern_e_per_s).astype(np.float32)
 
     # ---------------------------------------------------------- ground truth
-    def ground_truth(self, ctx, optics) -> dict:
+    def ground_truth(self, context, optics) -> dict:
         probe = self.probe(optics)
         s = probe.sampling
         pts = self._full_scan_points(optics)
         allx, ally = self._scan_world(optics, pts)
         view = field_view(allx, ally, s, optics.view)
-        fm, token = ctx.field_map(view)
+        field_map, token = context.field_map(view)
         key = (
             token,
             view,
@@ -962,7 +975,13 @@ class CoherentStem:
         tile = self._tiles.get(key)
         if tile is None:
             tile = build_tile(
-                fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed, s.object_bandwidth
+                field_map,
+                optics,
+                context.grains,
+                context.crystallinity,
+                self.config,
+                self.seed,
+                s.object_bandwidth,
             )
         rows, cols = tile.view.world_to_pixel(allx, ally)
         ny, nx = optics.view.shape

@@ -22,9 +22,9 @@ def files(tmp_path):
 
 
 def test_the_file_is_a_serialem_calibration_file(files):
-    cal, props = files
-    to_serialem(ColumnRealism(seed=3), CAMERA, cal, props)
-    text = cal.read_text().splitlines()
+    calibration, props = files
+    to_serialem(ColumnRealism(seed=3), CAMERA, calibration, props)
+    text = calibration.read_text().splitlines()
     assert text[0] == "SerialEMCalibrations"
     keys = {line.split()[0] for line in text[1:] if line and line.split()[0].isalpha()}
     assert {
@@ -44,18 +44,26 @@ def test_the_file_is_a_serialem_calibration_file(files):
 
 @pytest.mark.parametrize("with_props", [False, True])
 def test_a_column_survives_the_round_trip(files, with_props):
-    cal, props = files
+    calibration, props = files
     real = ColumnRealism(seed=11)
-    to_serialem(real, CAMERA, cal, props)
-    d = from_serialem(cal, props if with_props else None, camera=CAMERA)
+    to_serialem(real, CAMERA, calibration, props)
+    d = from_serialem(calibration, props if with_props else None, camera=CAMERA)
     assert isinstance(d, ColumnDefinition)
-    for mag in twin_mag_table().values():
-        mode = "LowMAG" if mag <= 200 else "MAG1"
-        dr = (d.rotation_rad(mode, mag) - real.rotation_rad(mode, mag) + math.pi) % (2 * math.pi) - math.pi
-        assert dr == pytest.approx(0.0, abs=1e-6), mag
-        assert d.pixel_scale(mode, mag) == pytest.approx(real.pixel_scale(mode, mag), rel=1e-6), mag
-        np.testing.assert_allclose(d.is_matrix(mode, mag), real.is_matrix(mode, mag), rtol=1e-6, atol=1e-7)
-        np.testing.assert_allclose(d.mag_offset_um(mode, mag), real.mag_offset_um(mode, mag), atol=1e-6)
+    for magnification in twin_mag_table().values():
+        mode = "LowMAG" if magnification <= 200 else "MAG1"
+        dr = (d.rotation_rad(mode, magnification) - real.rotation_rad(mode, magnification) + math.pi) % (
+            2 * math.pi
+        ) - math.pi
+        assert dr == pytest.approx(0.0, abs=1e-6), magnification
+        assert d.pixel_scale(mode, magnification) == pytest.approx(
+            real.pixel_scale(mode, magnification), rel=1e-6
+        ), magnification
+        np.testing.assert_allclose(
+            d.is_matrix(mode, magnification), real.is_matrix(mode, magnification), rtol=1e-6, atol=1e-7
+        )
+        np.testing.assert_allclose(
+            d.mag_offset_um(mode, magnification), real.mag_offset_um(mode, magnification), atol=1e-6
+        )
     for spot in (1, 3, 5):  # the twin's own probe modes: TEM (2, microprobe) and nanoprobe (0)
         for probe in (2, 0):
             assert d.crossover(spot, probe) == pytest.approx(real.crossover(spot, probe), abs=1e-7)
@@ -64,10 +72,10 @@ def test_a_column_survives_the_round_trip(files, with_props):
 
 
 def test_a_twin_defined_by_serialem_calibrations_is_that_column(files):
-    cal, props = files
+    calibration, props = files
     real = ColumnRealism(seed=11, backlash_um=0.0, is_coma_mrad_per_um=0.0, is_astig_nm_per_um=0.0)
-    to_serialem(real, CAMERA, cal, props)
-    d = from_serialem(cal, props, camera=CAMERA)
+    to_serialem(real, CAMERA, calibration, props)
+    d = from_serialem(calibration, props, camera=CAMERA)
     a = DigitalTwin(
         "Dense Au on holey C",
         camera=CAMERA,
@@ -82,10 +90,10 @@ def test_a_twin_defined_by_serialem_calibrations_is_that_column(files):
         seed=1,
         optics_config=OpticsConfig(realism=d),
     )
-    for mag in (150.0, 5000.0, 20000.0, 60000.0):
-        for tw in (a, b):
-            tw.column.set("Magnification", mag)
-            tw.column.set("ImageShift", (0.3, -0.2))
+    for magnification in (150.0, 5000.0, 20000.0, 60000.0):
+        for twin in (a, b):
+            twin.column.set("Magnification", magnification)
+            twin.column.set("ImageShift", (0.3, -0.2))
         ta, tb = a.calibration_truth(), b.calibration_truth()
         assert tb["true_pixel_nm"] == pytest.approx(ta["true_pixel_nm"], rel=1e-6)
         assert (tb["image_rotation_deg"] - ta["image_rotation_deg"] + 180) % 360 - 180 == pytest.approx(
@@ -109,14 +117,14 @@ def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files, ma
     and at rotation 0 +X moves the image right, +Y up. Measured on the twin's images."""
     from test_realism_calibrations import _img, _shift_px
 
-    cal, props = files
-    tw = make_realistic_twin()
-    tw.column.backlash_um = 0.0  # backlash has its own test; here only the matrix
-    to_serialem(tw.optics_config.realism, CAMERA, cal, props)
+    calibration, props = files
+    twin = make_realistic_twin()
+    twin.column.backlash_um = 0.0  # backlash has its own test; here only the matrix
+    to_serialem(twin.optics_config.realism, CAMERA, calibration, props)
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
     S = next(
         np.array([float(v) for v in line.split()[3:7]]).reshape(2, 2)
-        for line in cal.read_text().splitlines()
+        for line in calibration.read_text().splitlines()
         if line.startswith(f"StageToCameraMatrix {ind} ")
     )
     rot = float(
@@ -128,12 +136,12 @@ def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files, ma
     )
     assert np.linalg.det(S) > 0, "a real scope's handedness"
     assert rot == pytest.approx(math.degrees(math.atan2(-S[1, 0], -S[0, 0])), abs=1e-6)
-    a = _img(tw)
+    a = _img(twin)
     for dx, dy in ((0.1, 0.0), (0.0, 0.1)):
-        s0 = tw.column.state().stage
-        tw.column.move_stage(x=s0.x_um + dx, y=s0.y_um + dy)
-        m = _shift_px(a, _img(tw))  # raster (y down)
-        tw.column.move_stage(x=s0.x_um, y=s0.y_um)
+        s0 = twin.column.state().stage
+        twin.column.move_stage(x=s0.x_um + dx, y=s0.y_um + dy)
+        m = _shift_px(a, _img(twin))  # raster (y down)
+        twin.column.move_stage(x=s0.x_um, y=s0.y_um)
         m_se = np.array([m[0], -m[1]])
         step_se = np.array([dx, -dy])  # SerialEM's stage y runs opposite to the twin's
         np.testing.assert_allclose(m_se, -S @ step_se, atol=0.3)
@@ -142,29 +150,29 @@ def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files, ma
 def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_twin):
     from test_realism_calibrations import _img, _shift_px
 
-    cal, props = files
-    tw = make_realistic_twin()
-    to_serialem(tw.optics_config.realism, CAMERA, cal, props)
+    calibration, props = files
+    twin = make_realistic_twin()
+    to_serialem(twin.optics_config.realism, CAMERA, calibration, props)
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
-    text = cal.read_text().splitlines()
+    text = calibration.read_text().splitlines()
     k = text.index(next(line for line in text if line.startswith("ImageShiftMatrix")))
     A = next(
         np.array([float(v) for v in line.split()[2:6]]).reshape(2, 2)
         for line in text[k + 1 :]
         if line.split()[0] == str(ind)
     )
-    a = _img(tw)
+    a = _img(twin)
     for u in ((0.2, 0.0), (0.0, 0.2)):
-        tw.column.set("ImageShift", u)
-        m = _shift_px(a, _img(tw))
-        tw.column.set("ImageShift", (0.0, 0.0))
+        twin.column.set("ImageShift", u)
+        m = _shift_px(a, _img(twin))
+        twin.column.set("ImageShift", (0.0, 0.0))
         np.testing.assert_allclose(np.array([m[0], -m[1]]), -A @ np.asarray(u), atol=0.3)
 
 
 def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define(tmp_path):
-    cal = tmp_path / "cal.txt"
+    calibration = tmp_path / "cal.txt"
     props = tmp_path / "props.txt"
-    cal.write_text(
+    calibration.write_text(
         "SerialEMCalibrations\nStageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n14 0 2 0 0 2   20000\nFocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1"
         + "\n"
     )
@@ -172,9 +180,9 @@ def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define
         "CameraProperties 1\nRotationAndPixel 14 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel 14 999 999 0\nEndCameraProperties"
         + "\n"
     )
-    d = from_serialem(cal, props, camera=CAMERA)
-    mag = 20000.0
-    assert d.rotation_rad("MAG1", mag) == pytest.approx(0.0, abs=1e-9), "999: from the stage matrix"
-    assert d.pixel_nm[mag] == pytest.approx(500.0), "0 / 999 pixel: from the stage matrix"
+    d = from_serialem(calibration, props, camera=CAMERA)
+    magnification = 20000.0
+    assert d.rotation_rad("MAG1", magnification) == pytest.approx(0.0, abs=1e-9), "999: from the stage matrix"
+    assert d.pixel_nm[magnification] == pytest.approx(500.0), "0 / 999 pixel: from the stage matrix"
     assert d.crossover(3, 2) == pytest.approx(0.42)
     assert d.bs is not None

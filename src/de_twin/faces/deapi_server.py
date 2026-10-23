@@ -811,11 +811,11 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             meta = acq.last_meta
             eppix = float(getattr(meta, "electrons_per_pixel", 0.0) or 0.0)
             if 2 <= frame_type <= 8:
-                img = acq.last if acq.last is not None else np.zeros(self._image_shape(), np.uint16)
-                return img, acq.count, eppix
+                image = acq.last if acq.last is not None else np.zeros(self._image_shape(), np.uint16)
+                return image, acq.count, eppix
             if frame_type in (9, 10, 11):
-                img = acq.sum if acq.sum is not None else np.zeros(self._image_shape())
-                return img, acq.count, eppix * acq.count
+                image = acq.sum if acq.sum is not None else np.zeros(self._image_shape())
+                return image, acq.count, eppix * acq.count
             if 17 <= frame_type <= 21:
                 if acq.virtual is None:
                     return np.zeros((1, 1)), acq.count, eppix
@@ -841,20 +841,20 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         histo_min = p[14].p_float if len(p) > 14 else 0.0
         histo_max = p[15].p_float if len(p) > 15 else 0.0
         histo_bins = p[16].p_int if len(p) > 16 else 256
-        img, count, eppix = self._result_image(frame_type, max(timeout_ms, 1000) / 1000.0)
+        image, count, eppix = self._result_image(frame_type, max(timeout_ms, 1000) / 1000.0)
         if pixel_format not in PIXEL_DTYPES:  # AUTO
-            if img.dtype in (np.uint8, np.int8) and frame_type in (12, 13, 14, 15, 16):
+            if image.dtype in (np.uint8, np.int8) and frame_type in (12, 13, 14, 15, 16):
                 pixel_format = 1
-            elif img.dtype == np.uint16 and frame_type <= 8:
+            elif image.dtype == np.uint16 and frame_type <= 8:
                 pixel_format = 5
             else:
                 pixel_format = 13
         if window_w <= 0:
-            window_w = img.shape[1]
+            window_w = image.shape[1]
         if window_h <= 0:
-            window_h = img.shape[0]
-        img = _resample(np.asarray(img), (window_h, window_w))
-        out = _convert(img, pixel_format)
+            window_h = image.shape[0]
+        image = _resample(np.asarray(image), (window_h, window_w))
+        out = _convert(image, pixel_format)
         data = out.tobytes()
         acq = self._acq
         fps = float(self._fps)
@@ -940,14 +940,14 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
         vid = command.command[0].parameter[0].p_int
         acq = self._acq
         nx, ny = int(float(self["Scan - Size X"])), int(float(self["Scan - Size Y"]))
-        img = np.zeros((ny, nx))
+        image = np.zeros((ny, nx))
         if acq is not None and acq.virtual is not None and 0 <= vid < 5:
             with acq.cond:
-                img = acq.virtual[vid].copy()
-        peak = float(img.max()) if img.size else 0.0
+                image = acq.virtual[vid].copy()
+        peak = float(image.max()) if image.size else 0.0
         if peak > 65535:
-            img = img * (65535.0 / peak)
-        raw = _convert(img, 5).tobytes()
+            image = image * (65535.0 / peak)
+        raw = _convert(image, 5).tobytes()
         return (self._ack(command, 5, len(raw), int(acq.count if acq else 0)), raw)
 
 
@@ -957,13 +957,13 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
 
 
 def _recv_exact(conn, n: int) -> bytes:
-    buf = b""
-    while len(buf) < n:
-        chunk = conn.recv(n - len(buf))
+    buffer = b""
+    while len(buffer) < n:
+        chunk = conn.recv(n - len(buffer))
         if not chunk:
-            raise ConnectionResetError(f"connection closed after {len(buf)} of {n} bytes")
-        buf += chunk
-    return buf
+            raise ConnectionResetError(f"connection closed after {len(buffer)} of {n} bytes")
+        buffer += chunk
+    return buffer
 
 
 def make_factory(twin, *, pace: bool = True):

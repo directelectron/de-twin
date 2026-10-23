@@ -115,11 +115,11 @@ def _symmetry(name: str) -> int:
     return abs(p - q)
 
 
-def _random_coeff(rng: np.random.Generator, name: str, mag: float) -> complex:
+def _random_coeff(rng: np.random.Generator, name: str, magnification: float) -> complex:
     if _round(name):
-        return complex(mag * (1.0 if rng.random() < 0.5 else -1.0), 0.0)
+        return complex(magnification * (1.0 if rng.random() < 0.5 else -1.0), 0.0)
     phi = rng.uniform(0.0, 2.0 * math.pi)
-    return complex(mag * math.cos(phi), mag * math.sin(phi))
+    return complex(magnification * math.cos(phi), magnification * math.sin(phi))
 
 
 def native_aberrations(seed: int = 0, side: str = "probe") -> Aberrations:
@@ -128,8 +128,8 @@ def native_aberrations(seed: int = 0, side: str = "probe") -> Aberrations:
     out = {}
     for name, nom in NATIVE_NOMINAL.items():
         spread = NATIVE_SPREAD[name]
-        mag = nom * (1.0 + spread * rng.uniform(-1.0, 1.0))
-        out[name] = complex(mag, 0.0) if _round(name) else _random_coeff(rng, name, mag)
+        magnification = nom * (1.0 + spread * rng.uniform(-1.0, 1.0))
+        out[name] = complex(magnification, 0.0) if _round(name) else _random_coeff(rng, name, magnification)
     return Aberrations(out)
 
 

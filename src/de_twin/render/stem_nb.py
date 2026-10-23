@@ -113,14 +113,14 @@ def accumulate(F, y0s, x0s, H, W, fy, fx, w, acc):
 
 
 @_njit()
-def annulus_sums(F, iy, ix, w, out, col):
+def annulus_sums(F, iy, ix, w, out, column):
     """``out[k, col] += w sum_p |F[k, iy[p], ix[p]]|^2``."""
     for k in range(F.shape[0]):
         s = 0.0
         for p in range(iy.shape[0]):
             v = F[k, iy[p], ix[p]]
             s += v.real * v.real + v.imag * v.imag
-        out[k, col] += w * s
+        out[k, column] += w * s
 
 
 @_njit(parallel=True)

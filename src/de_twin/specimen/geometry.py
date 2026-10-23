@@ -305,7 +305,7 @@ class JitteredLattice:
             np.copyto(bf, f, where=m)
         return bf
 
-    def block_labels(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)):
+    def block_labels(self, context, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)):
         """Nearest-site label for every pixel centre of a raster window.
 
         Returns ``(labels (r1 - r0, c1 - c0) int64, grid)``; ``grid = (SX, SY, HH, imin, jmin, W)``
@@ -317,11 +317,11 @@ class JitteredLattice:
         ox, oy = float(offset[0]), float(offset[1])
 
         def world(r, c):
-            X, Y = ctx.world(r, c)
+            X, Y = context.world(r, c)
             return X - ox, Y - oy
 
         H, Wd = r1 - r0, c1 - c0
-        step = max(math.hypot(ctx.axc, ctx.ayc), math.hypot(ctx.axr, ctx.ayr))
+        step = max(math.hypot(context.axc, context.ayc), math.hypot(context.axr, context.ayr))
         # node stride minimising (1/s^2 node work + ~4 s / C boundary work) for C px cells
         s = int(min(16, max(1, math.floor((0.5 * self.cell_um / step) ** (1.0 / 3.0) + 0.5))))
         nr_n = (H - 1) // s + 2 if s > 1 else 0
@@ -337,7 +337,7 @@ class JitteredLattice:
             SX, SY, _HH, _imin, _jmin, gw, x0, y0 = grid
             out = np.empty((H, Wd), np.int32)
             _rnb.block_labels(
-                np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]),
+                np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr]),
                 ox,
                 oy,
                 r0,
@@ -377,9 +377,9 @@ class JitteredLattice:
             lab[tr, tc] = self._label(X, Y, grid)
         return lab, grid
 
-    def nearest_block(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> BlockHit:
-        lab, grid = self.block_labels(ctx, r0, r1, c0, c1, offset)
-        X, Y = ctx.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
+    def nearest_block(self, context, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> BlockHit:
+        lab, grid = self.block_labels(context, r0, r1, c0, c1, offset)
+        X, Y = context.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
         shape = lab.shape
         return BlockHit(
             lab, grid, np.broadcast_to(X, shape) - offset[0], np.broadcast_to(Y, shape) - offset[1]

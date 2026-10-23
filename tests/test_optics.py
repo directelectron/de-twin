@@ -42,42 +42,42 @@ def test_wavelength_and_sigma():
 
 # -------------------------------------------------------- calibration
 def test_default_calibration_is_geometric(make_state):
-    cal = Calibration.default()
+    calibration = Calibration.default()
     s = make_state(magnification=20000)
-    assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(6.5e3 / 20000)
-    assert cal.recip_pixel_inv_nm(s, DE16) == pytest.approx(
+    assert calibration.specimen_pixel_nm(s, DE16) == pytest.approx(6.5e3 / 20000)
+    assert calibration.recip_pixel_inv_nm(s, DE16) == pytest.approx(
         (6.5 / 250.0) / (1000 * electron_wavelength_nm(200))
     )
-    assert cal.mag_ladder("MAG1")[0] == 2000 and cal.mag_ladder("MAG1")[-1] == 800000
-    assert cal.mag_ladder("LowMAG")[0] == 50 and cal.mag_ladder("LowMAG")[-1] == 1500
-    assert 250 in cal.cl_ladder()
-    assert cal.snap_mag("MAG1", 23000) == 25000
-    assert cal.snap_cl(230) == 250
+    assert calibration.mag_ladder("MAG1")[0] == 2000 and calibration.mag_ladder("MAG1")[-1] == 800000
+    assert calibration.mag_ladder("LowMAG")[0] == 50 and calibration.mag_ladder("LowMAG")[-1] == 1500
+    assert 250 in calibration.cl_ladder()
+    assert calibration.snap_mag("MAG1", 23000) == 25000
+    assert calibration.snap_cl(230) == 250
     # a magnification that is not on the ladder is not calibrated (-> fallback)
-    assert cal.specimen_pixel_nm(make_state(magnification=12345), DE16) == 0.0
+    assert calibration.specimen_pixel_nm(make_state(magnification=12345), DE16) == 0.0
 
 
 @pytest.mark.skipif(not (MAG_YAML / "mag.yaml").exists(), reason="DE-Server configurations not present")
 @pytest.mark.parametrize("name", ["mag.yaml", "mag_JEOL.yaml", "mag_TFS.yaml"])
 def test_mag_yaml_loads(name):
-    cal = Calibration.from_mag_yaml(MAG_YAML / name)
-    assert cal.mag_modes()
-    assert cal.cl_ladder()
+    calibration = Calibration.from_mag_yaml(MAG_YAML / name)
+    assert calibration.mag_modes()
+    assert calibration.cl_ladder()
 
 
 @pytest.mark.skipif(not (MAG_YAML / "mag.yaml").exists(), reason="DE-Server configurations not present")
 def test_mag_yaml_values(make_state):
-    cal = Calibration.from_mag_yaml(MAG_YAML / "mag.yaml")
+    calibration = Calibration.from_mag_yaml(MAG_YAML / "mag.yaml")
     s = make_state(magnification=20000, mag_mode="MAG1")
-    assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(0.2045)
+    assert calibration.specimen_pixel_nm(s, DE16) == pytest.approx(0.2045)
     s.camera_length_mm = 250.0
-    assert cal.recip_pixel_inv_nm(s, DE16) == pytest.approx(0.0176)
+    assert calibration.recip_pixel_inv_nm(s, DE16) == pytest.approx(0.0176)
     s.mag_mode = "LowMAG"
     s.magnification = 150
-    assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(4.4537)
+    assert calibration.specimen_pixel_nm(s, DE16) == pytest.approx(4.4537)
     s.tem_stem = TemStem.STEM
     s.magnification = 1_000_000
-    assert cal.stem_step_nm(s, (256, 256)) == pytest.approx(80.0 / 256)
+    assert calibration.stem_step_nm(s, (256, 256)) == pytest.approx(80.0 / 256)
 
 
 def test_mag_yaml_with_tabs_and_ht_table(tmp_path, make_state):
@@ -88,10 +88,10 @@ def test_mag_yaml_with_tabs_and_ht_table(tmp_path, make_state):
     (tmp_path / "ht.yaml").write_text(
         "HT:\n  300000:\n    TEM_Scale_Factor: 1.1\n    TEM_Diff_Scale_Factor: 0.8\n"
     )
-    cal = Calibration.from_mag_yaml(tmp_path / "mag.yaml", ht_table=tmp_path / "ht.yaml")
+    calibration = Calibration.from_mag_yaml(tmp_path / "mag.yaml", ht_table=tmp_path / "ht.yaml")
     s = make_state(magnification=1000, ht_kv=300.0, camera_length_mm=250.0)
-    assert cal.specimen_pixel_nm(s, DE16) == pytest.approx(2.2)
-    assert cal.recip_pixel_inv_nm(s, DE16) == pytest.approx(0.016)
+    assert calibration.specimen_pixel_nm(s, DE16) == pytest.approx(2.2)
+    assert calibration.recip_pixel_inv_nm(s, DE16) == pytest.approx(0.016)
 
 
 # ---------------------------------------------------------- dispatch
@@ -277,9 +277,9 @@ def test_beam_current_model(make_state):
 
 
 def test_realistic_tem_dose_on_de16(make_derived_optics, make_state):
-    for mag, lo, hi in ((20000, 20, 80), (30000, 10, 50), (50000, 3, 20)):
-        o = make_derived_optics(make_state(magnification=mag, spot_size=3, intensity=0.5))
-        assert lo < o.dose_e_per_px_s < hi, (mag, o.dose_e_per_px_s)
+    for magnification, lo, hi in ((20000, 20, 80), (30000, 10, 50), (50000, 3, 20)):
+        o = make_derived_optics(make_state(magnification=magnification, spot_size=3, intensity=0.5))
+        assert lo < o.dose_e_per_px_s < hi, (magnification, o.dose_e_per_px_s)
 
 
 def test_dose_scaling(make_derived_optics, make_state):

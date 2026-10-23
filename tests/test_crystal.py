@@ -187,14 +187,14 @@ def test_ground_truth_crystal_map_includes_stage_tilt():
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 12.0, grain=3)])
     twin = DigitalTwin(spec, camera="DE16", clock=ManualClock())
     twin.column.set("TemStemMode", 1)
-    req = twin.request()
-    req.scan.enabled = True
-    req.scan.size = (16, 16)
-    req.scan.step_um = 0.002
+    request = twin.request()
+    request.scan.enabled = True
+    request.scan.size = (16, 16)
+    request.scan.step_um = 0.002
     gid = AU * GRAINS_PER_MATERIAL + 3
     for alpha in (0.0, 12.0):
         twin.column.move_stage(alpha=alpha)
-        xmap = twin.ground_truth(req)
+        xmap = twin.ground_truth(request)
         assert xmap.shape == (16, 16)
         au = xmap.phase_id == AU
         assert au.any() and (~au).any()

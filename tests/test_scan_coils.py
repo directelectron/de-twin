@@ -86,9 +86,9 @@ class TestOptics:
         nm_per_v = o.extras["scan_nm_per_volt"]
         assert nm_per_v == pytest.approx(0.8 * 16 / 2.0)
         x0, y0 = reference.view.center_um  # the optic axis: zero volts
-        for col, row in ((0, 0), (15, 3), (7, 12)):
-            h, v = point_volts(scan, col, row)
-            wx, wy = o.view.pixel_to_world(np.array([row]), np.array([col]))
+        for column, row in ((0, 0), (15, 3), (7, 12)):
+            h, v = point_volts(scan, column, row)
+            wx, wy = o.view.pixel_to_world(np.array([row]), np.array([column]))
             assert (wx[0], wy[0]) == pytest.approx((x0 + h * nm_per_v / 1000, y0 + v * nm_per_v / 1000))
 
     def test_the_probe_sees_the_specimen_the_offset_moved_it_to(self, make_scan_optics):
@@ -99,17 +99,17 @@ class TestOptics:
         o = make_scan_optics(scan)
         moved = make_scan_optics(dataclasses.replace(scan, pixel_offset=(3.0, 0.0)))
         particles = []
-        for col, row in ((7, 5), (11, 9)):  # on the points the moved probe reaches from (4, 5), (8, 9)
-            x, y = o.view.pixel_to_world(row, col)
+        for column, row in ((7, 5), (11, 9)):  # on the points the moved probe reaches from (4, 5), (8, 9)
+            x, y = o.view.pixel_to_world(row, column)
             particles.append(Particle(float(x), float(y), 1.5))
         renderer = Renderer(
             SyntheticSpecimen(particles=particles),
             RenderConfig(stem_model="kinematic", intensity_jitter=False, probe_footprint_blend=False),
         )
         film = renderer.render(o, scan_point=(1, 1))
-        for col, row in ((4, 5), (8, 9)):
-            here = renderer.render(moved, scan_point=(col, row))
-            np.testing.assert_allclose(here, renderer.render(o, scan_point=(col + 3, row)), rtol=1e-5)
+        for column, row in ((4, 5), (8, 9)):
+            here = renderer.render(moved, scan_point=(column, row))
+            np.testing.assert_allclose(here, renderer.render(o, scan_point=(column + 3, row)), rtol=1e-5)
             assert not np.allclose(here, film, rtol=0.01)  # it really is on a particle
 
 

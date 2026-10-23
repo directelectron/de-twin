@@ -39,9 +39,9 @@ def test_request_roundtrip_and_frames_in_order():
         )
         got = prod.poll_request(timeout=1)
         assert got is not None and got[0] == rid
-        req = got[1]
-        assert req.exposure_mode == ExposureMode.GAIN and req.total_frames == 5
-        assert req.hw_binning == (2, 2) and req.frame_time_s == pytest.approx(0.02)
+        request = got[1]
+        assert request.exposure_mode == ExposureMode.GAIN and request.total_frames == 5
+        assert request.hw_binning == (2, 2) and request.frame_time_s == pytest.approx(0.02)
         for i in range(5):
             assert prod.wait_slot_free(1)
             prod.publish(np.full((48, 64), i, np.uint16), request_id=rid, frame_index=i)
@@ -91,8 +91,8 @@ def test_threaded_stream():
         rid = cons.begin(frame_shape=(32, 32), total_frames=n)
 
         def run():
-            _, req = prod.poll_request(timeout=2)
-            for i in range(req.total_frames):
+            _, request = prod.poll_request(timeout=2)
+            for i in range(request.total_frames):
                 while not prod.wait_slot_free(0.05):
                     pass
                 prod.publish(np.full((32, 32), i % 4096, np.uint16), request_id=rid, frame_index=i)

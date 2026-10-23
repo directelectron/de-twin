@@ -471,10 +471,10 @@ class BulkSamplePreparation(Preparation):
 
     kind = "bulk"
 
-    def __init__(self, bulk_kind: int, material_id: int, opts: SpecimenOptions):
+    def __init__(self, bulk_kind: int, material_id: int, options: SpecimenOptions):
         self.bulk_kind = int(bulk_kind)
         self.material = int(material_id)
-        self.opts = opts
+        self.opts = options
         self.required_layers = {1: frozenset({LAYER_DESCAN}), 2: frozenset({LAYER_STRAIN})}.get(
             self.bulk_kind, frozenset()
         )
@@ -511,8 +511,8 @@ class BulkSamplePreparation(Preparation):
     def _matrix_grain(self, area, seed) -> int:
         if self.material == MaterialId.VACUUM or not material(self.material).crystalline:
             return -1
-        idx = max(0, area.post_index) * 16 + max(0, area.index)
-        return int(grain_id_from_hash(self.material, hash_seed(seed, SeedKind.GRAIN, idx)))
+        index = max(0, area.post_index) * 16 + max(0, area.index)
+        return int(grain_id_from_hash(self.material, hash_seed(seed, SeedKind.GRAIN, index)))
 
     def populate(self, holder, area, seed) -> Batch:
         if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:

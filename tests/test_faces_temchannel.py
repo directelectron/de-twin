@@ -298,8 +298,8 @@ def test_replay_recorded_samples(column):
         res_path = req_path.replace(".req.xml", ".res.xml")
         if not os.path.exists(res_path):
             continue
-        req = open(req_path, "rb").read()
-        code, xml = srv.handle(req)
+        request = open(req_path, "rb").read()
+        code, xml = srv.handle(request)
         assert code == 200, (req_path, xml[:300])
         want_el, want = parse_body(open(res_path, "rb").read())
         got_el, got = parse_body(xml)

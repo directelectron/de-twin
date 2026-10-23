@@ -76,25 +76,25 @@ def _to_view_frame(record: np.ndarray, rec_view, view_view, shape) -> np.ndarray
 def test_view_to_record_alignment_finds_the_true_area_offset():
     from scipy.ndimage import gaussian_filter
 
-    tw = DigitalTwin(
+    twin = DigitalTwin(
         "Dense Au on holey C",
         camera="DESim",
         clock=ManualClock(),
         seed=1,
         optics_config=OpticsConfig.realistic(seed=5),
     )
-    tw.column.set("Magnification", 20000)
-    tw.column.set("Intensity", 0.95)
-    tw.column.set("LowDose", True)
-    tw.column.set(
+    twin.column.set("Magnification", 20000)
+    twin.column.set("Intensity", 0.95)
+    twin.column.set("LowDose", True)
+    twin.column.set(
         "LowDoseAreas", {"View": {"magnification": 5000, "defocus_offset_um": -30.0, "intensity": 0.95}}
     )
-    req = tw.request()
-    o_rec = tw.optics(req)
-    rec = tw.flux(req).astype(float)
-    tw.column.set("LowDoseArea", "View")
-    o_view = tw.optics(req)
-    view = tw.flux(req).astype(float)
+    request = twin.request()
+    o_rec = twin.optics(request)
+    rec = twin.flux(request).astype(float)
+    twin.column.set("LowDoseArea", "View")
+    o_view = twin.optics(request)
+    view = twin.flux(request).astype(float)
     assert o_rec.raster_downsample == o_view.raster_downsample == 1
     # truth: where Record's centre falls in View, in View pixels from View's centre
     r1, c1 = o_view.view.world_to_pixel(*o_rec.view.center_um)

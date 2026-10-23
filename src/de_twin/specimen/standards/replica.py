@@ -79,11 +79,11 @@ def island_film(
 _LEVEL_LUT: list = []
 
 
-def _lattice_index(ctx, r: int, c: int) -> tuple[int, int]:
+def _lattice_index(context, r: int, c: int) -> tuple[int, int]:
     """(column, row) of raster pixel (r, c) on the view's world-fixed pixel lattice (the
     renderer's `_lattice`: pixel units along the view's own axes from the world origin)."""
-    view = ctx.view
-    x, y = ctx.world(float(r), float(c))
+    view = context.view
+    x, y = context.world(float(r), float(c))
     x, y = float(x), float(y)
     rot = float(getattr(view, "rotation_rad", 0.0))
     if rot:
@@ -430,14 +430,14 @@ class ShadowedReplicaStructure(StandardStructure):
     def numba_fill(self) -> bool:
         return _rnb.AVAILABLE and (self.crumple_nm > 0 or self.rough_nm > 0)
 
-    def _fill_fast(self, ctx, owner, seed, px, mean_c, flat, rough, islands, tile):
+    def _fill_fast(self, context, owner, seed, px, mean_c, flat, rough, islands, tile):
         """`fill` through the numba kernel (:func:`..replica_nb.replica_block`): the same
         per-pixel arithmetic, in parallel rows."""
         from ..noise import fbm_params
         from ..stamps import _OFFSETS, LABYRINTH, _coverage_table, period_px_cached, phase_tiles
 
         b = owner.bounds
-        win = ctx.window(b.xmin, b.ymin, b.xmax, b.ymax)
+        win = context.window(b.xmin, b.ymin, b.xmax, b.ymax)
         if win is None:
             return
         r0, r1, c0, c1 = win
@@ -523,13 +523,13 @@ class ShadowedReplicaStructure(StandardStructure):
         cseed = np.uint64(((int(seed) ^ 0x1F) * 0xC2B2AE3D27D4EB4F) & 0xFFFFFFFFFFFFFFFF)
         covs = np.ascontiguousarray(cov[1 : half + 1], np.float64)
         lvx = np.arange(1, half + 1, dtype=np.float64)
-        W = np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr])
+        W = np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr])
         O = np.array([owner.cx, owner.cy, math.cos(-owner.rot), math.sin(-owner.rot), owner.rx, owner.ry])
-        new_under = ctx.under_thick is None
-        uthick = np.zeros(ctx.npix, np.float32) if new_under else ctx.under_thick
-        umat = np.zeros(ctx.npix, np.uint8) if new_under else ctx.under_material
+        new_under = context.under_thick is None
+        uthick = np.zeros(context.npix, np.float32) if new_under else context.under_thick
+        umat = np.zeros(context.npix, np.uint8) if new_under else context.under_material
         used = np.zeros(1, np.uint8)
-        bstep = max(1, ctx.BLOCK_PIXELS // max(1, c1 - c0))  # ctx.row_blocks
+        bstep = max(1, context.BLOCK_PIXELS // max(1, c1 - c0))  # ctx.row_blocks
         nblk = (r1 - r0 + bstep - 1) // bstep if spheres else 1
         SPB = np.zeros((nblk, 11))
         SNB = np.ones((nblk, 2), np.int64)
@@ -539,10 +539,10 @@ class ShadowedReplicaStructure(StandardStructure):
         if spheres:  # the spheres of each row block's pixels, as the NumPy fill builds them per block
             ce, se = math.cos(self.elev), math.sin(self.elev)
             step = max(px, 1.0 / NM_PER_UM)
-            for kb, (a, bb) in enumerate(ctx.row_blocks(r0, r1, c1 - c0)):
+            for kb, (a, bb) in enumerate(context.row_blocks(r0, r1, c1 - c0)):
                 rows = np.arange(a, bb)[:, None]
                 cols = np.arange(c0, c1)[None, :]
-                X, Y = ctx.world(rows, cols)
+                X, Y = context.world(rows, cols)
                 dx, dy = X - owner.cx, Y - owner.cy
                 lx = dx * O[2] - dy * O[3]
                 ly = dx * O[3] + dy * O[2]
@@ -603,7 +603,7 @@ class ShadowedReplicaStructure(StandardStructure):
         # the node lattice is world-fixed: raster pixel (r0, c0) is lattice pixel (gr, gc) of the
         # view's pixel lattice, and nodes sit on its multiples of s, so the pieces of a raster
         # (strips, the part a stage move brings in) interpolate the same nodes as the whole
-        gc, gr = _lattice_index(ctx, r0, c0)
+        gc, gr = _lattice_index(context, r0, c0)
         OFF = np.array([[gr - (gr // s) * s, gc - (gc // s) * s] for s in ST], np.int64)
         nodes = []
         for q, (s, (_, on)) in enumerate(zip(ST, finest)):
@@ -616,13 +616,13 @@ class ShadowedReplicaStructure(StandardStructure):
         if ANALYTIC_SLOPE:
             _replica_nb.replica_nodes(r0, r1, c0, c1, W, O, FS, FC, FSN, FA, FN, R, TX, ST, OFF, *nodes)
         _replica_nb.replica_block(
-            ctx.thick,
-            ctx.material,
-            ctx.grain,
+            context.thick,
+            context.material,
+            context.grain,
             uthick,
             umat,
             used,
-            ctx.nx,
+            context.nx,
             r0,
             r1,
             c0,
@@ -660,32 +660,32 @@ class ShadowedReplicaStructure(StandardStructure):
             *_level_lut(cov, half, levels, table),
         )
         if new_under and used[0]:
-            ctx.under_material, ctx.under_thick = umat, uthick
+            context.under_material, context.under_thick = umat, uthick
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         seed = int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
-        px = ctx.pixel_um
+        px = context.pixel_um
         scales = [
             self.crumple_um if self.crumple_nm > 0 else 1e9,
             self.relief.P if self.relief is not None else 1e9,
             self.spheres.diameter_nm / NM_PER_UM if self.spheres is not None else 1e9,
         ]
-        if not _resolved(min(scales), ctx):
+        if not _resolved(min(scales), context):
             return  # the owner carries the mean
         mean_c = self.mean_carbon_nm()
         flat = self.flat_deposit_nm()
         rough = (self.rough_nm > 0 or self.crumple_nm > 0) and _resolved(
-            min(self.rough_um, self.crumple_um) / 2.0, ctx
+            min(self.rough_um, self.crumple_um) / 2.0, context
         )
-        islands = self.metal_nm > 0 and _resolved(self.island_nm / NM_PER_UM, ctx)
+        islands = self.metal_nm > 0 and _resolved(self.island_nm / NM_PER_UM, context)
         tile = self.tile()
         ux, uy = self.u
         sin_e, cos_e = math.sin(self.elev), math.cos(self.elev)
         if _rnb.AVAILABLE and (rough or self.crumple_nm > 0):
-            self._fill_fast(ctx, owner, seed, px, mean_c, flat, rough, islands, tile)
-            ctx.stats["fast_fills"] = ctx.stats.get("fast_fills", 0) + 1
+            self._fill_fast(context, owner, seed, px, mean_c, flat, rough, islands, tile)
+            context.stats["fast_fills"] = context.stats.get("fast_fills", 0) + 1
             return
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             lx, ly = B.lx, B.ly
             # the relief (looked up) and the replica's own crumpled surface (noise)
             if tile is not None:
@@ -726,12 +726,12 @@ class ShadowedReplicaStructure(StandardStructure):
             # layers: the replica film (carbon) with latex on it, and the metal on top. A pixel
             # with metal holds the metal, the film and latex go under it.
             latex = chord > 0
-            ctx.add_thickness(B.flat, carbon - mean_c)
+            context.add_thickness(B.flat, carbon - mean_c)
             if latex.any():  # latex on the film: latex on top, the film under it
                 fl = B.sub(latex)
-                ctx.add_thickness(fl, chord[latex] - carbon[latex])
-                ctx.material[fl] = self.sphere_material
-                ctx.add_under(fl, MaterialId.AMORPHOUS_CARBON, carbon[latex])
+                context.add_thickness(fl, chord[latex] - carbon[latex])
+                context.material[fl] = self.sphere_material
+                context.add_under(fl, MaterialId.AMORPHOUS_CARBON, carbon[latex])
             if self.metal_nm <= 0:
                 continue
             if islands:
@@ -743,14 +743,14 @@ class ShadowedReplicaStructure(StandardStructure):
             if inside.any():
                 f = B.sub(inside)
                 # the metal on top; whatever was there (film, or latex on film) goes under
-                below = ctx.thick[f].astype(np.float64)
+                below = context.thick[f].astype(np.float64)
                 on_latex = latex[inside]
-                ctx.add_thickness(f, t_m[inside] - below)
+                context.add_thickness(f, t_m[inside] - below)
                 if (~on_latex).any():
-                    ctx.add_under(f[~on_latex], MaterialId.AMORPHOUS_CARBON, below[~on_latex])
+                    context.add_under(f[~on_latex], MaterialId.AMORPHOUS_CARBON, below[~on_latex])
                 if on_latex.any():  # the film under the latex counted as latex
                     tl = chord[inside][on_latex] + carbon[inside][on_latex] * carbon_equivalent(
                         self.sphere_material
                     )
-                    ctx.add_under(f[on_latex], self.sphere_material, tl)
-                _claim(ctx, f, grain, self.metal)
+                    context.add_under(f[on_latex], self.sphere_material, tl)
+                _claim(context, f, grain, self.metal)

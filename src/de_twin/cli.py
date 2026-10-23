@@ -104,8 +104,8 @@ def cmd_serve(args) -> int:
         else:
             from .faces.temchannel_soap import TemChannelServer
 
-            srv = TemChannelServer(twin.column, host=args.host, port=args.soap).start()
-            stoppers.append(srv.stop)
+            server = TemChannelServer(twin.column, host=args.host, port=args.soap).start()
+            stoppers.append(server.stop)
             corr = getattr(twin.column, "corrector", None)
             extra = f" (corrector: {corr.kind}, serving {corr.served_side})" if corr else ""
             print(f"TEM-Channel SOAP face on {args.host}:{args.soap}{extra}")

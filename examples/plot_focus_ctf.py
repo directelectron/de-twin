@@ -16,8 +16,8 @@ twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), s
 twin.column.set("Magnification", 300000)
 
 
-def power_spectrum(img):
-    a = (img - img.mean()) * np.outer(np.hanning(img.shape[0]), np.hanning(img.shape[1]))
+def power_spectrum(image):
+    a = (image - image.mean()) * np.outer(np.hanning(image.shape[0]), np.hanning(image.shape[1]))
     return np.log1p(np.fft.fftshift(np.abs(np.fft.fft2(a)) ** 2))
 
 

@@ -69,14 +69,14 @@ class MoO3LathsStructure(StandardStructure):
                 (r.uniform(0.3, 1.2), r.uniform(-0.6, 0.6), r.uniform(0.3, 1.2), r.uniform(-0.6, 0.6)),
             )
 
-    def fill(self, ctx, owner):
-        if not _resolved(0.05, ctx):
+    def fill(self, context, owner):
+        if not _resolved(0.05, context):
             return
         seed = structure_seed(owner)
         mean = self.mean_nm()
         eq = carbon_equivalent(MaterialId.MOLYBDENUM_TRIOXIDE)
-        for B in _owner_pixels(ctx, owner):
-            ctx.add_thickness(B.flat, self.film - mean)
+        for B in _owner_pixels(context, owner):
+            context.add_thickness(B.flat, self.film - mean)
             lx, ly = B.lx, B.ly
             for i, j in cells_near(lx, ly, self.cell, self.max_half):
                 for cx, cy, ang, L, W, t, (sx, sp, sh), (k1, o1, k2, o2) in self.laths(seed, i, j):
@@ -93,6 +93,6 @@ class MoO3LathsStructure(StandardStructure):
                     # one terrace: a step across the lath at `sx` of its length
                     tt = t * (1.0 + np.where(u[inside] / L > sx, sh if sp > 0.5 else -sh, 0.0))
                     f = B.sub(inside)
-                    ctx.add_thickness(f, tt - self.film + self.film / eq)
+                    context.add_thickness(f, tt - self.film + self.film / eq)
                     g = angle_grain(MaterialId.MOLYBDENUM_TRIOXIDE, ang + owner.rot)
-                    _claim(ctx, f, np.full(f.shape, g, np.int32), MaterialId.MOLYBDENUM_TRIOXIDE)
+                    _claim(context, f, np.full(f.shape, g, np.int32), MaterialId.MOLYBDENUM_TRIOXIDE)

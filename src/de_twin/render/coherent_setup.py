@@ -218,12 +218,12 @@ def build_probe(optics, config, s: Sampling | None = None, *, center_px=None) ->
     fnodes, fweights = (np.zeros(1), np.ones(1)) if nf == 1 else (_GH3 if nf == 3 else _GH5)
     fnodes = fnodes * delta
     # spatial coherence: Gauss-Hermite 3x3 over the effective source
-    sig = float(optics.source_size_nm) / 2.3548 if config.coherent_source_size else 0.0
-    use_src = sig > 0.02 * lam / max(ka * lam, 1e-9)  # sigma > 2 % of lambda/alpha
+    sigma = float(optics.source_size_nm) / 2.3548 if config.coherent_source_size else 0.0
+    use_src = sigma > 0.02 * lam / max(ka * lam, 1e-9)  # sigma > 2 % of lambda/alpha
     snodes = [(0.0, 0.0, 1.0)]
     if use_src:
         x3, w3 = _GH3
-        snodes = [(sig * a, sig * b, wa * wb) for a, wa in zip(x3, w3) for b, wb in zip(x3, w3)]
+        snodes = [(sigma * a, sigma * b, wa * wb) for a, wa in zip(x3, w3) for b, wb in zip(x3, w3)]
 
     if _snb.AVAILABLE:
         sn = np.asarray(snodes, np.float64)
@@ -369,17 +369,17 @@ def diffuse_beyond_fraction(mid: int, wavelength_nm: float, theta_c_mrad: float)
     return t0 * t0 / (theta_c_mrad * theta_c_mrad + t0 * t0)
 
 
-def build_tile(fm, optics, grains, crystallinity, config, seed: int, bandwidth: float = 0.0) -> Tile:
+def build_tile(field_map, optics, grains, crystallinity, config, seed: int, bandwidth: float = 0.0) -> Tile:
     """Transmission function (band-limited to ``bandwidth``) plus the incoherent remainder:
     Bragg beams beyond ``bandwidth`` and the diffuse part beyond ``lambda bandwidth``."""
-    stem_optics = dataclasses.replace(optics, view=fm.view, objective_aperture_mrad=0.0)
+    stem_optics = dataclasses.replace(optics, view=field_map.view, objective_aperture_mrad=0.0)
     kmax = bandwidth if (bandwidth > 0 and config.coherent_incoherent_scattering) else 0.0
     t, bc = transmission_function(
-        fm, stem_optics, grains, crystallinity, config, seed, return_contrast=True, coherent_k_max=kmax
+        field_map, stem_optics, grains, crystallinity, config, seed, return_contrast=True, coherent_k_max=kmax
     )
     if bandwidth > 0:
-        t = band_limit(t, fm.view.pixel_um * 1000.0, bandwidth)
-    mat = fm.material_id
+        t = band_limit(t, field_map.view.pixel_um * 1000.0, bandwidth)
+    mat = field_map.material_id
     lam_all = absorption_lengths_nm(optics.ht_kv)
     theta_c = 1000.0 * optics.wavelength_nm * kmax
     fb = np.array(
@@ -390,15 +390,15 @@ def build_tile(fm, optics, grains, crystallinity, config, seed: int, bandwidth: 
         np.float32,
     )
     if _snb.AVAILABLE:
-        return _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax)
-    thick = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
+        return _tile_fast(field_map, optics, config, t, bc, mat, lam_all, fb, kmax)
+    thick = field_map.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     lam_px = lam_all[mat]
     T = np.exp(-thick / lam_px).astype(np.float32)
     dw = ((1.0 - T) * np.exp(-thick / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32)
     under = None
-    if fm.under_thickness_nm is not None:  # absorbed with the primary; its diffuse part added below
-        umat = fm.under_material
-        tu = fm.under_thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
+    if field_map.under_thickness_nm is not None:  # absorbed with the primary; its diffuse part added below
+        umat = field_map.under_material
+        tu = field_map.under_thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
         Tu = np.exp(-tu / lam_all[umat]).astype(np.float32)
         under = (
             umat,
@@ -427,7 +427,7 @@ def build_tile(fm, optics, grains, crystallinity, config, seed: int, bandwidth: 
                 add = np.where(umat == m, uw * fb[m], np.float32(0.0))
                 diffuse[int(m)] = diffuse[int(m)] + add if int(m) in diffuse else add
     return Tile(
-        fm.view,
+        field_map.view,
         t,
         bragg if config.coherent_incoherent_scattering else None,
         bc.gid.astype(np.int32),
@@ -437,12 +437,12 @@ def build_tile(fm, optics, grains, crystallinity, config, seed: int, bandwidth: 
     )
 
 
-def _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax) -> Tile:
+def _tile_fast(field_map, optics, config, t, bc, mat, lam_all, fb, kmax) -> Tile:
     """`build_tile`'s add-on maps in one numba pass (:func:`de_twin.render.stem_nb.tile_maps`)."""
     ny, nx = mat.shape
-    has_under = fm.under_thickness_nm is not None
-    umat = fm.under_material if has_under else mat
-    uthick = fm.under_thickness_nm if has_under else fm.thickness_nm
+    has_under = field_map.under_thickness_nm is not None
+    umat = field_map.under_material if has_under else mat
+    uthick = field_map.under_thickness_nm if has_under else field_map.thickness_nm
     diffuse_on = bool(config.diffuse_scattering and config.coherent_incoherent_scattering)
     has_loss = bool(config.coherent_incoherent_scattering and (bc.loss > 0).any())
     present = np.bincount(mat.ravel(), minlength=256)
@@ -457,7 +457,7 @@ def _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax) -> Tile:
     tbin = np.empty((ny, nx), np.int16)
     _snb.tile_maps(
         mat,
-        fm.thickness_nm,
+        field_map.thickness_nm,
         np.float32(optics.thickness_tilt_factor),
         np.asarray(lam_all, np.float64),
         has_under,
@@ -486,4 +486,4 @@ def _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax) -> Tile:
         for m in mids:
             if upresent[m] and m not in diffuse:
                 diffuse[m] = dmaps[slot[m]]
-    return Tile(fm.view, t, bragg if has_loss else None, bc.gid.astype(np.int32), tbin, mat, diffuse)
+    return Tile(field_map.view, t, bragg if has_loss else None, bc.gid.astype(np.int32), tbin, mat, diffuse)

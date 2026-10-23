@@ -63,10 +63,10 @@ def beam_current_pa(state: MicroscopeState, config: OpticsConfig | None = None) 
         current *= config.stem_current_factor
     else:
         current *= float(config.probe_mode_current_factor.get(mode, 1.0))
-    idx = int(state.condenser_aperture_index)
+    index = int(state.condenser_aperture_index)
     aps = config.condenser_apertures_um
-    if aps and 1 <= idx <= len(aps) and 1 <= config.reference_condenser_index <= len(aps):
-        current *= (aps[idx - 1] / aps[config.reference_condenser_index - 1]) ** 2
+    if aps and 1 <= index <= len(aps) and 1 <= config.reference_condenser_index <= len(aps):
+        current *= (aps[index - 1] / aps[config.reference_condenser_index - 1]) ** 2
     return float(current)
 
 
@@ -131,16 +131,16 @@ def probe_d0_nm(state: MicroscopeState, config: OpticsConfig | None = None) -> f
         return float(config.probe_d0_nm)
     mode = _probe_mode(state)
     if mode in (ProbeMode.NANOPROBE, ProbeMode.NBD):
-        col = _D0_TABLE["nano"]
+        column = _D0_TABLE["nano"]
     elif mode == ProbeMode.CBD:
-        col = _D0_TABLE["cbd"]
+        column = _D0_TABLE["cbd"]
     elif mode == ProbeMode.MICROPROBE:
-        col = _D0_TABLE["micro"]
+        column = _D0_TABLE["micro"]
     else:
-        col = _D0_TABLE["tem"]
+        column = _D0_TABLE["tem"]
     s = int(state.spot_size)
-    idx = 2 if s <= 0 else (5 if s >= 6 else s - 1)
-    return col[idx]
+    index = 2 if s <= 0 else (5 if s >= 6 else s - 1)
+    return column[index]
 
 
 def current_density_e_per_nm2_s(state: MicroscopeState, config: OpticsConfig | None = None) -> float:

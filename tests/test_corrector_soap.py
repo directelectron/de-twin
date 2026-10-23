@@ -40,33 +40,33 @@ CORRECTOR_OPS = (
 
 def fast_column(corrector="probe", seed=1):
     """A real-time clock running 20x, so posted commands finish in wall tenths of a second."""
-    col = Column(clock=Clock(time_scale=20.0), corrector=corrector, seed=seed)
-    col.set_tem_stem(1)
-    return col
+    column = Column(clock=Clock(time_scale=20.0), corrector=corrector, seed=seed)
+    column.set_tem_stem(1)
+    return column
 
 
 @pytest.fixture
 def corrected():
-    col = fast_column()
-    srv = TemChannelServer(col, host="127.0.0.1", port=0).start()
-    yield col, srv, SoapTemChannelClient("127.0.0.1", srv.port, timeout=10)
-    srv.stop()
+    column = fast_column()
+    server = TemChannelServer(column, host="127.0.0.1", port=0).start()
+    yield column, server, SoapTemChannelClient("127.0.0.1", server.port, timeout=10)
+    server.stop()
 
 
-def _handle(srv, method, **fields):
-    code, xml = srv.handle(envelope(method, list(fields.items())))
+def _handle(server, method, **fields):
+    code, xml = server.handle(envelope(method, list(fields.items())))
     assert code == 200, xml
     return parse_body(xml)
 
 
 # ------------------------------------------------------------------ absent
 def test_absent_corrector_answers_not_present():
-    srv = TemChannelServer(Column(clock=ManualClock()), port=0)
-    assert _handle(srv, "getCorrectorPresent", val=0) == ("getintResponse", {"intResult": "0"})
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(ABSENT)
-    assert _handle(srv, "getCorrectorInfo", val=0) == ("getCorrectorInfoResponse", {"r": ""})
-    assert _handle(srv, "getAberrations", val=0) == ("getAberrationsResponse", {"r": ""})
-    assert _handle(srv, "getAberration", name="C1")[1] == {"x": "0", "y": "0", "status": "0"}
+    server = TemChannelServer(Column(clock=ManualClock()), port=0)
+    assert _handle(server, "getCorrectorPresent", val=0) == ("getintResponse", {"intResult": "0"})
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(ABSENT)
+    assert _handle(server, "getCorrectorInfo", val=0) == ("getCorrectorInfoResponse", {"r": ""})
+    assert _handle(server, "getAberrations", val=0) == ("getAberrationsResponse", {"r": ""})
+    assert _handle(server, "getAberration", name="C1")[1] == {"x": "0", "y": "0", "status": "0"}
     for op in (
         "correctorMeasureC1A1",
         "correctorAcquireTableau",
@@ -74,11 +74,11 @@ def test_absent_corrector_answers_not_present():
         "setCorrectorBeamTilt",
         "correctorFetchAlignmentFile",
     ):
-        assert _handle(srv, op) == ("setResult", {"success": "0"}), op
+        assert _handle(server, op) == ("setResult", {"success": "0"}), op
     # reconnect is the one command allowed without a corrector (it re-probes)
-    assert _handle(srv, "correctorReconnect", val=0)[1]["success"] == "1"
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(ABSENT)
-    assert _handle(srv, "getCorrectorError", val=0)[1]["r"] == "no corrector responded"
+    assert _handle(server, "correctorReconnect", val=0)[1]["success"] == "1"
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(ABSENT)
+    assert _handle(server, "getCorrectorError", val=0)[1]["r"] == "no corrector responded"
 
 
 # ------------------------------------------------------------------ recorded envelopes
@@ -93,12 +93,12 @@ def _samples():
 @pytest.mark.skipif(not os.path.isdir(GSOAP), reason="DE-TEM-Channel gsoapFiles not available")
 @pytest.mark.parametrize("corrector", [None, "probe", "image", "both"])
 def test_replay_recorded_corrector_envelopes(corrector):
-    col = Column(clock=ManualClock(), corrector=corrector, seed=2)
-    srv = TemChannelServer(col, port=0)
+    column = Column(clock=ManualClock(), corrector=corrector, seed=2)
+    server = TemChannelServer(column, port=0)
     replayed = set()
     for req_path in _samples():
         res_path = req_path.replace(".req.xml", ".res.xml")
-        code, xml = srv.handle(open(req_path, "rb").read())
+        code, xml = server.handle(open(req_path, "rb").read())
         assert code == 200, (req_path, xml[:300])
         want_el, want = parse_body(open(res_path, "rb").read())
         got_el, got = parse_body(xml)
@@ -114,7 +114,7 @@ def test_replay_recorded_corrector_envelopes(corrector):
 
 # ------------------------------------------------------------------ round trip
 def test_soap_round_trip_through_the_client(corrected):
-    col, _srv, c = corrected
+    column, _srv, c = corrected
     assert c.corrector_present()
     assert c.corrector_status() == 0
     info = c.corrector_info()
@@ -132,16 +132,16 @@ def test_soap_round_trip_through_the_client(corrected):
     assert [n for n, _ in items] == ["C1", "A1", "A2", "B2"]  # CEOS order up to maxFit B2
     assert parse_aberration_set(c.corrector_result()) == items
     assert re.fullmatch(r"(\w\w=[-+.\deE]+,[-+.\deE]+;?)+", c.corrector_result())
-    truth = col.corrector.get()
+    truth = column.corrector.get()
     x, y, known = c.aberration("B2")
     assert known and abs(complex(x, y) * 1e9 - truth["B2"]) < 30  # metres on the wire
     assert c.aberration("C3") == (0.0, 0.0, False)
 
     # synchronous correction (waitMs): the outcome in one round trip
     b2_before = abs(truth["B2"])
-    col.corrector.set("B2", 300 + 0j)
+    column.corrector.set("B2", 300 + 0j)
     assert c.corrector_correct("B2", value=(300e-9, 0.0), wait_ms=3000)
-    assert abs(col.corrector.get()["B2"]) < 0.15 * 300
+    assert abs(column.corrector.get()["B2"]) < 0.15 * 300
     assert b2_before < 300
     # posted correction of something the corrector has no value for: accepted, then failed
     assert c.corrector_correct("A3")
@@ -151,13 +151,13 @@ def test_soap_round_trip_through_the_client(corrected):
 
 
 def test_soap_beam_tilt_config_and_alignment(corrected):
-    col, _srv, c = corrected
+    column, _srv, c = corrected
     assert c.get_corrector_beam_tilt() == (0.0, 0.0, False)
     assert c.set_corrector_beam_tilt(1e-4, 0.0, relative=True, wait_ms=2000)
     assert c.set_corrector_beam_tilt(0.0, 2e-4, relative=True, wait_ms=2000)
     x, y, known = c.get_corrector_beam_tilt()
     assert known and (x, y) == pytest.approx((1e-4, 2e-4))
-    assert col.corrector.served.wd == pytest.approx(1e-4 + 2e-4j)
+    assert column.corrector.served.wd == pytest.approx(1e-4 + 2e-4j)
     # waitMs=0: accepted and running; the commanded value only moves on completion
     assert c.set_corrector_beam_tilt(1e-4, 0.0, wait_ms=0)
     assert c.corrector_wait(10) == DONE
@@ -173,10 +173,10 @@ def test_soap_beam_tilt_config_and_alignment(corrected):
     assert c.corrector_fetch_alignment_file() and c.corrector_wait(10) == DONE
     data = c.alignment_file()
     assert '"correctorType": "CESCOR"' in data
-    good = col.corrector.get()
-    col.corrector.perturb("ht")
+    good = column.corrector.get()
+    column.corrector.perturb("ht")
     assert c.corrector_put_alignment_file(data) and c.corrector_wait(10) == DONE
-    assert abs((col.corrector.get() - good)["C3"]) < 100
+    assert abs((column.corrector.get() - good)["C3"]) < 100
     assert not c.corrector_put_alignment_file("")  # refused before posting
     assert c.corrector_read_back() and c.corrector_wait(10) == DONE
     assert c.corrector_reconnect() and c.corrector_wait(10) == DONE
@@ -184,47 +184,47 @@ def test_soap_beam_tilt_config_and_alignment(corrected):
 
 
 def test_image_side_served_when_asked():
-    col = Column(clock=ManualClock(), corrector="both", seed=2)
-    srv = TemChannelServer(col, port=0, corrector_side="image")
-    info = _handle(srv, "getCorrectorInfo", val=0)[1]["r"]
+    column = Column(clock=ManualClock(), corrector="both", seed=2)
+    server = TemChannelServer(column, port=0, corrector_side="image")
+    info = _handle(server, "getCorrectorInfo", val=0)[1]["r"]
     assert "correctorType=CETCOR;mode=TEM" in info
-    eps = _handle(srv, "getCorrectorEndpoints", val=0)[1]["r"].splitlines()
+    eps = _handle(server, "getCorrectorEndpoints", val=0)[1]["r"].splitlines()
     assert eps[0].endswith(":7071 (protocol 4)") and eps[1].endswith(":7072 (protocol 4)")
     # default: the probe corrector, like the channel's preferredPort 0
-    srv = TemChannelServer(col, port=0)
-    assert "mode=STEM" in _handle(srv, "getCorrectorInfo", val=0)[1]["r"]
+    server = TemChannelServer(column, port=0)
+    assert "mode=STEM" in _handle(server, "getCorrectorInfo", val=0)[1]["r"]
 
 
 def test_soap_tableau_arguments_and_errors():
     clk = ManualClock()
-    col = Column(clock=clk, corrector="probe", seed=4)
-    col.set_tem_stem(1)
-    srv = TemChannelServer(col, port=0)
-    ok = _handle(srv, "correctorAcquireTableau", tabType="Enhanced", angle=30.0, maxFit="C5")
+    column = Column(clock=clk, corrector="probe", seed=4)
+    column.set_tem_stem(1)
+    server = TemChannelServer(column, port=0)
+    ok = _handle(server, "correctorAcquireTableau", tabType="Enhanced", angle=30.0, maxFit="C5")
     assert ok[1]["success"] == "1"
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(RUNNING)
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(RUNNING)
     clk.advance(60)
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(DONE)
-    names = [n for n, _ in parse_aberration_set(_handle(srv, "getAberrations", val=0)[1]["r"])]
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(DONE)
+    names = [n for n, _ in parse_aberration_set(_handle(server, "getAberrations", val=0)[1]["r"])]
     assert names[-1] == "C5" and "A5" not in names
-    assert col.corrector.served.last_measurement.angle_mrad == 30.0
-    _handle(srv, "correctorAcquireTableau", tabType="Huge", angle=0.0, maxFit="")
+    assert column.corrector.served.last_measurement.angle_mrad == 30.0
+    _handle(server, "correctorAcquireTableau", tabType="Huge", angle=0.0, maxFit="")
     clk.advance(1)
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(FAILED)
-    assert 'Invalid Tableau type "Huge"' in _handle(srv, "getCorrectorError", val=0)[1]["r"]
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(FAILED)
+    assert 'Invalid Tableau type "Huge"' in _handle(server, "getCorrectorError", val=0)[1]["r"]
     # the probe corrector cannot measure in TEM mode
-    col.set_tem_stem(0)
-    _handle(srv, "correctorMeasureC1A1", val=0)
+    column.set_tem_stem(0)
+    _handle(server, "correctorMeasureC1A1", val=0)
     clk.advance(3)
-    assert _handle(srv, "getCorrectorStatus", val=0)[1]["intResult"] == str(FAILED)
-    assert "STEM" in _handle(srv, "getCorrectorError", val=0)[1]["r"]
+    assert _handle(server, "getCorrectorStatus", val=0)[1]["intResult"] == str(FAILED)
+    assert "STEM" in _handle(server, "getCorrectorError", val=0)[1]["r"]
 
 
 # ------------------------------------------------------------------ mirror
 def test_mirror_reads_the_real_correctors_aberrations(corrected):
-    col, srv, c = corrected
-    col.set_defocus_um(0.02)  # the operator's focus is in the measured C1 ...
-    m = MirrorColumn("127.0.0.1", srv.port, start=False, corrector_every=1)
+    column, server, c = corrected
+    column.set_defocus_um(0.02)  # the operator's focus is in the measured C1 ...
+    m = MirrorColumn("127.0.0.1", server.port, start=False, corrector_every=1)
     try:
         s = m.state()
         assert s.corrector == "probe" and s.probe_aberrations == {}  # nothing measured yet
@@ -232,7 +232,7 @@ def test_mirror_reads_the_real_correctors_aberrations(corrected):
         assert c.corrector_acquire_tableau("Standard") and c.corrector_wait(10) == DONE
         m.poll()
         s = m.state()
-        truth = col.corrector.get()
+        truth = column.corrector.get()
         got = Aberrations(s.probe_aberrations)
         assert s.defocus_um == pytest.approx(0.02)
         assert got["C1"] == pytest.approx(truth["C1"], abs=5.0)  # ... and taken out again
@@ -244,15 +244,15 @@ def test_mirror_reads_the_real_correctors_aberrations(corrected):
 
 
 def test_mirror_of_a_column_without_corrector():
-    col = Column(clock=ManualClock())
-    srv = TemChannelServer(col, host="127.0.0.1", port=0).start()
+    column = Column(clock=ManualClock())
+    server = TemChannelServer(column, host="127.0.0.1", port=0).start()
     try:
-        m = MirrorColumn("127.0.0.1", srv.port, start=False, corrector_every=1)
+        m = MirrorColumn("127.0.0.1", server.port, start=False, corrector_every=1)
         s = m.state()
         assert s.corrector == "none" and s.probe_aberrations == {}
         m.close()
     finally:
-        srv.stop()
+        server.stop()
 
 
 # ------------------------------------------------------------------ deapi
@@ -264,18 +264,18 @@ def test_deapi_exposes_corrector_state():
 
     twin = StubTwin()
     twin.column = Column(clock=twin.clock, corrector="probe", seed=1)
-    srv = TwinDeapiServer(twin, port=0, pace=False).start()
+    server = TwinDeapiServer(twin, port=0, pace=False).start()
     client = deapi.Client()
     client.usingMmf = False
     try:
-        client.connect(port=srv.port)
+        client.connect(port=server.port)
         assert client["Instrument Corrector"] == "probe"
         assert 20 < client["Instrument Corrector Pi/4 Angle (mrad)"] < 35
         assert 0 < client["Instrument Corrector Residual B2 (nm)"] < 60
         assert 1 < client["Instrument Corrector Residual C5 (mm)"] < 4
         client.disconnect()
     finally:
-        srv.stop()
+        server.stop()
 
 
 # ------------------------------------------------------------------ CLI
@@ -300,5 +300,5 @@ def test_cli_builds_a_corrected_twin(monkeypatch):
         corrector_cold=False,
     )
     cli._build_twin(args)
-    col = captured["column"]
-    assert col.corrector.kind == "both" and col.seed == 3
+    column = captured["column"]
+    assert column.corrector.kind == "both" and column.seed == 3

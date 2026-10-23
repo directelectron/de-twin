@@ -112,12 +112,12 @@ def loss_table(lib, geom: list, optics, g_obj: float, n_bins: int) -> tuple[np.n
     lens = np.array([len(g[0]) for g in geom], np.int64)
     starts = np.concatenate([[0], np.cumsum(lens)]).astype(np.int64)
     empty = np.zeros(0)
-    idx = np.concatenate([g[0] for g in geom]) if len(geom) else empty.astype(np.int64)
+    index = np.concatenate([g[0] for g in geom]) if len(geom) else empty.astype(np.int64)
     s = np.concatenate([g[3] for g in geom]) if len(geom) else empty
     gxy = np.concatenate([g[4] for g in geom]) if len(geom) else empty
     alpha = optics.convergence_mrad * 1e-3
-    kx = lib.inv_xi(optics.ht_kv, optics.wavelength_nm)[idx].astype(np.float64)
-    ga = (lib.g_len[idx] * alpha).astype(np.float64)
+    kx = lib.inv_xi(optics.ht_kv, optics.wavelength_nm)[index].astype(np.float64)
+    ga = (lib.g_len[index] * alpha).astype(np.float64)
     excess = np.clip((np.abs(s) - S_TAPER_INV_NM - ga) / (S_WINDOW_INV_NM - S_TAPER_INV_NM), 0.0, 1.0)
     taper = np.cos(0.5 * math.pi * excess) ** 2
     outm = (gxy > g_obj).astype(np.float64)

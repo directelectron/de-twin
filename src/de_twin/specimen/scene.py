@@ -47,18 +47,20 @@ class Feature:
 
 
 class Scene:
-    def __init__(self, config: SpecimenConfig, opts: SpecimenOptions):
+    def __init__(self, config: SpecimenConfig, options: SpecimenOptions):
         self.config = config
-        self.opts = opts
+        self.opts = options
         self.seed = int(config.seed) & 0xFFFFFFFF  # the C++ property is a uint32 in practice
         self.holder_kind = config.holder
         self.film = config.resolved_film()
-        self.holder = Holder(config.holder, self.seed, self.film, opts)
-        self.preparation: Preparation = make_preparation(config.preparation, config.holder, self.film, opts)
+        self.holder = Holder(config.holder, self.seed, self.film, options)
+        self.preparation: Preparation = make_preparation(
+            config.preparation, config.holder, self.film, options
+        )
         self.per_post: list[Preparation] = []
         if config.holder == "fib_liftout" and config.preparation == "bulk":
             self.per_post = [
-                BulkSamplePreparation(p.bulk_kind, p.matrix_material, opts) for p in self.holder.posts
+                BulkSamplePreparation(p.bulk_kind, p.matrix_material, options) for p in self.holder.posts
             ]
         self._aggregates: PrimitiveSet | None = None  # one row per placement area, built lazily
         self._resident: OrderedDict[int, Batch] = OrderedDict()
@@ -129,19 +131,19 @@ class Scene:
             self._resident_bytes -= self._resident.pop(victim).nbytes
         return batch, True
 
-    def query(self, ctx: RasterContext) -> PrimitiveSet:
+    def query(self, context: RasterContext) -> PrimitiveSet:
         """Primitives visible in the view, in painter's order (Scene::Query). Serialised:
         it populates areas on demand, and strips of one raster are rasterised in threads."""
         with self._query_lock:
-            return self._query(ctx)
+            return self._query(context)
 
-    def _query(self, ctx: RasterContext) -> PrimitiveSet:
+    def _query(self, context: RasterContext) -> PrimitiveSet:
         t0 = time.perf_counter()
         stats = {"areas_visible": 0, "areas_populated": 0, "areas_aggregated": 0}
-        box = ctx.aabb
+        box = context.aabb
         idx = self.holder.query_areas(box)
         stats["areas_visible"] = int(idx.size)
-        span = getattr(ctx, "span_px", None) or max(ctx.ny, ctx.nx)
+        span = getattr(context, "span_px", None) or max(context.ny, context.nx)
         threshold = max(AGGREGATE_HOLE_DIAMETER_PX, POPULATE_VIEW_FRACTION * span)
         parts: list[PrimitiveSet] = []
         protected: set = set()
@@ -151,8 +153,8 @@ class Scene:
             area = self.holder.areas[int(i)]
             prep = self.preparation_for(area)
             fr = prep.typical_feature_radius_um()
-            all_culled = fr > 0 and float(ctx.diameter_px(fr)) < ctx.lod_threshold_px
-            dpx = float(ctx.diameter_px(area.half_span))
+            all_culled = fr > 0 and float(context.diameter_px(fr)) < context.lod_threshold_px
+            dpx = float(context.diameter_px(area.half_span))
             resident = area.index in self._resident
             budget = (not resident) and (
                 stats["areas_populated"] >= MAX_POPULATE_PER_QUERY

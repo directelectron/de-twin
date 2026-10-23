@@ -23,13 +23,13 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def _resample(img: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
+def _resample(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     """Nearest-neighbour resize to (h, w), preserving dtype."""
-    if img.shape == shape:
-        return img
-    ys = (np.arange(shape[0]) * img.shape[0] / shape[0]).astype(int)
-    xs = (np.arange(shape[1]) * img.shape[1] / shape[1]).astype(int)
-    return img[ys][:, xs]
+    if image.shape == shape:
+        return image
+    ys = (np.arange(shape[0]) * image.shape[0] / shape[0]).astype(int)
+    xs = (np.arange(shape[1]) * image.shape[1] / shape[1]).astype(int)
+    return image[ys][:, xs]
 
 
 def _gpu_image_dtype():
@@ -38,13 +38,13 @@ def _gpu_image_dtype():
     return IMAGE
 
 
-def _convert(img: np.ndarray, pixel_format: int) -> np.ndarray:
+def _convert(image: np.ndarray, pixel_format: int) -> np.ndarray:
     dtype = PIXEL_DTYPES[pixel_format]
     if dtype is np.float32:
-        return np.ascontiguousarray(img, dtype=np.float32)
+        return np.ascontiguousarray(image, dtype=np.float32)
     info = np.iinfo(dtype)
     return np.ascontiguousarray(
-        np.clip(np.rint(img) if img.dtype.kind == "f" else img, info.min, info.max).astype(dtype)
+        np.clip(np.rint(image) if image.dtype.kind == "f" else image, info.min, info.max).astype(dtype)
     )
 
 

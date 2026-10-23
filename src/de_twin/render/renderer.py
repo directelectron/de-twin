@@ -352,8 +352,8 @@ class Renderer:
             optics, view=dataclasses.replace(view, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0)
         )
         key = (base, gen, tkey)
-        img = self._crop_pan(key, view)
-        if img is None and self.config.interactive:
+        image = self._crop_pan(key, view)
+        if image is None and self.config.interactive:
             import time as _time
 
             state = (optics, tkey, gen)
@@ -365,7 +365,7 @@ class Renderer:
                 self._last_req, self._changed_at = state, now
             if now - self._changed_at < self.config.settle_s:
                 return self._render_preview(optics, time_s, tkey, gen)
-        if img is None:
+        if image is None:
             poptics, shift = self._padded_optics(optics)
             fm, token = self._panned_field_map(poptics, time_s)
             raster = render_tem_raster(
@@ -380,10 +380,10 @@ class Renderer:
                 shift,
             )
             self._keep_pan("_pans", key, view.center_um, raster, poptics.view)
-            img = self._crop_pan(key, view)
+            image = self._crop_pan(key, view)
         else:
             self.frames_from_cache += 1
-        out = finish_tem(img, optics, self.config)
+        out = finish_tem(image, optics, self.config)
         out.flags.writeable = False  # shared by every frame of an exposure; see render()
         self._pan_out = (optics, (tkey, gen), out)
         return out
@@ -416,8 +416,8 @@ class Renderer:
             poptics, view=dataclasses.replace(pview, center_um=(0.0, 0.0)), beam_offset_px=(0.0, 0.0)
         )
         pkey = ("preview", pbase, gen, tkey)
-        img = self._crop_pan(pkey, pview, "_pan_previews")
-        if img is None:
+        image = self._crop_pan(pkey, pview, "_pan_previews")
+        if image is None:
             pad_optics, shift = self._padded_optics(poptics)
             fm, token = self._panned_field_map(pad_optics, time_s, self._preview_fieldmaps)
             raster = render_tem_raster(
@@ -432,9 +432,9 @@ class Renderer:
                 shift,
             )
             self._keep_pan("_pan_previews", pkey, pview.center_um, raster, pad_optics.view)
-            img = self._crop_pan(pkey, pview, "_pan_previews")
+            image = self._crop_pan(pkey, pview, "_pan_previews")
         self.previews_rendered = getattr(self, "previews_rendered", 0) + 1
-        out = finish_tem(img, poptics, self.config)
+        out = finish_tem(image, poptics, self.config)
         out.flags.writeable = False
         return out
 
@@ -545,15 +545,15 @@ class Renderer:
         for i, (k, c0, raster, pview) in enumerate(pans):
             if k != key:
                 continue
-            img = _crop(raster, c0, view)
-            if img is not None:
+            image = _crop(raster, c0, view)
+            if image is not None:
                 pans.insert(0, pans.pop(i))
                 # the raster's field map is in use again: keep it (a focus or tilt change of
                 # this view re-renders from it without rasterising)
                 for store in (self._fieldmaps, self._preview_fieldmaps):
                     for fk in [fk for fk in store if fk[0] == pview]:
                         store.move_to_end(fk)
-                return img
+                return image
         return None
 
     def invalidate(self) -> None:
@@ -682,15 +682,15 @@ class Renderer:
             if self._frame is not None and self._frame[0] == fkey:
                 self.frames_from_cache += 1
                 return self._frame[1]
-            img = render_tem(
+            image = render_tem(
                 fm, optics, self.grains, self.crystallinity, self.config, self.seed, self._tem_cache, token
             )
             # Shared, not copied: every frame of an exposure is the SAME array (a 4096² copy
             # per frame was 20 ms, and it defeated the detector's per-exposure cache).
             # Read-only, so a caller that would scribble on the cache fails loudly instead.
-            img.flags.writeable = False
-            self._frame = (fkey, img)
-            return img
+            image.flags.writeable = False
+            self._frame = (fkey, image)
+            return image
         if mode == RenderMode.TEM_DIFFRACTION:
             fm, token = self.field_map(optics, SAED_LAYERS, time_s)
             return self._saed.render(fm, token, optics, self.grains, self.crystallinity)

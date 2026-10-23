@@ -134,12 +134,12 @@ def test_recycling_publishes_faster_than_the_twin_renders(monkeypatch):
     monkeypatch.setattr(twin, "frames", slow_frames)
     try:
         consumer.begin(frame_shape=(1024, 1024), frame_time_s=0.001, total_frames=0)
-        buf = np.empty((1024, 1024), np.uint16)
-        consumer.read(timeout=60, out=buf)  # the first frame may wait for the kernels to compile
+        buffer = np.empty((1024, 1024), np.uint16)
+        consumer.read(timeout=60, out=buffer)  # the first frame may wait for the kernels to compile
         pub0, reused0 = face.frames_published, face.frames_reused
         t0, n = time.monotonic(), 0
         while time.monotonic() - t0 < 1.0:
-            consumer.read(timeout=10, out=buf)
+            consumer.read(timeout=10, out=buffer)
             n += 1
         # relative, not wall-clock: a slow runner renders fewer frames, but recycling still
         # publishes well over one frame per render

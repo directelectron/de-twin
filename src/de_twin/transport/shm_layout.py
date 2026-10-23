@@ -114,8 +114,8 @@ def mapping_size(slot_bytes: int, slot_count: int = SLOT_COUNT) -> int:
 class View:
     """Typed accessor over a region of a writable buffer (an mmap)."""
 
-    def __init__(self, buf, base: int, fields: dict[str, Field]):
-        object.__setattr__(self, "_buf", buf)
+    def __init__(self, buffer, base: int, fields: dict[str, Field]):
+        object.__setattr__(self, "_buf", buffer)
         object.__setattr__(self, "_base", base)
         object.__setattr__(self, "_fields", fields)
 

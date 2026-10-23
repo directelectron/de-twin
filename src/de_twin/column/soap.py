@@ -347,11 +347,11 @@ class SoapTemChannelClient:
         Returns the response element's children as strings."""
         fields = [(k.replace("_", "-"), v) for k, v in params.items()]
         payload = envelope(method, fields).encode("utf-8")
-        req = urllib.request.Request(
+        request = urllib.request.Request(
             self.url, data=payload, headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": '""'}
         )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(request, timeout=self.timeout) as resp:
                 text = resp.read()
         except urllib.error.HTTPError as exc:  # gSOAP answers faults with HTTP 500
             text = exc.read()

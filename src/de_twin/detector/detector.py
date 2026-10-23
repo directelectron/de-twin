@@ -153,13 +153,13 @@ class Detector:
         if m.fpn_pattern:
             xi = np.arange(W)
             seg_w = max(1, m.segment_shape[1])
-            col = (
+            column = (
                 ((xi // seg_w + 1) % 2) * 10
                 + np.where(xi < seg_w, 20, 0)
                 + np.where((xi >= seg_w) & (xi < 2 * seg_w), -20, 0)
             ).astype(np.float32)
             off += (np.arange(H) % 8).astype(np.float32)[:, None] * (xi % 8).astype(np.float32)[None, :]
-            off += col[None, :]
+            off += column[None, :]
         if m.fpn_column_adu > 0:
             off += (rng.standard_normal(W, dtype=np.float32) * np.float32(m.fpn_column_adu))[None, :]
         if m.dsnu_adu > 0:
@@ -341,7 +341,7 @@ class Detector:
         scale = 2.0 ** (min(bd, m.bit_depth) - m.bit_depth) if bd else 1.0
         vmax = float(min(m.max_value, (1 << bd) - 1) if bd else m.max_value)
 
-        ctx = _Ctx(
+        context = _Ctx(
             model=m,
             seed=self.seed if seed is None else int(seed),
             frame_index=int(frame_index),
@@ -365,23 +365,23 @@ class Detector:
 
         with self._lock:
             if m.hardware_counting and (sr or _fast_detector()):
-                res = [self._expose_counting_fast(ctx, gh, gw, sr)]
+                result = [self._expose_counting_fast(context, gh, gw, sr)]
             elif _fast_detector():
-                res = [self._expose_fast(ctx, gh, gw)]
+                result = [self._expose_fast(context, gh, gw)]
             elif m.hardware_counting:
-                res = list(_pool().map(ctx.counting_band, bands))
+                result = list(_pool().map(context.counting_band, bands))
             else:
                 doses = [0.0] * len(bands)
                 if flux is not None:
                     if self._S is None or self._S.shape != (gh, gw):
                         self._S = np.empty((gh, gw), np.float32)
-                    ctx.S = self._S
-                    doses = list(_pool().map(ctx.deposit_band, bands))
-                sats = list(_pool().map(ctx.analog_band, bands))
-                res = list(zip(doses, sats))
+                    context.S = self._S
+                    doses = list(_pool().map(context.deposit_band, bands))
+                sats = list(_pool().map(context.analog_band, bands))
+                result = list(zip(doses, sats))
 
-        dose_sum = sum(d for d, _ in res)
-        sat = int(sum(s for _, s in res))
+        dose_sum = sum(d for d, _ in result)
+        sat = int(sum(s for _, s in result))
         dose = dose_sum / (gh * gw * nb) if flux is not None else 0.0
         info = {
             "dose_e_per_px": float(dose),
@@ -398,55 +398,55 @@ class Detector:
         }
         return out, info
 
-    def _expose_fast(self, ctx: _Ctx, gh: int, gw: int) -> tuple[float, int]:
+    def _expose_fast(self, context: _Ctx, gh: int, gw: int) -> tuple[float, int]:
         """One integrating frame through the fused numba kernels (`detector.fast`).
         Returns ``(dose, saturated pixels)`` like the band workers do."""
         from . import fast
 
-        m = ctx.model
+        m = context.model
         table = fast.normal_table()
-        zstart, nstart = fast.offsets(fast.frame_key(ctx.seed, ctx.frame_index, 0))
+        zstart, nstart = fast.offsets(fast.frame_key(context.seed, context.frame_index, 0))
         dose = 0.0
-        has = ctx.flux is not None
+        has = context.flux is not None
         if has:
             if self._S is None or self._S.shape != (gh, gw):
                 self._S = np.empty((gh, gw), np.float32)
             k = 1.0 / max(m.adu_cv, 1e-3) ** 2
-            lam, p0, dose = self._exposure_means(ctx.flux, float(ctx.t * ctx.nb))
+            lam, p0, dose = self._exposure_means(context.flux, float(context.t * context.nb))
             lut = getattr(self, "_gamma_lut", None)
             if lut is None or lut[0] != k:
                 lut = self._gamma_lut = (k, fast.gamma_lut(k))
             fast.deposit(
                 lam,
                 p0,
-                float(ctx.adu),
+                float(context.adu),
                 float(k),
-                np.uint64(fast.frame_key(ctx.seed, ctx.frame_index, 1)),
+                np.uint64(fast.frame_key(context.seed, context.frame_index, 1)),
                 self._S,
                 table,
                 zstart,
                 lut[1],
             )
-        S = self._S if has else ctx.gain  # unread without signal
-        base = float(m.dark_current_adu_per_s * ctx.t)
-        sigma = float(m.read_noise_adu / math.sqrt(ctx.nb)) if m.read_noise_adu > 0 else 0.0
-        if ctx.gbx == 1 and ctx.gby == 1:
-            hot = self._hot_grid(ctx, gh, gw)
+        S = self._S if has else context.gain  # unread without signal
+        base = float(m.dark_current_adu_per_s * context.t)
+        sigma = float(m.read_noise_adu / math.sqrt(context.nb)) if m.read_noise_adu > 0 else 0.0
+        if context.gbx == 1 and context.gby == 1:
+            hot = self._hot_grid(context, gh, gw)
             sat = fast.analog_out(
                 S,
                 has,
-                float(ctx.a),
-                1.0 / ctx.nb,
-                ctx.gain,
-                ctx.off,
+                float(context.a),
+                1.0 / context.nb,
+                context.gain,
+                context.off,
                 base,
                 sigma,
-                float(ctx.scale),
+                float(context.scale),
                 table,
                 nstart,
                 hot,
-                float(ctx.vmax),
-                ctx.out,
+                float(context.vmax),
+                context.out,
             )
             return float(dose), int(sat)
         x = getattr(self, "_X", None)
@@ -455,79 +455,112 @@ class Detector:
         fast.analog(
             S,
             has,
-            float(ctx.a),
-            1.0 / ctx.nb,
-            ctx.gain,
-            ctx.off,
+            float(context.a),
+            1.0 / context.nb,
+            context.gain,
+            context.off,
             base,
             sigma,
-            float(ctx.scale),
+            float(context.scale),
             table,
             nstart,
             x,
         )
-        if ctx.hy.size:
-            np.add.at(x, (ctx.hy, ctx.hx), ctx.hrate * np.float32(ctx.t * ctx.scale))
-        sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
+        if context.hy.size:
+            np.add.at(x, (context.hy, context.hx), context.hrate * np.float32(context.t * context.scale))
+        sat = fast.finish(x, float(context.vmax), int(context.gbx), int(context.gby), context.out)
         return float(dose), int(sat)
 
-    def _expose_counting_fast(self, ctx: _Ctx, gh: int, gw: int, sr: bool) -> tuple[float, int]:
+    def _expose_counting_fast(self, context: _Ctx, gh: int, gw: int, sr: bool) -> tuple[float, int]:
         """One counting frame through the numba kernels (`fast.count`, `fast.count_super`)."""
         from . import fast
 
-        m = ctx.model
-        ncyc = max(1, round(ctx.t / m.full_frame_time_s))
-        cap = ncyc * ctx.nb
-        mean, p0, dose = self._counting_means(ctx, gh, gw, ncyc)
+        m = context.model
+        ncyc = max(1, round(context.t / m.full_frame_time_s))
+        cap = ncyc * context.nb
+        mean, p0, dose = self._counting_means(context, gh, gw, ncyc)
         table = fast.normal_table()
-        zstart, _ = fast.offsets(fast.frame_key(ctx.seed, ctx.frame_index, 0))
-        key = np.uint64(fast.frame_key(ctx.seed, ctx.frame_index, 3))
+        zstart, _ = fast.offsets(fast.frame_key(context.seed, context.frame_index, 0))
+        key = np.uint64(fast.frame_key(context.seed, context.frame_index, 3))
         if sr:
-            sat = fast.count_super(mean, p0, key, table, zstart, int(cap), float(ctx.vmax), ctx.out)
+            sat = fast.count_super(mean, p0, key, table, zstart, int(cap), float(context.vmax), context.out)
             return dose, int(sat)
-        if ctx.gbx == 1 and ctx.gby == 1:
+        if context.gbx == 1 and context.gby == 1:
             sat = fast.count(
-                mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb, float(ctx.vmax), ctx.out, mean, False
+                mean,
+                p0,
+                key,
+                table,
+                zstart,
+                int(cap),
+                1.0 / context.nb,
+                float(context.vmax),
+                context.out,
+                mean,
+                False,
             )
             return dose, int(sat)
         x = getattr(self, "_X", None)
         if x is None or x.shape != (gh, gw):
             x = self._X = np.empty((gh, gw), np.float32)
-        fast.count(mean, p0, key, table, zstart, int(cap), 1.0 / ctx.nb, float(ctx.vmax), ctx.out, x, True)
-        sat = fast.finish(x, float(ctx.vmax), int(ctx.gbx), int(ctx.gby), ctx.out)
+        fast.count(
+            mean,
+            p0,
+            key,
+            table,
+            zstart,
+            int(cap),
+            1.0 / context.nb,
+            float(context.vmax),
+            context.out,
+            x,
+            True,
+        )
+        sat = fast.finish(x, float(context.vmax), int(context.gbx), int(context.gby), context.out)
         return dose, int(sat)
 
-    def _counting_means(self, ctx: _Ctx, gh: int, gw: int, ncyc: int):
+    def _counting_means(self, context: _Ctx, gh: int, gw: int, ncyc: int):
         """Each pixel's mean counts per frame and exp(-mean), made once per exposure."""
         from . import fast
 
-        m = ctx.model
-        flux = ctx.flux
+        m = context.model
+        flux = context.flux
         if flux is not None:
             owner = flux.base if flux.base is not None else flux
             fkey = (id(owner), flux.__array_interface__["data"][0], flux.shape, flux.strides)
         else:
             owner, fkey = None, None
         # `expose` slices the gain map too: a new view each frame, of the same memory
-        gain = ctx.gain
+        gain = context.gain
         gowner = gain.base if gain.base is not None else gain
         gkey = (id(gowner), gain.__array_interface__["data"][0], gain.shape, gain.strides)
-        key = (fkey, float(ctx.t), ctx.nb, ncyc, gkey, (gh, gw), ctx.hy.tobytes(), ctx.hx.tobytes())
+        key = (
+            fkey,
+            float(context.t),
+            context.nb,
+            ncyc,
+            gkey,
+            (gh, gw),
+            context.hy.tobytes(),
+            context.hx.tobytes(),
+        )
         cached = getattr(self, "_cmeans", None)
         if cached is not None and cached[0] == key and cached[1] is owner and cached[2] is gowner:
             return cached[3], cached[4], cached[5]
         hot = np.zeros((gh, gw), np.float32)
-        if ctx.hy.size:  # spurious counts per cycle
-            np.add.at(hot, (ctx.hy, ctx.hx), ctx.hrate * np.float32(ctx.nb * m.full_frame_time_s))
+        if context.hy.size:  # spurious counts per cycle
+            np.add.at(
+                hot, (context.hy, context.hx), context.hrate * np.float32(context.nb * m.full_frame_time_s)
+            )
         mean = np.empty((gh, gw), np.float32)
         p0 = np.empty((gh, gw), np.float32)
         dose = fast.counting_prepare(
-            flux if flux is not None else ctx.gain,
+            flux if flux is not None else context.gain,
             flux is not None,
-            ctx.gain,
-            float(ctx.t * ctx.nb),
+            context.gain,
+            float(context.t * context.nb),
             float(m.cluster_area_px),
-            float(ncyc * ctx.nb),
+            float(ncyc * context.nb),
             float(m.false_event_rate),
             hot,
             mean,
@@ -554,16 +587,16 @@ class Detector:
         self._means = (key, owner, lam, p0, float(dose))
         return lam, p0, float(dose)
 
-    def _hot_grid(self, ctx: _Ctx, gh: int, gw: int) -> np.ndarray:
+    def _hot_grid(self, context: _Ctx, gh: int, gw: int) -> np.ndarray:
         """The hot pixels' ADU for this exposure as a grid (zero almost everywhere),
         reused between frames of the same geometry and exposure."""
-        key = (gh, gw, float(ctx.t), float(ctx.scale), ctx.hy.tobytes(), ctx.hx.tobytes())
+        key = (gh, gw, float(context.t), float(context.scale), context.hy.tobytes(), context.hx.tobytes())
         cached = getattr(self, "_hot_cache", None)
         if cached is not None and cached[0] == key:
             return cached[1]
         hot = np.zeros((gh, gw), np.float32)
-        if ctx.hy.size:
-            np.add.at(hot, (ctx.hy, ctx.hx), ctx.hrate * np.float32(ctx.t * ctx.scale))
+        if context.hy.size:
+            np.add.at(hot, (context.hy, context.hx), context.hrate * np.float32(context.t * context.scale))
         self._hot_cache = (key, hot)
         return hot
 
@@ -802,7 +835,7 @@ def _poisson_inversion(rng: np.random.Generator, lam: np.ndarray, out: np.ndarra
     f = _buf("pi_f", (size,))
     np.copyto(f, p)
     mbuf = _buf("pi_m", (size,), bool)
-    n, idx, lsub = n_all, None, lam
+    n, index, lsub = n_all, None, lam
     for k in range(1, 128):
         mm = mbuf[: u.size]
         np.greater(u, f, out=mm)
@@ -811,11 +844,11 @@ def _poisson_inversion(rng: np.random.Generator, lam: np.ndarray, out: np.ndarra
             break
         if cnt < 0.3 * mm.size and mm.size > 2048:
             sel = np.flatnonzero(mm)
-            if idx is None:
-                n, idx = n_all[sel], sel
+            if index is None:
+                n, index = n_all[sel], sel
             else:
-                n_all[idx] = n
-                n, idx = n[sel], idx[sel]
+                n_all[index] = n
+                n, index = n[sel], index[sel]
             u, f, p, lsub = u[sel], f[sel], p[sel], lsub[sel]
             n += np.float32(1.0)
         else:
@@ -823,6 +856,6 @@ def _poisson_inversion(rng: np.random.Generator, lam: np.ndarray, out: np.ndarra
         p *= lsub
         p *= np.float32(1.0 / k)
         f += p
-    if idx is not None:
-        n_all[idx] = n
+    if index is not None:
+        n_all[index] = n
     return n_all.reshape(shape)

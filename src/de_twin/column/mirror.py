@@ -104,17 +104,17 @@ def state_from_batch(
     sub = _i(values, "PROJ_SubMode")
     if sub is not None:
         info["raw_sub_mode"] = sub
-    fm: int | None = None
+    field_map: int | None = None
     if mode == 2:
-        fm = L.FM_DIFF
+        field_map = L.FM_DIFF
     elif sub is not None:
         if is_tfs(vendor):
-            fm = L.FM_FROM_FEI_SUBMODE.get(sub)
+            field_map = L.FM_FROM_FEI_SUBMODE.get(sub)
         elif 0 <= sub <= 4:
-            fm = sub
-    if fm is not None:
-        s.mag_mode = L.FUNCTION_MODE_NAMES[fm]
-        s.projection = Projection.DIFFRACTION if fm == L.FM_DIFF else Projection.IMAGING
+            field_map = sub
+    if field_map is not None:
+        s.mag_mode = L.FUNCTION_MODE_NAMES[field_map]
+        s.projection = Projection.DIFFRACTION if field_map == L.FM_DIFF else Projection.IMAGING
     elif mode in (1, 2):
         s.projection = Projection(mode)
 

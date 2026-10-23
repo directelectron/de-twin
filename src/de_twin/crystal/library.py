@@ -173,11 +173,11 @@ class CrystalLibrary:
         s_max = S_WINDOW_INV_NM + self.g_len * (convergence_mrad * 1e-3)
         parts = []
         for c0 in range(0, len(m), CHUNK):
-            gl = np.einsum("nij,gj->ngi", m[c0 : c0 + CHUNK], self.g)
-            r2 = gl[..., 0] ** 2 + gl[..., 1] ** 2
-            s = inv_lam - np.sqrt(np.maximum(inv_lam * inv_lam - r2, 0.0)) - gl[..., 2]
+            lab_vector = np.einsum("nij,gj->ngi", m[c0 : c0 + CHUNK], self.g)
+            r2 = lab_vector[..., 0] ** 2 + lab_vector[..., 1] ** 2
+            s = inv_lam - np.sqrt(np.maximum(inv_lam * inv_lam - r2, 0.0)) - lab_vector[..., 2]
             own, idx = np.nonzero(np.abs(s) < s_max)
-            parts.append((own + c0, idx, gl[own, idx, 0], gl[own, idx, 1], s[own, idx]))
+            parts.append((own + c0, idx, lab_vector[own, idx, 0], lab_vector[own, idx, 1], s[own, idx]))
         if not parts:
             e = np.zeros(0)
             return e.astype(np.int64), e.astype(np.int64), e, e, e
@@ -218,16 +218,16 @@ class CrystalLibrary:
         own, idx, gx, gy, s = self.geometry(m, wavelength_nm, convergence_mrad)
         alpha = convergence_mrad * 1e-3
         tt = t[own]
-        col = (lambda v: v[:, None]) if t.ndim == 2 else (lambda v: v)
-        x = math.pi * tt * col(s)
-        a = math.pi * tt * col(self.g_len[idx] * alpha)
+        column = (lambda v: v[:, None]) if t.ndim == 2 else (lambda v: v)
+        x = math.pi * tt * column(s)
+        a = math.pi * tt * column(self.g_len[idx] * alpha)
         excess = np.clip(
             (np.abs(s) - S_TAPER_INV_NM - self.g_len[idx] * alpha) / (S_WINDOW_INV_NM - S_TAPER_INV_NM),
             0.0,
             1.0,
         )
         taper = np.cos(0.5 * math.pi * excess) ** 2
-        inten = (col(k[idx]) * tt) ** 2 * rocking_curve(x, a) * col(taper)
+        inten = (column(k[idx]) * tt) ** 2 * rocking_curve(x, a) * column(taper)
         if t.ndim == 2:
             total = np.stack(
                 [np.bincount(own, weights=inten[:, j], minlength=n) for j in range(t.shape[1])], 1
