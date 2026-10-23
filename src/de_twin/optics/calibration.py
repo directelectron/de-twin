@@ -22,26 +22,19 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
+from ..column.ladders import (
+    DEFAULT_CAMERA_LENGTHS_MM,
+    DEFAULT_LOWMAG_MAGS,
+    DEFAULT_SAMAG_MAGS,
+    DEFAULT_STEM_MAGS,
+    MAG1_MAGS,
+    Ladder,
+)
 from ..state import MicroscopeState
 from .physics import electron_wavelength_nm
-
-MAG1_LADDER = (2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000,
-               30000, 40000, 50000, 60000, 80000, 100000, 120000, 150000, 200000, 250000,
-               300000, 400000, 500000, 600000, 800000)
-LOWMAG_LADDER = (50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500)
-SAMAG_LADDER = (5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000, 30000, 40000, 50000,
-                60000, 80000, 100000, 120000, 150000)
-STEM_LADDER = (2500, 3000, 4000, 5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000, 30000,
-               40000, 50000, 60000, 80000, 100000, 120000, 150000, 200000, 250000, 300000,
-               400000, 500000, 600000, 800000, 1000000, 1200000, 1500000, 2000000, 2500000,
-               3000000, 4000000, 5000000, 6000000, 8000000, 10000000, 12000000, 15000000,
-               20000000)
-CL_LADDER_MM = (20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800,
-                1000, 1200, 1500, 2000)
 
 
 def _alphanumeric_key(name: str) -> str:
@@ -98,10 +91,17 @@ def _lookup(table: dict, key: float, rel_tol: float):
 class Calibration:
     """Magnification -> nm/px and camera length -> 1/nm/px, per mag mode."""
 
-    def __init__(self, projects: list[MagProject], *, reference_pixel_um: Optional[float] = None,
-                 ht_scale: Optional[dict] = None, tolerance: float = 0.005,
-                 stem_scan_span_v: float = 1.0, stem_fov_nm_at_1x: float = 1.28e8,
-                 name: str = "custom"):
+    def __init__(
+        self,
+        projects: list[MagProject],
+        *,
+        reference_pixel_um: float | None = None,
+        ht_scale: dict | None = None,
+        tolerance: float = 0.005,
+        stem_scan_span_v: float = 1.0,
+        stem_fov_nm_at_1x: float = 1.28e8,
+        name: str = "custom",
+    ):
         self.projects = list(projects)
         # Pixel pitch (um) the tables were measured with; None = use values as-is.
         self.reference_pixel_um = reference_pixel_um
@@ -114,8 +114,9 @@ class Calibration:
 
     # ------------------------------------------------------------------ io
     @classmethod
-    def from_mag_yaml(cls, path, *, reference_pixel_um: Optional[float] = None,
-                      ht_table=None, tolerance: float = 0.005) -> "Calibration":
+    def from_mag_yaml(
+        cls, path, *, reference_pixel_um: float | None = None, ht_table=None, tolerance: float = 0.005
+    ) -> Calibration:
         """Load a DE-Server ``mag.yaml`` (tabs tolerated) and optionally an ``ht_table_*.yaml``."""
         text = Path(path).read_text(encoding="utf-8", errors="replace").replace("\t", "    ")
         data = yaml.safe_load(text) or []
@@ -127,12 +128,24 @@ class Calibration:
             cl = {float(k): float(v) for k, v in (p.get("CamLength(cm)") or {}).items()}
             if p.get("CamLengthInMM"):
                 cl = {k / 10.0: v for k, v in cl.items()}
-            projects.append(MagProject(str(p["Project"]), int(p.get("Mode", -1)),
-                                       int(p.get("SubMode", -1)), int(p.get("TemStemMode", 0)),
-                                       mags, cl))
+            projects.append(
+                MagProject(
+                    str(p["Project"]),
+                    int(p.get("Mode", -1)),
+                    int(p.get("SubMode", -1)),
+                    int(p.get("TemStemMode", 0)),
+                    mags,
+                    cl,
+                )
+            )
         ht_scale = cls._load_ht_table(ht_table) if ht_table else None
-        return cls(projects, reference_pixel_um=reference_pixel_um, ht_scale=ht_scale,
-                   tolerance=tolerance, name=Path(path).name)
+        return cls(
+            projects,
+            reference_pixel_um=reference_pixel_um,
+            ht_scale=ht_scale,
+            tolerance=tolerance,
+            name=Path(path).name,
+        )
 
     @staticmethod
     def _load_ht_table(path) -> dict:
@@ -152,24 +165,25 @@ class Calibration:
         return out
 
     @classmethod
-    def default(cls, post_magnification: float = 1.0) -> "Calibration":
+    def default(cls, post_magnification: float = 1.0) -> Calibration:
         """Built-in JEOL-like ladders, computed geometrically.
 
         Tables are nm per 1-um pixel (``1000 / (mag * post_magnification)``) and
         are scaled by the camera's pixel pitch, so 20 kx on a 6.5 um pixel is
         0.325 nm/px. Camera lengths are geometric (``None`` entries).
         """
+
         def mags(ladder):
             return {float(m): 1000.0 / (m * post_magnification) for m in ladder}
 
-        cl = {m / 10.0: None for m in CL_LADDER_MM}
+        cl = {m / 10.0: None for m in DEFAULT_CAMERA_LENGTHS_MM}
         projects = [
-            MagProject("MAG1", 1, 0, 0, mags(MAG1_LADDER)),
-            MagProject("MAG2", 1, 1, 0, mags(MAG1_LADDER)),
-            MagProject("LowMAG", 1, 2, 0, mags(LOWMAG_LADDER)),
-            MagProject("SAMAG", 1, 3, 0, mags(SAMAG_LADDER)),
+            MagProject("MAG1", 1, 0, 0, mags(MAG1_MAGS)),
+            MagProject("MAG2", 1, 1, 0, mags(MAG1_MAGS)),
+            MagProject("LowMAG", 1, 2, 0, mags(DEFAULT_LOWMAG_MAGS)),
+            MagProject("SAMAG", 1, 3, 0, mags(DEFAULT_SAMAG_MAGS)),
             MagProject("DIFF", 2, 4, 0, {}, dict(cl)),
-            MagProject("STEM", 1, 0, 1, {float(m): None for m in STEM_LADDER}, dict(cl)),
+            MagProject("STEM", 1, 0, 1, {float(m): None for m in DEFAULT_STEM_MAGS}, dict(cl)),
         ]
         return cls(projects, reference_pixel_um=1.0, name="default")
 
@@ -179,25 +193,24 @@ class Calibration:
         for p in self.projects:
             if p.tem_stem != tem_stem:
                 continue
-            if want_cl and p.cam_lengths_cm:
-                out.append(p)
-            elif not want_cl and p.mags:
+            if want_cl and p.cam_lengths_cm or not want_cl and p.mags:
                 out.append(p)
         return out
 
-    def project_for(self, state: MicroscopeState, want_cl: bool = False) -> Optional[MagProject]:
+    def project_for(self, state: MicroscopeState, want_cl: bool = False) -> MagProject | None:
         tem_stem = int(state.tem_stem)
         cands = self._candidates(tem_stem, want_cl)
         if not cands:
             return None
         mode = _alphanumeric_key(state.mag_mode)
         aliases = _MODE_ALIASES.get(mode, (mode,))
-        mag = float(state.magnification)
+        magnification = float(state.magnification)
         for alias in aliases:
             for p in cands:
-                if _alphanumeric_key(p.name) == alias:
-                    if want_cl or _lookup(p.mags, mag, self.tolerance) is not _MISSING:
-                        return p
+                if _alphanumeric_key(p.name) == alias and (
+                    want_cl or _lookup(p.mags, magnification, self.tolerance) is not _MISSING
+                ):
+                    return p
         # Diffraction: the TEM Diff project regardless of the imaging mode name
         if want_cl:
             if tem_stem == 0:
@@ -264,21 +277,22 @@ class Calibration:
         if not cands:
             return 0.0
         mode = _alphanumeric_key(state.mag_mode)
-        mag = float(state.magnification)
+        magnification = float(state.magnification)
         proj = next((p for p in cands if _alphanumeric_key(p.name) in _MODE_ALIASES.get(mode, (mode,))), None)
-        proj = proj or next((p for p in cands
-                             if _lookup(p.mags, mag, self.tolerance) is not _MISSING), None)
+        proj = proj or next(
+            (p for p in cands if _lookup(p.mags, magnification, self.tolerance) is not _MISSING), None
+        )
         if proj is None:
             return 0.0
-        v = _lookup(proj.mags, mag, self.tolerance)
+        v = _lookup(proj.mags, magnification, self.tolerance)
         if v is _MISSING:
             return 0.0
         if v is None:  # geometric ladder
-            return self.stem_fov_nm_at_1x / mag / n
+            return self.stem_fov_nm_at_1x / magnification / n
         return float(v) * self.stem_scan_span_v / n * self._ht(state, "stem_virt")
 
     # -------------------------------------------------------------- ladders
-    def _mode_project(self, mode: Optional[str], tem_stem: int = 0) -> Optional[MagProject]:
+    def _mode_project(self, mode: str | None, tem_stem: int = 0) -> MagProject | None:
         cands = self._candidates(tem_stem, want_cl=False)
         if not cands:
             return None
@@ -294,31 +308,23 @@ class Calibration:
     def mag_modes(self, tem_stem: int = 0) -> list[str]:
         return [p.name for p in self._candidates(tem_stem, want_cl=False)]
 
-    def mag_ladder(self, mode: Optional[str] = "MAG1", tem_stem: int = 0) -> list[float]:
+    def mag_ladder(self, mode: str | None = "MAG1", tem_stem: int = 0) -> Ladder:
         p = self._mode_project(mode, tem_stem)
-        return sorted(p.mags) if p else []
+        return Ladder(sorted(p.mags)) if p else Ladder()
 
-    def cl_ladder(self, tem_stem: int = 0) -> list[float]:
+    def cl_ladder(self, tem_stem: int = 0) -> Ladder:
         """Camera lengths in **mm** (the twin's unit; mag.yaml stores cm)."""
         cands = self._candidates(tem_stem, want_cl=True)
         diff = [p for p in cands if p.is_diffraction] or cands
         if not diff:
-            return []
-        return sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm)
+            return Ladder()
+        return Ladder(sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm))
 
-    @staticmethod
-    def _snap(ladder, value):
-        if not ladder:
-            return value
-        if value is None or value <= 0:
-            return ladder[0]
-        return min(ladder, key=lambda k: abs(math.log(k / value)))
-
-    def snap_mag(self, mode: Optional[str], mag: float, tem_stem: int = 0) -> float:
-        return self._snap(self.mag_ladder(mode, tem_stem), mag)
+    def snap_mag(self, mode: str | None, magnification: float, tem_stem: int = 0) -> float:
+        return self.mag_ladder(mode, tem_stem).snap_logarithmic(magnification)
 
     def snap_cl(self, cl_mm: float, tem_stem: int = 0) -> float:
-        return self._snap(self.cl_ladder(tem_stem), cl_mm)
+        return self.cl_ladder(tem_stem).snap_logarithmic(cl_mm)
 
     def __repr__(self) -> str:
         return f"Calibration({self.name!r}, projects={[p.name for p in self.projects]})"

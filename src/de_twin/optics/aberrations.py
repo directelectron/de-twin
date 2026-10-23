@@ -21,8 +21,8 @@ the CTF convention already used by the TEM renderer.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping
 
 import numpy as np
 
@@ -67,20 +67,20 @@ class Aberrations:
 
     # ---------------------------------------------------------- construction
     @classmethod
-    def from_polar(cls, **mag_angle) -> "Aberrations":
+    def from_polar(cls, **mag_angle) -> Aberrations:
         """``Aberrations.from_polar(A1=(5.0, 30.0), C3=1.2e6)``: magnitude nm, azimuth deg."""
         out = {}
         for k, v in mag_angle.items():
             if isinstance(v, (tuple, list)):
-                mag, ang = v
+                magnification, ang = v
                 n = TERMS[k][0] - TERMS[k][1]  # symmetry order of the term
                 phi = math.radians(ang) * max(abs(n), 1)
-                out[k] = mag * complex(math.cos(phi), math.sin(phi))
+                out[k] = magnification * complex(math.cos(phi), math.sin(phi))
             else:
                 out[k] = complex(v)
         return cls(out)
 
-    def copy(self) -> "Aberrations":
+    def copy(self) -> Aberrations:
         return Aberrations(dict(self.coeffs))
 
     def __getitem__(self, name: str) -> complex:
@@ -88,21 +88,21 @@ class Aberrations:
             raise KeyError(name)
         return self.coeffs.get(name, 0j)
 
-    def __add__(self, other: "Aberrations | Mapping[str, complex]") -> "Aberrations":
+    def __add__(self, other: Aberrations | Mapping[str, complex]) -> Aberrations:
         o = other.coeffs if isinstance(other, Aberrations) else dict(other)
         out = dict(self.coeffs)
         for k, v in o.items():
             out[k] = out.get(k, 0j) + complex(v)
         return Aberrations(out)
 
-    def __sub__(self, other: "Aberrations | Mapping[str, complex]") -> "Aberrations":
+    def __sub__(self, other: Aberrations | Mapping[str, complex]) -> Aberrations:
         o = other.coeffs if isinstance(other, Aberrations) else dict(other)
         return self + {k: -complex(v) for k, v in o.items()}
 
-    def scaled(self, factor: float) -> "Aberrations":
+    def scaled(self, factor: float) -> Aberrations:
         return Aberrations({k: v * factor for k, v in self.coeffs.items()})
 
-    def only(self, names: Iterable[str]) -> "Aberrations":
+    def only(self, names: Iterable[str]) -> Aberrations:
         names = set(names)
         return Aberrations({k: v for k, v in self.coeffs.items() if k in names})
 
@@ -130,7 +130,7 @@ class Aberrations:
         acc = np.zeros(np.broadcast(w, wb).shape, np.complex128)
         for name, c in self.coeffs.items():
             p, q, pre, _ = TERMS[name]
-            acc += pre * c * wb ** p * w ** q
+            acc += pre * c * wb**p * w**q
         return (2.0 * math.pi / lam) * acc.real
 
     def gradient(self, kx, ky, wavelength_nm: float) -> tuple[np.ndarray, np.ndarray]:
@@ -143,8 +143,8 @@ class Aberrations:
         gy = np.zeros_like(gx)
         for name, c in self.coeffs.items():
             p, q, pre, _ = TERMS[name]
-            a = p * wb ** (p - 1) * w ** q if p else 0.0
-            b = q * wb ** p * w ** (q - 1) if q else 0.0
+            a = p * wb ** (p - 1) * w**q if p else 0.0
+            b = q * wb**p * w ** (q - 1) if q else 0.0
             gx += pre * c * lam * (a + b)
             gy += pre * c * lam * (-1j * a + 1j * b)
         s = 2.0 * math.pi / lam
@@ -158,8 +158,9 @@ class Aberrations:
         c0 = float(self.chi(0.0, 0.0, wavelength_nm))
         return float(np.max(np.abs(c - c0)))
 
-    def flat_angle_mrad(self, wavelength_nm: float, limit_rad: float = math.pi / 4,
-                        max_mrad: float = 60.0) -> float:
+    def flat_angle_mrad(
+        self, wavelength_nm: float, limit_rad: float = math.pi / 4, max_mrad: float = 60.0
+    ) -> float:
         """Largest aperture semi-angle whose phase error stays below ``limit_rad``
         (what a corrector tableau quotes as the 'pi/4 angle')."""
         lo, hi = 0.0, max_mrad
@@ -174,6 +175,6 @@ class Aberrations:
         return lo
 
 
-def uncorrected(cs_mm: float = 1.2, cc_mm: float = 1.4) -> Aberrations:
+def uncorrected(cs_mm: float = 1.2) -> Aberrations:
     """A typical uncorrected 200 kV objective: C3 only (C5 negligible)."""
     return Aberrations({"C3": cs_mm * 1e6})

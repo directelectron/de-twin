@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import functools
 import warnings
-from typing import Optional
 
 from ..specimen.materials import Material, material, register_material
 
@@ -43,7 +42,7 @@ def build_phase(m: Material):
     return _expand(phase)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def phase_for(material_id: int):
     """Cached full-unit-cell orix Phase of ``material_id`` (``None`` for amorphous/vacuum)."""
     with warnings.catch_warnings():  # diffpy.structure 3.x camelCase deprecations inside orix/diffsims
@@ -51,8 +50,9 @@ def phase_for(material_id: int):
         return build_phase(material(int(material_id)))
 
 
-def register_cif(path: str, name: Optional[str] = None, *, like: int = 5, debye_waller_a2: float = 0.5,
-                 **overrides) -> int:
+def register_cif(
+    path: str, name: str | None = None, *, like: int = 5, debye_waller_a2: float = 0.5, **overrides
+) -> int:
     """Register the phase in a CIF file as a new crystalline material and return its id.
 
     Non-diffraction properties (absorption length, mean inner potential, ...) are copied
@@ -66,11 +66,16 @@ def register_cif(path: str, name: Optional[str] = None, *, like: int = 5, debye_
     phase = Phase.from_cif(str(path))
     lat = phase.structure.lattice
     a = lat.a / 10.0
-    kw = dict(name=name or phase.name or str(path), density_g_cm3=base.density_g_cm3,
-              absorption_length_200kv_nm=base.absorption_length_200kv_nm, z_eff=base.z_eff,
-              mean_inner_potential_v=base.mean_inner_potential_v,
-              scatterer_density_nm3=base.scatterer_density_nm3, crystal=Crystal(cif=str(path)),
-              debye_waller_a2=debye_waller_a2,
-              halos=((1.0 / max(a, 1e-3) * 1.7, 0.65), (1.0 / max(a, 1e-3) * 2.0, 0.25)))
-    kw.update(overrides)
-    return int(register_material(**kw).id)
+    material_fields = {
+        "name": name or phase.name or str(path),
+        "density_g_cm3": base.density_g_cm3,
+        "absorption_length_200kv_nm": base.absorption_length_200kv_nm,
+        "z_eff": base.z_eff,
+        "mean_inner_potential_v": base.mean_inner_potential_v,
+        "scatterer_density_nm3": base.scatterer_density_nm3,
+        "crystal": Crystal(cif=str(path)),
+        "debye_waller_a2": debye_waller_a2,
+        "halos": ((1.0 / max(a, 1e-3) * 1.7, 0.65), (1.0 / max(a, 1e-3) * 2.0, 0.25)),
+    }
+    material_fields.update(overrides)
+    return int(register_material(**material_fields).id)

@@ -49,23 +49,29 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, ClassVar
 
-from ..column.column import Column, ColumnRefused
+from ..column.column import Column
+from ..column.errors import ColumnRefused
 from ..column.soap import PROP_OP, SoapError, envelope, fault_envelope, parse_body
 
 log = logging.getLogger(__name__)
 
 #: Where the real WSDL lives on a DE workstation (served for ``GET /?wsdl`` when present).
-WSDL_CANDIDATES = (
-    Path(r"C:\direct_electron\DE-TEM-Channel\service\EMinstrumentWebservice.wsdl"),
-)
+WSDL_CANDIDATES = (Path(r"C:\direct_electron\DE-TEM-Channel\service\EMinstrumentWebservice.wsdl"),)
 
 OP_IDLE, OP_RUNNING, OP_DONE, OP_FAILED, OP_ABORTED = 0, 1, 2, 3, 4
-_STAGE_OPS = {PROP_OP["STAGE_X"], PROP_OP["STAGE_Y"], PROP_OP["STAGE_Z"],
-              PROP_OP["STAGE_A"], PROP_OP["STAGE_B"], PROP_OP["STAGEPOSITION"]}
+_STAGE_OPS = {
+    PROP_OP["STAGE_X"],
+    PROP_OP["STAGE_Y"],
+    PROP_OP["STAGE_Z"],
+    PROP_OP["STAGE_A"],
+    PROP_OP["STAGE_B"],
+    PROP_OP["STAGEPOSITION"],
+}
 
 
 def _g(v: float) -> str:
@@ -99,17 +105,24 @@ class TemChannelServer:
     recorded samples).
     """
 
-    def __init__(self, column: Column, host: str = "0.0.0.0", port: int = 5002, *,
-                 enforce_service_ranges: bool = True, log_requests: bool = False,
-                 corrector_side: Optional[str] = None):
+    def __init__(
+        self,
+        column: Column,
+        host: str = "0.0.0.0",
+        port: int = 5002,
+        *,
+        enforce_service_ranges: bool = True,
+        log_requests: bool = False,
+        corrector_side: str | None = None,
+    ):
         self.column = column
         self.corrector_side = corrector_side
         self.host = host
         self._requested_port = int(port)
         self.enforce_service_ranges = enforce_service_ranges
         self.log_requests = log_requests
-        self._httpd: Optional[ThreadingHTTPServer] = None
-        self._thread: Optional[threading.Thread] = None
+        self._httpd: ThreadingHTTPServer | None = None
+        self._thread: threading.Thread | None = None
         self._ops_lock = threading.Lock()
         self._ops: dict[int, int] = {}
         self._global_op = OP_IDLE
@@ -129,7 +142,7 @@ class TemChannelServer:
         host = "127.0.0.1" if self.host in ("0.0.0.0", "") else self.host
         return f"http://{host}:{self.port}/"
 
-    def start(self) -> "TemChannelServer":
+    def start(self) -> TemChannelServer:
         if self._httpd is not None:
             return self
         server = self
@@ -137,7 +150,7 @@ class TemChannelServer:
         class Handler(BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
 
-            def log_message(self, fmt, *args):  # noqa: N802
+            def log_message(self, fmt, *args):
                 if server.log_requests:
                     log.info("%s - %s", self.address_string(), fmt % args)
 
@@ -167,27 +180,30 @@ class TemChannelServer:
                 self.wfile.write(data)
                 self.close_connection = True
 
-            def do_POST(self):  # noqa: N802
+            def do_POST(self):
                 body = self._read_body()
                 code, text = server.handle(body)
                 self._send(code, text)
 
-            def do_GET(self):  # noqa: N802
+            def do_GET(self):
                 if "wsdl" in self.path.lower():
                     for p in WSDL_CANDIDATES:
                         if p.exists():
                             return self._send(200, p.read_text(encoding="utf-8", errors="replace"))
-                self._send(200 if self.path in ("/", "") else 404,
-                           "de_twin DE-TEM-Channel SOAP face (POST SOAP requests here)",
-                           "text/plain; charset=utf-8")
+                self._send(
+                    200 if self.path in ("/", "") else 404,
+                    "de_twin DE-TEM-Channel SOAP face (POST SOAP requests here)",
+                    "text/plain; charset=utf-8",
+                )
 
         class Server(ThreadingHTTPServer):
             daemon_threads = True
             allow_reuse_address = True
 
         self._httpd = Server((self.host, self._requested_port), Handler)
-        self._thread = threading.Thread(target=self._httpd.serve_forever, name="TemChannelServer",
-                                        daemon=True)
+        self._thread = threading.Thread(
+            target=self._httpd.serve_forever, name="TemChannelServer", daemon=True
+        )
         self._thread.start()
         log.info("DE-TEM-Channel SOAP face on %s:%d", self.host, self.port)
         return self
@@ -201,7 +217,7 @@ class TemChannelServer:
             self._thread.join(timeout=5)
             self._thread = None
 
-    def __enter__(self) -> "TemChannelServer":
+    def __enter__(self) -> TemChannelServer:
         return self.start()
 
     def __exit__(self, *exc) -> None:
@@ -217,11 +233,12 @@ class TemChannelServer:
             return 500, fault_envelope(str(exc))
         handler = self._handlers.get(op)
         if handler is None:
-            return 500, fault_envelope(f"Method '{op}' not implemented: method name or namespace "
-                                       f"not recognized", "SOAP-ENV:Client")
+            return 500, fault_envelope(
+                f"Method '{op}' not implemented: method name or namespace not recognized", "SOAP-ENV:Client"
+            )
         try:
             element, out = handler(fields)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.exception("SOAP %s failed", op)
             return 500, fault_envelope(f"{op}: {exc}", "SOAP-ENV:Server")
         return 200, envelope(element, out)
@@ -258,7 +275,7 @@ class TemChannelServer:
                     return OP_RUNNING
             return self._ops.get(op_id, OP_IDLE)
 
-    def _set(self, op_key: Optional[str], fn: Callable[[], Any], *, stage_mask: int = 0) -> tuple[str, list]:
+    def _set(self, op_key: str | None, fn: Callable[[], Any], *, stage_mask: int = 0) -> tuple[str, list]:
         try:
             fn()
             ok = True
@@ -287,6 +304,7 @@ class TemChannelServer:
             def h(f):
                 x, y = g(name)
                 return "gettwofloatResponse", [("floatone", float(x)), ("floattwo", float(y))]
+
             return h
 
         def string(element, key):
@@ -305,6 +323,7 @@ class TemChannelServer:
                     self._begin(PROP_OP[op_key], False)
                     return "setResult", [("success", 0)]
                 return self._set(op_key, lambda: c.set(prop, (x, y)))
+
             return h
 
         def set_stage(f):
@@ -330,8 +349,7 @@ class TemChannelServer:
 
         def stage(f):
             x, y, z, a, b = c.stage_position()
-            return "getfivefloatResponse", [("one", x), ("two", y), ("three", z), ("four", a),
-                                            ("five", b)]
+            return "getfivefloatResponse", [("one", x), ("two", y), ("three", z), ("four", a), ("five", b)]
 
         def op_status(f):
             return "getintResponse", [("intResult", self.op_status(_as_int(f, "val")))]
@@ -428,7 +446,7 @@ class TemChannelServer:
         return corr.units.get(side, corr.served)
 
     def _corrector_handlers(self) -> dict[str, Callable[[dict], tuple[str, list]]]:
-        from ..column.corrector import ABSENT, DONE
+        from ..column.ceos import ABSENT, DONE
 
         unit = self.corrector_unit
 
@@ -443,6 +461,7 @@ class TemChannelServer:
             def h(f):
                 u = unit()
                 return element, [("r", fn(u) if u is not None else absent)]
+
             return h
 
         def present(f):
@@ -480,6 +499,7 @@ class TemChannelServer:
                 if not accepted:
                     log.info("corrector command refused: %s", why)
                 return ok(accepted)
+
             return h
 
         def wait_ms(f) -> int:
@@ -492,10 +512,16 @@ class TemChannelServer:
                 return ok(False)
             name = f.get("name", "") or ""
             scale = 1.0 if name == "WD" else 1e9  # WD radians, the rest metres
-            value = (complex(_as_float(f, "valueX"), _as_float(f, "valueY")) * scale
-                     if _as_int(f, "useValue") else None)
-            target = (complex(_as_float(f, "targetX"), _as_float(f, "targetY")) * scale
-                      if _as_int(f, "useTarget") else None)
+            value = (
+                complex(_as_float(f, "valueX"), _as_float(f, "valueY")) * scale
+                if _as_int(f, "useValue")
+                else None
+            )
+            target = (
+                complex(_as_float(f, "targetX"), _as_float(f, "targetY")) * scale
+                if _as_int(f, "useTarget")
+                else None
+            )
             accepted, why = u.post_correct(name, value, target, f.get("select", "") or "")
             w = wait_ms(f)
             if not accepted or w == 0:
@@ -509,9 +535,13 @@ class TemChannelServer:
             if u is None:
                 return ok(False)
             w = wait_ms(f)
-            completed, still_running, why = u.set_beam_tilt(
-                _as_float(f, "x"), _as_float(f, "y"), _as_int(f, "relative") != 0,
-                wait_s=w / 1000.0, sleeper=sleeper())
+            completed, still_running, _why = u.set_beam_tilt(
+                _as_float(f, "x"),
+                _as_float(f, "y"),
+                _as_int(f, "relative") != 0,
+                wait_s=w / 1000.0,
+                sleeper=sleeper(),
+            )
             return ok(still_running if w == 0 else completed)
 
         def get_tilt(f):
@@ -520,8 +550,11 @@ class TemChannelServer:
                 return "getAberrationResponse", [("x", 0.0), ("y", 0.0), ("status", 0)]
             with u.lock:
                 t, known = u.beam_tilt_commanded, u.beam_tilt_known
-            return "getAberrationResponse", [("x", float(t.real)), ("y", float(t.imag)),
-                                             ("status", 1 if known else 0)]
+            return "getAberrationResponse", [
+                ("x", float(t.real)),
+                ("y", float(t.imag)),
+                ("status", 1 if known else 0),
+            ]
 
         def reconnect(f):
             u = unit()
@@ -530,8 +563,9 @@ class TemChannelServer:
             return ok(u.post_reconnect()[0])
 
         def tableau(u, f):
-            return u.post_tableau(f.get("tabType", "") or "", _as_float(f, "angle"),
-                                  f.get("maxFit", "") or "")
+            return u.post_tableau(
+                f.get("tabType", "") or "", _as_float(f, "angle"), f.get("maxFit", "") or ""
+            )
 
         return {
             "getCorrectorPresent": present,
@@ -550,7 +584,8 @@ class TemChannelServer:
             "correctorPutAlignmentFile": posted(lambda u, f: u.post_put_alignment(f.get("data", "") or "")),
             "correctorGetConfigOption": posted(lambda u, f: u.post_get_config(f.get("name", "") or "")),
             "correctorSetConfigOption": posted(
-                lambda u, f: u.post_set_config(f.get("name", "") or "", f.get("value", "") or "")),
+                lambda u, f: u.post_set_config(f.get("name", "") or "", f.get("value", "") or "")
+            ),
             "correctorReadBack": posted(lambda u, f: u.post_readback()),
             "correctorReconnect": reconnect,
             "setCorrectorBeamTilt": set_tilt,
@@ -558,36 +593,78 @@ class TemChannelServer:
         }
 
     # ------------------------------------------------------------ getProperty
-    _PROPERTY_OPS = {
-        "BeamBlank": "BEAMBLANK", "SpotSize": "SPOTSIZE", "Defocus": "DEFOCUS",
-        "ScreenPosition": "SCREENPOSITION", "ColumnValvesOpen": "COLUMNVALVES",
-        "ProjectionMode": "PROJECTIONMODE", "TemStemMode": "TEMSTEMMODE", "StageMode": "STAGEMODE",
-        "Magnification": "MAGINDEX", "Intensity": "INTENSITY", "CameraLength": "CAMERALENGTH",
-        "DiffractionFocus": "DIFFFOCUS", "ScanRotation": "SCANROTATION", "GunShiftX": "GUNSHIFT",
-        "GunShiftY": "GUNSHIFT", "GunTiltX": "GUNTILT", "GunTiltY": "GUNTILT",
-        "ImageShiftX": "IMAGESHIFT", "ImageShiftY": "IMAGESHIFT",
-        "DiffractionShiftX": "DIFFRACTIONSHIFT", "DiffractionShiftY": "DIFFRACTIONSHIFT",
-        "BeamShiftX": "BEAMSHIFT", "BeamShiftY": "BEAMSHIFT", "StageX": "STAGE_X",
-        "StageY": "STAGE_Y", "StageZ": "STAGE_Z", "StageA": "STAGE_A", "StageB": "STAGE_B",
+    _PROPERTY_OPS: ClassVar[dict] = {
+        "BeamBlank": "BEAMBLANK",
+        "SpotSize": "SPOTSIZE",
+        "Defocus": "DEFOCUS",
+        "ScreenPosition": "SCREENPOSITION",
+        "ColumnValvesOpen": "COLUMNVALVES",
+        "ProjectionMode": "PROJECTIONMODE",
+        "TemStemMode": "TEMSTEMMODE",
+        "StageMode": "STAGEMODE",
+        "Magnification": "MAGINDEX",
+        "Intensity": "INTENSITY",
+        "CameraLength": "CAMERALENGTH",
+        "DiffractionFocus": "DIFFFOCUS",
+        "ScanRotation": "SCANROTATION",
+        "GunShiftX": "GUNSHIFT",
+        "GunShiftY": "GUNSHIFT",
+        "GunTiltX": "GUNTILT",
+        "GunTiltY": "GUNTILT",
+        "ImageShiftX": "IMAGESHIFT",
+        "ImageShiftY": "IMAGESHIFT",
+        "DiffractionShiftX": "DIFFRACTIONSHIFT",
+        "DiffractionShiftY": "DIFFRACTIONSHIFT",
+        "BeamShiftX": "BEAMSHIFT",
+        "BeamShiftY": "BEAMSHIFT",
+        "StageX": "STAGE_X",
+        "StageY": "STAGE_Y",
+        "StageZ": "STAGE_Z",
+        "StageA": "STAGE_A",
+        "StageB": "STAGE_B",
         # twin extensions (not in the channel; harmless for its clients)
-        "SubMode": "FUNCTIONMODE", "FunctionMode": "FUNCTIONMODE", "ProbeMode": "GLOBAL",
+        "SubMode": "FUNCTIONMODE",
+        "FunctionMode": "FUNCTIONMODE",
+        "ProbeMode": "GLOBAL",
     }
 
     def property_value(self, key: str) -> str:
         """The getProperty string for ``key`` ("" for unknown keys, like the channel)."""
         g = self.column.get
-        ints = {"BeamBlank", "SpotSize", "ScreenPosition", "ColumnValvesOpen", "ProjectionMode",
-                "TemStemMode", "StageMode", "ProbeMode", "AlphaSelector", "CondenserApertureIndex",
-                "SubMode", "FunctionMode"}
-        floats = {"Defocus", "Magnification", "ScreenCurrent", "Intensity", "CameraLength",
-                  "DiffractionFocus", "ScanRotation", "StageX", "StageY", "StageZ", "StageA",
-                  "StageB"}
+        ints = {
+            "BeamBlank",
+            "SpotSize",
+            "ScreenPosition",
+            "ColumnValvesOpen",
+            "ProjectionMode",
+            "TemStemMode",
+            "StageMode",
+            "ProbeMode",
+            "AlphaSelector",
+            "CondenserApertureIndex",
+            "SubMode",
+            "FunctionMode",
+        }
+        floats = {
+            "Defocus",
+            "Magnification",
+            "ScreenCurrent",
+            "Intensity",
+            "CameraLength",
+            "DiffractionFocus",
+            "ScanRotation",
+            "StageX",
+            "StageY",
+            "StageZ",
+            "StageA",
+            "StageB",
+        }
         if key in ints:
-            return "%d" % int(g(key))
+            return f"{int(g(key))}"
         if key in floats:
-            return "%.6g" % float(g(key))
+            return f"{float(g(key)):.6g}"
         if key == "ConvergenceAngle":
-            return "%.3f" % float(g("ConvergenceAngle"))
+            return "{:.3f}".format(float(g("ConvergenceAngle")))
         if key in ("VacuumGauges", "CryoInfo", "AutoloaderInfo"):
             return ""  # JEOL-shaped: no gauges/dewar/autoloader strings
         if key == "InstrumentType":
@@ -595,7 +672,7 @@ class TemChannelServer:
         for base in ("GunShift", "GunTilt", "ImageShift", "DiffractionShift", "BeamShift"):
             if key in (base + "X", base + "Y"):
                 v = g(base)
-                return "%.6g" % float(v[0] if key.endswith("X") else v[1])
+                return "{:.6g}".format(float(v[0] if key.endswith("X") else v[1]))
         return ""
 
     def _get_property(self, fields: dict) -> tuple[str, list]:
@@ -652,9 +729,14 @@ class TemChannelServer:
             return str(int(g("TemStemMode")))
         if key == "STAGE_PositionFull":
             return ";".join(_g(v) for v in self.column.stage_position())
-        pairs = {"ILLUM_ImageShift": "ImageShift", "PROJ_DiffractionShift": "DiffractionShift",
-                 "ILLUM_BeamShift": "BeamShift", "ILLUM_BeamTilt": "BeamTilt",
-                 "PROJ_ObjStig": "ObjectiveStig", "ILLUM_CondenserStig": "CondenserStig"}
+        pairs = {
+            "ILLUM_ImageShift": "ImageShift",
+            "PROJ_DiffractionShift": "DiffractionShift",
+            "ILLUM_BeamShift": "BeamShift",
+            "ILLUM_BeamTilt": "BeamTilt",
+            "PROJ_ObjStig": "ObjectiveStig",
+            "ILLUM_CondenserStig": "CondenserStig",
+        }
         if key in pairs:
             x, y = g(pairs[key])
             return f"{_g(x)};{_g(y)}"
@@ -667,7 +749,7 @@ class TemChannelServer:
         if key == "ILLUM_ProbeMode":
             return str(int(g("ProbeMode")))
         if key == "ILLUM_ConvergenceAngle":
-            return "%.3f" % float(g("ConvergenceAngle"))
+            return "{:.3f}".format(float(g("ConvergenceAngle")))
         if key == "ILLUM_AlphaSelector":
             return str(int(g("AlphaSelector")))
         if key == "ILLUM_CondenserApertureIndex":

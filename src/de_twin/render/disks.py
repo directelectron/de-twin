@@ -19,7 +19,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001 - numba missing: stamping remains
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -49,14 +49,14 @@ def _draw(out, x, y, amp, radius, sigma, erfc_lut, lut_step):
             a = amp[k]
             xk = x[k]
             ho = math.sqrt(rout2 - dy2)
-            c0 = max(0, int(math.ceil(xk - ho)))
-            c1 = min(w - 1, int(math.floor(xk + ho)))
+            c0 = max(0, math.ceil(xk - ho))
+            c1 = min(w - 1, math.floor(xk + ho))
             if c0 > c1:
                 continue
             if dy2 < rin2:
                 hi = math.sqrt(rin2 - dy2)
-                i0 = max(c0, int(math.ceil(xk - hi)))
-                i1 = min(c1, int(math.floor(xk + hi)))
+                i0 = max(c0, math.ceil(xk - hi))
+                i1 = min(c1, math.floor(xk + hi))
             else:
                 i0 = c1 + 1
                 i1 = c1

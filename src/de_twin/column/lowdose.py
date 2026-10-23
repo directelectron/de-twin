@@ -15,7 +15,6 @@ low-dose calibration (aligning View to Record, setting the area offsets) measure
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Optional
 
 AREAS = ("Search", "View", "Focus", "Record")
 
@@ -59,9 +58,9 @@ class LowDose:
     def _rung(ladder, mag: float) -> float:
         return float(min(ladder, key=lambda m: abs(m - mag)))
 
-    def seed_from(self, col, ladder) -> None:
+    def seed_from(self, column, ladder) -> None:
         """Areas from the column's current state (Record = now)."""
-        s = col._s
+        s = column._s
         rec = area_from_state(s)
         self.base_focus_um = float(s.defocus_um)
         focus = area_from_state(s)
@@ -75,14 +74,14 @@ class LowDose:
         self.areas = {"Search": search, "View": view, "Focus": focus, "Record": rec}
         self.area = "Record"
 
-    def store(self, col) -> None:
+    def store(self, column) -> None:
         """The live settings into the current area (in diffraction the area keeps its
         imaging magnification)."""
         from . import ladders as L
 
-        s = col._s
+        s = column._s
         a = self.areas[self.area]
-        if col._fm != L.FM_DIFF:
+        if column._fm != L.FM_DIFF:
             a.magnification = float(s.magnification)
         a.spot_size = int(s.spot_size)
         a.intensity = float(s.intensity)
@@ -94,37 +93,44 @@ class LowDose:
         else:
             a.defocus_offset_um = float(s.defocus_um) - self.base_focus_um
 
-    def apply(self, col, name: str, setters) -> None:
+    def apply(self, column, name: str, setters) -> None:
         """Enter area *name* (the live settings are NOT stored: call `store` first). All or
         nothing: if a setting is refused the column is left as it was."""
         from . import ladders as L
 
         a = self.areas[name]
-        saved = (col._s.copy(), col._fm, getattr(col, "_last_imaging_fm", None))
+        saved = (column._s.copy(), column._fm, getattr(column, "_last_imaging_fm", None))
         try:
-            if col._fm != L.FM_DIFF:  # diffraction has no magnification to set
-                setters["Magnification"](col, a.magnification)
-            setters["SpotSize"](col, a.spot_size)
-            setters["Intensity"](col, a.intensity)
-            setters["Defocus"](col, self.base_focus_um + (0.0 if name == "Record" else a.defocus_offset_um))
-            setters["ImageShift"](col, a.image_shift)
-            setters["BeamShift"](col, a.beam_shift)
+            if column._fm != L.FM_DIFF:  # diffraction has no magnification to set
+                setters["Magnification"](column, a.magnification)
+            setters["SpotSize"](column, a.spot_size)
+            setters["Intensity"](column, a.intensity)
+            setters["Defocus"](
+                column, self.base_focus_um + (0.0 if name == "Record" else a.defocus_offset_um)
+            )
+            setters["ImageShift"](column, a.image_shift)
+            setters["BeamShift"](column, a.beam_shift)
         except Exception:
-            col._s, col._fm = saved[0], saved[1]
+            column._s, column._fm = saved[0], saved[1]
             if saved[2] is not None:
-                col._last_imaging_fm = saved[2]
+                column._last_imaging_fm = saved[2]
             raise
         self.area = name
 
 
 def area_from_state(s) -> LowDoseArea:
     """An area holding the column's current settings (no defocus offset)."""
-    return LowDoseArea(float(s.magnification), int(s.spot_size), float(s.intensity), 0.0,
-                       (float(s.image_shift_um.x), float(s.image_shift_um.y)),
-                       (float(s.beam_shift_um.x), float(s.beam_shift_um.y)))
+    return LowDoseArea(
+        float(s.magnification),
+        int(s.spot_size),
+        float(s.intensity),
+        0.0,
+        (float(s.image_shift_um.x), float(s.image_shift_um.y)),
+        (float(s.beam_shift_um.x), float(s.beam_shift_um.y)),
+    )
 
 
-def normalise_area(name) -> Optional[str]:
+def normalise_area(name) -> str | None:
     n = str(name).strip().lower()
     for a in AREAS:
         if a.lower() == n or (a == "Record" and n in ("exposure", "record")):

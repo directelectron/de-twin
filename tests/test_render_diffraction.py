@@ -10,8 +10,16 @@ import pytest
 
 from de_twin.optics import Calibration, OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.diffraction import (DiffractionCache, Pattern, PatternOptions, amorphous_fraction,
-                                        annulus_fraction, bucket_patterns, powder_pattern, render_pattern)
+from de_twin.render.diffraction import (
+    DiffractionCache,
+    Pattern,
+    PatternOptions,
+    amorphous_fraction,
+    annulus_fraction,
+    bucket_patterns,
+    powder_pattern,
+    render_pattern,
+)
 from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen, on_zone_grains
 from de_twin.specimen.materials import GRAINS_PER_MATERIAL, MaterialId
 from de_twin.state import AcquisitionRequest, MicroscopeState, Projection, Vec2
@@ -24,13 +32,14 @@ OPTICS = SimpleNamespace(alpha_rad=0.0, beta_rad=0.0, wavelength_nm=LAM200, ht_k
 AU0 = MaterialId.GOLD * GRAINS_PER_MATERIAL
 
 
-def _radial_peak(img, cx, cy, r_guess, window=0.06):
+def _radial_peak(image, cx, cy, r_guess, window=0.06):
     """Radius of the strongest ring near r_guess, on a background-detrended radial profile."""
     from scipy.ndimage import uniform_filter1d
-    y, x = np.indices(img.shape)
+
+    y, x = np.indices(image.shape)
     r = np.hypot(x - cx, y - cy)
     rb = np.round(r * 4).astype(int)
-    prof = np.bincount(rb.ravel(), weights=img.ravel()) / np.maximum(np.bincount(rb.ravel()), 1)
+    prof = np.bincount(rb.ravel(), weights=image.ravel()) / np.maximum(np.bincount(rb.ravel()), 1)
     prof = prof - uniform_filter1d(prof, 161)  # remove halos / diffuse background (~40 px)
     rr = np.arange(len(prof)) / 4.0
     sel = (rr > r_guess * (1 - window)) & (rr < r_guess * (1 + window))
@@ -58,8 +67,14 @@ def is_symmetric(spots, n, tol=1e-6):
 # ------------------------------------------------------------ synthesis
 def test_patterns_sum_to_one():
     grains = on_zone_grains(AU0 + 1, (0, 1, 1))
-    mats = [MaterialId.VACUUM, MaterialId.AMORPHOUS_CARBON, MaterialId.GOLD, MaterialId.GOLD, MaterialId.IRON,
-            MaterialId.SILICON]
+    mats = [
+        MaterialId.VACUUM,
+        MaterialId.AMORPHOUS_CARBON,
+        MaterialId.GOLD,
+        MaterialId.GOLD,
+        MaterialId.IRON,
+        MaterialId.SILICON,
+    ]
     gids = [-1, -1, AU0 + 1, -1, MaterialId.IRON * 512 + 3, MaterialId.SILICON * 512 + 7]
     for t in (0.0, 8.0, 40.0, 200.0):
         for c in (0.0, 0.4, 1.0):
@@ -102,8 +117,9 @@ def test_thickness_moves_intensity_out_of_direct_beam():
     assert thick.spots[0, 2] < 0.6 and thick.spots[1:, 2].sum() > 0.4
     # per-material saturation: 20 nm of carbon scatters far less than 20 nm of gold
     assert amorphous_fraction(MaterialId.AMORPHOUS_CARBON, 20.0) == pytest.approx(0.75 * 0.85 * 20 / 120)
-    assert amorphous_fraction(MaterialId.AMORPHOUS_CARBON, 20.0,
-                              PatternOptions(scaled_saturation=False)) == pytest.approx(0.75 * 0.85)
+    assert amorphous_fraction(
+        MaterialId.AMORPHOUS_CARBON, 20.0, PatternOptions(scaled_saturation=False)
+    ) == pytest.approx(0.75 * 0.85)
 
 
 def test_off_zone_grain_scatters_less_than_on_zone():
@@ -128,10 +144,10 @@ def test_crystallinity_moves_bragg_into_glassy_halo():
 def test_powder_ring_radii_and_au_ratio():
     s = powder_pattern(MaterialId.GOLD, 40.0, 1.0, OPTICS)
     recip = 0.02
-    img = render_pattern(s, (1024, 1024), recip, 3.0)
-    assert 0.85 < img.sum() <= 1.0 + 1e-5  # the outermost rings fall off the detector
-    r111 = _radial_peak(img, 512, 512, G111 / recip)
-    r200 = _radial_peak(img, 512, 512, G200 / recip)
+    image = render_pattern(s, (1024, 1024), recip, 3.0)
+    assert 0.85 < image.sum() <= 1.0 + 1e-5  # the outermost rings fall off the detector
+    r111 = _radial_peak(image, 512, 512, G111 / recip)
+    r200 = _radial_peak(image, 512, 512, G200 / recip)
     assert r111 == pytest.approx(G111 / recip, abs=0.5)
     assert r200 == pytest.approx(G200 / recip, abs=0.5)
     assert r200 / r111 == pytest.approx(2 / math.sqrt(3), rel=0.005)
@@ -143,11 +159,11 @@ def test_powder_ring_radii_and_au_ratio():
 def test_render_normalisation_and_centre():
     p = bucket_patterns([0], [-1], [0], [1], None, OPTICS)[0]
     for radius in (0.3, 5.0, 40.0):
-        img = render_pattern(p, (128, 128), 0.02, radius, center=(60.0, 70.0))
-        assert img.sum() == pytest.approx(1.0, rel=1e-5)
-        y, x = np.indices(img.shape)
-        assert (img * x).sum() == pytest.approx(60.0, abs=1e-3)
-        assert (img * y).sum() == pytest.approx(70.0, abs=1e-3)
+        image = render_pattern(p, (128, 128), 0.02, radius, center=(60.0, 70.0))
+        assert image.sum() == pytest.approx(1.0, rel=1e-5)
+        y, x = np.indices(image.shape)
+        assert (image * x).sum() == pytest.approx(60.0, abs=1e-3)
+        assert (image * y).sum() == pytest.approx(70.0, abs=1e-3)
 
 
 def test_annulus_fraction():
@@ -186,19 +202,22 @@ def test_cache_lru_budget():
 # ----------------------------------------------------------------- SAED
 def _gold_specimen(n=400, seed=3):
     rng = np.random.default_rng(seed)
-    parts = [Particle(float(x), float(y), 10.0, MaterialId.GOLD, int(g))
-             for x, y, g in zip(rng.uniform(-0.2, 0.2, n), rng.uniform(-0.2, 0.2, n), range(n))]
+    parts = [
+        Particle(float(x), float(y), 10.0, MaterialId.GOLD, int(g))
+        for x, y, g in zip(rng.uniform(-0.2, 0.2, n), rng.uniform(-0.2, 0.2, n), range(n))
+    ]
     return SyntheticSpecimen(film_thickness_nm=10.0, particles=parts)
 
 
-def _saed_optics(cl_mm=120.0, cam=StubCamera(sensor_shape=(1024, 1024)), cfg=None, **kw):
+def _saed_optics(cl_mm=120.0, camera=StubCamera(sensor_shape=(1024, 1024)), config=None, **kw):
     s = MicroscopeState()
     s.projection = Projection.DIFFRACTION
     s.camera_length_mm = cl_mm
     for k, v in kw.items():
         setattr(s, k, v)
-    return derive_optics(s, AcquisitionRequest(), cam, Calibration.default(),
-                         cfg or OpticsConfig(sa_aperture_um=0.5))
+    return derive_optics(
+        s, AcquisitionRequest(), camera, Calibration.default(), config or OpticsConfig(sa_aperture_um=0.5)
+    )
 
 
 def test_saed_rings_are_camera_length_consistent():
@@ -206,11 +225,11 @@ def test_saed_rings_are_camera_length_consistent():
     r = Renderer(spec)
     for cl in (120.0, 240.0):
         o = _saed_optics(cl)
-        img = r.render(o)
-        assert img.shape == (1024, 1024) and img.min() >= 0
+        image = r.render(o)
+        assert image.shape == (1024, 1024) and image.min() >= 0
         cx, cy = o.diffraction_center_px
         for g in (G111, G200):
-            rp = _radial_peak(img, cx, cy, g / o.recip_pixel_inv_nm)
+            rp = _radial_peak(image, cx, cy, g / o.recip_pixel_inv_nm)
             assert rp * o.recip_pixel_inv_nm == pytest.approx(g, rel=0.01)
     a, b = _saed_optics(120.0), _saed_optics(240.0)
     assert a.recip_pixel_inv_nm / b.recip_pixel_inv_nm == pytest.approx(2.0)
@@ -218,15 +237,16 @@ def test_saed_rings_are_camera_length_consistent():
 
 def test_saed_au_ring_ratio():
     o = _saed_optics(120.0)
-    img = Renderer(_gold_specimen()).render(o)
+    image = Renderer(_gold_specimen()).render(o)
     cx, cy = o.diffraction_center_px
-    r111 = _radial_peak(img, cx, cy, G111 / o.recip_pixel_inv_nm)
-    r200 = _radial_peak(img, cx, cy, G200 / o.recip_pixel_inv_nm)
+    r111 = _radial_peak(image, cx, cy, G111 / o.recip_pixel_inv_nm)
+    r200 = _radial_peak(image, cx, cy, G200 / o.recip_pixel_inv_nm)
     assert r200 / r111 == pytest.approx(2 / math.sqrt(3), rel=0.01)
 
 
 def test_saed_folds_excess_grains_into_powder(monkeypatch):
-    import de_twin.render.saed as saed
+    from de_twin.render import saed
+
     o = _saed_optics(120.0)
     spec = _gold_specimen()
     exact = Renderer(spec).render(o)
@@ -235,19 +255,20 @@ def test_saed_folds_excess_grains_into_powder(monkeypatch):
     folded = r.render(o)
     assert r.stats["saed_exact_grains"] == 5
     cx, cy = o.diffraction_center_px
-    assert _radial_peak(folded, cx, cy, G111 / o.recip_pixel_inv_nm) * o.recip_pixel_inv_nm == \
-        pytest.approx(G111, rel=0.01)
+    assert _radial_peak(folded, cx, cy, G111 / o.recip_pixel_inv_nm) * o.recip_pixel_inv_nm == pytest.approx(
+        G111, rel=0.01
+    )
     assert folded.sum() == pytest.approx(exact.sum(), rel=0.02)  # same electrons, redistributed
 
 
 def test_saed_total_electrons_and_vacuum():
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     o = _saed_optics(120.0)
-    img = Renderer(spec).render(o)
-    assert img.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
+    image = Renderer(spec).render(o)
+    assert image.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
     cx, cy = o.diffraction_center_px
-    y, x = np.indices(img.shape)
-    assert img[np.hypot(x - cx, y - cy) > o.disk_radius_px + 12].sum() < 1e-6 * img.sum()
+    y, x = np.indices(image.shape)
+    assert image[np.hypot(x - cx, y - cy) > o.disk_radius_px + 12].sum() < 1e-6 * image.sum()
 
 
 def test_saed_diffraction_shift_moves_pattern():
@@ -257,8 +278,10 @@ def test_saed_diffraction_shift_moves_pattern():
     o = _saed_optics(120.0, diffraction_shift_mrad=Vec2(1.0, 0.5))
     b = r.render(o)
     y, x = np.indices(a.shape)
-    shift = ((b * x).sum() / b.sum() - (a * x).sum() / a.sum(),
-             (b * y).sum() / b.sum() - (a * y).sum() / a.sum())
+    shift = (
+        (b * x).sum() / b.sum() - (a * x).sum() / a.sum(),
+        (b * y).sum() / b.sum() - (a * y).sum() / a.sum(),
+    )
     mpp = o.extras["mrad_per_px"]
     assert shift == pytest.approx((1.0 / mpp, 0.5 / mpp), abs=0.05)
 
@@ -267,12 +290,12 @@ def test_saed_beam_stop():
     spec = _gold_specimen()
     o = _saed_optics(120.0)
     r = Renderer(spec, RenderConfig(beam_stop_radius_px=20.0))
-    img = r.render(o)
+    image = r.render(o)
     ax, ay = o.extras["axis_center_px"]
-    assert img[int(ay), int(ax)] == 0.0
-    assert img[int(ay) + 200, int(ax)] == 0.0  # the shaft runs to +y
-    assert img[int(ay) - 200, int(ax) + 60].sum() >= 0.0
-    assert img.sum() < 0.5 * Renderer(spec).render(o).sum()
+    assert image[int(ay), int(ax)] == 0.0
+    assert image[int(ay) + 200, int(ax)] == 0.0  # the shaft runs to +y
+    assert image[int(ay) - 200, int(ax) + 60].sum() >= 0.0
+    assert image.sum() < 0.5 * Renderer(spec).render(o).sum()
 
 
 def test_saed_composite_is_cached_per_view():

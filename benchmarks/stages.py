@@ -15,14 +15,18 @@ import argparse
 import time
 from collections import defaultdict
 
-import de_twin.render.tem as tem
 import de_twin.render.util as tem_util
 from de_twin.clock import ManualClock
+from de_twin.render import tem
 from de_twin.specimen.model import Specimen
 from de_twin.twin import DigitalTwin
 
-PRESETS = ("Dense Au on holey C", "Ted Pella 607 - 2160 l/mm grating replica (waffle)",
-           "Ted Pella 619 - Diffraction standard, evaporated aluminum", "Apoferritin in ice")
+PRESETS = (
+    "Dense Au on holey C",
+    "Ted Pella 607 - 2160 l/mm grating replica (waffle)",
+    "Ted Pella 619 - Diffraction standard, evaporated aluminum",
+    "Apoferritin in ice",
+)
 T = defaultdict(float)
 _depth = defaultdict(int)
 
@@ -39,6 +43,7 @@ def _wrap(owner, name, label):
             _depth[label] -= 1
             if _depth[label] == 0:
                 T[label] += time.perf_counter() - t0
+
     setattr(owner, name, w)
 
 
@@ -77,47 +82,57 @@ if tem._fp.AVAILABLE:  # the transposed FFTs of the fast path
                 return _f(*a, **k)
             finally:
                 T[_label] += time.perf_counter() - t0
+
         setattr(tem._fp, _name, _w)
 
 COLS = ("total", "raster", "bragg", "noise", "exit", "fft", "ctf", "ifft", "finish", "detector", "other")
 
 
-def _frame(tw, req):
+def _frame(twin, request):
     T.clear()
     t0 = time.perf_counter()
-    flux = tw.flux(req)
+    flux = twin.flux(request)
     t1 = time.perf_counter()
-    tw.detector.expose(flux, req.frame_time_s, req, 0, ht_kv=tw.column.state().ht_kv)
+    twin.detector.expose(flux, request.frame_time_s, request, 0, ht_kv=twin.column.state().ht_kv)
     t2 = time.perf_counter()
     total = t1 - t0
     exit_rest = T["exitwave"] - T["bragg"] - T["noise"]
     ifft = T["tem"] - T["exitwave"] - T["fft"] - T["ctf"]  # inverse FFT, |psi|^2, the product
-    r = {"total": total + (t2 - t1), "raster": T["raster"], "bragg": T["bragg"], "noise": T["noise"],
-         "exit": exit_rest, "fft": T["fft"], "ctf": T["ctf"], "ifft": ifft, "finish": T["finish"],
-         "detector": t2 - t1}
+    r = {
+        "total": total + (t2 - t1),
+        "raster": T["raster"],
+        "bragg": T["bragg"],
+        "noise": T["noise"],
+        "exit": exit_rest,
+        "fft": T["fft"],
+        "ctf": T["ctf"],
+        "ifft": ifft,
+        "finish": T["finish"],
+        "detector": t2 - t1,
+    }
     r["other"] = total - (T["raster"] + T["tem"] + T["finish"])
     return r
 
 
-def cases(tw, req):
-    col = tw.column
-    col.set("Magnification", 20000.0)
-    tw.flux(req)
-    col.set("Magnification", 25000.0)
-    yield "mag 20k->25k", _frame(tw, req)
-    col.set("Magnification", 20000.0)
-    tw.flux(req)
-    o = tw.optics(req)
-    s = col.state().stage
-    col.move_stage(x=s.x_um + 0.3 * o.view.shape[1] * o.view.pixel_um)
-    yield "move 30% of the field", _frame(tw, req)
-    col.set_defocus_um(-1.0)
-    yield "defocus 0 -> -1 um", _frame(tw, req)
-    col.set_defocus_um(0.0)
-    tw.flux(req)
-    col.move_stage(alpha=1.0)
-    yield "tilt alpha 0 -> 1 deg", _frame(tw, req)
-    col.move_stage(alpha=0.0)
+def cases(twin, request):
+    column = twin.column
+    column.set("Magnification", 20000.0)
+    twin.flux(request)
+    column.set("Magnification", 25000.0)
+    yield "mag 20k->25k", _frame(twin, request)
+    column.set("Magnification", 20000.0)
+    twin.flux(request)
+    o = twin.optics(request)
+    s = column.state().stage
+    column.move_stage(x=s.x_um + 0.3 * o.view.shape[1] * o.view.pixel_um)
+    yield "move 30% of the field", _frame(twin, request)
+    column.set_defocus_um(-1.0)
+    yield "defocus 0 -> -1 um", _frame(twin, request)
+    column.set_defocus_um(0.0)
+    twin.flux(request)
+    column.move_stage(alpha=1.0)
+    yield "tilt alpha 0 -> 1 deg", _frame(twin, request)
+    column.move_stage(alpha=0.0)
 
 
 def main():
@@ -128,17 +143,19 @@ def main():
     print(f"{'preset':24s} {'case':22s} " + " ".join(f"{c:>7s}" for c in COLS) + "  (ms)")
     for preset in args.presets:
         warm = DigitalTwin(preset, camera=args.camera, clock=ManualClock(), seed=0)
-        req = warm.request()
-        f = warm.flux(req)
-        warm.detector.expose(f, req.frame_time_s, req, 0, ht_kv=warm.column.state().ht_kv)
-        list(cases(warm, req))  # numba compiled / loaded, imports done
+        request = warm.request()
+        f = warm.flux(request)
+        warm.detector.expose(f, request.frame_time_s, request, 0, ht_kv=warm.column.state().ht_kv)
+        list(cases(warm, request))  # numba compiled / loaded, imports done
         tem._BRAGG_MEMOS.clear()  # process-wide caches: start the measured twin cold
         tem_util._NOISE_TILES.clear()
-        tw = DigitalTwin(preset, camera=args.camera, clock=ManualClock(), seed=0)
-        f = tw.flux(req)
-        tw.detector.expose(f, req.frame_time_s, req, 0, ht_kv=tw.column.state().ht_kv)  # its maps
-        for name, r in cases(tw, req):
-            print(f"{preset[:24]:24s} {name:22s} " + " ".join(f"{1000 * r[c]:7.0f}" for c in COLS), flush=True)
+        twin = DigitalTwin(preset, camera=args.camera, clock=ManualClock(), seed=0)
+        f = twin.flux(request)
+        twin.detector.expose(f, request.frame_time_s, request, 0, ht_kv=twin.column.state().ht_kv)  # its maps
+        for name, r in cases(twin, request):
+            print(
+                f"{preset[:24]:24s} {name:22s} " + " ".join(f"{1000 * r[c]:7.0f}" for c in COLS), flush=True
+            )
 
 
 if __name__ == "__main__":

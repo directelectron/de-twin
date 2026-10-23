@@ -52,17 +52,27 @@ def connect_holder(spec=None, *, clock=None, strict: bool = False, **kwargs):
             except AttributeError:
                 pass
             return follower
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             if strict:
                 raise
-            reason = (f"impulsePy is not installed ({e})" if isinstance(e, ImportError)
-                      else f"Impulse did not answer ({type(e).__name__}: {e})")
+            reason = (
+                f"impulsePy is not installed ({e})"
+                if isinstance(e, ImportError)
+                else f"Impulse did not answer ({type(e).__name__}: {e})"
+            )
             log.warning("%s; using the simulated heating holder", reason)
             return SimHeatingHolder(reason=reason, clock=clock, **kwargs)
     raise ValueError(f"unknown holder spec {spec!r} (none | sim-heating | sim-biasing | impulse)")
 
 
 __all__ = [
-    "Reading", "NoHolder", "SimHeatingHolder", "ImpulseFollower", "connect_holder",
-    "HeaterUnavailable", "ChannelUnsupported", "DEFAULT_TOLERANCE_C", "DEFAULT_RAMP_RATE",
+    "DEFAULT_RAMP_RATE",
+    "DEFAULT_TOLERANCE_C",
+    "ChannelUnsupported",
+    "HeaterUnavailable",
+    "ImpulseFollower",
+    "NoHolder",
+    "Reading",
+    "SimHeatingHolder",
+    "connect_holder",
 ]

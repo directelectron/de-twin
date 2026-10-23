@@ -40,7 +40,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001 - numba missing: the numpy path remains
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -131,9 +131,8 @@ def deposit(lam, p0, adu, k, key, S, table, zstart, lut):
                     f += p
             else:
                 zz = table[(zstart + 2654435761 + i) & _MASK]
-                n = int(math.floor(L + math.sqrt(L) * zz + np.float32(0.5)))
-                if n < 0:
-                    n = 0
+                n = math.floor(L + math.sqrt(L) * zz + np.float32(0.5))
+                n = max(n, 0)
             if n == 0:
                 sr[c] = np.float32(0.0)
                 continue
@@ -142,16 +141,18 @@ def deposit(lam, p0, adu, k, key, S, table, zstart, lut):
                 g = lut[n, 0] + z * lut[n, 1]
             else:
                 a = np.float32(n) * k32
-                g = np.float32(1.0) - np.float32(1.0) / (np.float32(9.0) * a) \
+                g = (
+                    np.float32(1.0)
+                    - np.float32(1.0) / (np.float32(9.0) * a)
                     + z / (np.float32(3.0) * math.sqrt(a))
+                )
             if g < 0:
                 g = np.float32(0.0)
             sr[c] = np.float32(n) * adu32 * g * g * g
 
 
 @_njit(parallel=True)
-def analog_out(S, has_signal, a, inv_nb, gain, off, base, read_sigma, scale, table, nstart,
-               hot, vmax, out):
+def analog_out(S, has_signal, a, inv_nb, gain, off, base, read_sigma, scale, table, nstart, hot, vmax, out):
     """Phase 2 for an UNBINNED frame, straight into the output: charge sharing, gain,
     offset, dark, hot pixels (*hot*: ADU to add, zero almost everywhere), read noise,
     clip, round. Returns the clipped-pixel count."""
@@ -185,8 +186,7 @@ def analog_out(S, has_signal, a, inv_nb, gain, off, base, read_sigma, scale, tab
         for c in range(w):
             if has_signal:
                 if a > 0:
-                    x = a32 * (v[c - 1 if c > 0 else 0] + v[c + 1 if c < w - 1 else w - 1]
-                               + v[c] * ca)
+                    x = a32 * (v[c - 1 if c > 0 else 0] + v[c + 1 if c < w - 1 else w - 1] + v[c] * ca)
                 else:
                     x = v[c]
                 x = x * inb * g[c] + o[c]
@@ -232,8 +232,7 @@ def analog(S, has_signal, a, inv_nb, gain, off, base, read_sigma, scale, table, 
         for c in range(w):
             if has_signal:
                 if a > 0:
-                    y = a32 * (v[c - 1 if c > 0 else 0] + v[c + 1 if c < w - 1 else w - 1]
-                               + v[c] * ca)
+                    y = a32 * (v[c - 1 if c > 0 else 0] + v[c + 1 if c < w - 1 else w - 1] + v[c] * ca)
                 else:
                     y = v[c]
                 y = y * inb * g[c] + o[c]
@@ -354,11 +353,9 @@ def count(mean, p0, key, table, zstart, cap, inv_nb, vmax, out, xout, to_float):
                         f += p
                 else:
                     zz = table[(zstart + i) & _MASK]
-                    n = int(math.floor(L + math.sqrt(L) * zz + np.float32(0.5)))
-                    if n < 0:
-                        n = 0
-                if n > cap:
-                    n = cap
+                    n = math.floor(L + math.sqrt(L) * zz + np.float32(0.5))
+                    n = max(n, 0)
+                n = min(n, cap)
             v = np.float32(n) * inb
             if to_float:
                 xout[r, c] = v
@@ -412,11 +409,9 @@ def count_super(mean, p0, key, table, zstart, cap, vmax, out):
                     f += p
             else:
                 zz = table[(zstart + i) & _MASK]
-                n = int(math.floor(L + math.sqrt(L) * zz + np.float32(0.5)))
-                if n < 0:
-                    n = 0
-            if n > cap:
-                n = cap
+                n = math.floor(L + math.sqrt(L) * zz + np.float32(0.5))
+                n = max(n, 0)
+            n = min(n, cap)
             if n == 0:
                 continue
             y = mix64(sub + np.uint64(i) * np.uint64(_GOLD))

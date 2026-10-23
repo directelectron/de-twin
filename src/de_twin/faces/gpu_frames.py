@@ -36,17 +36,27 @@ PROFILE = ("produced", "released", "unshared", "holdNs", "holdMaxNs", "setupNs",
 
 
 class _Slot(ctypes.Structure):
-    _fields_ = [(n, u64) for n in ("buffer", "count", "width", "height", "rowBytes", "imageBytes", "publishedNs")] + [
-        ("image", ctypes.c_byte * (IMAGE.itemsize * MAX_IMAGES))]
+    _fields_ = [
+        (n, u64) for n in ("buffer", "count", "width", "height", "rowBytes", "imageBytes", "publishedNs")
+    ] + [("image", ctypes.c_byte * (IMAGE.itemsize * MAX_IMAGES))]
 
 
 class _ClientHandles(ctypes.Structure):
-    _fields_ = [("filled", u64), ("free", u64 * BUFFERS), ("buffer", u64 * BUFFERS), ("detach", u64), ("session", u64)]
+    _fields_ = [
+        ("filled", u64),
+        ("free", u64 * BUFFERS),
+        ("buffer", u64 * BUFFERS),
+        ("detach", u64),
+        ("session", u64),
+    ]
 
 
 class _Control(ctypes.Structure):
-    _fields_ = [("version", c_uint32), ("device", c_uint32), ("bufferBytes", u64),
-                ("client", _ClientHandles)] + [(n, u64) for n in PROFILE] + [("slot", _Slot * BUFFERS)]
+    _fields_ = (
+        [("version", c_uint32), ("device", c_uint32), ("bufferBytes", u64), ("client", _ClientHandles)]
+        + [(n, u64) for n in PROFILE]
+        + [("slot", _Slot * BUFFERS)]
+    )
 
 
 class _Location(ctypes.Structure):
@@ -54,13 +64,22 @@ class _Location(ctypes.Structure):
 
 
 class _AllocationFlags(ctypes.Structure):
-    _fields_ = [("compressionType", ctypes.c_ubyte), ("gpuDirectRDMACapable", ctypes.c_ubyte),
-                ("usage", ctypes.c_ushort), ("reserved", ctypes.c_ubyte * 4)]
+    _fields_ = [
+        ("compressionType", ctypes.c_ubyte),
+        ("gpuDirectRDMACapable", ctypes.c_ubyte),
+        ("usage", ctypes.c_ushort),
+        ("reserved", ctypes.c_ubyte * 4),
+    ]
 
 
 class _AllocationProp(ctypes.Structure):
-    _fields_ = [("type", c_int), ("requestedHandleTypes", c_int), ("location", _Location),
-                ("win32HandleMetaData", c_void_p), ("allocFlags", _AllocationFlags)]
+    _fields_ = [
+        ("type", c_int),
+        ("requestedHandleTypes", c_int),
+        ("location", _Location),
+        ("win32HandleMetaData", c_void_p),
+        ("allocFlags", _AllocationFlags),
+    ]
 
 
 class _AccessDesc(ctypes.Structure):
@@ -68,9 +87,14 @@ class _AccessDesc(ctypes.Structure):
 
 
 class _ObjectAttributes(ctypes.Structure):  # winternl.h; the driver reads all of it
-    _fields_ = [("Length", wintypes.ULONG), ("RootDirectory", wintypes.HANDLE), ("ObjectName", c_void_p),
-                ("Attributes", wintypes.ULONG), ("SecurityDescriptor", c_void_p),
-                ("SecurityQualityOfService", c_void_p)]
+    _fields_ = [
+        ("Length", wintypes.ULONG),
+        ("RootDirectory", wintypes.HANDLE),
+        ("ObjectName", c_void_p),
+        ("Attributes", wintypes.ULONG),
+        ("SecurityDescriptor", c_void_p),
+        ("SecurityQualityOfService", c_void_p),
+    ]
 
 
 PINNED, HANDLE_WIN32, LOCATION_DEVICE, READ_WRITE = 1, 2, 1, 3
@@ -128,23 +152,36 @@ class _Allocation:
     def __init__(self, device: int, bytes_requested: int):
         attributes = _ObjectAttributes(Length=ctypes.sizeof(_ObjectAttributes))
         self._attributes = attributes  # the driver keeps a pointer to it until export
-        prop = _AllocationProp(type=PINNED, requestedHandleTypes=HANDLE_WIN32,
-                               location=_Location(LOCATION_DEVICE, device),
-                               win32HandleMetaData=ctypes.cast(ctypes.pointer(attributes), c_void_p))
+        prop = _AllocationProp(
+            type=PINNED,
+            requestedHandleTypes=HANDLE_WIN32,
+            location=_Location(LOCATION_DEVICE, device),
+            win32HandleMetaData=ctypes.cast(ctypes.pointer(attributes), c_void_p),
+        )
         granularity = c_size_t()
-        _check(_cu.cuMemGetAllocationGranularity(ctypes.byref(granularity), ctypes.byref(prop), 0), "granularity")
+        _check(
+            _cu.cuMemGetAllocationGranularity(ctypes.byref(granularity), ctypes.byref(prop), 0), "granularity"
+        )
         g = max(1, granularity.value)
         self.bytes = (bytes_requested + g - 1) // g * g
         self._handle, self.address, self.exported = u64(), u64(), wintypes.HANDLE()
-        _check(_cu.cuMemCreate(ctypes.byref(self._handle), c_size_t(self.bytes), ctypes.byref(prop), u64(0)),
-               "create shared GPU allocation")
-        _check(_cu.cuMemAddressReserve(ctypes.byref(self.address), self.bytes, 0, 0, 0), "reserve GPU address")
+        _check(
+            _cu.cuMemCreate(ctypes.byref(self._handle), c_size_t(self.bytes), ctypes.byref(prop), u64(0)),
+            "create shared GPU allocation",
+        )
+        _check(
+            _cu.cuMemAddressReserve(ctypes.byref(self.address), self.bytes, 0, 0, 0), "reserve GPU address"
+        )
         _check(_cu.cuMemMap(self.address, self.bytes, 0, self._handle, 0), "map GPU allocation")
         access = _AccessDesc(_Location(LOCATION_DEVICE, device), READ_WRITE)
-        _check(_cu.cuMemSetAccess(self.address, c_size_t(self.bytes), ctypes.byref(access), c_size_t(1)),
-               "set GPU mapping access")
-        _check(_cu.cuMemExportToShareableHandle(ctypes.byref(self.exported), self._handle, HANDLE_WIN32, u64(0)),
-               "export GPU allocation")
+        _check(
+            _cu.cuMemSetAccess(self.address, c_size_t(self.bytes), ctypes.byref(access), c_size_t(1)),
+            "set GPU mapping access",
+        )
+        _check(
+            _cu.cuMemExportToShareableHandle(ctypes.byref(self.exported), self._handle, HANDLE_WIN32, u64(0)),
+            "export GPU allocation",
+        )
 
     def close(self):
         _cu.cuMemUnmap(self.address, self.bytes)
@@ -184,8 +221,9 @@ class SharedFrames:
         _check(_cu.cuDevicePrimaryCtxRetain(ctypes.byref(self._context), handle), "retain the GPU context")
         self._use_context()
         self._lock = threading.RLock()
-        self._mapping = _k32.CreateFileMappingW(wintypes.HANDLE(-1), None, PAGE_READWRITE, 0,
-                                                ctypes.sizeof(_Control), None)
+        self._mapping = _k32.CreateFileMappingW(
+            wintypes.HANDLE(-1), None, PAGE_READWRITE, 0, ctypes.sizeof(_Control), None
+        )
         address = _k32.MapViewOfFile(self._mapping, FILE_MAP_ALL_ACCESS, 0, 0, ctypes.sizeof(_Control))
         if not self._mapping or not address:
             raise ctypes.WinError(ctypes.get_last_error())
@@ -201,7 +239,9 @@ class SharedFrames:
         self._detach = _k32.CreateEventW(None, False, False, None)
         self._quit = _k32.CreateEventW(None, True, False, None)
         self._new_session()
-        self._watcher = threading.Thread(target=self._watch_detach, name="twin-gpu-frames-detach", daemon=True)
+        self._watcher = threading.Thread(
+            target=self._watch_detach, name="twin-gpu-frames-detach", daemon=True
+        )
         self._watcher.start()
 
     # ------------------------------------------------------------------ setup
@@ -222,8 +262,15 @@ class SharedFrames:
 
     def _give(self, handle) -> int:
         copy = wintypes.HANDLE()
-        if not _k32.DuplicateHandle(_k32.GetCurrentProcess(), handle, self._client, ctypes.byref(copy), 0, False,
-                                    DUPLICATE_SAME_ACCESS):
+        if not _k32.DuplicateHandle(
+            _k32.GetCurrentProcess(),
+            handle,
+            self._client,
+            ctypes.byref(copy),
+            0,
+            False,
+            DUPLICATE_SAME_ACCESS,
+        ):
             raise ctypes.WinError(ctypes.get_last_error())
         return int(copy.value or 0)
 
@@ -251,7 +298,9 @@ class SharedFrames:
             self._use_context()
             for buffer in self._buffers:
                 buffer.close()
-            self._buffers = [_Allocation(self.device, shape[0] * shape[1] * shape[2] * 4) for _ in range(BUFFERS)]
+            self._buffers = [
+                _Allocation(self.device, shape[0] * shape[1] * shape[2] * 4) for _ in range(BUFFERS)
+            ]
             self._shape = shape
             self.control.bufferBytes = self._buffers[0].bytes
             self._new_session()
@@ -333,8 +382,10 @@ class SharedFrames:
             start = time.perf_counter_ns()
             self._use_context()
             host = np.ascontiguousarray(images, dtype=np.float32)
-            _check(_cu.cuMemcpyHtoD_v2(self._buffers[buffer].address, host.ctypes.data, c_size_t(host.nbytes)),
-                   "copy frames to the GPU")
+            _check(
+                _cu.cuMemcpyHtoD_v2(self._buffers[buffer].address, host.ctypes.data, c_size_t(host.nbytes)),
+                "copy frames to the GPU",
+            )
             slot = self.control.slot[self._published % BUFFERS]
             slot.buffer, slot.count = buffer, count
             slot.height, slot.width = host.shape[1], host.shape[2]

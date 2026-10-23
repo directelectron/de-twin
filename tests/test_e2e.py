@@ -10,10 +10,10 @@ from scipy.ndimage import gaussian_filter
 
 deapi = pytest.importorskip("deapi")
 
-from de_twin.column.soap import SoapTemChannelClient  # noqa: E402
-from de_twin.faces.deapi_server import TwinDeapiServer  # noqa: E402
-from de_twin.faces.temchannel_soap import TemChannelServer  # noqa: E402
-from de_twin.twin import DigitalTwin  # noqa: E402
+from de_twin.column.soap import SoapTemChannelClient
+from de_twin.faces.deapi_server import TwinDeapiServer
+from de_twin.faces.temchannel_soap import TemChannelServer
+from de_twin.twin import DigitalTwin
 
 
 def xcorr_shift(a, b):
@@ -32,12 +32,14 @@ def xcorr_shift(a, b):
 
 def test_soap_stage_move_shifts_deapi_images():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim")
-    with TemChannelServer(twin.column, host="127.0.0.1", port=0) as soap, \
-            TwinDeapiServer(twin, port=0, pace=False) as cam:
+    with (
+        TemChannelServer(twin.column, host="127.0.0.1", port=0) as soap,
+        TwinDeapiServer(twin, port=0, pace=False) as camera,
+    ):
         scope = SoapTemChannelClient(port=soap.port)
         c = deapi.Client()
         c.usingMmf = False
-        c.connect(port=cam.port)
+        c.connect(port=camera.port)
         c["Frames Per Second"] = 40
         c["Frame Count"] = 8
 
@@ -57,7 +59,9 @@ def test_soap_stage_move_shifts_deapi_images():
             time.sleep(0.02)
         b = image()
         # DE-Server's metadata view of the column agrees with the SOAP face
-        assert float(c["Instrument Stage Position X (micrometers)"]) == pytest.approx(x0 + 60 * px_um, abs=1e-3)
+        assert float(c["Instrument Stage Position X (micrometers)"]) == pytest.approx(
+            x0 + 60 * px_um, abs=1e-3
+        )
         c.disconnect()
     dx, dy = xcorr_shift(b, a)
     assert abs(abs(dx) - 60) <= 2 and abs(dy) <= 2

@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 import pytest
+from test_render_diffraction import AU0, OPTICS, _saed_optics, bragg_spots
 
 from de_twin.clock import ManualClock
 from de_twin.column import Column
@@ -14,10 +15,8 @@ from de_twin.render import Renderer
 from de_twin.render.diffraction import beam_tilt_rotation, bucket_patterns, tilt_samples
 from de_twin.render.renderer import _precession_frame
 from de_twin.render.testing import SyntheticSpecimen, on_zone_grains
-from de_twin.specimen.materials import GRAINS_PER_MATERIAL, MaterialId
+from de_twin.specimen.materials import MaterialId
 from de_twin.state import Vec2
-
-from test_render_diffraction import AU0, OPTICS, _saed_optics, bragg_spots
 
 G200 = 2.0 / 0.4078
 LAM = OPTICS.wavelength_nm
@@ -26,8 +25,15 @@ LAM = OPTICS.wavelength_nm
 def _optics(**kw):
     from types import SimpleNamespace
 
-    base = dict(vars(OPTICS), beam_tilt_mrad=(0.0, 0.0), precession_mrad=0.0, precession_hz=0.0,
-                precession_descan=True, precession_phase_rad=0.0, precession_arc_rad=2 * math.pi)
+    base = dict(
+        vars(OPTICS),
+        beam_tilt_mrad=(0.0, 0.0),
+        precession_mrad=0.0,
+        precession_hz=0.0,
+        precession_descan=True,
+        precession_phase_rad=0.0,
+        precession_arc_rad=2 * math.pi,
+    )
     base.update(kw)
     return SimpleNamespace(**base)
 
@@ -40,10 +46,15 @@ def _pattern(zone=(0, 0, 1), t=20.0, **kw):
 def test_a_beam_tilted_by_the_bragg_angle_towards_minus_g_excites_g():
     lib = library_for(int(MaterialId.GOLD), 25.0)
     theta_b = LAM * G200 / 2.0  # rad
-    m = np.eye(3)[None]
+    np.eye(3)[None]
     j = int(np.argmin(np.abs(lib.g[:, 0] - G200) + np.abs(lib.g[:, 1]) + np.abs(lib.g[:, 2])))  # +g = (200)
-    s = lambda tilt: float((lambda gl: 1 / LAM - math.sqrt(1 / LAM ** 2 - gl[0] ** 2 - gl[1] ** 2) - gl[2])(
-        beam_tilt_rotation(tilt) @ lib.g[j]))
+
+    def s(tilt):
+        lab_vector = beam_tilt_rotation(tilt) @ lib.g[j]
+        return float(
+            1 / LAM - math.sqrt(1 / LAM**2 - lab_vector[0] ** 2 - lab_vector[1] ** 2) - lab_vector[2]
+        )
+
     assert abs(s((0.0, 0.0))) > 1e-3
     assert s((-theta_b, 0.0)) == pytest.approx(0.0, abs=1e-6), "towards -g: +g on the sphere"
     assert abs(s((+theta_b, 0.0))) > abs(s((0.0, 0.0))), "towards +g: further off"
@@ -56,8 +67,10 @@ def test_beam_tilt_moves_the_saed_pattern():
     o = _saed_optics(120.0, beam_tilt_mrad=Vec2(1.0, -0.5))
     b = r.render(o)
     y, x = np.indices(a.shape)
-    shift = ((b * x).sum() / b.sum() - (a * x).sum() / a.sum(),
-             (b * y).sum() / b.sum() - (a * y).sum() / a.sum())
+    shift = (
+        (b * x).sum() / b.sum() - (a * x).sum() / a.sum(),
+        (b * y).sum() / b.sum() - (a * y).sum() / a.sum(),
+    )
     mpp = o.extras["mrad_per_px"]
     assert shift == pytest.approx((1.0 / mpp, -0.5 / mpp), abs=0.05)
 
@@ -65,7 +78,9 @@ def test_beam_tilt_moves_the_saed_pattern():
 def test_beam_tilt_changes_which_reflections_are_excited():
     zone = _pattern()
     tilted = _pattern(beam_tilt_mrad=(1000 * LAM * G200 / 2.0, 0.0))  # Bragg for (-200)
-    w = lambda p, gx: float(p.spots[np.isclose(p.spots[:, 0], gx, atol=0.05) & np.isclose(p.spots[:, 1], 0, atol=0.05), 2].sum())
+    w = lambda p, gx: float(
+        p.spots[np.isclose(p.spots[:, 0], gx, atol=0.05) & np.isclose(p.spots[:, 1], 0, atol=0.05), 2].sum()
+    )
     assert w(tilted, -G200) > 2 * w(zone, -G200)
     assert w(tilted, +G200) < w(zone, +G200)
 
@@ -110,7 +125,12 @@ def test_column_precession_properties():
     c.set("PrecessionFrequency", 250)
     c.set("PrecessionDescan", "false")
     s = c.state()
-    assert (s.precession_on, s.precession_mrad, s.precession_hz, s.precession_descan) == (True, 17.5, 250.0, False)
+    assert (s.precession_on, s.precession_mrad, s.precession_hz, s.precession_descan) == (
+        True,
+        17.5,
+        250.0,
+        False,
+    )
     from de_twin.column import ColumnRefused
 
     with pytest.raises(ColumnRefused):
@@ -119,9 +139,9 @@ def test_column_precession_properties():
 
 def test_precession_leaves_the_tem_image_cache_alone():
     """Precession changes diffraction, not the image: TEM frames still come from the cache."""
-    from de_twin.render.testing import StubCamera
-
     from test_render_diffraction import _gold_specimen
+
+    from de_twin.render.testing import StubCamera
 
     r = Renderer(_gold_specimen())
     from de_twin.optics import Calibration, OpticsConfig, derive_optics
@@ -129,8 +149,13 @@ def test_precession_leaves_the_tem_image_cache_alone():
 
     s = MicroscopeState()
     s.precession_on, s.precession_mrad, s.precession_hz = True, 10.0, 100.0
-    o = derive_optics(s, AcquisitionRequest(frame_time_s=0.0025), StubCamera(sensor_shape=(512, 512)),
-                      Calibration.default(), OpticsConfig())
+    o = derive_optics(
+        s,
+        AcquisitionRequest(frame_time_s=0.0025),
+        StubCamera(sensor_shape=(512, 512)),
+        Calibration.default(),
+        OpticsConfig(),
+    )
     r.render(o, time_s=0.0)
     before = r.frames_from_cache
     for k in range(1, 6):
@@ -149,8 +174,14 @@ def test_a_partial_cone_reuses_the_cached_tilts(monkeypatch):
     grains = on_zone_grains(gid, (0, 0, 1))  # one specimen, as a renderer holds it
     step = 2 * math.pi / 24
     for j in range(24):  # a frame of 1/8 cone, starting at each phase in turn
-        bucket_patterns([MaterialId.GOLD], [gid], [20.0], [1.0], grains,
-                        _optics(precession_mrad=10.0, precession_arc_rad=3 * step, precession_phase_rad=j * step))
+        bucket_patterns(
+            [MaterialId.GOLD],
+            [gid],
+            [20.0],
+            [1.0],
+            grains,
+            _optics(precession_mrad=10.0, precession_arc_rad=3 * step, precession_phase_rad=j * step),
+        )
     assert len(calls) == 24, "each of the cone's 24 tilts excited once"
 
 
@@ -163,12 +194,12 @@ def test_stem_tables_are_not_rebuilt_as_the_precession_phase_moves(monkeypatch):
     builds = []
     real = st.build_tables
     monkeypatch.setattr(st, "build_tables", lambda *a, **k: builds.append(1) or real(*a, **k))
-    tw = DigitalTwin("Dense Au on holey C", camera="DESim", clock=MC(), seed=3)
-    tw.column.set_tem_stem(TemStem.STEM)
-    tw.column.set("Precession", True)
-    req = tw.request(frame_time_s=0.001)
-    req.scan.enabled = True
-    req.scan.size = (16, 16)
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=MC(), seed=3)
+    twin.column.set_tem_stem(TemStem.STEM)
+    twin.column.set("Precession", True)
+    request = twin.request(frame_time_s=0.001)
+    request.scan.enabled = True
+    request.scan.size = (16, 16)
     for i in range(12):
-        tw.flux(req, frame_index=i, time_s=i * 0.001)
+        twin.flux(request, frame_index=i, time_s=i * 0.001)
     assert len(builds) == 1

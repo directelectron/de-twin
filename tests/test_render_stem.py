@@ -7,13 +7,13 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.optics import OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
 from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
 from de_twin.state import AcquisitionRequest, MicroscopeState, RenderMode, Roi, TemStem
-from perf_budget import budget
 
 CAM = StubCamera()  # DE16, 256^2 ROI at the sensor centre
 NSCAN = 32
@@ -40,16 +40,16 @@ def test_vacuum_cbed_is_the_probe_current(make_stem_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     o = make_stem_optics()
     r = Renderer(spec)
-    img = r.render(o, scan_point=(3, 4))
-    assert img.shape == (256, 256) and img.dtype == np.float32 and img.min() >= 0
-    ratio = img.sum() / o.pattern_e_per_s
+    image = r.render(o, scan_point=(3, 4))
+    assert image.shape == (256, 256) and image.dtype == np.float32 and image.min() >= 0
+    ratio = image.sum() / o.pattern_e_per_s
     assert 1 / 1.1 - 1e-3 <= ratio <= 1 / 0.9 + 1e-3  # intensity jitter 0.9 .. 1.1
     r2 = Renderer(spec, RenderConfig(intensity_jitter=False))
     assert r2.render(o, scan_point=(3, 4)).sum() == pytest.approx(o.pattern_e_per_s, rel=1e-4)
     # a centred disk of the convergence angle
-    y, x = np.indices(img.shape)
+    y, x = np.indices(image.shape)
     rr = np.hypot(x - 128, y - 128)
-    assert img[rr > o.disk_radius_px + 12].sum() < 1e-5 * img.sum()
+    assert image[rr > o.disk_radius_px + 12].sum() < 1e-5 * image.sum()
 
 
 def test_scan_point_addressing_and_frame_index(make_stem_optics):
@@ -99,13 +99,13 @@ def test_descan_ramp_and_layer_shift_the_pattern(make_stem_optics):
 
 class _LayeredSpecimen(SyntheticSpecimen):
     def rasterize(self, view, layers=frozenset()):
-        fm = super().rasterize(view, layers)
-        if fm.descan is not None:
-            fm.descan[0] = 3.0
-            fm.descan[1] = -2.0
-        if fm.strain is not None:
-            fm.strain[0, :, :16] = 1.05  # xx strain on the left half
-        return fm
+        field_map = super().rasterize(view, layers)
+        if field_map.descan is not None:
+            field_map.descan[0] = 3.0
+            field_map.descan[1] = -2.0
+        if field_map.strain is not None:
+            field_map.strain[0, :, :16] = 1.05  # xx strain on the left half
+        return field_map
 
 
 def test_descan_and_strain_layers(make_stem_optics):
@@ -131,8 +131,9 @@ def test_probe_blend_mixes_neighbours(make_stem_optics):
     y, x = np.indices((256, 256))
     outside = np.hypot(x - 128, y - 128) > o.disk_radius_px + 12
     blended = Renderer(spec, RenderConfig(intensity_jitter=False)).render(o, scan_point=(18, 16))
-    single = Renderer(spec, RenderConfig(intensity_jitter=False, probe_footprint_blend=False)
-                      ).render(o, scan_point=(18, 16))
+    single = Renderer(spec, RenderConfig(intensity_jitter=False, probe_footprint_blend=False)).render(
+        o, scan_point=(18, 16)
+    )
     assert blended[outside].sum() > 10 * max(single[outside].sum(), 1e-30)
 
 
@@ -140,9 +141,9 @@ def test_thickness_and_tilt_attenuation(make_stem_optics):
     o = make_stem_optics()
     thin = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 3.0)])
     thick = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 12.0)])
-    cfg = RenderConfig(intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False)
-    a = Renderer(thin, cfg).render(o, scan_point=(10, 10)).sum()
-    b = Renderer(thick, cfg).render(o, scan_point=(10, 10)).sum()
+    config = RenderConfig(intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False)
+    a = Renderer(thin, config).render(o, scan_point=(10, 10)).sum()
+    b = Renderer(thick, config).render(o, scan_point=(10, 10)).sum()
     assert b < a < o.pattern_e_per_s
     s = MicroscopeState()
     s.tem_stem = TemStem.STEM
@@ -154,8 +155,8 @@ def test_thickness_and_tilt_attenuation(make_stem_optics):
     rq.scan.step_um = STEP_UM
     ot = derive_optics(s, rq, CAM)
     film = SyntheticSpecimen(film_thickness_nm=30.0)
-    flat = Renderer(film, cfg).render(o, scan_point=(5, 5)).sum()
-    tilt = Renderer(film, cfg).render(ot, scan_point=(5, 5)).sum()
+    flat = Renderer(film, config).render(o, scan_point=(5, 5)).sum()
+    tilt = Renderer(film, config).render(ot, scan_point=(5, 5)).sum()
     assert tilt / flat == pytest.approx(math.exp(-30.0 / 150.0), rel=1e-3)  # 2x path, e^-t/L once more
 
 
@@ -195,8 +196,10 @@ def test_blanked_stem(make_stem_optics):
 def test_cache_is_used_and_warm_up(make_stem_optics):
     o = make_stem_optics()
     rng = np.random.default_rng(1)
-    parts = [_particle_at(o, int(i), int(j), 3.0, grain=int(g))
-             for i, j, g in zip(rng.integers(0, NSCAN, 20), rng.integers(0, NSCAN, 20), range(20))]
+    parts = [
+        _particle_at(o, int(i), int(j), 3.0, grain=int(g))
+        for i, j, g in zip(rng.integers(0, NSCAN, 20), rng.integers(0, NSCAN, 20), range(20))
+    ]
     spec = SyntheticSpecimen(particles=parts)
     r = Renderer(spec)
     n = r.warm_up(o, budget_s=5.0)

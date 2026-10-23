@@ -4,8 +4,9 @@
 from de_twin import DigitalTwin, ManualClock
 from de_twin.optics import OpticsConfig
 
-twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(),
-                   optics_config=OpticsConfig.realistic(seed=7))
+twin = DigitalTwin(
+    "Dense Au on holey C", camera="DESim", clock=ManualClock(), optics_config=OpticsConfig.realistic(seed=7)
+)
 twin.column.set("Magnification", 20000)
 truth = twin.calibration_truth()
 truth["image_rotation_deg"], truth["true_pixel_nm"], truth["nominal_pixel_nm"]
@@ -58,7 +59,7 @@ focus-dependent image shift and the tilt induced by image shift.
 ## Intensity zoom
 
 ```python
-cfg = OpticsConfig(intensity_zoom=True)      # or OpticsConfig.realistic(seed, intensity_zoom=True)
+config = OpticsConfig(intensity_zoom=True)  # or OpticsConfig.realistic(seed, intensity_zoom=True)
 ```
 
 Without intensity zoom, the dose per detector pixel goes as 1/mag². Zooming out from a

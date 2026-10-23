@@ -6,21 +6,21 @@ import math
 
 import numpy as np
 import pytest
-
 from coherent_helpers import stem_optics
+
 from de_twin.optics.aberrations import Aberrations
 from de_twin.optics.state import probe_aberrations_of
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.coherent import build_probe, plan_sampling
+from de_twin.render.coherent_setup import build_probe, plan_sampling
 from de_twin.render.testing import SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
 
 COHERENT = RenderConfig(coherent_focal_spread=False, coherent_source_size=False)
 
 
-def _probe(conv, ab, df=0.0, k=4.0, cfg=COHERENT, **kw):
+def _probe(conv, ab, df=0.0, k=4.0, config=COHERENT, **kw):
     o = stem_optics(conv_mrad=conv, defocus_nm=df, probe_ab=ab, roi=128, det_k_over_alpha=k, **kw)
-    p = build_probe(o, cfg)
+    p = build_probe(o, config)
     n = p.sampling.n
     y, x = np.indices((n, n)) - n // 2
     r = np.hypot(x, y) * p.sampling.dx_nm
@@ -49,7 +49,7 @@ def test_focused_probe_is_diffraction_limited():
 def test_defocused_probe_size_is_two_df_alpha():
     df = -200.0
     o, p, r = _probe(20.0, {"C3": 0.0}, df=df, k=1.6)
-    rms = math.sqrt(float((p.intensity * r ** 2).sum() / p.intensity.sum()))
+    rms = math.sqrt(float((p.intensity * r**2).sum() / p.intensity.sum()))
     radius = abs(df) * o.convergence_mrad * 1e-3  # geometric disk, diameter 2 |df| alpha
     assert rms * math.sqrt(2.0) == pytest.approx(radius, rel=0.05)
     assert p.sampling.window_nm >= 2 * radius  # the window holds the defocused probe
@@ -57,7 +57,7 @@ def test_defocused_probe_size_is_two_df_alpha():
 
 
 def test_probe_normalisation_and_modes():
-    o, p, _ = _probe(20.0, {"C3": 1000.0}, cfg=RenderConfig())
+    o, p, _ = _probe(20.0, {"C3": 1000.0}, config=RenderConfig())
     assert float(p.intensity.sum()) == pytest.approx(1.0, rel=1e-4)
     for m in p.modes:
         assert float((np.abs(m) ** 2).sum()) == pytest.approx(1.0, rel=1e-4)
@@ -66,18 +66,22 @@ def test_probe_normalisation_and_modes():
     assert 0.5 < p.coherent_fraction < 1.0
     # vacuum pattern carries exactly the probe current
     r = Renderer(SyntheticSpecimen(film_material=MaterialId.VACUUM), RenderConfig(stem_model="coherent"))
-    img = r.render(o, scan_point=(3, 4))
-    assert img.shape == o.output_shape and img.dtype == np.float32
-    assert img.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
+    image = r.render(o, scan_point=(3, 4))
+    assert image.shape == o.output_shape and image.dtype == np.float32
+    assert image.sum() == pytest.approx(o.pattern_e_per_s, rel=1e-3)
 
 
 def test_corrector_allows_large_convergence():
     """C3 ~ 0, small C5 (probe corrector): a compact probe at 28 mrad. Uncorrected C3 = 1.2 mm:
     fine at 8 mrad, blown up above ~10 mrad."""
     frac = {}
-    for name, conv, ab in (("unc8", 8.0, {"C3": 1.2e6}), ("unc10", 10.0, {"C3": 1.2e6}),
-                           ("unc15", 15.0, {"C3": 1.2e6}), ("unc28", 28.0, {"C3": 1.2e6}),
-                           ("cor28", 28.0, {"C3": 0.0, "C5": 5e6})):
+    for name, conv, ab in (
+        ("unc8", 8.0, {"C3": 1.2e6}),
+        ("unc10", 10.0, {"C3": 1.2e6}),
+        ("unc15", 15.0, {"C3": 1.2e6}),
+        ("unc28", 28.0, {"C3": 1.2e6}),
+        ("cor28", 28.0, {"C3": 0.0, "C5": 5e6}),
+    ):
         o, p, r = _probe(conv, ab)
         lam, a = o.wavelength_nm, conv * 1e-3
         frac[name] = float(p.intensity[r < lam / a].sum())  # within the ~first Airy zero
@@ -107,8 +111,12 @@ def test_aberration_wiring_condenser_stig_and_column_sets():
 
 def test_sampling_oversamples_for_defocus_and_binning():
     small = plan_sampling(stem_optics(defocus_nm=-10.0, probe_ab={"C3": 0.0}), COHERENT)
-    big = plan_sampling(stem_optics(defocus_nm=-1000.0, conv_mrad=15.0, det_k_over_alpha=1.3, roi=128,
-                                    binning=2, probe_ab={"C3": 0.0}), COHERENT)
+    big = plan_sampling(
+        stem_optics(
+            defocus_nm=-1000.0, conv_mrad=15.0, det_k_over_alpha=1.3, roi=128, binning=2, probe_ab={"C3": 0.0}
+        ),
+        COHERENT,
+    )
     assert small.oversampling == 1 and small.sub == (1, 1)
     assert big.oversampling > 1 and big.sub[0] == big.oversampling
     assert big.window_nm >= 2 * 1000.0 * 0.015  # holds the 30 nm defocused probe
@@ -122,10 +130,18 @@ def test_mode_truncation_keeps_degenerate_groups_whole():
     """The 3 x 3 source sampling makes degenerate mode pairs. Cutting through a pair picks an
     arbitrary basis vector (LAPACK/BLAS-thread dependent), which made datacubes differ between
     machines. Truncation must keep the whole group, so the probe intensity stays symmetric."""
-    o = stem_optics(scan=(8, 8), step_nm=1.0, conv_mrad=15.0, defocus_nm=-500.0, roi=128, binning=2,
-                    det_k_over_alpha=1.3, probe_ab={"C3": 1000.0})
-    cfg = RenderConfig(stem_model="coherent", coherent_max_modes=2)
-    p = build_probe(o, cfg)
+    o = stem_optics(
+        scan=(8, 8),
+        step_nm=1.0,
+        conv_mrad=15.0,
+        defocus_nm=-500.0,
+        roi=128,
+        binning=2,
+        det_k_over_alpha=1.3,
+        probe_ab={"C3": 1000.0},
+    )
+    config = RenderConfig(stem_model="coherent", coherent_max_modes=2)
+    p = build_probe(o, config)
     w = np.asarray(p.weights)
     assert len(w) >= 2
     # no kept mode has an (almost) equal partner that was dropped: the kept set ends at a gap

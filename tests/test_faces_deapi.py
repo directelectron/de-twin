@@ -10,15 +10,13 @@ import pytest
 deapi = pytest.importorskip("deapi")
 pytestmark = pytest.mark.deapi
 
-from de_twin.clock import Clock  # noqa: E402
-from de_twin.column import Column  # noqa: E402
-from de_twin.faces.deapi_server import (  # noqa: E402
-    TEMPERATURE_PROP,
-    TwinDeapiServer,
-    request_from_properties,
-)
-from de_twin.holder import NoHolder  # noqa: E402
-from de_twin.state import ExposureMode, FrameMeta, RenderMode, Roi  # noqa: E402
+from de_twin.clock import Clock
+from de_twin.column import Column
+from de_twin.faces.deapi_protocol import TEMPERATURE_PROP
+from de_twin.faces.deapi_request import request_from_properties
+from de_twin.faces.deapi_server import TwinDeapiServer
+from de_twin.holder import NoHolder
+from de_twin.state import ExposureMode, FrameMeta, RenderMode, Roi
 
 
 class StubDetector:
@@ -64,13 +62,19 @@ class StubTwin:
                 if request.exposure_mode == ExposureMode.GAIN:
                     frame += 400.0
                 else:
-                    col = int(state.stage.x_um) % w
-                    frame[:, col] += 3000.0
+                    column = int(state.stage.x_um) % w
+                    frame[:, column] += 3000.0
                     frame += 50.0
-            meta = FrameMeta(frame_index=i, time_s=self.clock.now(), exposure_s=request.frame_time_s,
-                             electrons_per_pixel=0.0 if blanked else 5.0,
-                             render_mode=RenderMode.TEM_IMAGING, blanked=blanked,
-                             scan_point=_scan_point(request, i), microscope=state)
+            meta = FrameMeta(
+                frame_index=i,
+                time_s=self.clock.now(),
+                exposure_s=request.frame_time_s,
+                electrons_per_pixel=0.0 if blanked else 5.0,
+                render_mode=RenderMode.TEM_IMAGING,
+                blanked=blanked,
+                scan_point=_scan_point(request, i),
+                microscope=state,
+            )
             yield np.clip(frame, 0, 65535).astype(np.uint16), meta
 
     def virtual_image(self, request, inner, outer):
@@ -112,8 +116,8 @@ def _acquire(client, frame_type="singleframe_integrated", n=1):
     deadline = time.time() + 10
     while client.acquiring and time.time() < deadline:
         time.sleep(0.01)
-    img, pixel_format, attrs, hist = client.get_result(frame_type)
-    return img, attrs
+    image, _pixel_format, attrs, _hist = client.get_result(frame_type)
+    return image, attrs
 
 
 def test_connect_and_properties(client, twin):
@@ -152,12 +156,25 @@ def test_request_mapping(client, server, twin):
     assert req.hw_binning == (2, 2)
     assert req.hw_roi == Roi(0, 0, 64, 32)
     assert req.camera_model == "StubCam"
-    props = {"Frames Per Second": 10, "Frame Count": 2, "Exposure Mode": "Normal",
-             "Hardware ROI Offset X": 0, "Hardware ROI Offset Y": 0, "Hardware ROI Size X": 96,
-             "Hardware ROI Size Y": 64, "Hardware Binning X": 1, "Hardware Binning Y": 1,
-             "Scan - Enable": "On", "Scan - Size X": 4, "Scan - Size Y": 3,
-             "Scan - Camera Frames Per Point": 2, "Scan - Repeats": 1, "Scan - ROI Enable": "Off",
-             "Grabbing - Frames Per Buffer": 1, "Scan - Type": "Raster"}
+    props = {
+        "Frames Per Second": 10,
+        "Frame Count": 2,
+        "Exposure Mode": "Normal",
+        "Hardware ROI Offset X": 0,
+        "Hardware ROI Offset Y": 0,
+        "Hardware ROI Size X": 96,
+        "Hardware ROI Size Y": 64,
+        "Hardware Binning X": 1,
+        "Hardware Binning Y": 1,
+        "Scan - Enable": "On",
+        "Scan - Size X": 4,
+        "Scan - Size Y": 3,
+        "Scan - Camera Frames Per Point": 2,
+        "Scan - Repeats": 1,
+        "Scan - ROI Enable": "Off",
+        "Grabbing - Frames Per Buffer": 1,
+        "Scan - Type": "Raster",
+    }
     r = request_from_properties(props.__getitem__, "X", (64, 96))
     assert r.hw_roi is None and r.scan.enabled and r.scan.size == (4, 3)
     assert r.total_frames == 4 * 3 * 2
@@ -202,8 +219,8 @@ def test_hw_roi_and_binning_shape(client):
     client.set_hw_roi(16, 8, 64, 32)
     client["Hardware Binning X"] = 2
     client.update_image_size()
-    img, attrs = _acquire(client)
-    assert img.shape == (16, 32)
+    image, attrs = _acquire(client)
+    assert image.shape == (16, 32)
     assert (attrs.frameWidth, attrs.frameHeight) == (32, 16)
 
 
@@ -231,12 +248,13 @@ def test_movie_buffer_has_real_frames(client):
     info = client.get_movie_buffer_info()
     frames = []
     while True:
-        status, total, n, buf = client.get_movie_buffer(
-            None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer)
+        status, _total, n, buffer = client.get_movie_buffer(
+            None, info.headerBytes + info.imageBufferBytes, info.framesInBuffer
+        )
         if status.name != "OK":
             break
         assert (info.imageW, info.imageH) == (96, 64)
-        data = np.frombuffer(buf, np.uint16, offset=info.headerBytes).reshape(n, 64, 96)
+        data = np.frombuffer(buffer, np.uint16, offset=info.headerBytes).reshape(n, 64, 96)
         frames.extend(data)
     assert len(frames) == 4
     assert np.mean(frames) > 120
@@ -366,7 +384,7 @@ def test_real_twin_if_available():
 
         twin = DigitalTwin(camera="DE16")
         twin.detector.output_shape(twin.request())
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         pytest.skip(f"DigitalTwin not ready: {exc}")
     with TwinDeapiServer(twin, port=0, pace=False) as srv:
         c = deapi.Client()
@@ -413,8 +431,8 @@ def test_deapi_own_loop_with_patched_factory(twin, monkeypatch):
         except OSError:
             time.sleep(0.05)
     assert c["Camera Name"] == "StubCam"
-    img, _ = _acquire(c)
-    assert img.shape == (64, 96) and img.mean() > 120
+    image, _ = _acquire(c)
+    assert image.shape == (64, 96) and image.mean() > 120
     c.disconnect()
 
 
@@ -438,7 +456,7 @@ def test_specimen_pixel_size_includes_binning():
 
 def test_a_fresh_face_exposes_for_half_a_second():
     """One frame per image reads as noise on a DE camera: a frame is sparse by design."""
-    from de_twin.faces import deapi_server as face_mod
+    from de_twin.faces import deapi_protocol as face_mod
     from de_twin.twin import DigitalTwin
 
     with TwinDeapiServer(DigitalTwin(camera="DESim"), port=0, pace=False) as srv:

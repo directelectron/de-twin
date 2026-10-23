@@ -14,7 +14,6 @@ import os
 import struct
 import sys
 import time
-from typing import Optional
 
 import numpy as np
 
@@ -105,8 +104,10 @@ class FrameProducer(_Mapping):
         deadline = time.monotonic() + timeout
         while not mapping_exists(name):
             if time.monotonic() >= deadline:
-                raise FileNotFoundError(f"shared memory {name!r} does not exist yet "
-                                        "(DE-Server creates it at the first acquisition)")
+                raise FileNotFoundError(
+                    f"shared memory {name!r} does not exist yet "
+                    "(DE-Server creates it at the first acquisition)"
+                )
             time.sleep(0.05)
         head = _map(name, L.HEADER_BYTES)
         hdr = L.View(head, 0, L.HEADER)
@@ -130,7 +131,7 @@ class FrameProducer(_Mapping):
     def acquiring(self) -> bool:
         return bool(self.hdr.acquiring)
 
-    def poll_request(self, timeout: float = 0.0) -> Optional[tuple[int, AcquisitionRequest]]:
+    def poll_request(self, timeout: float = 0.0) -> tuple[int, AcquisitionRequest] | None:
         """A new acquisition request as ``(request_id, AcquisitionRequest)``, or None."""
         deadline = time.monotonic() + timeout
         while True:
@@ -170,8 +171,17 @@ class FrameProducer(_Mapping):
         np.copyto(dst, frame.reshape(-1).view(np.uint8))  # one copy, no bytes object
         del dst  # a live view would keep the mapping from closing
         height, width = frame.shape
-        struct.pack_into(_SLOT_FIELDS, self.mm, slot + L.SLOT["request_id"].offset,
-                         request_id, frame_index, width, height, frame.dtype.itemsize, flags)
+        struct.pack_into(
+            _SLOT_FIELDS,
+            self.mm,
+            slot + L.SLOT["request_id"].offset,
+            request_id,
+            frame_index,
+            width,
+            height,
+            frame.dtype.itemsize,
+            flags,
+        )
         struct.pack_into("<Q", self.mm, slot, n + 1)  # frame_number: ready
         self._written = n + 1
         struct.pack_into("<Q", self.mm, _WRITE_COUNT, n + 1)
@@ -186,9 +196,12 @@ def request_from_header(h: L.View) -> AcquisitionRequest:
         mode = ExposureMode.NORMAL
     scan = ScanRequest()
     if h.scan_width and h.scan_height:
-        scan = ScanRequest(enabled=True, size=(h.scan_width, h.scan_height),
-                           frames_per_point=max(1, h.frames_per_scan_point),
-                           dwell_s=h.frame_time_ns * 1e-9 * max(1, h.frames_per_scan_point))
+        scan = ScanRequest(
+            enabled=True,
+            size=(h.scan_width, h.scan_height),
+            frames_per_point=max(1, h.frames_per_scan_point),
+            dwell_s=h.frame_time_ns * 1e-9 * max(1, h.frames_per_scan_point),
+        )
     return AcquisitionRequest(
         exposure_mode=mode,
         frame_time_s=h.frame_time_ns * 1e-9,
@@ -204,23 +217,36 @@ def request_from_header(h: L.View) -> AcquisitionRequest:
 class FrameConsumer(_Mapping):
     """What DE-Server does, in Python: create the mapping, request an acquisition, read frames."""
 
-    def __init__(self, name: str = L.DEFAULT_NAME, max_frame_bytes: int = 4096 * 4096 * 2,
-                 slot_count: int = L.SLOT_COUNT):
+    def __init__(
+        self,
+        name: str = L.DEFAULT_NAME,
+        max_frame_bytes: int = 4096 * 4096 * 2,
+        slot_count: int = L.SLOT_COUNT,
+    ):
         slot_bytes = L.slot_bytes_for(max_frame_bytes)
         mm = _map(name, L.mapping_size(slot_bytes, slot_count))
         super().__init__(name, mm, slot_bytes, slot_count)
         h = self.hdr
         if h.magic != L.MAGIC:
-            mm[:L.HEADER_BYTES] = bytes(L.HEADER_BYTES)
+            mm[: L.HEADER_BYTES] = bytes(L.HEADER_BYTES)
             h.version, h.slot_count, h.slot_bytes = L.VERSION, slot_count, slot_bytes
             h.magic = L.MAGIC
         self.request_id = 0
 
-    def begin(self, *, frame_shape: tuple[int, int], bytes_per_pixel: int = 2,
-              sensor_shape: Optional[tuple[int, int]] = None, exposure_mode: ExposureMode = ExposureMode.NORMAL,
-              frame_time_s: float = 0.01, total_frames: int = 0, roi: Optional[Roi] = None,
-              binning: tuple[int, int] = (1, 1), scan_size: tuple[int, int] = (0, 0),
-              frames_per_scan_point: int = 1) -> int:
+    def begin(
+        self,
+        *,
+        frame_shape: tuple[int, int],
+        bytes_per_pixel: int = 2,
+        sensor_shape: tuple[int, int] | None = None,
+        exposure_mode: ExposureMode = ExposureMode.NORMAL,
+        frame_time_s: float = 0.01,
+        total_frames: int = 0,
+        roi: Roi | None = None,
+        binning: tuple[int, int] = (1, 1),
+        scan_size: tuple[int, int] = (0, 0),
+        frames_per_scan_point: int = 1,
+    ) -> int:
         h = self.hdr
         fh, fw = frame_shape
         sh, sw = sensor_shape or (fh * binning[1], fw * binning[0])
@@ -232,7 +258,7 @@ class FrameConsumer(_Mapping):
         h.bin_x, h.bin_y = binning
         h.scan_width, h.scan_height = scan_size
         h.frames_per_scan_point = frames_per_scan_point
-        h.frame_time_ns = int(round(frame_time_s * 1e9))
+        h.frame_time_ns = round(frame_time_s * 1e9)
         h.total_frames = total_frames
         h.read_count = h.write_count
         h.acquiring = 1
@@ -240,7 +266,7 @@ class FrameConsumer(_Mapping):
         h.request_id = self.request_id
         return self.request_id
 
-    def read(self, timeout: float = 1.0, out: Optional[np.ndarray] = None) -> tuple[np.ndarray, dict]:
+    def read(self, timeout: float = 1.0, out: np.ndarray | None = None) -> tuple[np.ndarray, dict]:
         """The next frame of the current request, as ``(pixels, slot header)``. With *out*
         (of the frame's size and dtype) the pixels are copied into it, as DE-Server copies
         into its own buffers, instead of into a new array."""

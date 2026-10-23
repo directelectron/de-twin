@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from de_twin.clock import ManualClock
 from de_twin.specimen.materials import MaterialId
@@ -40,9 +39,9 @@ def test_shadowing_coats_the_flanks_facing_the_source_and_shades_the_ground_behi
 
 
 def test_the_metal_is_granular_crystalline_platinum_at_high_magnification():
-    tw = DigitalTwin("Cross grating 2160 l/mm", camera="DESim", clock=ManualClock(), seed=1)
-    tw.column.set("Magnification", 100000)
-    gt = tw.ground_truth(as_arrays=True)
+    twin = DigitalTwin("Cross grating 2160 l/mm", camera="DESim", clock=ManualClock(), seed=1)
+    twin.column.set("Magnification", 100000)
+    gt = twin.ground_truth(as_arrays=True)
     pt = gt["material_id"] == int(MaterialId.PLATINUM)
     assert 0.05 < pt.mean() < 0.5
     grains = np.unique(gt["grain_id"][pt])
@@ -53,11 +52,11 @@ def test_gold_shadowing_and_no_metal_are_options():
     from de_twin.specimen import Specimen, from_name
 
     for metal, mid in (("gold", MaterialId.GOLD), ("none", None)):
-        cfg = from_name("Cross grating 2160 l/mm", seed=1)
-        cfg.options["grating_metal"] = metal
-        tw = DigitalTwin(Specimen(cfg), camera="DESim", clock=ManualClock(), seed=1)
-        tw.column.set("Magnification", 100000)
-        m = tw.ground_truth(as_arrays=True)["material_id"]
+        config = from_name("Cross grating 2160 l/mm", seed=1)
+        config.options["grating_metal"] = metal
+        twin = DigitalTwin(Specimen(config), camera="DESim", clock=ManualClock(), seed=1)
+        twin.column.set("Magnification", 100000)
+        m = twin.ground_truth(as_arrays=True)["material_id"]
         if mid is None:
             assert not np.isin(m, [int(MaterialId.GOLD), int(MaterialId.PLATINUM)]).any()
         else:
@@ -70,14 +69,14 @@ def test_the_islands_give_platinum_lattice_fringes():
     from de_twin.specimen import Specimen, from_name
 
     def spectrum(metal):
-        cfg = from_name("Cross grating 2160 l/mm", seed=1)
-        cfg.options["grating_metal"] = metal
-        tw = DigitalTwin(Specimen(cfg), camera="DESim", clock=ManualClock(), seed=1)
-        tw.column.set("Magnification", 400000)
-        tw.column.set_defocus_um(-0.03)
-        req = tw.request()
-        f = tw.flux(req).astype(float)
-        p_nm = tw.optics(req).specimen_pixel_nm
+        config = from_name("Cross grating 2160 l/mm", seed=1)
+        config.options["grating_metal"] = metal
+        twin = DigitalTwin(Specimen(config), camera="DESim", clock=ManualClock(), seed=1)
+        twin.column.set("Magnification", 400000)
+        twin.column.set_defocus_um(-0.03)
+        request = twin.request()
+        f = twin.flux(request).astype(float)
+        p_nm = twin.optics(request).specimen_pixel_nm
         n = f.shape[0]
         w = np.hanning(n)
         F = np.abs(np.fft.fftshift(np.fft.fft2((f - f.mean()) * w[:, None] * w[None, :]))) ** 2

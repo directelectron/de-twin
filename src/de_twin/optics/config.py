@@ -8,9 +8,12 @@ render-side ones live in :class:`de_twin.render.RenderConfig`).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from ..state import ProbeMode, RenderMode
+
+if TYPE_CHECKING:
+    from .realism import ColumnRealism
 
 
 @dataclass
@@ -28,7 +31,7 @@ class OpticsConfig:
     eucentric_height_um: float = 0.0
     flip_x: bool = False
     flip_y: bool = False
-    render_mode_override: Optional[RenderMode] = None  # None = Auto
+    render_mode_override: RenderMode | None = None  # None = Auto
     #: The largest raster a TEM image is rendered at (pixels); a bigger frame is upsampled
     #: from it (`OpticsState.raster_downsample` says by how much). 0 renders at the
     #: frame's own sampling: what a CTF or MTF measurement needs, since an upsampled frame
@@ -49,15 +52,17 @@ class OpticsConfig:
     reference_current_pa: float = 600.0  # TEM-mode probe current at the reference spot
     reference_spot: int = 3
     spot_exponent: float = 2.0  # I ~ (ref/spot)^exponent (C++ law)
-    probe_mode_current_factor: dict = field(default_factory=lambda: {
-        ProbeMode.TEM: 1.0,
-        ProbeMode.MICROPROBE: 1.0,
-        ProbeMode.EDS: 0.5,
-        ProbeMode.NANOPROBE: 0.05,
-        ProbeMode.NBD: 0.02,
-        ProbeMode.CBD: 0.1,
-        ProbeMode.UNKNOWN: 1.0,
-    })
+    probe_mode_current_factor: dict = field(
+        default_factory=lambda: {
+            ProbeMode.TEM: 1.0,
+            ProbeMode.MICROPROBE: 1.0,
+            ProbeMode.EDS: 0.5,
+            ProbeMode.NANOPROBE: 0.05,
+            ProbeMode.NBD: 0.02,
+            ProbeMode.CBD: 0.1,
+            ProbeMode.UNKNOWN: 1.0,
+        }
+    )
     stem_current_factor: float = 0.05  # STEM with a TEM/unknown probe mode behaves like nanoprobe
     # Condenser aperture diameters (um) by 1-based index; current ~ (d/d_ref)^2.
     condenser_apertures_um: tuple[float, ...] = (150.0, 70.0, 50.0, 10.0)
@@ -79,14 +84,14 @@ class OpticsConfig:
     intensity_zoom_reference_mag: float = 20000.0
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
-    realism: Optional["ColumnRealism"] = None
+    realism: ColumnRealism | None = None
 
     @classmethod
-    def realistic(cls, seed: int = 0, **kw) -> "OpticsConfig":
+    def realistic(cls, seed: int = 0, **overrides) -> OpticsConfig:
         """A column as imperfect as a real one (:mod:`de_twin.optics.realism`), reproducibly."""
         from .realism import ColumnRealism
 
-        return cls(realism=ColumnRealism(seed=seed), **kw)
+        return cls(realism=ColumnRealism(seed=seed), **overrides)
 
     # ---- aberrations / coherence (twin additions) --------------------------
     cs_mm: float = 1.2

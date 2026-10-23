@@ -19,7 +19,7 @@ def _parallel_is_thread_safe() -> bool:
 
         parallel._launch_threads()  # the layer is chosen when its threads start
         return numba.threading_layer() != "workqueue"
-    except Exception:  # noqa: BLE001 - without numba nothing is compiled anyway
+    except Exception:
         return True
 
 
@@ -36,7 +36,7 @@ def numba_jit(*, fastmath: bool = True, **options):
     """
     try:
         import numba
-    except Exception:  # noqa: BLE001 - without numba the NumPy fallback runs
+    except Exception:
         return lambda function: function
     if options.get("parallel"):
         options["parallel"] = PARALLEL

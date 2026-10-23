@@ -15,9 +15,22 @@ def cl_for(recip_inv_nm: float) -> float:
     return 6500.0 / (LAM_200 * recip_inv_nm) / 1e6
 
 
-def stem_optics(*, scan=(32, 32), step_nm=0.25, conv_mrad=20.0, defocus_nm=-10.0, roi=64, binning=1,
-                recip_inv_nm=None, det_k_over_alpha=1.6, probe_ab=None, rotation_deg=0.0,
-                condenser_stig=(0.0, 0.0), spot=3, cfg=None):
+def stem_optics(
+    *,
+    scan=(32, 32),
+    step_nm=0.25,
+    conv_mrad=20.0,
+    defocus_nm=-10.0,
+    roi=64,
+    binning=1,
+    recip_inv_nm=None,
+    det_k_over_alpha=1.6,
+    probe_ab=None,
+    rotation_deg=0.0,
+    condenser_stig=(0.0, 0.0),
+    spot=3,
+    config=None,
+):
     """STEM optics whose (binned) detector half-width covers ``det_k_over_alpha`` x alpha."""
     s = MicroscopeState()
     s.tem_stem = TemStem.STEM
@@ -31,9 +44,11 @@ def stem_optics(*, scan=(32, 32), step_nm=0.25, conv_mrad=20.0, defocus_nm=-10.0
         ka = conv_mrad * 1e-3 / LAM_200
         recip_inv_nm = det_k_over_alpha * ka / (roi / 2)
     s.camera_length_mm = cl_for(recip_inv_nm)
-    r = AcquisitionRequest(hw_roi=Roi(2048 - roi // 2, 2048 - roi // 2, roi, roi), hw_binning=(binning, binning))
+    r = AcquisitionRequest(
+        hw_roi=Roi(2048 - roi // 2, 2048 - roi // 2, roi, roi), hw_binning=(binning, binning)
+    )
     r.scan.enabled = True
     r.scan.size = scan
     r.scan.step_um = step_nm / 1000.0
     r.scan.rotation_deg = rotation_deg
-    return derive_optics(s, r, CAM, Calibration.default(), cfg or OpticsConfig())
+    return derive_optics(s, r, CAM, Calibration.default(), config or OpticsConfig())

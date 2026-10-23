@@ -53,46 +53,50 @@ def _fields(spec):
 
 
 # ExternalFrameHeader (request fields are ExternalFrameRequest, at offset 40)
-HEADER = _fields([
-    ("magic", 0, "I"),
-    ("version", 4, "I"),
-    ("slot_count", 8, "I"),
-    ("slot_bytes", 16, "Q"),
-    ("request_id", 24, "Q"),
-    ("acquiring", 32, "I"),
-    # ExternalFrameRequest
-    ("exposure_mode", 40, "I"),
-    ("frame_width", 44, "I"),
-    ("frame_height", 48, "I"),
-    ("bytes_per_pixel", 52, "I"),
-    ("sensor_width", 56, "I"),
-    ("sensor_height", 60, "I"),
-    ("roi_x", 64, "I"),
-    ("roi_y", 68, "I"),
-    ("roi_width", 72, "I"),
-    ("roi_height", 76, "I"),
-    ("bin_x", 80, "I"),
-    ("bin_y", 84, "I"),
-    ("scan_width", 88, "I"),
-    ("scan_height", 92, "I"),
-    ("frames_per_scan_point", 96, "I"),
-    ("frame_time_ns", 104, "Q"),
-    ("total_frames", 112, "Q"),
-    # progress
-    ("read_count", 120, "Q"),
-    ("write_count", 128, "Q"),
-])
+HEADER = _fields(
+    [
+        ("magic", 0, "I"),
+        ("version", 4, "I"),
+        ("slot_count", 8, "I"),
+        ("slot_bytes", 16, "Q"),
+        ("request_id", 24, "Q"),
+        ("acquiring", 32, "I"),
+        # ExternalFrameRequest
+        ("exposure_mode", 40, "I"),
+        ("frame_width", 44, "I"),
+        ("frame_height", 48, "I"),
+        ("bytes_per_pixel", 52, "I"),
+        ("sensor_width", 56, "I"),
+        ("sensor_height", 60, "I"),
+        ("roi_x", 64, "I"),
+        ("roi_y", 68, "I"),
+        ("roi_width", 72, "I"),
+        ("roi_height", 76, "I"),
+        ("bin_x", 80, "I"),
+        ("bin_y", 84, "I"),
+        ("scan_width", 88, "I"),
+        ("scan_height", 92, "I"),
+        ("frames_per_scan_point", 96, "I"),
+        ("frame_time_ns", 104, "Q"),
+        ("total_frames", 112, "Q"),
+        # progress
+        ("read_count", 120, "Q"),
+        ("write_count", 128, "Q"),
+    ]
+)
 
 # ExternalFrameSlot
-SLOT = _fields([
-    ("frame_number", 0, "Q"),
-    ("request_id", 8, "Q"),
-    ("frame_index", 16, "Q"),
-    ("width", 24, "I"),
-    ("height", 28, "I"),
-    ("bytes_per_pixel", 32, "I"),
-    ("flags", 36, "I"),
-])
+SLOT = _fields(
+    [
+        ("frame_number", 0, "Q"),
+        ("request_id", 8, "Q"),
+        ("frame_index", 16, "Q"),
+        ("width", 24, "I"),
+        ("height", 28, "I"),
+        ("bytes_per_pixel", 32, "I"),
+        ("flags", 36, "I"),
+    ]
+)
 
 
 def slot_offset(index: int, slot_bytes: int, slot_count: int = SLOT_COUNT) -> int:
@@ -110,8 +114,8 @@ def mapping_size(slot_bytes: int, slot_count: int = SLOT_COUNT) -> int:
 class View:
     """Typed accessor over a region of a writable buffer (an mmap)."""
 
-    def __init__(self, buf, base: int, fields: dict[str, Field]):
-        object.__setattr__(self, "_buf", buf)
+    def __init__(self, buffer, base: int, fields: dict[str, Field]):
+        object.__setattr__(self, "_buf", buffer)
         object.__setattr__(self, "_base", base)
         object.__setattr__(self, "_fields", fields)
 

@@ -13,7 +13,7 @@ project = "de-twin"
 copyright = "2026, Carter Francis"
 author = "Carter Francis"
 # The single source of the version is pyproject.toml (bumped by Prepare Release).
-release = re.search(r'^version = "([^"]+)"', (ROOT / "pyproject.toml").read_text(), re.M).group(1)
+release = re.search(r'^version = "([^"]+)"', (ROOT / "pyproject.toml").read_text(), re.MULTILINE).group(1)
 version = release
 
 # In CI the Docs workflow sets DOCS_VERSION to the tag ("v0.1.0") or "dev".
@@ -56,9 +56,18 @@ intersphinx_mapping = {
 }
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "_root", "Thumbs.db", ".DS_Store", "auto_examples/*.ipynb",
-                    "auto_examples/*.py", "auto_examples/*.zip", "auto_examples/*.json",
-                    "auto_examples/*.md5", "sg_execution_times.rst"]
+exclude_patterns = [
+    "_build",
+    "_root",
+    "Thumbs.db",
+    ".DS_Store",
+    "auto_examples/*.ipynb",
+    "auto_examples/*.py",
+    "auto_examples/*.zip",
+    "auto_examples/*.json",
+    "auto_examples/*.md5",
+    "sg_execution_times.rst",
+]
 
 # -- Sphinx Gallery ----------------------------------------------------------
 sphinx_gallery_conf = {

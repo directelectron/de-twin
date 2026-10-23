@@ -21,7 +21,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -39,10 +39,8 @@ def _tbin(t):
     r = math.floor(x + 0.5)
     if r - x == 0.5 and r % 2.0 != 0.0:
         r -= 1.0
-    if r < 0.0:
-        r = 0.0
-    if r > 250.0:
-        r = 250.0
+    r = max(r, 0.0)
+    r = min(r, 250.0)
     return int(r)
 
 
@@ -62,8 +60,7 @@ def bragg_pixels(grain_id, material_id, thickness, f_t, n, nb_, gpm, gid, pix, m
                     tb = _tbin(np.float64(np.float32(thickness[i, j]) * f_t))
                     gid[i, j] = g
                     pix[i, j] = g * nb_ + tb
-                    if tb > maxbin[c, g]:
-                        maxbin[c, g] = tb
+                    maxbin[c, g] = max(maxbin[c, g], tb)
                 else:
                     gid[i, j] = -1
                     pix[i, j] = -1
@@ -100,16 +97,39 @@ def refraction_qmax(mip, inv_gc2):
             gy = np.float32(0.5) * (mip[i + 1, j] - mip[i - 1, j]) if 0 < i < ny - 1 else np.float32(0.0)
             gx = np.float32(0.5) * (mip[i, j + 1] - mip[i, j - 1]) if 0 < j < nx - 1 else np.float32(0.0)
             q = (gx * gx + gy * gy) * inv_gc2
-            if q > m:
-                m = q
+            m = max(m, q)
         rowmax[i] = m
     return rowmax.max()
 
 
 @_njit(parallel=True)
-def exit_wave(mat, thick, umat, uthick, has_under, f_t, lam_abs, bragg, mip, has_mip, refraction,
-              inv_gc2, noise, has_noise, amorphous, tex_k, mip_v, inv_dens, kappa, psi, t_out,
-              keep, has_keep, cutoff_lengths, kept_out):
+def exit_wave(
+    mat,
+    thick,
+    umat,
+    uthick,
+    has_under,
+    f_t,
+    lam_abs,
+    bragg,
+    mip,
+    has_mip,
+    refraction,
+    inv_gc2,
+    noise,
+    has_noise,
+    amorphous,
+    tex_k,
+    mip_v,
+    inv_dens,
+    kappa,
+    psi,
+    t_out,
+    keep,
+    has_keep,
+    cutoff_lengths,
+    kept_out,
+):
     """``has_keep`` (coherent STEM): the amplitude keeps the diffuse part a band-limited coherent
     simulation represents, ``I = (T + kept) (1 - bragg)`` with ``kept = (1 - T)
     exp(-t / (cutoff_lengths Lambda)) keep[m]`` (``T`` of the primary layer), written to
@@ -164,8 +184,31 @@ def exit_wave(mat, thick, umat, uthick, has_under, f_t, lam_abs, bragg, mip, has
 
 # ------------------------------------------------------------------ transfer
 @_njit(parallel=True)
-def transfer_c1a1c3c5(kx1, ky1, tx, ty, radial, poly3, poly5, a_re, a_im, g1, g3, g5, ga_re, ga_im,
-                      c0, gx0, gy0, es, et, kt2, kap2, H, transposed=False):
+def transfer_c1a1c3c5(
+    kx1,
+    ky1,
+    tx,
+    ty,
+    radial,
+    poly3,
+    poly5,
+    a_re,
+    a_im,
+    g1,
+    g3,
+    g5,
+    ga_re,
+    ga_im,
+    c0,
+    gx0,
+    gy0,
+    es,
+    et,
+    kt2,
+    kap2,
+    H,
+    transposed=False,
+):
     """H(k) of an aberration set of C1, A1, C3 and C5 (`tem.transfer_function`); with
     ``transposed``, H.T (shape (nx, ny), for the transposed spectra of :func:`fft2_t`)."""
     ny = ky1.shape[0]
@@ -173,18 +216,81 @@ def transfer_c1a1c3c5(kx1, ky1, tx, ty, radial, poly3, poly5, a_re, a_im, g1, g3
     if transposed:
         for j in _prange(nx):
             for i in range(ny):
-                H[j, i] = _h1(kx1[j], ky1[i], tx, ty, radial, poly3, poly5, a_re, a_im, g1, g3, g5, ga_re, ga_im,
-                              c0, gx0, gy0, es, et, kt2, kap2)
+                H[j, i] = _h1(
+                    kx1[j],
+                    ky1[i],
+                    tx,
+                    ty,
+                    radial,
+                    poly3,
+                    poly5,
+                    a_re,
+                    a_im,
+                    g1,
+                    g3,
+                    g5,
+                    ga_re,
+                    ga_im,
+                    c0,
+                    gx0,
+                    gy0,
+                    es,
+                    et,
+                    kt2,
+                    kap2,
+                )
     else:
         for i in _prange(ny):
             for j in range(nx):
-                H[i, j] = _h1(kx1[j], ky1[i], tx, ty, radial, poly3, poly5, a_re, a_im, g1, g3, g5, ga_re, ga_im,
-                              c0, gx0, gy0, es, et, kt2, kap2)
+                H[i, j] = _h1(
+                    kx1[j],
+                    ky1[i],
+                    tx,
+                    ty,
+                    radial,
+                    poly3,
+                    poly5,
+                    a_re,
+                    a_im,
+                    g1,
+                    g3,
+                    g5,
+                    ga_re,
+                    ga_im,
+                    c0,
+                    gx0,
+                    gy0,
+                    es,
+                    et,
+                    kt2,
+                    kap2,
+                )
 
 
 @_njit()
-def _h1(kx, ky, tx, ty, radial, poly3, poly5, a_re, a_im, g1, g3, g5, ga_re, ga_im, c0, gx0, gy0, es, et, kt2,
-        kap2):
+def _h1(
+    kx,
+    ky,
+    tx,
+    ty,
+    radial,
+    poly3,
+    poly5,
+    a_re,
+    a_im,
+    g1,
+    g3,
+    g5,
+    ga_re,
+    ga_im,
+    c0,
+    gx0,
+    gy0,
+    es,
+    et,
+    kt2,
+    kap2,
+):
     KY = np.float32(ky + ty)
     KX = np.float32(kx + tx)
     k2 = KX * KX + KY * KY
@@ -298,6 +404,7 @@ def _rows(x, inverse: bool) -> None:
         r = f(x[a:b], axis=1, overwrite_x=True)
         if r.ctypes.data != x[a:b].ctypes.data:
             x[a:b] = r
+
     list(pool().map(one, range(k)))
 
 

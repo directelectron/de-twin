@@ -1,7 +1,5 @@
 """The fused numba detector: the numpy path's physics, a fraction of its time."""
 
-import os
-
 import numpy as np
 import pytest
 
@@ -23,7 +21,7 @@ def _frames(name, flux, n=12, request=None, seed=4):
 
 
 def _flux(shape, level=120.0):
-    yy, xx = np.mgrid[0:shape[0], 0:shape[1]]
+    yy, xx = np.mgrid[0 : shape[0], 0 : shape[1]]
     return (level * (1.0 + 0.5 * np.sin(xx / 17.0) * np.cos(yy / 23.0))).astype(np.float32)
 
 
@@ -37,7 +35,9 @@ def test_the_statistics_match_the_numpy_path(name, monkeypatch):
     assert fast_frames.mean() == pytest.approx(ref.mean(), rel=0.01)
     # temporal variance per pixel (shot + gain + read noise) and the image itself
     assert fast_frames.var(axis=0).mean() == pytest.approx(ref.var(axis=0).mean(), rel=0.03)
-    np.testing.assert_allclose(fast_frames.mean(axis=0).mean(axis=0), ref.mean(axis=0).mean(axis=0), rtol=0.03)
+    np.testing.assert_allclose(
+        fast_frames.mean(axis=0).mean(axis=0), ref.mean(axis=0).mean(axis=0), rtol=0.03
+    )
 
 
 def test_a_seed_reproduces_and_frames_differ():
@@ -53,8 +53,8 @@ def test_binned_and_dark_frames():
     flux = _flux(camera(name).sensor_shape)
     req = AcquisitionRequest(camera_model=name, hw_binning=(2, 2))
     d = Detector(camera(name), seed=1)
-    img, info = d.expose(flux, 0.025, req, 0)
-    assert img.shape == (512, 512) and info["dose_e_per_px"] == pytest.approx(flux.mean() * 0.025, rel=0.01)
+    image, info = d.expose(flux, 0.025, req, 0)
+    assert image.shape == (512, 512) and info["dose_e_per_px"] == pytest.approx(flux.mean() * 0.025, rel=0.01)
     dark, info = d.expose(None, 0.025, AcquisitionRequest(camera_model=name), 0)
     m = camera(name)
     assert abs(float(np.median(dark)) - m.dark_offset_adu) < 20 and info["dose_e_per_px"] == 0.0
@@ -63,7 +63,8 @@ def test_binned_and_dark_frames():
 def test_saturation_is_counted():
     name = "DESim"
     d = Detector(camera(name), seed=1)
-    img, info = d.expose(np.full(camera(name).sensor_shape, 1e5, np.float32), 0.025,
-                         AcquisitionRequest(camera_model=name), 0)
-    assert info["saturated"] and info["saturated_pixels"] > 0.9 * img.size
-    assert int(img.max()) == camera(name).max_value
+    image, info = d.expose(
+        np.full(camera(name).sensor_shape, 1e5, np.float32), 0.025, AcquisitionRequest(camera_model=name), 0
+    )
+    assert info["saturated"] and info["saturated_pixels"] > 0.9 * image.size
+    assert int(image.max()) == camera(name).max_value

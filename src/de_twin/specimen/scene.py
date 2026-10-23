@@ -15,7 +15,6 @@ import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -42,24 +41,28 @@ class Feature:
     radius_um: float = 0.0
     area_index: int = -1
     post_index: int = -1
-    kind: Optional[str] = None  # BulkSampleKind name for a lamella, else None
+    kind: str | None = None  # BulkSampleKind name for a lamella, else None
     weight: int = 1  # particle count of a cluster
     label: str = ""
 
 
 class Scene:
-    def __init__(self, config: SpecimenConfig, opts: SpecimenOptions):
+    def __init__(self, config: SpecimenConfig, options: SpecimenOptions):
         self.config = config
-        self.opts = opts
+        self.opts = options
         self.seed = int(config.seed) & 0xFFFFFFFF  # the C++ property is a uint32 in practice
         self.holder_kind = config.holder
         self.film = config.resolved_film()
-        self.holder = Holder(config.holder, self.seed, self.film, opts)
-        self.preparation: Preparation = make_preparation(config.preparation, config.holder, self.film, opts)
+        self.holder = Holder(config.holder, self.seed, self.film, options)
+        self.preparation: Preparation = make_preparation(
+            config.preparation, config.holder, self.film, options
+        )
         self.per_post: list[Preparation] = []
         if config.holder == "fib_liftout" and config.preparation == "bulk":
-            self.per_post = [BulkSamplePreparation(p.bulk_kind, p.matrix_material, opts) for p in self.holder.posts]
-        self._aggregates: Optional[PrimitiveSet] = None  # one row per placement area, built lazily
+            self.per_post = [
+                BulkSamplePreparation(p.bulk_kind, p.matrix_material, options) for p in self.holder.posts
+            ]
+        self._aggregates: PrimitiveSet | None = None  # one row per placement area, built lazily
         self._resident: OrderedDict[int, Batch] = OrderedDict()
         self._resident_bytes = 0
         self._query_lock = threading.RLock()
@@ -93,9 +96,20 @@ class Scene:
             t, m, g, rot = (np.array(v) for v in zip(*rows))
             seeds = np.array([self.area_seed(a.index) for a in h.areas], np.uint64)
             self._aggregates = PrimitiveSet.make(
-                h.area_cx, h.area_cy, np.abs(h.area_hx), np.abs(h.area_hy), rot=rot.astype(np.float64),
-                shape=Shape.RECT, thickness=t.astype(np.float32), profile=Profile.FLAT, layer=Layer.PREPARATION,
-                material=m.astype(np.uint8), grain=g.astype(np.int32), seed=seeds, aggregate=True)
+                h.area_cx,
+                h.area_cy,
+                np.abs(h.area_hx),
+                np.abs(h.area_hy),
+                rot=rot.astype(np.float64),
+                shape=Shape.RECT,
+                thickness=t.astype(np.float32),
+                profile=Profile.FLAT,
+                layer=Layer.PREPARATION,
+                material=m.astype(np.uint8),
+                grain=g.astype(np.int32),
+                seed=seeds,
+                aggregate=True,
+            )
         return self._aggregates
 
     def clear_population(self):
@@ -117,19 +131,19 @@ class Scene:
             self._resident_bytes -= self._resident.pop(victim).nbytes
         return batch, True
 
-    def query(self, ctx: RasterContext) -> PrimitiveSet:
+    def query(self, context: RasterContext) -> PrimitiveSet:
         """Primitives visible in the view, in painter's order (Scene::Query). Serialised:
         it populates areas on demand, and strips of one raster are rasterised in threads."""
         with self._query_lock:
-            return self._query(ctx)
+            return self._query(context)
 
-    def _query(self, ctx: RasterContext) -> PrimitiveSet:
+    def _query(self, context: RasterContext) -> PrimitiveSet:
         t0 = time.perf_counter()
         stats = {"areas_visible": 0, "areas_populated": 0, "areas_aggregated": 0}
-        box = ctx.aabb
+        box = context.aabb
         idx = self.holder.query_areas(box)
         stats["areas_visible"] = int(idx.size)
-        span = getattr(ctx, "span_px", None) or max(ctx.ny, ctx.nx)
+        span = getattr(context, "span_px", None) or max(context.ny, context.nx)
         threshold = max(AGGREGATE_HOLE_DIAMETER_PX, POPULATE_VIEW_FRACTION * span)
         parts: list[PrimitiveSet] = []
         protected: set = set()
@@ -139,11 +153,13 @@ class Scene:
             area = self.holder.areas[int(i)]
             prep = self.preparation_for(area)
             fr = prep.typical_feature_radius_um()
-            all_culled = fr > 0 and float(ctx.diameter_px(fr)) < ctx.lod_threshold_px
-            dpx = float(ctx.diameter_px(area.half_span))
+            all_culled = fr > 0 and float(context.diameter_px(fr)) < context.lod_threshold_px
+            dpx = float(context.diameter_px(area.half_span))
             resident = area.index in self._resident
-            budget = (not resident) and (stats["areas_populated"] >= MAX_POPULATE_PER_QUERY
-                                         or populated_bytes >= MAX_POPULATE_BYTES_PER_QUERY)
+            budget = (not resident) and (
+                stats["areas_populated"] >= MAX_POPULATE_PER_QUERY
+                or populated_bytes >= MAX_POPULATE_BYTES_PER_QUERY
+            )
             if dpx < threshold or all_culled or budget:
                 aggregates.append(area.index)
                 stats["areas_aggregated"] += 1
@@ -170,7 +186,7 @@ class Scene:
         return out
 
     # -- features -------------------------------------------------------------------------------
-    def _choose_area(self, x: float, y: float) -> Optional[PlacementArea]:
+    def _choose_area(self, x: float, y: float) -> PlacementArea | None:
         areas = self.holder.areas
         if not areas:
             return None
@@ -203,9 +219,15 @@ class Scene:
         lam = self.holder.lamellae[i]
         ordinal = sum(1 for k in range(i) if self.holder.lamellae[k].post_index == lam.post_index)
         kind = BULK_SAMPLE_KINDS[lam.bulk_kind]
-        return Feature(center_um=lam.center, radius_um=max(abs(lam.half[0]), abs(lam.half[1])),
-                       area_index=lam.area_index, post_index=lam.post_index, kind=kind, weight=1,
-                       label=f"post {lam.post_index} lamella {ordinal} {kind}")
+        return Feature(
+            center_um=lam.center,
+            radius_um=max(abs(lam.half[0]), abs(lam.half[1])),
+            area_index=lam.area_index,
+            post_index=lam.post_index,
+            kind=kind,
+            weight=1,
+            label=f"post {lam.post_index} lamella {ordinal} {kind}",
+        )
 
     def _area_feature(self, area: PlacementArea) -> Feature:
         kind = BULK_SAMPLE_KINDS[area.feature_kind] if area.feature_kind is not None else None
@@ -215,10 +237,17 @@ class Scene:
             label = f"post {area.post_index} lamella 0 {kind}"
         else:
             label = f"hole {area.index}"
-        return Feature(center_um=area.center, radius_um=area.half_span, area_index=area.index,
-                       post_index=area.post_index, kind=kind, weight=1, label=label)
+        return Feature(
+            center_um=area.center,
+            radius_um=area.half_span,
+            area_index=area.index,
+            post_index=area.post_index,
+            kind=kind,
+            weight=1,
+            label=label,
+        )
 
-    def nearest_feature(self, x: float, y: float) -> Optional[Feature]:
+    def nearest_feature(self, x: float, y: float) -> Feature | None:
         lam = self.holder.lamellae
         if self.holder_kind == "fib_liftout" and lam:
             d = [math.hypot(l.center[0] - x, l.center[1] - y) for l in lam]
@@ -228,8 +257,15 @@ class Scene:
         nc = self.nearest_cluster(x, y)
         if nc is not None:
             area, c = nc
-            return Feature(center_um=c.center, radius_um=0.0, area_index=area.index, post_index=area.post_index,
-                           kind=None, weight=c.count, label=f"hole {area.index} cluster")
+            return Feature(
+                center_um=c.center,
+                radius_um=0.0,
+                area_index=area.index,
+                post_index=area.post_index,
+                kind=None,
+                weight=c.count,
+                label=f"hole {area.index} cluster",
+            )
         area = self._choose_area(x, y)
         return self._area_feature(area) if area is not None else None
 
@@ -239,7 +275,7 @@ class Scene:
         areas = self.holder.areas
         if not areas:
             return []
-        d2 = self.holder.area_cx ** 2 + self.holder.area_cy ** 2
+        d2 = self.holder.area_cx**2 + self.holder.area_cy**2
         order = np.lexsort((np.arange(len(areas)), d2))[:MAX_FEATURE_TABLE]
         out = []
         for i in order:
@@ -249,8 +285,14 @@ class Scene:
                 cl = [c for c in self._clusters(area, resident_ok=False) if c.count > 0]
                 if cl:
                     best = max(cl, key=lambda c: c.count)
-                    f = Feature(center_um=best.center, radius_um=best.sigma_um, area_index=area.index,
-                                post_index=area.post_index, kind=None, weight=best.count,
-                                label=f"hole {area.index} cluster")
+                    f = Feature(
+                        center_um=best.center,
+                        radius_um=best.sigma_um,
+                        area_index=area.index,
+                        post_index=area.post_index,
+                        kind=None,
+                        weight=best.count,
+                        label=f"hole {area.index} cluster",
+                    )
             out.append(f)
         return out

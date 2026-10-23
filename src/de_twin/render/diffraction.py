@@ -27,8 +27,8 @@ import math
 import threading
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Optional
 
 import numpy as np
 from scipy import ndimage
@@ -62,8 +62,10 @@ class PatternOptions:
     max_g_inv_nm: float = 25.0
 
     @classmethod
-    def from_config(cls, cfg) -> "PatternOptions":
-        return cls(bool(cfg.film_halo), bool(cfg.scaled_diffraction_saturation), float(cfg.max_g_inv_nm))
+    def from_config(cls, config) -> PatternOptions:
+        return cls(
+            bool(config.film_halo), bool(config.scaled_diffraction_saturation), float(config.max_g_inv_nm)
+        )
 
 
 @dataclass
@@ -112,12 +114,15 @@ class PatternSet:
 
 
 def thickness_bin_for(t_nm):
-    return np.clip(np.rint(np.asarray(t_nm, np.float64) / THICKNESS_BIN_NM), 0, MAX_THICKNESS_BIN).astype(np.int64)
+    return np.clip(np.rint(np.asarray(t_nm, np.float64) / THICKNESS_BIN_NM), 0, MAX_THICKNESS_BIN).astype(
+        np.int64
+    )
 
 
 def crystal_bin_for(c):
-    return np.clip(np.floor(np.clip(np.asarray(c, np.float64), 0, 1) * CRYSTAL_BINS + 1e-9), 0,
-                   CRYSTAL_BINS).astype(np.int64)
+    return np.clip(
+        np.floor(np.clip(np.asarray(c, np.float64), 0, 1) * CRYSTAL_BINS + 1e-9), 0, CRYSTAL_BINS
+    ).astype(np.int64)
 
 
 def saturation_thickness_nm(material_id: int, options: PatternOptions = PatternOptions()) -> float:
@@ -129,8 +134,8 @@ def saturation_thickness_nm(material_id: int, options: PatternOptions = PatternO
 
 def amorphous_fraction(material_id: int, t_nm, options: PatternOptions = PatternOptions()):
     m = material(material_id)
-    tw = np.clip(np.asarray(t_nm, float) / saturation_thickness_nm(material_id, options), 0.0, 1.0)
-    return MAX_DIFFRACTED_FRACTION * tw * sum(w for _, w in m.halos)
+    twin = np.clip(np.asarray(t_nm, float) / saturation_thickness_nm(material_id, options), 0.0, 1.0)
+    return MAX_DIFFRACTED_FRACTION * twin * sum(w for _, w in m.halos)
 
 
 def bragg_fraction(p):
@@ -142,8 +147,10 @@ def _rings(owner, weight, g, gw, width):
     gw = np.asarray(gw, float) / max(float(np.sum(gw)), 1e-300)
     sel = weight > 0
     o, w = owner[sel], weight[sel]
-    return (np.repeat(o, len(g)),
-            np.stack([np.tile(g, len(o)), np.full(len(o) * len(g), width), (w[:, None] * gw).ravel()], 1))
+    return (
+        np.repeat(o, len(g)),
+        np.stack([np.tile(g, len(o)), np.full(len(o) * len(g), width), (w[:, None] * gw).ravel()], 1),
+    )
 
 
 def beam_tilt_rotation(tilt_rad) -> np.ndarray:
@@ -171,7 +178,7 @@ def tilt_samples(optics, n_cone: int = 24) -> list:
         return [((bx, by), 1.0, (0.0, 0.0))]
     arc = float(getattr(optics, "precession_arc_rad", 2.0 * math.pi))
     phase = float(getattr(optics, "precession_phase_rad", 0.0))
-    n = n_cone if arc >= 2.0 * math.pi else max(2, int(math.ceil(n_cone * arc / (2.0 * math.pi))))
+    n = n_cone if arc >= 2.0 * math.pi else max(2, math.ceil(n_cone * arc / (2.0 * math.pi)))
     step = min(arc, 2.0 * math.pi) / n
     lam = optics.wavelength_nm
     descan = bool(getattr(optics, "precession_descan", True))
@@ -195,8 +202,13 @@ def _excite_buckets(lib, grains, gids, t_nm, optics, tilt_rad=(0.0, 0.0)):
     if len(ug) * len(ut) > 4 * len(gids) + 64:  # scattered thicknesses: one orientation per bucket
         ex = lib.excite(m[ginv], optics.wavelength_nm, t_nm, optics.ht_kv, optics.convergence_mrad)
         return ex.owner, ex.gx, ex.gy, ex.intensity, ex.total
-    ex = lib.excite(m, optics.wavelength_nm, np.broadcast_to(ut, (len(ug), len(ut))), optics.ht_kv,
-                    optics.convergence_mrad)
+    ex = lib.excite(
+        m,
+        optics.wavelength_nm,
+        np.broadcast_to(ut, (len(ug), len(ut))),
+        optics.ht_kv,
+        optics.convergence_mrad,
+    )
     order = np.argsort(ginv, kind="stable")
     counts = np.bincount(ginv, minlength=len(ug))
     starts = np.cumsum(counts) - counts
@@ -206,8 +218,9 @@ def _excite_buckets(lib, grains, gids, t_nm, optics, tilt_rad=(0.0, 0.0)):
     return b, ex.gx[k], ex.gy[k], ex.intensity[k, tinv[b]], ex.total[ginv, tinv]
 
 
-def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
-                    options: PatternOptions = PatternOptions()) -> PatternSet:
+def bucket_patterns(
+    mats, gids, t_nm, cryst, grains, optics, options: PatternOptions = PatternOptions()
+) -> PatternSet:
     """Normalised patterns of N buckets (material, grain, thickness, crystallinity). Crystalline
     buckets with a grain use the exact excitation at the grain's effective orientation (grain x
     stage tilt x beam tilt); crystalline buckets without one the powder (orientation) average.
@@ -215,10 +228,19 @@ def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
     samples = tilt_samples(optics)
     if len(samples) == 1 and samples[0][2] == (0.0, 0.0):
         return _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, samples[0][0])
-    base = (np.asarray(mats, np.int64).tobytes(), np.asarray(gids, np.int64).tobytes(),
-            np.asarray(t_nm, float).tobytes(), np.asarray(cryst, float).tobytes(), id(grains),
-            float(optics.alpha_rad), float(optics.beta_rad), float(optics.wavelength_nm),
-            float(optics.ht_kv), float(optics.convergence_mrad), options)
+    base = (
+        np.asarray(mats, np.int64).tobytes(),
+        np.asarray(gids, np.int64).tobytes(),
+        np.asarray(t_nm, float).tobytes(),
+        np.asarray(cryst, float).tobytes(),
+        id(grains),
+        float(optics.alpha_rad),
+        float(optics.beta_rad),
+        float(optics.wavelength_nm),
+        float(optics.ht_kv),
+        float(optics.convergence_mrad),
+        options,
+    )
 
     def at(tilt):
         key = (base, round(tilt[0], 12), round(tilt[1], 12))
@@ -245,7 +267,7 @@ def bucket_patterns(mats, gids, t_nm, cryst, grains, optics,
 #: Pattern sets per precession tilt, so a frame that covers part of the cone re-weights
 #: cached tilts instead of exciting every grain again (two full cones' worth).
 CONE_CACHE_SIZE = 48
-_CONE_CACHE: "OrderedDict[tuple, tuple]" = OrderedDict()
+_CONE_CACHE: OrderedDict[tuple, tuple] = OrderedDict()
 
 
 def _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt_rad) -> PatternSet:
@@ -276,8 +298,9 @@ def _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt_r
             lib = library_for(int(mid), options.max_g_inv_nm)
             if has.any() and lib is not None:  # an amorphous material scatters no Bragg beams
                 own = sel[has]
-                owner, gx, gy, inten, total = _excite_buckets(lib, grains, gids[own], t_nm[own], optics,
-                                                              tilt_rad)
+                owner, gx, gy, inten, total = _excite_buckets(
+                    lib, grains, gids[own], t_nm[own], optics, tilt_rad
+                )
                 bragg = cryst[own] * bragg_fraction(total)
                 w = inten * np.where(total > 0, bragg / np.maximum(total, 1e-300), 0.0)[owner]
                 keep = w > MIN_SPOT_WEIGHT  # the dropped remainder stays in the direct beam
@@ -313,19 +336,21 @@ def _bucket_patterns_at(mats, gids, t_nm, cryst, grains, optics, options, tilt_r
     return PatternSet(n, spots[si], s_own[si], rings[ri], r_own[ri])
 
 
-def powder_pattern(mid: int, t_nm: float, crystallinity: float, optics,
-                   options: PatternOptions = PatternOptions()) -> Pattern:
+def powder_pattern(
+    mid: int, t_nm: float, crystallinity: float, optics, options: PatternOptions = PatternOptions()
+) -> Pattern:
     """Orientation-averaged (Debye-Scherrer) pattern of a crystalline material."""
     return bucket_patterns([mid], [-1], [t_nm], [crystallinity], None, optics, options)[0]
 
 
 # ------------------------------------------------------------ rendering
 def blur_sigma_px(disk_radius_px: float) -> float:
-    return float(np.clip(BLUR_FRACTION * max(disk_radius_px, MIN_DISK_RADIUS_PX), MIN_BLUR_SIGMA_PX,
-                         MAX_BLUR_SIGMA_PX))
+    return float(
+        np.clip(BLUR_FRACTION * max(disk_radius_px, MIN_DISK_RADIUS_PX), MIN_BLUR_SIGMA_PX, MAX_BLUR_SIGMA_PX)
+    )
 
 
-_RADIUS_CACHE: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+_RADIUS_CACHE: OrderedDict[tuple, np.ndarray] = OrderedDict()
 
 
 def radius_map(shape: tuple[int, int], cx: float, cy: float) -> np.ndarray:
@@ -353,7 +378,7 @@ def stamp_disks(out: np.ndarray, x, y, w, radius: float, sigma: float) -> None:
     weight over the infinite plane (what falls off the detector is lost). Vectorised."""
     h, wd = out.shape
     half = radius + 4.0 * sigma + 1.0
-    n = int(math.ceil(2.0 * half)) + 1
+    n = math.ceil(2.0 * half) + 1
     x, y, w = (np.asarray(v, np.float64) for v in (x, y, w))
     on = (w != 0) & (x + half > 0) & (y + half > 0) & (x - half < wd) & (y - half < h)
     x, y, w = x[on], y[on], w[on]
@@ -366,7 +391,7 @@ def stamp_disks(out: np.ndarray, x, y, w, radius: float, sigma: float) -> None:
     step = max(1, (1 << 22) // (n * n))
     ar = np.arange(n)
     for c0 in range(0, len(x), step):
-        xs, ys, ws = x[c0:c0 + step], y[c0:c0 + step], w[c0:c0 + step]
+        xs, ys, ws = x[c0 : c0 + step], y[c0 : c0 + step], w[c0 : c0 + step]
         ix0 = np.floor(xs - half).astype(np.int64)
         iy0 = np.floor(ys - half).astype(np.int64)
         dx = (ix0[:, None] + ar) - xs[:, None]
@@ -395,17 +420,19 @@ def _merge(rows: np.ndarray) -> np.ndarray:
 def splat_blur(shape, x, y, w, sigma: float) -> np.ndarray:
     """Bilinear splat of point weights, blurred by a Gaussian (sum kept, off-detector lost)."""
     h, wd = shape
-    pad = int(math.ceil(4 * sigma)) + 2
-    img = np.zeros((h + 2 * pad, wd + 2 * pad), np.float64)  # margin: spots just off the edge
+    pad = math.ceil(4 * sigma) + 2
+    image = np.zeros((h + 2 * pad, wd + 2 * pad), np.float64)  # margin: spots just off the edge
     ix, iy = np.floor(x).astype(np.int64), np.floor(y).astype(np.int64)
     fx, fy = x - ix, y - iy
     for dy, wy in ((0, 1 - fy), (1, fy)):
         for dx, wx in ((0, 1 - fx), (1, fx)):
             r, c = iy + dy + pad, ix + dx + pad
             m = (r >= 0) & (r < h + 2 * pad) & (c >= 0) & (c < wd + 2 * pad)
-            np.add.at(img, (r[m], c[m]), (w * wx * wy)[m])
+            np.add.at(image, (r[m], c[m]), (w * wx * wy)[m])
     s = math.sqrt(max(sigma * sigma - 1.0 / 6.0, 0.25))  # the splat itself adds ~1/6 px^2
-    return ndimage.gaussian_filter(img, s, mode="constant", truncate=4.0)[pad:-pad, pad:-pad].astype(np.float32)
+    return ndimage.gaussian_filter(image, s, mode="constant", truncate=4.0)[pad:-pad, pad:-pad].astype(
+        np.float32
+    )
 
 
 def _ring_table(rings_px: list, rmax: float, step: float = 0.25):
@@ -422,9 +449,15 @@ def _ring_table(rings_px: list, rmax: float, step: float = 0.25):
     return rho, prof
 
 
-def render_pattern(p: Pattern, shape: tuple[int, int], recip_px: float, disk_radius_px: float,
-                   center: Optional[tuple[float, float]] = None, diffuse=(),
-                   mrad_per_px: float = 0.0) -> np.ndarray:
+def render_pattern(
+    p: Pattern,
+    shape: tuple[int, int],
+    recip_px: float,
+    disk_radius_px: float,
+    center: tuple[float, float] | None = None,
+    diffuse=(),
+    mrad_per_px: float = 0.0,
+) -> np.ndarray:
     """Draw a pattern at a detector geometry. Components integrate to their weights.
 
     ``diffuse`` is an optional list of ``(theta0_mrad, weight)`` screened-Rutherford terms
@@ -446,13 +479,19 @@ def render_pattern(p: Pattern, shape: tuple[int, int], recip_px: float, disk_rad
             stamp_disks(out, x, y, spots[:, 2], radius, sigma)
     diffuse = [(t0, wgt) for t0, wgt in diffuse if wgt > 0] if mrad_per_px > 0 else []
     if len(p.rings) or diffuse:
-        rings_px = [(g / recip_px, math.sqrt((hw / recip_px) ** 2 / 3.0 + radius * radius / 4.0 + sigma * sigma),
-                     float(wt)) for g, hw, wt in _merge(p.rings)]
+        rings_px = [
+            (
+                g / recip_px,
+                math.sqrt((hw / recip_px) ** 2 / 3.0 + radius * radius / 4.0 + sigma * sigma),
+                float(wt),
+            )
+            for g, hw, wt in _merge(p.rings)
+        ]
         r = radius_map((h, w), cx, cy)
         rho, prof = _ring_table(rings_px, float(math.hypot(max(cx, w - cx), max(cy, h - cy))))
         for t0, wgt in diffuse:
             th = rho * mrad_per_px
-            prof = prof + wgt * (t0 * t0 / math.pi) * mrad_per_px ** 2 / (th * th + t0 * t0) ** 2
+            prof = prof + wgt * (t0 * t0 / math.pi) * mrad_per_px**2 / (th * th + t0 * t0) ** 2
         out += np.interp(r, rho, prof).astype(np.float32)
     return out
 
@@ -463,8 +502,9 @@ def screening_angle_mrad(material_id: int, wavelength_nm: float) -> float:
     return 1000.0 * wavelength_nm / (2.0 * math.pi * a_nm)
 
 
-def render_diffuse(material_id: int, shape: tuple[int, int], optics,
-                   center: Optional[tuple[float, float]] = None) -> np.ndarray:
+def render_diffuse(
+    material_id: int, shape: tuple[int, int], optics, center: tuple[float, float] | None = None
+) -> np.ndarray:
     """Normalised (plane integral 1) screened-Rutherford background:
     p(theta) = theta0^2 / (pi (theta^2 + theta0^2)^2) per mrad^2."""
     h, w = int(shape[0]), int(shape[1])
@@ -491,8 +531,9 @@ def _overlap(d, r: float, big_r: float):
     return np.where(d >= r + big_r, 0.0, np.where(d <= abs(big_r - r), math.pi * min(r, big_r) ** 2, lens))
 
 
-def annulus_fractions(ps: PatternSet, convergence_mrad: float, wavelength_nm: float,
-                      inner_mrad: float, outer_mrad: float) -> np.ndarray:
+def annulus_fractions(
+    ps: PatternSet, convergence_mrad: float, wavelength_nm: float, inner_mrad: float, outer_mrad: float
+) -> np.ndarray:
     """Fraction of each pattern of a set (weights, not truncated by a camera) collected by an
     annular detector [inner, outer) centred on the direct beam. Vectorised."""
     k = 1000.0 * wavelength_nm
@@ -509,26 +550,31 @@ def annulus_fractions(ps: PatternSet, convergence_mrad: float, wavelength_nm: fl
     if len(ps.rings):
         r = ps.rings
         rad = r[:, 0] * k
-        sig = np.sqrt((r[:, 1] * k) ** 2 / 3.0 + convergence_mrad ** 2 / 4.0)
+        sig = np.sqrt((r[:, 1] * k) ** 2 / 3.0 + convergence_mrad**2 / 4.0)
 
         def cdf(x):
             return 0.5 * (1.0 + erf((min(x, 1e30) - rad) / (_S2 * sig)))
+
         frac = (cdf(outer_mrad) - cdf(max(inner_mrad, 0.0))) / np.maximum(1.0 - cdf(0.0), 1e-12)
         out += np.bincount(ps.ring_owner, weights=np.clip(frac, 0, 1) * r[:, 2], minlength=ps.n)
     return out
 
 
-def annulus_fraction(p: Pattern, convergence_mrad: float, wavelength_nm: float,
-                     inner_mrad: float, outer_mrad: float) -> float:
+def annulus_fraction(
+    p: Pattern, convergence_mrad: float, wavelength_nm: float, inner_mrad: float, outer_mrad: float
+) -> float:
     ps = PatternSet(1, p.spots, np.zeros(len(p.spots), np.int64), p.rings, np.zeros(len(p.rings), np.int64))
     return float(annulus_fractions(ps, convergence_mrad, wavelength_nm, inner_mrad, outer_mrad)[0])
 
 
-def diffuse_annulus_fraction(material_id: int, wavelength_nm: float, inner_mrad: float, outer_mrad: float) -> float:
+def diffuse_annulus_fraction(
+    material_id: int, wavelength_nm: float, inner_mrad: float, outer_mrad: float
+) -> float:
     t0 = screening_angle_mrad(material_id, wavelength_nm)
 
     def cdf(t):
         return t * t / (t * t + t0 * t0) if np.isfinite(t) else 1.0
+
     return float(cdf(outer_mrad) - cdf(max(inner_mrad, 0.0)))
 
 
@@ -550,7 +596,7 @@ class DiffractionCache:
     rendered outside the lock."""
 
     def __init__(self, budget_mb: int = 256):
-        self._lru: "OrderedDict[object, np.ndarray]" = OrderedDict()
+        self._lru: OrderedDict[object, np.ndarray] = OrderedDict()
         self._lock = threading.RLock()
         self.stats = DiffractionCacheStats(budget_bytes=max(1, int(budget_mb)) * 1024 * 1024)
 
@@ -567,23 +613,23 @@ class DiffractionCache:
 
     def get(self, key, render: Callable[[object], np.ndarray]) -> np.ndarray:
         with self._lock:
-            arr = self._lru.get(key)
-            if arr is not None:
+            array = self._lru.get(key)
+            if array is not None:
                 self._lru.move_to_end(key)
                 self.stats.hits += 1
-                return arr
+                return array
         t0 = time.perf_counter()
-        arr = render(key)
-        arr.setflags(write=False)
+        array = render(key)
+        array.setflags(write=False)
         with self._lock:
             self.stats.last_render_ms = (time.perf_counter() - t0) * 1000.0
             if key in self._lru:  # rendered meanwhile by another thread
                 return self._lru[key]
-            self._lru[key] = arr
-            self.stats.bytes += arr.nbytes
+            self._lru[key] = array
+            self.stats.bytes += array.nbytes
             self.stats.misses += 1
             self._evict()
-        return arr
+        return array
 
     def clear(self) -> None:
         with self._lock:

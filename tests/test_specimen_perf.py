@@ -2,10 +2,9 @@
 
 import time
 
-import pytest
+from perf_budget import budget
 
 from de_twin.specimen import Specimen, ViewWindow, from_name
-from perf_budget import budget
 
 
 def _time(fn, repeat=2):

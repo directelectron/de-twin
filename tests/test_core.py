@@ -1,12 +1,11 @@
 import numpy as np
-import pytest
+from perf_budget import budget
 
 from de_twin.clock import Clock, ManualClock
 from de_twin.hashing import SeedKind, hash_seed, mix_cell, rng_for, splitmix64, uniform_from_hash
 from de_twin.specimen.fieldmap import GrainTable, ViewWindow
 from de_twin.specimen.materials import MATERIALS, MaterialId
 from de_twin.state import AcquisitionRequest, ExposureMode
-from perf_budget import budget
 
 
 def test_splitmix64_reference_value():
@@ -15,12 +14,12 @@ def test_splitmix64_reference_value():
 
 
 def test_vectorised_hash_matches_scalar():
-    idx = np.arange(-50, 50, dtype=np.int64)
-    vec = hash_seed(np.uint64(42), SeedKind.GRAIN, idx, 7)
-    for i, v in zip(idx, vec):
+    index = np.arange(-50, 50, dtype=np.int64)
+    vec = hash_seed(np.uint64(42), SeedKind.GRAIN, index, 7)
+    for i, v in zip(index, vec):
         assert int(v) == hash_seed(42, SeedKind.GRAIN, int(i) & ((1 << 64) - 1), 7)
-    cells = mix_cell(idx, idx[::-1])
-    for i, j, v in zip(idx, idx[::-1], cells):
+    cells = mix_cell(index, index[::-1])
+    for i, j, v in zip(index, index[::-1], cells):
         assert int(v) == mix_cell(int(i), int(j))
 
 
@@ -32,8 +31,9 @@ def test_uniform_range_and_rng_determinism():
 
 
 def test_view_window_roundtrip_with_tilt_and_rotation():
-    v = ViewWindow(center_um=(10.0, -5.0), pixel_um=0.01, shape=(64, 128), rotation_rad=0.3,
-                   flip_x=True, cos_alpha=0.8)
+    v = ViewWindow(
+        center_um=(10.0, -5.0), pixel_um=0.01, shape=(64, 128), rotation_rad=0.3, flip_x=True, cos_alpha=0.8
+    )
     rows, cols = np.mgrid[0:64, 0:128]
     x, y = v.pixel_to_world(rows, cols)
     r2, c2 = v.world_to_pixel(x, y)

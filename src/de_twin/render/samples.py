@@ -30,23 +30,28 @@ class Samples:
     under_w: np.ndarray = None  # float32 its diffuse fraction
 
 
-def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True, diffuse: bool = True) -> Samples:
-    mat = fm.material_id
-    t = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
+def describe(
+    field_map, optics, grains, crystallinity, *, fallback_grains: bool = True, diffuse: bool = True
+) -> Samples:
+    mat = field_map.material_id
+    t = field_map.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     lam = absorption_lengths_nm(optics.ht_kv)
     lam_px = lam[mat]
     T = np.exp(-t / lam_px).astype(np.float32)
     umat = uw = None
-    if fm.under_thickness_nm is not None:
+    if field_map.under_thickness_nm is not None:
         # the under layer scatters first: its diffuse share, and what it lets through
-        umat = fm.under_material
-        tu = fm.under_thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
+        umat = field_map.under_material
+        tu = field_map.under_thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
         Tu = np.exp(-tu / lam[umat]).astype(np.float32)
-        uw = ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam[umat]))).astype(np.float32) if diffuse \
+        uw = (
+            ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam[umat]))).astype(np.float32)
+            if diffuse
             else np.zeros_like(tu)
+        )
         uw = np.where(umat > 0, uw, np.float32(0.0))
 
-    gid = fm.grain_id.astype(np.int64)
+    gid = field_map.grain_id.astype(np.int64)
     n_grains = len(grains) if grains is not None else 0
     own_gid = np.where((gid >= 0) & (gid < n_grains) & ((gid // GRAINS_PER_MATERIAL) == mat), gid, -1)
 
@@ -56,7 +61,7 @@ def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True,
         need = (own_gid < 0) & crystalline
         if need.any():
             rows, cols = np.nonzero(need)
-            x_um, y_um = fm.view.pixel_to_world(rows, cols)
+            x_um, y_um = field_map.view.pixel_to_world(rows, cols)
             cx = np.floor(x_um * 1000.0 / FALLBACK_GRAIN_CELL_NM).astype(np.int64)
             cy = np.floor(y_um * 1000.0 / FALLBACK_GRAIN_CELL_NM).astype(np.int64)
             diff_gid[rows, cols] = grain_id_from_hash(mat[rows, cols].astype(np.int64), mix_cell(cx, cy))
@@ -69,10 +74,23 @@ def describe(fm, optics, grains, crystallinity, *, fallback_grains: bool = True,
         ungrained = ~m & crystalline
         if ungrained.any():  # the specimen decides: glassy (in-situ, not nucleated) or powder
             cryst[ungrained] = float(np.asarray(crystallinity(np.array([-1])), float)[0])
-    dw = ((1.0 - T) * np.exp(-t / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32) if diffuse \
+    dw = (
+        ((1.0 - T) * np.exp(-t / (DIFFUSE_CUTOFF_LENGTHS * lam_px))).astype(np.float32)
+        if diffuse
         else np.zeros_like(t)
+    )
     if umat is not None:  # the primary sees only what the under layer let through
         T = T * Tu
         dw = dw * Tu
-    return Samples(mat, t, np.maximum(T, MIN_TRANSMISSION).astype(np.float32), own_gid, diff_gid,
-                   thickness_bin_for(t), cryst, dw, umat, uw)
+    return Samples(
+        mat,
+        t,
+        np.maximum(T, MIN_TRANSMISSION).astype(np.float32),
+        own_gid,
+        diff_gid,
+        thickness_bin_for(t),
+        cryst,
+        dw,
+        umat,
+        uw,
+    )

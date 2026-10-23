@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from ..specimen.fieldmap import ViewWindow
 from ..state import RenderMode
@@ -52,10 +51,6 @@ class OpticsState:
 
     # Focus / aberrations
     defocus_um: float  # effective: defocus + offsets + (z - eucentric)
-    blur_sigma_px: float  # defocus blur on the rasterised view, raster pixels
-    fresnel_gain: float
-    fresnel_sign: float
-    fresnel_sigma_px: float
     objective_stig: tuple[float, float] = (0.0, 0.0)
     beam_tilt_mrad: tuple[float, float] = (0.0, 0.0)
     # TEM imaging: where beam shift puts the illuminated disc, raster px from the centre
@@ -77,7 +72,7 @@ class OpticsState:
     scan_step_um: float = 0.0
     scan_shape: tuple[int, int] = (0, 0)  # (ny, nx) scan points
     scan_rotation_rad: float = 0.0
-    park_um: Optional[tuple[float, float]] = None  # parked probe position (world um)
+    park_um: tuple[float, float] | None = None  # parked probe position (world um)
 
     # Raster downsample: output pixels per raster pixel (TEM); 1 = no resample
     raster_downsample: int = 1
@@ -114,9 +109,11 @@ class OpticsState:
         d = int(self.raster_downsample)
         if d <= 1:
             return ""
-        return (f"TEM frame upsampled {d}x from a {self.view.shape[1]}x{self.view.shape[0]} raster: "
-                f"no detail finer than {2 * d} frame pixels; OpticsConfig(max_raster_pixels=0) "
-                f"renders at the frame's sampling")
+        return (
+            f"TEM frame upsampled {d}x from a {self.view.shape[1]}x{self.view.shape[0]} raster: "
+            f"no detail finer than {2 * d} frame pixels; OpticsConfig(max_raster_pixels=0) "
+            f"renders at the frame's sampling"
+        )
 
 
 def image_aberrations_of(optics: OpticsState) -> Aberrations:
@@ -124,8 +121,7 @@ def image_aberrations_of(optics: OpticsState) -> Aberrations:
     if optics.aberrations_derived or optics.image_aberrations:
         return optics.image_aberrations
     a1x, a1y = optics.astigmatism_nm
-    return Aberrations({"C3": optics.cs_mm * 1e6, "C1": optics.defocus_um * 1000.0,
-                        "A1": complex(a1x, a1y)})
+    return Aberrations({"C3": optics.cs_mm * 1e6, "C1": optics.defocus_um * 1000.0, "A1": complex(a1x, a1y)})
 
 
 def probe_aberrations_of(optics: OpticsState) -> Aberrations:

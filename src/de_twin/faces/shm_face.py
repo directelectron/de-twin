@@ -19,7 +19,6 @@ import logging
 import threading
 import time
 from collections import OrderedDict
-from typing import Optional
 
 import numpy as np
 
@@ -57,12 +56,21 @@ class ShmFace:
     times and then picked from.
     """
 
-    def __init__(self, twin, name: str = L.DEFAULT_NAME, pace: bool = True, warm_up: bool = True,
-                 *, reuse: int = 1, pool_size: int = 16, threads: Optional[int] = None,
-                 scan_output: str = S.DEFAULT_NAME):
+    def __init__(
+        self,
+        twin,
+        name: str = L.DEFAULT_NAME,
+        pace: bool = True,
+        warm_up: bool = True,
+        *,
+        reuse: int = 1,
+        pool_size: int = 16,
+        threads: int | None = None,
+        scan_output: str = S.DEFAULT_NAME,
+    ):
         self.twin = twin
         self.scan_output_name = scan_output
-        self._scan_output: Optional[S.ScanOutputReader] = None
+        self._scan_output: S.ScanOutputReader | None = None
         self.reuse = max(1, int(reuse))
         self.pool_size = int(pool_size)
         self.threads = threads
@@ -77,12 +85,12 @@ class ShmFace:
         self.ready = threading.Event()
         self.producer = None
         self._stop = threading.Event()
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self.frames_published = 0
         self.keepalives = 0
         self.requests_served = 0
 
-    def start(self) -> "ShmFace":
+    def start(self) -> ShmFace:
         self._thread = threading.Thread(target=self._run, name="de-twin-shm", daemon=True)
         self._thread.start()
         return self
@@ -191,8 +199,9 @@ class ShmFace:
                     if not fresh and not recycle:
                         self.keepalives += 1
                     out = _fit(raw, shape, dtype)
-                    p.publish(out, request_id=request_id, frame_index=k,
-                              flags=L.FLAG_BLANKED if meta.blanked else 0)
+                    p.publish(
+                        out, request_id=request_id, frame_index=k, flags=L.FLAG_BLANKED if meta.blanked else 0
+                    )
                     self.frames_reused += 0 if fresh else 1
                     k += 1
                 self._last_frame = (out, (raw, meta))
@@ -211,7 +220,7 @@ class ShmFace:
                 if self._pool is pool:
                     self._pool = None
 
-    def _coils(self) -> Optional[S.ScanOutputReader]:
+    def _coils(self) -> S.ScanOutputReader | None:
         """DE-Server's scan output, once its scan simulator has made one."""
         if self._scan_output is None:
             try:
@@ -247,8 +256,9 @@ class ShmFace:
                     continue
                 for (raw, meta), fresh in library.frames(k, count):
                     out = _fit(raw, shape, dtype)
-                    p.publish(out, request_id=request_id, frame_index=k,
-                              flags=L.FLAG_BLANKED if meta.blanked else 0)
+                    p.publish(
+                        out, request_id=request_id, frame_index=k, flags=L.FLAG_BLANKED if meta.blanked else 0
+                    )
                     self.frames_reused += 0 if fresh else 1
                     k += 1
                 self._last_frame = (out, (raw, meta))
@@ -262,7 +272,7 @@ class ShmFace:
         finally:
             library.close()
 
-    def _pool_for(self, request, recycle: bool) -> "_FramePool":
+    def _pool_for(self, request, recycle: bool) -> _FramePool:
         """The frame pool for *request*: the running one when the request asks for the
         same frames as the last (DE-MC's live view is a string of short acquisitions,
         one request each), so its rendered frames, and the keep-alive, carry over;
@@ -279,8 +289,14 @@ class ShmFace:
             return pool
         self._close_pool()
         live = key if key is not None else request
-        pool = _FramePool(self.twin, live, size=max(2, self.pool_size if recycle else 2),
-                          reuse=self.reuse, pace=self.pace and not recycle, threads=self.threads)
+        pool = _FramePool(
+            self.twin,
+            live,
+            size=max(2, self.pool_size if recycle else 2),
+            reuse=self.reuse,
+            pace=self.pace and not recycle,
+            threads=self.threads,
+        )
         self._pool, self._pool_key = pool, key
         return pool
 
@@ -288,6 +304,7 @@ class ShmFace:
         pool, self._pool, self._pool_key = self._pool, None, None
         if pool is not None:
             pool.close()
+
 
 def _now() -> float:
     import time
@@ -305,7 +322,6 @@ def _fit(frame: np.ndarray, shape: tuple[int, int], dtype) -> np.ndarray:
     return out
 
 
-
 class _FramePool:
     """The twin's frames for one request, rendered on a thread of their own.
 
@@ -318,8 +334,7 @@ class _FramePool:
     consumer's own processing).
     """
 
-    def __init__(self, twin, request, *, size: int, reuse: int, pace: bool,
-                 threads: Optional[int] = None):
+    def __init__(self, twin, request, *, size: int, reuse: int, pace: bool, threads: int | None = None):
         self.size = int(size)
         self.reuse = max(1, int(reuse))
         self._cond = threading.Condition()
@@ -327,8 +342,9 @@ class _FramePool:
         self._last = None
         self._end = None  # _DONE or an exception
         self._stop = threading.Event()
-        self._thread = threading.Thread(target=self._render, args=(twin, request, pace, threads),
-                                        name="de-twin-shm-render", daemon=True)
+        self._thread = threading.Thread(
+            target=self._render, args=(twin, request, pace, threads), name="de-twin-shm-render", daemon=True
+        )
         self._thread.start()
 
     def _render(self, twin, request, pace, threads) -> None:
@@ -337,7 +353,7 @@ class _FramePool:
                 import numba
 
                 numba.set_num_threads(max(1, min(int(threads), numba.config.NUMBA_NUM_THREADS)))
-            except Exception:  # noqa: BLE001 - no numba: nothing to cap
+            except Exception:
                 pass
         state = None
         # A scan's frames depend on their index, so only a fixed view is re-rendered from
@@ -371,7 +387,7 @@ class _FramePool:
                             del self._ring[worst]
                         self._cond.notify_all()
             end = _DONE
-        except Exception as e:  # noqa: BLE001 - raised on the publishing thread
+        except Exception as e:
             end = e
         with self._cond:
             self._end = end
@@ -470,7 +486,7 @@ class _PointLibrary:
         self.size = int(size)
         self._request = request
         self._wanted = _Wanted()
-        self._frames: "OrderedDict[tuple[int, int], list]" = OrderedDict()  # point -> [items, next]
+        self._frames: OrderedDict[tuple[int, int], list] = OrderedDict()  # point -> [items, next]
         self._bytes = 0
         self._render = None
         self._scan_id = None
@@ -482,18 +498,28 @@ class _PointLibrary:
         g = self.coils.geometry()
         self._scan_id = self.coils.scan_id
         self.geometry = g
-        self.scan = dataclasses.replace(self._request.scan, size=g.size, voltage_h=g.voltage_h,
-                                        voltage_v=g.voltage_v, rotation_deg=g.rotation_deg, flip=g.flip,
-                                        pixel_offset=(0.0, 0.0), points=self._wanted)
+        self.scan = dataclasses.replace(
+            self._request.scan,
+            size=g.size,
+            voltage_h=g.voltage_h,
+            voltage_v=g.voltage_v,
+            rotation_deg=g.rotation_deg,
+            flip=g.flip,
+            pixel_offset=(0.0, 0.0),
+            points=self._wanted,
+        )
         if self._render is not None:
             self._render.close()
         # the coil transform is affine, so its inverse is too: (x, y) = (H, V) @ matrix + origin
         origin = np.array(point_from_volts(self.scan, 0.0, 0.0))
-        self._matrix = np.array([point_from_volts(self.scan, 1.0, 0.0), point_from_volts(self.scan, 0.0, 1.0)]) - origin
+        self._matrix = (
+            np.array([point_from_volts(self.scan, 1.0, 0.0), point_from_volts(self.scan, 0.0, 1.0)]) - origin
+        )
         self._origin = origin
         self._state = self.twin.column.state()
-        self._render = self.twin.frames(dataclasses.replace(self._request, total_frames=0, scan=self.scan),
-                                        stop=self._stop)
+        self._render = self.twin.frames(
+            dataclasses.replace(self._request, total_frames=0, scan=self.scan), stop=self._stop
+        )
         self._frames.clear()
         self._bytes = 0
         self._ahead = (0, [])
@@ -504,7 +530,7 @@ class _PointLibrary:
         voltages are already written are worked out POINTS_AHEAD at a time and kept."""
         first, ahead = self._ahead
         if first <= first_frame and first_frame + count <= first + len(ahead):
-            return ahead[first_frame - first:first_frame - first + count]
+            return ahead[first_frame - first : first_frame - first + count]
         # keep only frames whose voltages are written: the others hold the last ones for now
         last_written = int((self.coils.written - 1) / self.geometry.points_per_frame)
         settled = max(0, min(POINTS_AHEAD, last_written - first_frame + 1))
@@ -514,7 +540,9 @@ class _PointLibrary:
 
     def _points(self, first_frame: int, count: int) -> np.ndarray:
         nx, ny = self.geometry.size
-        index = (np.arange(first_frame, first_frame + count) * self.geometry.points_per_frame).astype(np.int64)
+        index = (np.arange(first_frame, first_frame + count) * self.geometry.points_per_frame).astype(
+            np.int64
+        )
         volts = self.coils.volts_many(index)
         unset = np.isnan(volts[:, 0])
         xy = np.rint(volts @ self._matrix + self._origin)

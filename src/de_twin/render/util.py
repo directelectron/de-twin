@@ -52,8 +52,8 @@ try:  # numba: the cubic resampling kernel (NumPy fallback below)
                     for b in range(4):
                         row += wc[b] * src[i + a, j + b]
                     acc += wr[a] * row
-                out[i, j] = acc if acc > 0.0 else 0.0
-except Exception:  # noqa: BLE001
+                out[i, j] = max(0.0, acc)
+except Exception:
     _cubic_nb = None
 
 
@@ -67,28 +67,39 @@ def cubic_resample(src: np.ndarray, wr: np.ndarray, wc: np.ndarray, shape) -> np
         return out
     tmp = wr[0] * src[0:ny]
     for k in range(1, 4):
-        tmp += wr[k] * src[k:k + ny]
+        tmp += wr[k] * src[k : k + ny]
     acc = wc[0] * tmp[:, 0:nx]
     for k in range(1, 4):
-        acc += wc[k] * tmp[:, k:k + nx]
+        acc += wc[k] * tmp[:, k : k + nx]
     return np.maximum(acc, 0.0, out=out)
 
 
-def gaussian_filter_threaded(a: np.ndarray, sigma: float, **kw) -> np.ndarray:
+def gaussian_filter_threaded(a: np.ndarray, sigma: float, **filter_options) -> np.ndarray:
     """``scipy.ndimage.gaussian_filter`` of a 2-D array, the same numbers, with each axis's
     1-D pass split into strips on the shared pool (ndimage releases the GIL)."""
     from scipy import ndimage
 
     tmp = np.empty_like(a)
     out = np.empty_like(a)
-    parallel_rows(lambda c0, c1: ndimage.gaussian_filter1d(a[:, c0:c1], sigma, axis=0,
-                                                           output=tmp[:, c0:c1], **kw), a.shape[1], 32)
-    parallel_rows(lambda r0, r1: ndimage.gaussian_filter1d(tmp[r0:r1], sigma, axis=1,
-                                                           output=out[r0:r1], **kw), a.shape[0], 32)
+    parallel_rows(
+        lambda c0, c1: ndimage.gaussian_filter1d(
+            a[:, c0:c1], sigma, axis=0, output=tmp[:, c0:c1], **filter_options
+        ),
+        a.shape[1],
+        32,
+    )
+    parallel_rows(
+        lambda r0, r1: ndimage.gaussian_filter1d(
+            tmp[r0:r1], sigma, axis=1, output=out[r0:r1], **filter_options
+        ),
+        a.shape[0],
+        32,
+    )
     return out
 
 
 if _cubic_nb is not None:
+
     @numba_jit(fastmath=False, parallel=True)
     def _up2x_nb(a, c0, c1, out):  # pragma: no cover - compiled
         """`upsample2x_scaled` in one pass, the same float32 arithmetic in the same order."""
@@ -130,13 +141,13 @@ def upsample2x_scaled(a: np.ndarray, scale: float = 1.0) -> np.ndarray:
     c1 = np.float32(0.25 * scale)
 
     def work(r0, r1):
-        mid = p[r0 + 1:r1 + 1]
+        mid = p[r0 + 1 : r1 + 1]
         up = np.empty((2 * (r1 - r0), nx + 2), np.float32)
         np.multiply(mid, c0, out=up[0::2])
         up[0::2] += c1 * p[r0:r1]
         np.multiply(mid, c0, out=up[1::2])
-        up[1::2] += c1 * p[r0 + 2:r1 + 2]
-        o = out[2 * r0:2 * r1]
+        up[1::2] += c1 * p[r0 + 2 : r1 + 2]
+        o = out[2 * r0 : 2 * r1]
         np.multiply(up[:, 1:-1], 0.75, out=o[:, 0::2])
         o[:, 0::2] += 0.25 * up[:, :-2]
         np.multiply(up[:, 1:-1], 0.75, out=o[:, 1::2])
@@ -203,7 +214,7 @@ def _add_shifted(out, a, sx, sy, w):
 #: World noise tiles kept (64 kB each): a stage move or a re-render of the same place
 #: reads the tiles it has drawn before instead of drawing them again.
 NOISE_TILES_KEPT = 1024
-_NOISE_TILES: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
+_NOISE_TILES: OrderedDict[tuple, np.ndarray] = OrderedDict()
 _NOISE_LOCK = threading.Lock()
 
 
@@ -224,8 +235,9 @@ def _noise_tile(seed: int, salt: int, tx: int, ty: int) -> np.ndarray:
     return tile
 
 
-def world_normal_noise(ix0: int, iy0: int, ny: int, nx: int, seed: int, salt: int = 0,
-                       out: np.ndarray | None = None) -> np.ndarray:
+def world_normal_noise(
+    ix0: int, iy0: int, ny: int, nx: int, seed: int, salt: int = 0, out: np.ndarray | None = None
+) -> np.ndarray:
     """Standard-normal float32 noise on world cells (iy0..iy0+ny, ix0..ix0+nx).
 
     Cells are grouped in 128x128 world tiles, each drawn from a PCG64 stream
@@ -243,8 +255,10 @@ def world_normal_noise(ix0: int, iy0: int, ny: int, nx: int, seed: int, salt: in
             xa = max(ix0, tx * _TILE)
             xb = min(ix0 + nx, (tx + 1) * _TILE)
             tile = _noise_tile(seed, salt, tx, ty)
-            out[ya - iy0:yb - iy0, xa - ix0:xb - ix0] = \
-                tile[ya - ty * _TILE:yb - ty * _TILE, xa - tx * _TILE:xb - tx * _TILE]
+            out[ya - iy0 : yb - iy0, xa - ix0 : xb - ix0] = tile[
+                ya - ty * _TILE : yb - ty * _TILE, xa - tx * _TILE : xb - tx * _TILE
+            ]
+
     if ty1 - ty0 < 2:
         for ty in range(ty0, ty1 + 1):
             row(ty)
@@ -253,11 +267,12 @@ def world_normal_noise(ix0: int, iy0: int, ny: int, nx: int, seed: int, salt: in
     return out
 
 
-_DISKS: "OrderedDict[tuple, np.ndarray | None]" = OrderedDict()
+_DISKS: OrderedDict[tuple, np.ndarray | None] = OrderedDict()
 
 
-def disk_profile(shape: tuple[int, int], cx: float, cy: float, radius: float,
-                 edge_sigma: float) -> np.ndarray | None:
+def disk_profile(
+    shape: tuple[int, int], cx: float, cy: float, radius: float, edge_sigma: float
+) -> np.ndarray | None:
     """Soft top-hat (1 inside, 0 outside) or ``None`` when it covers the whole frame. The
     last few are kept: the disc is fixed on the detector, so every view at one illumination
     (a drag, a focus series) has the same one."""
@@ -282,6 +297,7 @@ def _disk_profile(shape, cx, cy, radius, edge_sigma):
     if radius - 4.0 * edge_sigma >= far:
         return None
     from scipy.special import erfc
+
     y = (np.arange(h, dtype=np.float32) - np.float32(cy))[:, None]
     x = (np.arange(w, dtype=np.float32) - np.float32(cx))[None, :]
     r = np.sqrt(x * x + y * y)
@@ -310,7 +326,7 @@ def chi_and_gradient(ab, kx, ky, wavelength_nm: float, gradient: bool = True, dt
         # chi = s [ l2/2 (C1 k2 + a (kx2 - ky2) + 2 b kx ky) + C3 l2^2 k2^2 / 4 + C5 l2^3 k2^3 / 6 ]
         radial = f(s * l2 * c1 / 2)
         if c3 or c5:
-            poly = f(s * l2 * l2 * c3 / 4) + f(s * l2 ** 3 * c5 / 6) * k2
+            poly = f(s * l2 * l2 * c3 / 4) + f(s * l2**3 * c5 / 6) * k2
             chi = k2 * (radial + k2 * poly)
         else:
             chi = k2 * radial
@@ -319,7 +335,7 @@ def chi_and_gradient(ab, kx, ky, wavelength_nm: float, gradient: bool = True, dt
         if not gradient:
             return chi, None, None
         # grad = s [ l2 (C1 k + (a kx + b ky, -a ky + b kx)) + C3 l2^2 k2 k + C5 l2^3 k2^2 k ]
-        rad = f(s * l2 * c1) + k2 * (f(s * l2 * l2 * c3) + f(s * l2 ** 3 * c5) * k2)
+        rad = f(s * l2 * c1) + k2 * (f(s * l2 * l2 * c3) + f(s * l2**3 * c5) * k2)
         gx = rad * kx
         gy = rad * ky
         if a1:
@@ -349,5 +365,8 @@ def chi_and_gradient(ab, kx, ky, wavelength_nm: float, gradient: bool = True, dt
     if not gradient:
         return chi, None, None
     # dw/dkx = dwb/dkx = lam; dw/dky = i lam, dwb/dky = -i lam
-    return (chi, (2.0 * math.pi * (ga + gb).real).astype(dtype, copy=False),
-            (2.0 * math.pi * (-1j * ga + 1j * gb).real).astype(dtype, copy=False))
+    return (
+        chi,
+        (2.0 * math.pi * (ga + gb).real).astype(dtype, copy=False),
+        (2.0 * math.pi * (-1j * ga + 1j * gb).real).astype(dtype, copy=False),
+    )

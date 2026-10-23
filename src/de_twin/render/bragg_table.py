@@ -35,7 +35,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
@@ -53,13 +53,16 @@ def _F_py(x, FT, DT):
     else:
         u = ax / _H
         i = int(u)
-        if i > FT.shape[0] - 2:
-            i = FT.shape[0] - 2
+        i = min(i, FT.shape[0] - 2)
         t = u - i
         t2 = t * t
         t3 = t2 * t
-        v = ((2.0 * t3 - 3.0 * t2 + 1.0) * FT[i] + (t3 - 2.0 * t2 + t) * (DT[i] * _H)
-             + (-2.0 * t3 + 3.0 * t2) * FT[i + 1] + (t3 - t2) * (DT[i + 1] * _H))
+        v = (
+            (2.0 * t3 - 3.0 * t2 + 1.0) * FT[i]
+            + (t3 - 2.0 * t2 + t) * (DT[i] * _H)
+            + (-2.0 * t3 + 3.0 * t2) * FT[i + 1]
+            + (t3 - t2) * (DT[i + 1] * _H)
+        )
     return v if x >= 0.0 else -v
 
 
@@ -103,18 +106,18 @@ def loss_table(lib, geom: list, optics, g_obj: float, n_bins: int) -> tuple[np.n
     """(``frac * p_out``, ``total``), each (len(geom), n_bins): for each grain's reflections
     ``geom[i] = (index, gx, gy, s, |g_xy|)`` at thickness bins 0..n_bins-1, the fraction of
     the beam lost outside ``g_obj`` (all of it when 0; see
-    `de_twin.render.tem.bragg_contrast`) and the total kinematic intensity."""
+    `de_twin.render.tem_contrast.bragg_contrast`) and the total kinematic intensity."""
     from .diffraction import THICKNESS_BIN_NM, bragg_fraction
 
     lens = np.array([len(g[0]) for g in geom], np.int64)
     starts = np.concatenate([[0], np.cumsum(lens)]).astype(np.int64)
     empty = np.zeros(0)
-    idx = np.concatenate([g[0] for g in geom]) if len(geom) else empty.astype(np.int64)
+    index = np.concatenate([g[0] for g in geom]) if len(geom) else empty.astype(np.int64)
     s = np.concatenate([g[3] for g in geom]) if len(geom) else empty
     gxy = np.concatenate([g[4] for g in geom]) if len(geom) else empty
     alpha = optics.convergence_mrad * 1e-3
-    kx = lib.inv_xi(optics.ht_kv, optics.wavelength_nm)[idx].astype(np.float64)
-    ga = (lib.g_len[idx] * alpha).astype(np.float64)
+    kx = lib.inv_xi(optics.ht_kv, optics.wavelength_nm)[index].astype(np.float64)
+    ga = (lib.g_len[index] * alpha).astype(np.float64)
     excess = np.clip((np.abs(s) - S_TAPER_INV_NM - ga) / (S_WINDOW_INV_NM - S_TAPER_INV_NM), 0.0, 1.0)
     taper = np.cos(0.5 * math.pi * excess) ** 2
     outm = (gxy > g_obj).astype(np.float64)

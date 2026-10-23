@@ -9,13 +9,14 @@ from de_twin import DigitalTwin, ManualClock
 
 twin = DigitalTwin(camera="DESim", corrector="probe", clock=ManualClock())
 col = twin.column
-col.set_tem_stem(1)                        # the probe corrector measures on the Ronchigram
+col.set_tem_stem(1)  # the probe corrector measures on the Ronchigram
 corr = col.corrector
-corr.pi4_angle_mrad()                      # ~25 mrad tuned (uncorrected column: ~6)
-r = corr.measure("Standard")               # Zemlin tableau; takes ~9 s on the clock
-r.aberrations["B2"], r.sigma_nm["B2"]      # measured value (nm) and 1-sigma confidence
-corr.correct("B2"); corr.correct("A2", fraction=0.7)   # imperfect, with coupling
-col.state().probe_aberrations              # ground-truth residual, used by the renderers
+corr.pi4_angle_mrad()  # ~25 mrad tuned (uncorrected column: ~6)
+r = corr.measure("Standard")  # Zemlin tableau; takes ~9 s on the clock
+r.aberrations["B2"], r.sigma_nm["B2"]  # measured value (nm) and 1-sigma confidence
+corr.correct("B2")
+corr.correct("A2", fraction=0.7)  # imperfect, with coupling
+col.state().probe_aberrations  # ground-truth residual, used by the renderers
 ```
 
 The column can have a CEOS-like probe corrector (CESCOR), an image corrector (CETCOR), or

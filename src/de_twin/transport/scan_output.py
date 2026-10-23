@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -39,26 +38,28 @@ POINT_BYTES = 16
 DEFAULT_NAME = "DE_ScanOutput"
 
 # ScanOutputHeader
-HEADER = _fields([
-    ("magic", 0, "I"),
-    ("version", 4, "I"),
-    ("capacity", 8, "Q"),
-    ("scan_id", 16, "Q"),
-    ("written", 24, "Q"),
-    ("output", 32, "Q"),
-    ("total_points", 40, "Q"),
-    ("size_x", 48, "I"),
-    ("size_y", 52, "I"),
-    ("voltage_min_h", 56, "d"),
-    ("voltage_max_h", 64, "d"),
-    ("voltage_min_v", 72, "d"),
-    ("voltage_max_v", 80, "d"),
-    ("rotation_deg", 88, "d"),
-    ("flip_horizontal", 96, "I"),
-    ("flip_vertical", 100, "I"),
-    ("points_per_frame", 104, "d"),
-    ("output_hz", 112, "d"),
-])
+HEADER = _fields(
+    [
+        ("magic", 0, "I"),
+        ("version", 4, "I"),
+        ("capacity", 8, "Q"),
+        ("scan_id", 16, "Q"),
+        ("written", 24, "Q"),
+        ("output", 32, "Q"),
+        ("total_points", 40, "Q"),
+        ("size_x", 48, "I"),
+        ("size_y", 52, "I"),
+        ("voltage_min_h", 56, "d"),
+        ("voltage_max_h", 64, "d"),
+        ("voltage_min_v", 72, "d"),
+        ("voltage_max_v", 80, "d"),
+        ("rotation_deg", 88, "d"),
+        ("flip_horizontal", 96, "I"),
+        ("flip_vertical", 100, "I"),
+        ("points_per_frame", 104, "d"),
+        ("output_hz", 112, "d"),
+    ]
+)
 HEADER_STRUCT_BYTES = 120
 
 _WRITTEN = HEADER["written"].offset
@@ -101,15 +102,18 @@ class ScanOutputReader(_Mapping):
 
     def __init__(self, name: str = DEFAULT_NAME):
         if not mapping_exists(name):
-            raise FileNotFoundError(f"shared memory {name!r} does not exist "
-                                    "(DE-Server's scan simulator creates it at its first scan)")
+            raise FileNotFoundError(
+                f"shared memory {name!r} does not exist "
+                "(DE-Server's scan simulator creates it at its first scan)"
+            )
         head = _map(name, HEADER_BYTES)
         hdr = View(head, 0, HEADER)
         if hdr.magic != MAGIC or hdr.version != VERSION:
             magic, version = hdr.magic, hdr.version
             head.close()
-            raise RuntimeError(f"shared memory {name!r} is not scan output v{VERSION} "
-                               f"(magic {magic:#x}, version {version})")
+            raise RuntimeError(
+                f"shared memory {name!r} is not scan output v{VERSION} (magic {magic:#x}, version {version})"
+            )
         capacity = hdr.capacity
         head.close()
         super().__init__(_map(name, mapping_size(capacity)), capacity)
@@ -124,12 +128,17 @@ class ScanOutputReader(_Mapping):
 
     def geometry(self) -> ScanGeometry:
         h = self.hdr
-        return ScanGeometry(size=(h.size_x, h.size_y), voltage_h=(h.voltage_min_h, h.voltage_max_h),
-                            voltage_v=(h.voltage_min_v, h.voltage_max_v), rotation_deg=h.rotation_deg,
-                            flip=(bool(h.flip_horizontal), bool(h.flip_vertical)),
-                            points_per_frame=h.points_per_frame or 1.0, total_points=h.total_points)
+        return ScanGeometry(
+            size=(h.size_x, h.size_y),
+            voltage_h=(h.voltage_min_h, h.voltage_max_h),
+            voltage_v=(h.voltage_min_v, h.voltage_max_v),
+            rotation_deg=h.rotation_deg,
+            flip=(bool(h.flip_horizontal), bool(h.flip_vertical)),
+            points_per_frame=h.points_per_frame or 1.0,
+            total_points=h.total_points,
+        )
 
-    def volts(self, point: int) -> Optional[tuple[float, float]]:
+    def volts(self, point: int) -> tuple[float, float] | None:
         """The (H, V) voltages of *point*, or None when they have not been written yet (or
         were written so long ago that the ring has overwritten them)."""
         written = self.written
@@ -152,7 +161,7 @@ class ScanOutputReader(_Mapping):
         out[kept] = self._points[held[kept] % self.capacity]
         return out
 
-    def latest(self) -> Optional[tuple[int, tuple[float, float]]]:
+    def latest(self) -> tuple[int, tuple[float, float]] | None:
         """The last point written and its voltages: where the coils are left driven."""
         written = self.written
         if written == 0:
@@ -188,11 +197,11 @@ class ScanOutputWriter(_Mapping):
         """Append points, an (n, 2) array of (H, V), and make them visible."""
         volts = np.asarray(volts, np.float64).reshape(-1, 2)
         for i in range(0, len(volts), self.capacity):
-            chunk = volts[i:i + self.capacity]
+            chunk = volts[i : i + self.capacity]
             start = self._pending % self.capacity
             first = min(len(chunk), self.capacity - start)
-            self._points[start:start + first] = chunk[:first]
-            self._points[:len(chunk) - first] = chunk[first:]
+            self._points[start : start + first] = chunk[:first]
+            self._points[: len(chunk) - first] = chunk[first:]
             self._pending += len(chunk)
         struct.pack_into("<Q", self.mm, _WRITTEN, self._pending)
 

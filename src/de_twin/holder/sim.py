@@ -33,7 +33,6 @@ import logging
 import math
 import threading
 import time
-from typing import Optional
 
 from ..hashing import hash_seed, normal_from_hash
 from ..state import HolderState
@@ -154,7 +153,7 @@ class SimHeatingHolder:
             return
         os_ = min(max(self.overshoot, 1e-6), 0.99)
         ln = math.log(os_)
-        zeta = -ln / math.sqrt(math.pi ** 2 + ln ** 2)
+        zeta = -ln / math.sqrt(math.pi**2 + ln**2)
         w = 1.0 / tau
         transient = 40.0 * tau / max(zeta, 0.05)
         h = tau / 20.0
@@ -186,7 +185,7 @@ class SimHeatingHolder:
 
     def heater_power(self, temp_c: float, dtdt: float = 0.0) -> float:
         tk, ta = temp_c + 273.15, self.ambient_c + 273.15
-        p = self.conductance * (temp_c - self.ambient_c) + 0.9 * SIGMA * self.eps_area * (tk ** 4 - ta ** 4)
+        p = self.conductance * (temp_c - self.ambient_c) + 0.9 * SIGMA * self.eps_area * (tk**4 - ta**4)
         p += self.conductance * self.tau_s * dtdt
         return max(0.0, p)
 
@@ -196,7 +195,7 @@ class SimHeatingHolder:
     def _noise(self, t: float) -> float:
         if self.noise_c <= 0:
             return 0.0
-        return self.noise_c * float(normal_from_hash(hash_seed(self.seed, 77, int(round(t * 1000)))))
+        return self.noise_c * float(normal_from_hash(hash_seed(self.seed, 77, round(t * 1000))))
 
     # ---------------------------------------------------------- duck type
     @property
@@ -220,12 +219,29 @@ class SimHeatingHolder:
         r_heater = self.heater_resistance(temp)
         if "bias" in self.channels and bias:
             r_s = self.sample_resistance(temp)
-            return Reading(measured=temp, target=target, t=stamp, power=power, resistance=r_s,
-                           voltage=bias, current=bias / r_s, source="bias", bias_target=bias)
+            return Reading(
+                measured=temp,
+                target=target,
+                t=stamp,
+                power=power,
+                resistance=r_s,
+                voltage=bias,
+                current=bias / r_s,
+                source="bias",
+                bias_target=bias,
+            )
         current = math.sqrt(power / r_heater) if power > 0 else 0.0
-        return Reading(measured=temp, target=target, t=stamp, power=power, resistance=r_heater,
-                       voltage=current * r_heater, current=current, source="heater",
-                       bias_target=bias if "bias" in self.channels else None)
+        return Reading(
+            measured=temp,
+            target=target,
+            t=stamp,
+            power=power,
+            resistance=r_heater,
+            voltage=current * r_heater,
+            current=current,
+            source="heater",
+            bias_target=bias if "bias" in self.channels else None,
+        )
 
     def _check(self, channel: str) -> None:
         if channel not in self.channels:
@@ -247,8 +263,14 @@ class SimHeatingHolder:
                 return
             self._retarget(value, math.inf)
 
-    def ramp(self, value: float, *, rate_c_per_s: Optional[float] = None,
-             seconds: Optional[float] = None, channel: str = "temperature") -> None:
+    def ramp(
+        self,
+        value: float,
+        *,
+        rate_c_per_s: float | None = None,
+        seconds: float | None = None,
+        channel: str = "temperature",
+    ) -> None:
         self._check(channel)
         with self._lock:
             if channel == "bias":
@@ -285,7 +307,7 @@ class SimHeatingHolder:
     def wait_for_control(self, timeout_s: float = 30.0) -> bool:
         return True
 
-    def state(self, t: Optional[float] = None) -> HolderState:
+    def state(self, t: float | None = None) -> HolderState:
         """HolderState at clock time ``t`` (default now). ``t`` in the past reads the
         current state (the model does not rewind)."""
         t = self._clock() if t is None else float(t)
@@ -299,8 +321,14 @@ class SimHeatingHolder:
             current = math.sqrt(power / r) if power > 0 else 0.0
         return HolderState(
             kind="heating_biasing" if biasing else "heating",
-            temperature_c=temp, target_c=target, power_w=power,
-            resistance_ohm=self.heater_resistance(temp), bias_v=bias, current_a=current, t_s=t)
+            temperature_c=temp,
+            target_c=target,
+            power_w=power,
+            resistance_ohm=self.heater_resistance(temp),
+            bias_v=bias,
+            current_a=current,
+            t_s=t,
+        )
 
     def close(self) -> None:
         pass

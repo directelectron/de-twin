@@ -7,21 +7,27 @@ import time
 
 import numpy as np
 import pytest
+from perf_budget import budget
 
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.testing import (Particle, StubCamera, SyntheticSpecimen, fit_defocus, on_zone_grains,
-                                    phase_correlation_shift)
+from de_twin.render.testing import (
+    Particle,
+    StubCamera,
+    SyntheticSpecimen,
+    fit_defocus,
+    on_zone_grains,
+    phase_correlation_shift,
+)
 from de_twin.specimen.materials import MaterialId
 from de_twin.state import Vec2
-from perf_budget import budget
 
 CAM1K = StubCamera(sensor_shape=(1024, 1024))
 CAM512 = StubCamera(sensor_shape=(512, 512))
 
 
-def _centroid_dark(img):
-    w = np.clip(np.median(img) - img, 0, None)
-    ys, xs = np.mgrid[:img.shape[0], :img.shape[1]]
+def _centroid_dark(image):
+    w = np.clip(np.median(image) - image, 0, None)
+    ys, xs = np.mgrid[: image.shape[0], : image.shape[1]]
     return float((w * xs).sum() / w.sum()), float((w * ys).sum() / w.sum())
 
 
@@ -29,24 +35,24 @@ def _centroid_dark(img):
 def test_vacuum_is_uniform_dose(make_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     o = make_optics(magnification=20000, defocus_um=-1.0)
-    img = Renderer(spec).render(o)
-    assert img.shape == o.output_shape and img.dtype == np.float32
-    assert np.allclose(img, o.dose_e_per_px_s, rtol=1e-4)
+    image = Renderer(spec).render(o)
+    assert image.shape == o.output_shape and image.dtype == np.float32
+    assert np.allclose(image, o.dose_e_per_px_s, rtol=1e-4)
 
 
 def test_blanked_gives_zeros(make_optics):
     o = make_optics(beam_blanked=True)
-    img = Renderer(SyntheticSpecimen()).render(o)
-    assert img.shape == o.output_shape and not img.any()
+    image = Renderer(SyntheticSpecimen()).render(o)
+    assert image.shape == o.output_shape and not image.any()
 
 
 def test_intensity_non_negative_and_contrast(make_optics):
     spec = SyntheticSpecimen(particles=[Particle(0.0, 0.0, 20.0)], holes=[(0.15, 0.0, 0.05)])
     o = make_optics(magnification=20000, defocus_um=-2.0)
-    img = Renderer(spec).render(o)
-    assert img.min() >= 0.0
-    cx, cy = img.shape[1] // 2, img.shape[0] // 2
-    assert img[cy, cx] < 0.5 * o.dose_e_per_px_s  # 40 nm of gold is dark
+    image = Renderer(spec).render(o)
+    assert image.min() >= 0.0
+    cx, cy = image.shape[1] // 2, image.shape[0] // 2
+    assert image[cy, cx] < 0.5 * o.dose_e_per_px_s  # 40 nm of gold is dark
 
 
 def test_stage_moves_image_content_with_stage(make_optics):
@@ -87,62 +93,62 @@ def test_dose_scales_with_spot_and_mag(make_optics):
 def test_illuminated_disk_edge_is_visible_when_focused(make_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
     o = make_optics(camera=CAM512, magnification=2000, intensity=0.0)  # D = 0.1 um, FOV = 1.66 um
-    img = Renderer(spec).render(o)
-    assert img[256, 256] == pytest.approx(o.dose_e_per_px_s, rel=1e-3)
-    assert img[0, 0] < 1e-3 * o.dose_e_per_px_s
+    image = Renderer(spec).render(o)
+    assert image[256, 256] == pytest.approx(o.dose_e_per_px_s, rel=1e-3)
+    assert image[0, 0] < 1e-3 * o.dose_e_per_px_s
     radius_px = o.illuminated_diameter_um * 1000 / 2 / o.specimen_pixel_nm
-    assert ((img > 0.5 * img.max()).sum()) == pytest.approx(math.pi * radius_px ** 2, rel=0.05)
+    assert ((image > 0.5 * image.max()).sum()) == pytest.approx(math.pi * radius_px**2, rel=0.05)
 
 
 def test_zero_thickness_film_is_vacuum(make_optics):
     spec = SyntheticSpecimen(film_thickness_nm=0.0)
     o = make_optics(magnification=50000, defocus_um=-1.0)
-    img = Renderer(spec).render(o)
-    assert np.allclose(img, o.dose_e_per_px_s, rtol=1e-4)
+    image = Renderer(spec).render(o)
+    assert np.allclose(image, o.dose_e_per_px_s, rtol=1e-4)
 
 
 # ------------------------------------------------------------ CTF physics
 @pytest.mark.parametrize("df_um", [-0.5, -1.0, -2.0])
 def test_thon_rings_match_ctf_zeros(df_um, make_optics):
     o = make_optics(camera=CAM1K, magnification=50000, defocus_um=df_um)
-    img = Renderer(SyntheticSpecimen()).render(o)
+    image = Renderer(SyntheticSpecimen()).render(o)
     grid = np.linspace(df_um * 1000 * 0.7, df_um * 1000 * 1.3, 301)
-    df_fit, score = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, cs_mm=o.cs_mm)
+    df_fit, score = fit_defocus(image, o.specimen_pixel_nm, o.wavelength_nm, grid, cs_mm=o.cs_mm)
     assert score > 0.8
     assert df_fit == pytest.approx(df_um * 1000, rel=0.02)
 
 
 def test_thon_ring_contrast_is_realistic(make_optics):
     o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0)
-    img = Renderer(SyntheticSpecimen()).render(o)
-    assert 0.03 < img.std() / img.mean() < 0.4
+    image = Renderer(SyntheticSpecimen()).render(o)
+    assert 0.03 < image.std() / image.mean() < 0.4
 
 
 def test_astigmatism_gives_elliptical_rings(make_optics):
     a1 = 150.0
-    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0,
-                objective_stig=Vec2(a1 / 1000.0, 0.0))
+    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0, objective_stig=Vec2(a1 / 1000.0, 0.0))
     assert o.astigmatism_nm == pytest.approx((a1, 0.0))
-    img = Renderer(SyntheticSpecimen()).render(o)
+    image = Renderer(SyntheticSpecimen()).render(o)
     grid = np.linspace(-1500, -500, 501)
-    dfx, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=0.0)
-    dfy, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=math.pi / 2)
+    dfx, _ = fit_defocus(image, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=0.0)
+    dfy, _ = fit_defocus(image, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=math.pi / 2)
     assert dfx == pytest.approx(-1000 + a1, abs=20)
     assert dfy == pytest.approx(-1000 - a1, abs=20)
     # the 45-degree component rotates the ellipse
-    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0,
-                objective_stig=Vec2(0.0, a1 / 1000.0))
-    img = Renderer(SyntheticSpecimen()).render(o)
-    d45, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=math.pi / 4)
-    d135, _ = fit_defocus(img, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=3 * math.pi / 4)
+    o = make_optics(camera=CAM1K, magnification=50000, defocus_um=-1.0, objective_stig=Vec2(0.0, a1 / 1000.0))
+    image = Renderer(SyntheticSpecimen()).render(o)
+    d45, _ = fit_defocus(image, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=math.pi / 4)
+    d135, _ = fit_defocus(image, o.specimen_pixel_nm, o.wavelength_nm, grid, sector_rad=3 * math.pi / 4)
     assert d45 == pytest.approx(-1000 + a1, abs=20)
     assert d135 == pytest.approx(-1000 - a1, abs=20)
 
 
 @pytest.mark.parametrize("df_um", [-2.0, 2.0])
 def test_beam_tilt_shift_is_defocus_times_tilt(df_um, make_optics):
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM,
-                             particles=[Particle(0.0, 0.0, 15.0), Particle(0.03, -0.02, 10.0, grain=5)])
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM,
+        particles=[Particle(0.0, 0.0, 15.0), Particle(0.03, -0.02, 10.0, grain=5)],
+    )
     r = Renderer(spec)
     a = r.render(make_optics(magnification=40000, defocus_um=df_um))
     o = make_optics(magnification=40000, defocus_um=df_um, beam_tilt_mrad=Vec2(2.0, 1.0))
@@ -166,35 +172,33 @@ def test_fresnel_fringe_at_hole_edge_flips_with_defocus(make_optics):
     """A hole in carbon: underfocus puts a bright Fresnel fringe just inside the hole
     edge, overfocus a dark one (the C++ fresnel_sign convention, here from the CTF)."""
     spec = SyntheticSpecimen(holes=[(0.0, 0.0, 0.03)], film_thickness_nm=30.0)
-    cfg = RenderConfig(phase_texture_scale=0.0)
+    config = RenderConfig(phase_texture_scale=0.0)
     rows = {}
     for df in (-3.0, 3.0):
         o = make_optics(magnification=30000, defocus_um=df)
-        img = Renderer(spec, cfg).render(o) / o.dose_e_per_px_s
-        c = img.shape[0] // 2
+        image = Renderer(spec, config).render(o) / o.dose_e_per_px_s
+        c = image.shape[0] // 2
         r_px = int(30.0 / o.specimen_pixel_nm)
-        rows[df] = img[c, c + r_px - 16:c + r_px]  # inside the hole, next to the edge
+        rows[df] = image[c, c + r_px - 16 : c + r_px]  # inside the hole, next to the edge
     assert rows[-3.0].max() > 1.1
     assert rows[3.0].min() < 0.9
     assert rows[-3.0].mean() > rows[3.0].mean()
 
 
-
-
-
 def test_lattice_fringes_resolved_at_high_mag(make_optics):
     grains = on_zone_grains(MaterialId.GOLD * 512 + 1, (0, 1, 1))  # exactly on [011]
-    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 6.0, grain=1)],
-                             grains=grains)
+    spec = SyntheticSpecimen(
+        film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 6.0, grain=1)], grains=grains
+    )
     o = make_optics(camera=CAM512, magnification=400000, defocus_um=-0.05)
-    img = Renderer(spec).render(o)
+    image = Renderer(spec).render(o)
     d = 0.4078 / math.sqrt(3)  # {111}, the strongest [011] zone reflections
-    c = img.shape[0] // 2
-    crop = img[c - 64:c + 64, c - 64:c + 64]
+    c = image.shape[0] // 2
+    crop = image[c - 64 : c + 64, c - 64 : c + 64]
     f = np.abs(np.fft.fftshift(np.fft.fft2(crop - crop.mean())))
     ky, kx = np.mgrid[-64:64, -64:64] / (128 * o.specimen_pixel_nm)
     k = np.hypot(kx, ky)
-    near = (np.abs(k - 1 / d) < 0.4)
+    near = np.abs(k - 1 / d) < 0.4
     far = (k > 1 / d + 1.0) & (k < 1 / d + 2.0)
     assert f[near].max() > 5 * np.median(f[far])
 
@@ -242,9 +246,9 @@ def test_perf_tem_4k(make_optics):
     r.field_map(o)  # rasterisation belongs to the specimen
     r.render(make_optics(camera=StubCamera(sensor_shape=(256, 256))))  # warm thread pool / imports
     t0 = time.perf_counter()
-    img = r.render(o)
+    image = r.render(o)
     first = time.perf_counter() - t0
-    assert img.shape == (4096, 4096)
+    assert image.shape == (4096, 4096)
     t0 = time.perf_counter()
     r.render(make_optics(camera=StubCamera(), magnification=30000, defocus_um=-1.2))
     refocus = time.perf_counter() - t0

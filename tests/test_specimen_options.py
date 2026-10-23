@@ -5,10 +5,21 @@ from de_twin.specimen import LEGACY_ALIASES, PATTERNS, PRESETS, SpecimenConfig, 
 
 def test_thirteen_presets_and_six_patterns():
     assert len(PRESETS) == 13
-    assert {"Sparse Au on holey C", "Dense Au on holey C", "Au clusters on lacey C", "Custom",
-            "Apoferritin in ice", "Negative stain on carbon", "Au thin film 20 nm", "Al thin film 100 nm",
-            "Steel lamella with carbides", "PN junction lamella", "Strained inclusion lamella",
-            "Droplet crystallization", "Cross grating 2160 l/mm"} == set(PRESETS)
+    assert {
+        "Sparse Au on holey C",
+        "Dense Au on holey C",
+        "Au clusters on lacey C",
+        "Custom",
+        "Apoferritin in ice",
+        "Negative stain on carbon",
+        "Au thin film 20 nm",
+        "Al thin film 100 nm",
+        "Steel lamella with carbides",
+        "PN junction lamella",
+        "Strained inclusion lamella",
+        "Droplet crystallization",
+        "Cross grating 2160 l/mm",
+    } == set(PRESETS)
     virtual = [n for n in PATTERNS if n.startswith("Virtual Specimen - ")]
     assert len(virtual) == 6
     assert set(LEGACY_ALIASES) <= set(PATTERNS) and len(LEGACY_ALIASES) == 4
@@ -16,9 +27,15 @@ def test_thirteen_presets_and_six_patterns():
 
 def test_preset_values_match_apply_preset():
     o = PRESETS["Sparse Au on holey C"].resolved_options()
-    assert (o.particle_density_per_um2, o.particle_median_diameter_nm, o.cluster_radius_um) == (6.0, 22.0, 0.8)
+    assert (o.particle_density_per_um2, o.particle_median_diameter_nm, o.cluster_radius_um) == (
+        6.0,
+        22.0,
+        0.8,
+    )
     assert PRESETS["Au clusters on lacey C"].film == "lacey"
-    assert PRESETS["Negative stain on carbon"].resolved_options().negative_stain_fraction == pytest.approx(0.9)
+    assert PRESETS["Negative stain on carbon"].resolved_options().negative_stain_fraction == pytest.approx(
+        0.9
+    )
     assert PRESETS["PN junction lamella"].resolved_options().fib_post_sample == "pn_junction"
     assert PRESETS["Droplet crystallization"].holder == "insitu_heating_chip"
 
@@ -58,6 +75,7 @@ def test_auto_film_resolution():
 
 def test_set_options_regenerates_only_when_needed():
     from de_twin.specimen import Specimen
+
     s = Specimen(from_name("Dense Au on holey C"))
     scene = s.scene
     s.set_options(lod_threshold_px=2.0, crystallization_onset_c=300.0)

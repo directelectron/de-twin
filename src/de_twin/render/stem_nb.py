@@ -21,25 +21,21 @@ kernels are serial and release the GIL: the caller runs batches on its thread po
 from __future__ import annotations
 
 import math
+from functools import partial
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     AVAILABLE = False
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, nogil=True, **kw)
+_njit = partial(numba_jit, fastmath=False)
 
 
 _prange = nb.prange if AVAILABLE else range
@@ -113,14 +109,14 @@ def accumulate(F, y0s, x0s, H, W, fy, fx, w, acc):
 
 
 @_njit()
-def annulus_sums(F, iy, ix, w, out, col):
+def annulus_sums(F, iy, ix, w, out, column):
     """``out[k, col] += w sum_p |F[k, iy[p], ix[p]]|^2``."""
     for k in range(F.shape[0]):
         s = 0.0
         for p in range(iy.shape[0]):
             v = F[k, iy[p], ix[p]]
             s += v.real * v.real + v.imag * v.imag
-        out[k, col] += w * s
+        out[k, column] += w * s
 
 
 @_njit(parallel=True)
@@ -146,16 +142,32 @@ def _tbin(t):
     r = math.floor(x + 0.5)
     if r - x == 0.5 and r % 2.0 != 0.0:
         r -= 1.0
-    if r < 0.0:
-        r = 0.0
-    if r > 250.0:
-        r = 250.0
+    r = max(r, 0.0)
+    r = min(r, 250.0)
     return r
 
 
 @_njit(parallel=True)
-def tile_maps(mat, thick, f_t, lam, has_under, umat, uthick, cutoff, fb, keep_on, loss, has_loss,
-              diffuse_on, slot, bragg, dmaps, dmax, tbin):
+def tile_maps(
+    mat,
+    thick,
+    f_t,
+    lam,
+    has_under,
+    umat,
+    uthick,
+    cutoff,
+    fb,
+    keep_on,
+    loss,
+    has_loss,
+    diffuse_on,
+    slot,
+    bragg,
+    dmaps,
+    dmax,
+    tbin,
+):
     """The incoherent add-on maps of a coherent-STEM tile in one pass (``coherent.build_tile``):
     ``bragg = (T + dw (1 - fb)) loss``, the diffuse weight beyond the band limit
     ``dw fb`` (and the under layer's) into ``dmaps[slot[m]]``, ``dmax[row, slot]`` its row
@@ -185,8 +197,7 @@ def tile_maps(mat, thick, f_t, lam, has_under, umat, uthick, cutoff, fb, keep_on
                 if m != 0:
                     v = dw * fb[m]
                     dmaps[slot[m], i, j] = v
-                    if v > dmax[i, slot[m]]:
-                        dmax[i, slot[m]] = v
+                    dmax[i, slot[m]] = max(dmax[i, slot[m]], v)
                 if has_under and um != 0:
                     dmaps[slot[um], i, j] += uw * fb[um]
             tbin[i, j] = np.int16(_tbin(t))

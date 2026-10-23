@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Optional
 
 import numpy as np
 
@@ -44,10 +43,10 @@ class Crystal:
     space_group: int = 0
     lattice: tuple = ()
     atoms: tuple = ()
-    cif: Optional[str] = None
+    cif: str | None = None
 
     @classmethod
-    def cubic(cls, element: str, space_group: int, a_nm: float) -> "Crystal":
+    def cubic(cls, element: str, space_group: int, a_nm: float) -> Crystal:
         return cls(space_group, (a_nm, a_nm, a_nm, 90.0, 90.0, 90.0), ((element, 0.0, 0.0, 0.0),))
 
 
@@ -60,7 +59,7 @@ class Material:
     z_eff: float  # atomic number for the screened-Rutherford diffuse background
     mean_inner_potential_v: float
     scatterer_density_nm3: float  # atoms / nm^3 (amorphous phase-texture strength)
-    crystal: Optional[Crystal] = None
+    crystal: Crystal | None = None
     debye_waller_a2: float = 0.0  # B in Angstrom^2
     # Amorphous halo rings (g in 1/nm, weight). For crystalline materials these
     # describe the glassy/amorphous state used by in-situ crystallisation.
@@ -97,11 +96,27 @@ def _metal(mid, name, el, sg, a, rho, lam, z, v0, n, b):
 M = MaterialId
 MATERIALS: list[Material] = [
     Material(M.VACUUM, "Vacuum", 0.0, 0.0, 1.0, 0.0, 1.0),
-    Material(M.AMORPHOUS_CARBON, "Amorphous carbon", 2.0, 150.0, 6.0, 9.0, 100.0,
-             halos=((3.00, 0.60), (5.20, 0.25))),
+    Material(
+        M.AMORPHOUS_CARBON,
+        "Amorphous carbon",
+        2.0,
+        150.0,
+        6.0,
+        9.0,
+        100.0,
+        halos=((3.00, 0.60), (5.20, 0.25)),
+    ),
     Material(M.VITREOUS_ICE, "Vitreous ice", 0.92, 300.0, 7.2, 4.5, 33.0, halos=((2.75, 0.65), (4.50, 0.20))),
-    Material(M.SILICON_NITRIDE, "Silicon nitride", 3.17, 120.0, 10.0, 13.0, 95.0,
-             halos=((3.20, 0.60), (5.40, 0.25))),
+    Material(
+        M.SILICON_NITRIDE,
+        "Silicon nitride",
+        3.17,
+        120.0,
+        10.0,
+        13.0,
+        95.0,
+        halos=((3.20, 0.60), (5.40, 0.25)),
+    ),
     _metal(M.COPPER, "Copper", "Cu", 225, 0.3615, 8.96, 65.0, 29.0, 20.0, 85.0, 0.55),
     _metal(M.GOLD, "Gold", "Au", 225, 0.4078, 19.3, 25.0, 79.0, 29.0, 59.0, 0.55),
     _metal(M.ALUMINUM, "Aluminum", "Al", 225, 0.4050, 2.70, 130.0, 13.0, 12.4, 60.0, 0.85),
@@ -111,11 +126,27 @@ MATERIALS: list[Material] = [
     Material(M.PROTEIN, "Protein", 1.35, 400.0, 6.5, 7.5, 70.0, halos=((2.5, 0.6), (4.8, 0.2))),
     # MoO3's mean free path is scaled from aluminium's by the Z^(4/3)-weighted atom density.
     # Pnma setting (a is the layer-stacking axis; b the long axis of the laths)
-    Material(M.MOLYBDENUM_TRIOXIDE, "Molybdenum trioxide", 4.69, 63.0, 30.0, 17.0, 78.5,
-             Crystal(62, (1.3856, 0.3697, 0.3963, 90.0, 90.0, 90.0),
-                     (("Mo", 0.1016, 0.25, 0.0867), ("O", 0.0866, 0.25, 0.5212),
-                      ("O", 0.2214, 0.25, -0.0373), ("O", 0.4351, 0.25, 0.4994))), 0.5,
-             halos=((3.0, 0.6), (5.0, 0.25))),
+    Material(
+        M.MOLYBDENUM_TRIOXIDE,
+        "Molybdenum trioxide",
+        4.69,
+        63.0,
+        30.0,
+        17.0,
+        78.5,
+        Crystal(
+            62,
+            (1.3856, 0.3697, 0.3963, 90.0, 90.0, 90.0),
+            (
+                ("Mo", 0.1016, 0.25, 0.0867),
+                ("O", 0.0866, 0.25, 0.5212),
+                ("O", 0.2214, 0.25, -0.0373),
+                ("O", 0.4351, 0.25, 0.4994),
+            ),
+        ),
+        0.5,
+        halos=((3.0, 0.6), (5.0, 0.25)),
+    ),
 ]
 del M
 
@@ -128,12 +159,12 @@ def n_materials() -> int:
     return len(MATERIALS)
 
 
-def register_material(**kw) -> Material:
+def register_material(**fields) -> Material:
     """Append a material (its ``id`` is assigned) and return it. Register before building a
     :class:`~de_twin.specimen.Specimen` so its grain table covers the new id."""
     if len(MATERIALS) >= 255:
         raise ValueError("material ids are uint8")
-    m = Material(id=len(MATERIALS), **kw)
+    m = Material(id=len(MATERIALS), **fields)
     MATERIALS.append(m)
     return m
 

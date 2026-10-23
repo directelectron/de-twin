@@ -15,17 +15,27 @@ from __future__ import annotations
 
 import functools
 import math
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
 from ..hashing import SeedKind, hash_seed, mix_cell, splitmix64, uniform_from_hash
-from .fieldmap import LAYER_DESCAN, LAYER_STRAIN, grain_id_from_hash
-from .geometry import (ANALYTIC_CELL_MIN_PX, NM_PER_UM, BlockHit, JitteredLattice, inside_rough_ellipse,
-                       lognormal_from_hash, rough_ellipse_signed_dist, smoothstep, value_noise,
-                       value_noise_separable, ROUGH_PEAK)
-from .materials import MaterialId, absorption_lengths_nm
 from . import raster_nb as _rnb
+from .fieldmap import LAYER_DESCAN, LAYER_STRAIN, grain_id_from_hash
+from .geometry import (
+    ANALYTIC_CELL_MIN_PX,
+    NM_PER_UM,
+    ROUGH_PEAK,
+    BlockHit,
+    JitteredLattice,
+    inside_rough_ellipse,
+    lognormal_from_hash,
+    rough_ellipse_signed_dist,
+    smoothstep,
+    value_noise,
+    value_noise_separable,
+)
+from .materials import MaterialId, absorption_lengths_nm
 from .raster import Owner, RasterContext, Shape
 
 U64 = np.uint64
@@ -33,8 +43,8 @@ EMPTY_THICKNESS_NM = 0.05
 GRAIN_STEP_MIX = U64(0x9E37)
 
 
-def _resolved(cell_um: float, ctx: RasterContext) -> bool:
-    return cell_um > 0 and cell_um / ctx.pixel_um >= ANALYTIC_CELL_MIN_PX
+def _resolved(cell_um: float, context: RasterContext) -> bool:
+    return cell_um > 0 and cell_um / context.pixel_um >= ANALYTIC_CELL_MIN_PX
 
 
 class _Block:
@@ -45,24 +55,24 @@ class _Block:
     ``mask`` is ``None`` for a fully covered block, else the 2-D inside mask of the window.
     """
 
-    __slots__ = ("flat", "X", "Y", "lx", "ly", "win", "mask")
+    __slots__ = ("X", "Y", "flat", "lx", "ly", "mask", "win")
 
     def __init__(self, flat, X, Y, lx, ly, win, mask):
         self.flat, self.X, self.Y, self.lx, self.ly, self.win, self.mask = flat, X, Y, lx, ly, win, mask
 
-    def nearest(self, ctx: RasterContext, lattice: JitteredLattice, offset=(0.0, 0.0)):
+    def nearest(self, context: RasterContext, lattice: JitteredLattice, offset=(0.0, 0.0)):
         """Exact nearest lattice site for the block's pixels (coarse-to-fine, see geometry)."""
-        hit = lattice.nearest_block(ctx, *self.win, offset=offset)
+        hit = lattice.nearest_block(context, *self.win, offset=offset)
         if self.mask is None:
             return BlockHit(hit.site.ravel(), hit.grid, hit.X.ravel(), hit.Y.ravel())
         return hit.masked(self.mask)
 
-    def noise(self, ctx: RasterContext, seed, scale: float):
+    def noise(self, context: RasterContext, seed, scale: float):
         """``value_noise(seed, X * scale, Y * scale)`` for the block's pixels."""
         r0, r1, c0, c1 = self.win
-        if ctx.axis_aligned:
-            xs = (ctx.ox + ctx.axc * np.arange(c0, c1)) * scale
-            ys = (ctx.oy + ctx.ayr * np.arange(r0, r1)) * scale
+        if context.axis_aligned:
+            xs = (context.ox + context.axc * np.arange(c0, c1)) * scale
+            ys = (context.oy + context.ayr * np.arange(r0, r1)) * scale
             n = value_noise_separable(seed, xs, ys)
             return n.ravel() if self.mask is None else n[self.mask]
         return value_noise(seed, self.X * scale, self.Y * scale)
@@ -74,17 +84,17 @@ class _Block:
         return self.flat[m]
 
 
-def _owner_pixels(ctx: RasterContext, owner: Owner, rect: bool = True, bounds_only: bool = False):
+def _owner_pixels(context: RasterContext, owner: Owner, rect: bool = True, bounds_only: bool = False):
     """Yield a :class:`_Block` per raster row block of the owner's window.
 
     ``lx``/``ly`` are un-normalised offsets in the owner's un-rotated frame (micrometres).
     """
     b = owner.bounds
-    win = ctx.window(b.xmin, b.ymin, b.xmax, b.ymax)
+    win = context.window(b.xmin, b.ymin, b.xmax, b.ymax)
     if win is None:
         return
     c, s = math.cos(-owner.rot), math.sin(-owner.rot)
-    for flat, X, Y, sub in ctx.iter_window(win):
+    for flat, X, Y, sub in context.iter_window(win):
         dx = X - owner.cx
         dy = Y - owner.cy
         lx = dx * c - dy * s
@@ -97,33 +107,33 @@ def _owner_pixels(ctx: RasterContext, owner: Owner, rect: bool = True, bounds_on
             m = (lx / owner.rx) ** 2 + (ly / owner.ry) ** 2 <= 1.0
         if m.all():
             r0, r1, c0, c1 = sub
-            f = slice(r0 * ctx.nx, r1 * ctx.nx) if (c0 == 0 and c1 == ctx.nx) else flat.ravel()
+            f = slice(r0 * context.nx, r1 * context.nx) if (c0 == 0 and c1 == context.nx) else flat.ravel()
             yield _Block(f, X.ravel(), Y.ravel(), lx.ravel(), ly.ravel(), sub, None)
         elif m.any():
             yield _Block(flat[m], X[m], Y[m], lx[m], ly[m], sub, m)
 
 
-def _claim(ctx: RasterContext, flat, grain, material):
-    ctx.grain[flat] = grain
-    ctx.material[flat] = material
+def _claim(context: RasterContext, flat, grain, material):
+    context.grain[flat] = grain
+    context.material[flat] = material
 
 
-def _matrix_claim(ctx: RasterContext, owner: Owner, flat):
+def _matrix_claim(context: RasterContext, owner: Owner, flat):
     """The owner's own grain on the pixels that already carry the owner's material."""
     if owner.grain < 0:
         return
-    m = ctx.material[flat] == owner.material
+    m = context.material[flat] == owner.material
     if isinstance(flat, slice):
-        ctx.grain[flat][m] = owner.grain
+        context.grain[flat][m] = owner.grain
     else:
-        ctx.grain[flat[m]] = owner.grain
+        context.grain[flat[m]] = owner.grain
 
 
 class Structure:
     required_layers: frozenset = frozenset()
     time_dependent: bool = False
 
-    def fill(self, ctx: RasterContext, owner: Owner) -> None:  # pragma: no cover - interface
+    def fill(self, context: RasterContext, owner: Owner) -> None:  # pragma: no cover - interface
         raise NotImplementedError
 
     def numba_fill(self) -> bool:
@@ -147,15 +157,23 @@ def protein_mean_thickness_nm(density, median_d_nm, sigma_log, thickness_nm, fad
     if density <= 0 or thickness_nm <= 0:
         return 0.0
     r = 0.5 * median_d_nm / NM_PER_UM
-    return density * thickness_nm * (2.0 / 3.0) * math.pi * r * r * math.exp(2 * sigma_log ** 2) * fade
+    return density * thickness_nm * (2.0 / 3.0) * math.pi * r * r * math.exp(2 * sigma_log**2) * fade
 
 
 class ProteinFieldStructure(Structure):
     """Hashed-lattice protein blobs (projected spheres) embedded in the support film."""
 
-    def __init__(self, median_diameter_nm, sigma_log, density_per_um2, thickness_nm,
-                 material=MaterialId.PROTEIN, negative_stain_fraction=0.0, crystal_patch_fraction=0.0,
-                 dose_sensitivity=0.0):
+    def __init__(
+        self,
+        median_diameter_nm,
+        sigma_log,
+        density_per_um2,
+        thickness_nm,
+        material=MaterialId.PROTEIN,
+        negative_stain_fraction=0.0,
+        crystal_patch_fraction=0.0,
+        dose_sensitivity=0.0,
+    ):
         self.median = float(median_diameter_nm)
         self.sigma = float(sigma_log)
         self.density = float(density_per_um2)
@@ -169,38 +187,63 @@ class ProteinFieldStructure(Structure):
     def numba_fill(self) -> bool:
         return _rnb.AVAILABLE and self.patch <= 0
 
-    def _fill_fast(self, ctx, owner, blobs, fade, stain_nm):
+    def _fill_fast(self, context, owner, blobs, fade, stain_nm):
         """`fill` without crystal patches through :func:`.raster_nb.protein_block`: the same
         row blocks and site tables, the per-pixel work in one kernel."""
         b = owner.bounds
-        win = ctx.window(b.xmin, b.ymin, b.xmax, b.ymax)
+        win = context.window(b.xmin, b.ymin, b.xmax, b.ymax)
         if win is None:
             return
         r0, r1, c0, c1 = win
-        W = np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr])
+        W = np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr])
         O = np.array([owner.cx, owner.cy, math.cos(-owner.rot), math.sin(-owner.rot), owner.rx, owner.ry])
-        med, sig, stain = self.median, self.sigma, self.stain
-        for a, bb in ctx.row_blocks(r0, r1, c1 - c0):
-            labels, grid = blobs.block_labels(ctx, a, bb, c0, c1)
+        med, sigma, stain = self.median, self.sigma, self.stain
+        for a, bb in context.row_blocks(r0, r1, c1 - c0):
+            labels, grid = blobs.block_labels(context, a, bb, c0, c1)
             SX, SY, HH, _, _, _, x0, y0 = grid
-            diam = np.asarray(lognormal_from_hash(HH, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM), np.float64)
+            diam = np.asarray(
+                lognormal_from_hash(HH, med, sigma, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM), np.float64
+            )
             stained = (uniform_from_hash(HH ^ STAIN_MIX) < stain) if stain > 0 else np.zeros(1, bool)
-            _rnb.protein_block(ctx.thick, ctx.material, ctx.grain, ctx.nx, a, bb, c0, c1, W, O,
-                               np.ascontiguousarray(labels, np.int32), SX, SY, float(x0), float(y0), diam,
-                               np.ascontiguousarray(stained), stain > 0, self.thickness, fade, stain_nm,
-                               NEG_STAIN_INNER, PROTEIN_MAX_R_UM, np.uint8(self.material), np.uint8(MaterialId.PLATINUM))
+            _rnb.protein_block(
+                context.thick,
+                context.material,
+                context.grain,
+                context.nx,
+                a,
+                bb,
+                c0,
+                c1,
+                W,
+                O,
+                np.ascontiguousarray(labels, np.int32),
+                SX,
+                SY,
+                float(x0),
+                float(y0),
+                diam,
+                np.ascontiguousarray(stained),
+                stain > 0,
+                self.thickness,
+                fade,
+                stain_nm,
+                NEG_STAIN_INNER,
+                PROTEIN_MAX_R_UM,
+                np.uint8(self.material),
+                np.uint8(MaterialId.PLATINUM),
+            )
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         if self.density <= 0 or self.thickness <= 0:
             return
-        t = ctx.time_index
+        t = context.time_index
         fade = math.exp(-self.dose * t) if (self.dose > 0 and t > 0) else 1.0
         cell = 1.0 / math.sqrt(self.density)
-        if not _resolved(cell, ctx):
+        if not _resolved(cell, context):
             mean = protein_mean_thickness_nm(self.density, self.median, self.sigma, self.thickness, fade)
             if mean > 0:
-                for B in _owner_pixels(ctx, owner):
-                    ctx.add_thickness(B.flat, mean)  # uniform haze, no material claim
+                for B in _owner_pixels(context, owner):
+                    context.add_thickness(B.flat, mean)  # uniform haze, no material claim
             return
         seed = hash_seed(owner.seed, SeedKind.STRUCTURE, 0)
         blobs = JitteredLattice(cell, seed, 0)
@@ -208,27 +251,30 @@ class ProteinFieldStructure(Structure):
         patches = JitteredLattice(PROTEIN_PATCH_CELL_UM, seed, 1)
         thr = U64(int(min(max(self.patch, 0.0), 1.0) * 256.0))
         stain_nm = NEG_STAIN_GAIN * self.thickness * fade
-        med, sig, stain = self.median, self.sigma, self.stain
+        med, sigma, stain = self.median, self.sigma, self.stain
         if _rnb.AVAILABLE and self.patch <= 0:
-            self._fill_fast(ctx, owner, blobs, fade, stain_nm)
-            ctx.stats["fast_fills"] = ctx.stats.get("fast_fills", 0) + 1
+            self._fill_fast(context, owner, blobs, fade, stain_nm)
+            context.stats["fast_fills"] = context.stats.get("fast_fills", 0) + 1
             return
-        for B in _owner_pixels(ctx, owner):
-            hit = B.nearest(ctx, blobs)
+        for B in _owner_pixels(context, owner):
+            hit = B.nearest(context, blobs)
             d2 = hit.d2
-            diam = hit.per_site(lambda h: lognormal_from_hash(h, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM))
+            diam = hit.per_site(
+                lambda h: lognormal_from_hash(h, med, sigma, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM)
+            )
             stained = hit.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain) if stain > 0 else None
             grain = None
             if self.patch > 0:
-                ph = B.nearest(ctx, patches)
+                ph = B.nearest(context, patches)
                 in_patch = ph.per_site(lambda h: (h % U64(256)) < thr)
                 if np.any(in_patch):
-                    ch = B.nearest(ctx, crystal)
+                    ch = B.nearest(context, crystal)
                     d2 = np.where(in_patch, ch.d2, d2)
                     diam = np.where(in_patch, med, diam)
                     if stained is not None:
-                        stained = np.where(in_patch, ch.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain),
-                                           stained)
+                        stained = np.where(
+                            in_patch, ch.per_site(lambda h: uniform_from_hash(h ^ STAIN_MIX) < stain), stained
+                        )
                     grain = np.where(in_patch, 0, -1)  # placeholder, material-dependent below
                     patch_h = ph.h
             r = 0.5 * diam / NM_PER_UM
@@ -245,16 +291,16 @@ class ProteinFieldStructure(Structure):
             fo = B.sub(ok)
             pos = add > 0
             fo, add, mat = fo[pos], add[pos], mat[pos]
-            existing = ctx.thick[fo].astype(np.float64)
-            wasvac = ctx.material[fo] == 0
-            ctx.add_thickness(fo, add)
+            existing = context.thick[fo].astype(np.float64)
+            wasvac = context.material[fo] == 0
+            context.add_thickness(fo, add)
             claim = wasvac | (add >= existing)
             g = np.full(fo.shape, -1, np.int32)
             if grain is not None:
-                inp = (grain[ok][pos] >= 0)
+                inp = grain[ok][pos] >= 0
                 if np.any(inp):
                     g[inp] = grain_id_from_hash(mat[inp], patch_h[ok][pos][inp])
-            _claim(ctx, fo[claim], g[claim], mat[claim])
+            _claim(context, fo[claim], g[claim], mat[claim])
 
 
 # ---------------------------------------------------------------------------------------------
@@ -310,8 +356,16 @@ class ThinFilmStructure(Structure):
 
     required_layers = frozenset()
 
-    def __init__(self, median_grain_um, thickness_nm, gradient_per_mm, pinhole_fraction,
-                 crack_density_per_um, material, coarse_fraction=THIN_FILM_COARSE_FRACTION):
+    def __init__(
+        self,
+        median_grain_um,
+        thickness_nm,
+        gradient_per_mm,
+        pinhole_fraction,
+        crack_density_per_um,
+        material,
+        coarse_fraction=THIN_FILM_COARSE_FRACTION,
+    ):
         self.grain_um = float(median_grain_um)
         self.thickness = float(thickness_nm)
         self.gradient = float(gradient_per_mm)
@@ -320,8 +374,8 @@ class ThinFilmStructure(Structure):
         self.material = int(material)
         self.coarse_fraction = float(coarse_fraction)
 
-    def fill(self, ctx, owner):
-        if self.grain_um <= 0 or not _resolved(self.grain_um, ctx):
+    def fill(self, context, owner):
+        if self.grain_um <= 0 or not _resolved(self.grain_um, context):
             return
         mean = thin_film_mean_thickness_nm(self.thickness, self.gradient, self.pinhole, self.crack, owner.cx)
         base = hash_seed(owner.seed, SeedKind.STRUCTURE, 0)
@@ -333,28 +387,28 @@ class ThinFilmStructure(Structure):
         crack_hw = crack_half_width(self.crack)
         cthr = U64(int(min(max(self.coarse_fraction, 0.0), 1.0) * 256.0))
         mat = self.material
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             X, lx, ly = B.X, B.lx, B.ly
             removed = np.zeros(X.shape, bool)
             if self.pinhole > 0:
-                ph = B.nearest(ctx, pins)
+                ph = B.nearest(context, pins)
                 cand = ph.d2 < pin_r * pin_r
                 if np.any(cand):
                     d2 = (lx[cand] / owner.rx) ** 2 + (ly[cand] / owner.ry) ** 2
                     p = np.minimum(1.0, self.pinhole * (1.0 + EDGE_DEWET_GAIN * d2))
                     removed[cand] = (ph.h[cand] % U64(4096)) < (p * 4096.0).astype(np.uint64)
             if self.crack > 0:
-                n = B.noise(ctx, crack_seed, self.crack)
+                n = B.noise(context, crack_seed, self.crack)
                 removed |= np.abs(n - 0.5) < crack_hw
             any_removed = bool(removed.any())
             if any_removed:
                 fr = B.sub(removed)
-                ctx.add_thickness(fr, -mean)
-                ctx.grain[fr] = -1
-                empty = ctx.thick[fr] <= EMPTY_THICKNESS_NM
-                ctx.material[fr[empty]] = 0
-            ch = B.nearest(ctx, coarse)
-            fh = B.nearest(ctx, fine)
+                context.add_thickness(fr, -mean)
+                context.grain[fr] = -1
+                empty = context.thick[fr] <= EMPTY_THICKNESS_NM
+                context.material[fr[empty]] = 0
+            ch = B.nearest(context, coarse)
+            fh = B.nearest(context, fine)
             # one merged site table: coarse sites first, fine sites after
             ncs = ch.grid_h.size
             use_c = ch.per_site(lambda h: (h % U64(256)) < cthr)
@@ -366,11 +420,11 @@ class ThinFilmStructure(Structure):
             if any_removed:
                 keep = ~removed
                 fk = B.sub(keep)
-                ctx.add_thickness(fk, (local - mean)[keep])
-                _claim(ctx, fk, grain[keep], mat)
+                context.add_thickness(fk, (local - mean)[keep])
+                _claim(context, fk, grain[keep], mat)
             else:
-                ctx.add_thickness(B.flat, local - mean)
-                _claim(ctx, B.flat, grain, mat)
+                context.add_thickness(B.flat, local - mean)
+                _claim(context, B.flat, grain, mat)
 
 
 class VoronoiGrainsStructure(Structure):
@@ -384,18 +438,20 @@ class VoronoiGrainsStructure(Structure):
         self.material = int(material)
         self.jitter = float(thickness_jitter_nm)
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         area = 4.0 * abs(owner.rx) * abs(owner.ry)
         cell = max(self.min_spacing, math.sqrt(area / self.count))
-        if not _resolved(cell, ctx):
+        if not _resolved(cell, context):
             return
         lat = JitteredLattice(cell, hash_seed(owner.seed, SeedKind.STRUCTURE, 0), 0)
         mat, jit = self.material, self.jitter
-        for B in _owner_pixels(ctx, owner):
-            hit = B.nearest(ctx, lat)
+        for B in _owner_pixels(context, owner):
+            hit = B.nearest(context, lat)
             if jit > 0:
-                ctx.add_thickness(B.flat, hit.per_site(lambda h: jit * (uniform_from_hash(h ^ GRAIN_STEP_MIX) - 0.5)))
-            _claim(ctx, B.flat, hit.per_site(lambda h: grain_id_from_hash(mat, h)), mat)
+                context.add_thickness(
+                    B.flat, hit.per_site(lambda h: jit * (uniform_from_hash(h ^ GRAIN_STEP_MIX) - 0.5))
+                )
+            _claim(context, B.flat, hit.per_site(lambda h: grain_id_from_hash(mat, h)), mat)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -418,47 +474,54 @@ class PrecipitatesStructure(Structure):
         self.material = int(material)
         self.extra = float(extra_thickness_nm)
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         if self.count <= 0 or self.median_r <= 0:
             return
         area = 4.0 * owner.rx * owner.ry if owner.shape != Shape.ELLIPSE else math.pi * owner.rx * owner.ry
         if area <= 0:
             return
         cell = math.sqrt(area / self.count)
-        if not _resolved(cell, ctx):
-            er2 = self.median_r ** 2 * math.exp(2 * PRECIP_SIGMA_LOG ** 2)
+        if not _resolved(cell, context):
+            er2 = self.median_r**2 * math.exp(2 * PRECIP_SIGMA_LOG**2)
             lam = self.count * math.pi * er2 / area
             mean_extra = self.extra * (1.0 - math.exp(-min(max(lam, 0.0), 700.0)))
-            for B in _owner_pixels(ctx, owner):
-                _matrix_claim(ctx, owner, B.flat)
+            for B in _owner_pixels(context, owner):
+                _matrix_claim(context, owner, B.flat)
                 if mean_extra > 0:
-                    ctx.add_thickness(B.flat, mean_extra)
+                    context.add_thickness(B.flat, mean_extra)
             return
         lat = JitteredLattice(cell, owner.seed, 0)
         med = self.median_r * NM_PER_UM
         mat = self.material
 
         def radius(h):
-            return lognormal_from_hash(h, med, PRECIP_SIGMA_LOG, med * PRECIP_R_MIN_MULT,
-                                       med * PRECIP_R_MAX_MULT) / NM_PER_UM
+            return (
+                lognormal_from_hash(
+                    h, med, PRECIP_SIGMA_LOG, med * PRECIP_R_MIN_MULT, med * PRECIP_R_MAX_MULT
+                )
+                / NM_PER_UM
+            )
 
         def stretch(h):
-            return np.sqrt(PRECIP_RATIO_MIN + (PRECIP_RATIO_MAX - PRECIP_RATIO_MIN)
-                           * uniform_from_hash(hash_seed(h, SeedKind.STRUCTURE, 1)))
+            return np.sqrt(
+                PRECIP_RATIO_MIN
+                + (PRECIP_RATIO_MAX - PRECIP_RATIO_MIN)
+                * uniform_from_hash(hash_seed(h, SeedKind.STRUCTURE, 1))
+            )
 
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             flat = B.flat
-            _matrix_claim(ctx, owner, flat)
-            hit = B.nearest(ctx, lat)
+            _matrix_claim(context, owner, flat)
+            hit = B.nearest(context, lat)
             r = hit.per_site(radius)
             st = hit.per_site(stretch)
             ins = inside_rough_ellipse(B.X - hit.sx, B.Y - hit.sy, r * st, r / st)
             if not np.any(ins):
                 continue
             fi = B.sub(ins)
-            _claim(ctx, fi, hit.per_site(lambda h: grain_id_from_hash(mat, h))[ins], mat)
+            _claim(context, fi, hit.per_site(lambda h: grain_id_from_hash(mat, h))[ins], mat)
             if self.extra != 0:
-                ctx.add_thickness(fi, self.extra)
+                context.add_thickness(fi, self.extra)
 
 
 class StrainFieldStructure(Structure):
@@ -470,8 +533,8 @@ class StrainFieldStructure(Structure):
         self.sxx, self.sxy, self.syy = float(sxx), float(sxy), float(syy)
         self.blur = float(blur_sigma_um)
 
-    def fill(self, ctx, owner):
-        write = ctx.strain is not None
+    def fill(self, context, owner):
+        write = context.strain is not None
         if not write and owner.grain < 0:
             return
         rx = 0.5 * owner.rx
@@ -480,18 +543,18 @@ class StrainFieldStructure(Structure):
             return
         blur = self.blur if self.blur > 0 else 0.05 * rx
         outer = (1.0 + ROUGH_PEAK) * max(rx, ry) + blur
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             flat, lx, ly = B.flat, B.lx, B.ly
-            _matrix_claim(ctx, owner, flat)
+            _matrix_claim(context, owner, flat)
             if not write:
                 continue
             s = np.zeros(lx.shape)
             near = (np.abs(lx) <= outer) & (np.abs(ly) <= outer)
             if np.any(near):
                 s[near] = smoothstep(rough_ellipse_signed_dist(lx[near], ly[near], rx, ry) / blur + 0.5)
-            ctx.strain[0, flat] = 1.0 + (self.sxx - 1.0) * s
-            ctx.strain[1, flat] = self.sxy * s
-            ctx.strain[2, flat] = 1.0 + (self.syy - 1.0) * s
+            context.strain[0, flat] = 1.0 + (self.sxx - 1.0) * s
+            context.strain[1, flat] = self.sxy * s
+            context.strain[2, flat] = 1.0 + (self.syy - 1.0) * s
 
 
 class JunctionStructure(Structure):
@@ -504,19 +567,19 @@ class JunctionStructure(Structure):
         self.sx, self.sy = float(shift_x_px), float(shift_y_px)
         self.width = float(width_frac) if width_frac > 0 else 0.6
 
-    def fill(self, ctx, owner):
-        write = ctx.descan is not None
+    def fill(self, context, owner):
+        write = context.descan is not None
         if not write and owner.grain < 0:
             return
         w = max(self.width, 1e-6)
-        for B in _owner_pixels(ctx, owner):
-            _matrix_claim(ctx, owner, B.flat)
+        for B in _owner_pixels(context, owner):
+            _matrix_claim(context, owner, B.flat)
             if not write:
                 continue
             v = B.ly / (2.0 * owner.ry) + 0.5  # 0 at the top edge (+y down), 1 at the bottom
             s = smoothstep((v - self.pos) / w + 0.5)
-            ctx.descan[0, B.flat] += self.sx * s
-            ctx.descan[1, B.flat] += self.sy * s
+            context.descan[0, B.flat] += self.sx * s
+            context.descan[1, B.flat] += self.sy * s
 
 
 def cross_grating_mean_nm(base_nm: float, depth_nm: float, line_fraction: float) -> float:
@@ -559,9 +622,19 @@ class CrossGratingStructure(Structure):
 
     required_layers = frozenset()
 
-    def __init__(self, period_um: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5,
-                 metal: int = MaterialId.PLATINUM, metal_nm: float = 2.0, shadow_elevation_deg: float = 30.0,
-                 shadow_azimuth_deg: float = 45.0, rough: bool = True, dirt: bool = True):
+    def __init__(
+        self,
+        period_um: float,
+        base_nm: float,
+        depth_nm: float,
+        line_fraction: float = 0.5,
+        metal: int = MaterialId.PLATINUM,
+        metal_nm: float = 2.0,
+        shadow_elevation_deg: float = 30.0,
+        shadow_azimuth_deg: float = 45.0,
+        rough: bool = True,
+        dirt: bool = True,
+    ):
         self.period = float(period_um)
         self.base = float(base_nm)
         self.depth = float(depth_nm)
@@ -582,10 +655,14 @@ class CrossGratingStructure(Structure):
             return lx, ly
         wa = GRATING_WAVINESS_NM / NM_PER_UM
         k = 2.0 * math.pi / GRATING_WAVINESS_UM
-        ph = [2.0 * math.pi * float(uniform_from_hash(hash_seed(seed, SeedKind.STRUCTURE, n, 0x5A)))
-              for n in range(4)]
-        return (lx + wa * (0.6 * np.sin(k * ly + ph[0]) + 0.4 * np.sin(0.61 * k * (lx + ly) + ph[1])),
-                ly + wa * (0.6 * np.sin(k * lx + ph[2]) + 0.4 * np.sin(0.61 * k * (lx - ly) + ph[3])))
+        ph = [
+            2.0 * math.pi * float(uniform_from_hash(hash_seed(seed, SeedKind.STRUCTURE, n, 0x5A)))
+            for n in range(4)
+        ]
+        return (
+            lx + wa * (0.6 * np.sin(k * ly + ph[0]) + 0.4 * np.sin(0.61 * k * (lx + ly) + ph[1])),
+            ly + wa * (0.6 * np.sin(k * lx + ph[2]) + 0.4 * np.sin(0.61 * k * (lx - ly) + ph[3])),
+        )
 
     def _ridge_d(self, a):
         P = self.period
@@ -606,8 +683,9 @@ class CrossGratingStructure(Structure):
                 if near.any():
                     ec = GRATING_EDGE_CORRELATION_NM / NM_PER_UM
                     d = d.copy()
-                    d[near] += amp * (2.0 * value_noise(rough_seed ^ salt, b[near] / ec,
-                                                        np.floor(a[near] / P) * 7.31) - 1.0)
+                    d[near] += amp * (
+                        2.0 * value_noise(rough_seed ^ salt, b[near] / ec, np.floor(a[near] / P) * 7.31) - 1.0
+                    )
             r = np.clip((half - d) / ramp + 0.5, 0.0, 1.0)
             out = r if out is None else np.maximum(out, r)
         return out
@@ -631,24 +709,24 @@ class CrossGratingStructure(Structure):
             shaded |= (hs - h) * self.depth > s_nm * tan_e
         return np.where(shaded, 0.0, t)
 
-    def fill(self, ctx, owner):
-        if self.period <= 0 or self.depth == 0 or not _resolved(self.period, ctx):
+    def fill(self, context, owner):
+        if self.period <= 0 or self.depth == 0 or not _resolved(self.period, context):
             return  # unresolved: the owner already carries the mean
         mean = cross_grating_mean_nm(self.base, self.depth, self.w)
         seed = int(hash_seed(owner.seed, SeedKind.STRUCTURE, 0)) & 0xFFFFFFFF
-        grains = _resolved(GRATING_GRAIN_CELL_NM / NM_PER_UM, ctx) and self.metal_nm > 0
+        grains = _resolved(GRATING_GRAIN_CELL_NM / NM_PER_UM, context) and self.metal_nm > 0
         lattice = JitteredLattice(GRATING_GRAIN_CELL_NM / NM_PER_UM, seed, 0x71) if grains else None
         dirt = JitteredLattice(GRATING_DIRT_CELL_UM, seed, 0x72) if self.dirt else None
         r_grain2 = (GRATING_GRAIN_RADIUS_NM / NM_PER_UM) ** 2
         cov = U64(int(GRATING_GRAIN_COVERAGE * 256.0))
         lam = absorption_lengths_nm(200.0)
         eq = float(lam[self.metal] / lam[int(MaterialId.AMORPHOUS_CARBON)])  # carbon -> metal-equivalent
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             u, v = self._warp(B.lx, B.ly, seed)
             h = self._height(u, v, seed if self.rough else None)
             carbon = self.base + self.depth * h
             if dirt is not None:
-                dh = B.nearest(ctx, dirt)
+                dh = B.nearest(context, dirt)
                 hh = dh.h
                 on = (hh % U64(1024)) < U64(int(GRATING_DIRT_PROBABILITY * 1024))
                 lo, hi = GRATING_DIRT_RADIUS_NM
@@ -657,22 +735,23 @@ class CrossGratingStructure(Structure):
                 if inside.any():
                     dome = np.sqrt(np.clip(1.0 - dh.d2 / np.maximum(r * r, 1e-18), 0.0, 1.0))
                     carbon = carbon + np.where(inside, GRATING_DIRT_HEIGHT_NM * dome, 0.0)
-            metal = self._metal_nm(u, v, h, ctx.pixel_um) if self.metal_nm > 0 else np.zeros_like(h)
+            metal = self._metal_nm(u, v, h, context.pixel_um) if self.metal_nm > 0 else np.zeros_like(h)
             if lattice is None:
                 # unresolved islands: their mean deposit, as the carbon that attenuates like it
-                ctx.add_thickness(B.flat, carbon + metal / eq - mean)
+                context.add_thickness(B.flat, carbon + metal / eq - mean)
                 continue
-            ctx.add_thickness(B.flat, carbon - mean)
-            gh = B.nearest(ctx, lattice)
+            context.add_thickness(B.flat, carbon - mean)
+            gh = B.nearest(context, lattice)
             island = (metal > 0) & (gh.d2 < r_grain2) & gh.per_site(lambda k: (k % U64(256)) < cov)
             if island.any():
                 f = B.sub(island)
                 # the deposit gathered into islands (mean = coverage x island); the carbon under
                 # an island becomes metal-equivalent thickness
-                ctx.add_thickness(f, metal[island] / GRATING_GRAIN_COVERAGE
-                                  + carbon[island] * eq - carbon[island])
+                context.add_thickness(
+                    f, metal[island] / GRATING_GRAIN_COVERAGE + carbon[island] * eq - carbon[island]
+                )
                 grain = grain_id_from_hash(self.metal, gh.grid_h).take(gh.site)[island]
-                _claim(ctx, f, grain, self.metal)
+                _claim(context, f, grain, self.metal)
 
 
 class MultilayerStructure(Structure):
@@ -685,34 +764,36 @@ class MultilayerStructure(Structure):
         self.materials = np.asarray(materials, np.uint8)
         self.deltas = np.asarray(list(deltas_nm) + [0.0] * (len(materials) - len(deltas_nm)), np.float64)
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         nb = self.materials.size
         if nb == 0:
             return
-        if not _resolved(self.band, ctx):
+        if not _resolved(self.band, context):
             mean = float(self.deltas[:nb].mean())
-            for B in _owner_pixels(ctx, owner):
-                _matrix_claim(ctx, owner, B.flat)
+            for B in _owner_pixels(context, owner):
+                _matrix_claim(context, owner, B.flat)
                 if mean != 0:
-                    ctx.add_thickness(B.flat, mean)
+                    context.add_thickness(B.flat, mean)
             return
-        for B in _owner_pixels(ctx, owner):
+        for B in _owner_pixels(context, owner):
             band = np.floor(B.ly / self.band).astype(np.int64)
-            col = np.floor(B.lx / self.band).astype(np.int64)
-            b0, c0 = int(band.min()), int(col.min())
+            column = np.floor(B.lx / self.band).astype(np.int64)
+            b0, c0 = int(band.min()), int(column.min())
             gb = np.arange(b0, int(band.max()) + 1, dtype=np.int64)
-            gc = np.arange(c0, int(col.max()) + 1, dtype=np.int64)
+            gc = np.arange(c0, int(column.max()) + 1, dtype=np.int64)
             gbi = np.mod(gb, nb)
             # grain per (absolute band, column) cell, evaluated once per cell
-            G = grain_id_from_hash(self.materials[gbi][:, None],
-                                   hash_seed(np.uint64(owner.seed), SeedKind.GRAIN, mix_cell(gb[:, None], gc[None, :])))
+            G = grain_id_from_hash(
+                self.materials[gbi][:, None],
+                hash_seed(np.uint64(owner.seed), SeedKind.GRAIN, mix_cell(gb[:, None], gc[None, :])),
+            )
             bi = np.mod(band, nb)
             mats = self.materials[bi]
-            _claim(ctx, B.flat, G[band - b0, col - c0], mats)
+            _claim(context, B.flat, G[band - b0, column - c0], mats)
             d = self.deltas[bi]
             nz = d != 0
             if np.any(nz):
-                ctx.add_thickness(B.sub(nz), d[nz])
+                context.add_thickness(B.sub(nz), d[nz])
 
 
 # ---------------------------------------------------------------------------------------------
@@ -743,5 +824,5 @@ class TimeEvolvingStructure(Structure):
         self.growth = max(0.0, float(growth_um_per_step))
         self.drift = (float(drift_um_per_step[0]), float(drift_um_per_step[1]))
 
-    def fill(self, ctx, owner):
+    def fill(self, context, owner):
         return

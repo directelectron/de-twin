@@ -20,7 +20,6 @@ import copy
 import dataclasses
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Optional
 
 
 class ProbeMode(IntEnum):
@@ -148,7 +147,7 @@ class MicroscopeState:
     # Housekeeping
     op_status: int = 0  # 0 idle, 1 running (DE-TEM-Channel OP_Status)
 
-    def copy(self) -> "MicroscopeState":
+    def copy(self) -> MicroscopeState:
         return copy.deepcopy(self)
 
     def to_dict(self) -> dict:
@@ -170,7 +169,7 @@ class HolderState:
     flow_ul_min: float = 0.0
     t_s: float = 0.0  # holder clock (time of the reading)
 
-    def copy(self) -> "HolderState":
+    def copy(self) -> HolderState:
         return copy.deepcopy(self)
 
 
@@ -190,11 +189,11 @@ class ScanRequest:
     frames_per_point: int = 1
     rotation_deg: float = 0.0
     step_um: float = 0.0  # 0 = derive from magnification calibration
-    roi: Optional[Roi] = None
+    roi: Roi | None = None
     park: bool = False
     park_position: tuple[int, int] = (0, 0)
     repeats: int = 1
-    points: Optional[list[tuple[int, int]]] = None  # explicit XY list overrides raster
+    points: list[tuple[int, int]] | None = None  # explicit XY list overrides raster
     # Scan coils (de_twin.optics.scan_coils): the voltage range is the field the full grid
     # spans; the pixel offset (in scan points, fractional) pans it in the coils' frame
     voltage_h: tuple[float, float] = (-1.0, 1.0)
@@ -216,9 +215,9 @@ class AcquisitionRequest:
     frame_time_s: float = 0.01
     total_frames: int = 1
     frames_per_buffer: int = 1
-    hw_roi: Optional[Roi] = None  # None = full sensor
+    hw_roi: Roi | None = None  # None = full sensor
     hw_binning: tuple[int, int] = (1, 1)
-    bit_depth: Optional[int] = None  # None = model default
+    bit_depth: int | None = None  # None = model default
     counting: bool = False
     beam_blank_cmd: int = 2  # DE-Server BeamBlankCmd: 0 close, 1 open, 2 auto
     shutter_cmd: int = 2  # ExposureShutterCmd: 0 close, 1 open, 2 auto
@@ -229,7 +228,7 @@ class AcquisitionRequest:
     super_resolution: bool = False
     #: Pins this acquisition's detector noise: frame k is seeded by (seed, k) whatever the
     #: twin exposed before. None: the twin's own seed and running frame count.
-    seed: Optional[int] = None
+    seed: int | None = None
 
     @property
     def beam_reaches_detector(self) -> bool:
@@ -251,6 +250,6 @@ class FrameMeta:
     electrons_per_pixel: float  # mean dose actually delivered to the frame
     render_mode: RenderMode
     blanked: bool
-    scan_point: Optional[tuple[int, int]] = None
-    microscope: Optional[MicroscopeState] = None
-    holder: Optional[HolderState] = None
+    scan_point: tuple[int, int] | None = None
+    microscope: MicroscopeState | None = None
+    holder: HolderState | None = None

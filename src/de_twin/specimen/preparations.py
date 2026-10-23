@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -22,10 +21,18 @@ from .holders import Holder, PlacementArea
 from .materials import MaterialId, material
 from .options import SpecimenOptions
 from .raster import MAX_FACETS, Layer, PrimitiveSet, Profile, Shape
-from .structures import (JunctionStructure, MultilayerStructure, PrecipitatesStructure,
-                         ProteinFieldStructure, StrainFieldStructure, ThinFilmStructure,
-                         TimeEvolvingStructure, VoronoiGrainsStructure, protein_mean_thickness_nm,
-                         thin_film_mean_thickness_nm)
+from .structures import (
+    JunctionStructure,
+    MultilayerStructure,
+    PrecipitatesStructure,
+    ProteinFieldStructure,
+    StrainFieldStructure,
+    ThinFilmStructure,
+    TimeEvolvingStructure,
+    VoronoiGrainsStructure,
+    protein_mean_thickness_nm,
+    thin_film_mean_thickness_nm,
+)
 
 BOUNDING_SLACK = 1.15
 FACET_JITTER = 0.12
@@ -55,14 +62,36 @@ class Batch:
         return self.prims.nbytes + 64 * len(self.clusters) + 256
 
 
-def _rect_prim(area: PlacementArea, thickness, material_id, seed, *, rotation=0.0, grain=-1,
-               structure: Optional[object] = None, aggregate=False, layer=Layer.PREPARATION) -> PrimitiveSet:
+def _rect_prim(
+    area: PlacementArea,
+    thickness,
+    material_id,
+    seed,
+    *,
+    rotation=0.0,
+    grain=-1,
+    structure: object | None = None,
+    aggregate=False,
+    layer=Layer.PREPARATION,
+) -> PrimitiveSet:
     hx, hy = abs(area.half[0]), abs(area.half[1])
-    return PrimitiveSet.make(area.center[0], area.center[1], hx, hy, rot=rotation, shape=Shape.RECT,
-                             thickness=thickness, profile=Profile.FLAT, layer=layer, material=material_id,
-                             grain=grain, seed=np.uint64(int(seed) & ((1 << 64) - 1)), aggregate=aggregate,
-                             structure=0 if structure is not None else -1,
-                             structures=[structure] if structure is not None else None)
+    return PrimitiveSet.make(
+        area.center[0],
+        area.center[1],
+        hx,
+        hy,
+        rot=rotation,
+        shape=Shape.RECT,
+        thickness=thickness,
+        profile=Profile.FLAT,
+        layer=layer,
+        material=material_id,
+        grain=grain,
+        seed=np.uint64(int(seed) & ((1 << 64) - 1)),
+        aggregate=aggregate,
+        structure=0 if structure is not None else -1,
+        structures=[structure] if structure is not None else None,
+    )
 
 
 class Preparation:
@@ -92,6 +121,7 @@ class Preparation:
 # Nanoparticles
 # ---------------------------------------------------------------------------------------------
 
+
 @dataclass
 class NanoparticleParams:
     median_diameter_nm: float = 24.0
@@ -120,13 +150,17 @@ def expected_diameter_cubed(median, sigma, lo, hi) -> float:
     hi = max(hi, lo)
     if sigma <= 0:
         d = min(max(median, lo), hi)
-        return d ** 3
+        return d**3
     zmin = math.log(lo / median) / sigma if lo > 0 else -40.0
     zmax = math.log(hi / median) / sigma if hi > 0 else -40.0
     below = normal_cdf(zmin)
     above = 1.0 - normal_cdf(zmax)
-    body = median ** 3 * math.exp(4.5 * sigma * sigma) * (normal_cdf(zmax - 3 * sigma) - normal_cdf(zmin - 3 * sigma))
-    return lo ** 3 * below + hi ** 3 * above + body
+    body = (
+        median**3
+        * math.exp(4.5 * sigma * sigma)
+        * (normal_cdf(zmax - 3 * sigma) - normal_cdf(zmin - 3 * sigma))
+    )
+    return lo**3 * below + hi**3 * above + body
 
 
 class NanoparticlesPreparation(Preparation):
@@ -165,7 +199,10 @@ class NanoparticlesPreparation(Preparation):
         cx = rng.uniform(area.center[0] - hx, area.center[0] + hx, n)
         cy = rng.uniform(area.center[1] - hy, area.center[1] + hy, n)
         counts = rng.poisson(per, n) if per > 0 else np.zeros(n, np.int64)
-        return [ClusterSeed((float(a), float(b)), self.p.cluster_sigma_um, int(c)) for a, b, c in zip(cx, cy, counts)]
+        return [
+            ClusterSeed((float(a), float(b)), self.p.cluster_sigma_um, int(c))
+            for a, b, c in zip(cx, cy, counts)
+        ]
 
     def populate(self, holder, area, seed) -> Batch:
         p = self.p
@@ -213,8 +250,11 @@ class NanoparticlesPreparation(Preparation):
 
         # -- sizes and shapes --
         aj = min(max(p.aspect_jitter, 0.0), 0.5)
-        d = np.clip(p.median_diameter_nm * np.exp(p.sigma_log * rng.standard_normal(count)),
-                    p.min_diameter_nm, p.max_diameter_nm)
+        d = np.clip(
+            p.median_diameter_nm * np.exp(p.sigma_log * rng.standard_normal(count)),
+            p.min_diameter_nm,
+            p.max_diameter_nm,
+        )
         r = d / 2000.0
         rx = r * (1.0 + rng.uniform(-aj, aj, count))
         ry = r * (1.0 + rng.uniform(-aj, aj, count))
@@ -230,10 +270,23 @@ class NanoparticlesPreparation(Preparation):
         grain = grain_id_from_hash(p.material, pseed)
         bound = BOUNDING_SLACK * np.maximum(rx, ry)
         prims = PrimitiveSet.make(
-            x, y, rx, ry, rot=rot, shape=np.where(faceted, Shape.FACETED, Shape.ROUGH_ELLIPSE).astype(np.int8),
-            bound_r=bound, bounds=(x - bound, y - bound, x + bound, y + bound), thickness=d.astype(np.float32),
-            profile=Profile.SPHERICAL, layer=Layer.PREPARATION, material=p.material, grain=grain, seed=pseed,
-            facet_n=np.where(faceted, nf, 0).astype(np.int8), facet_j=fj)
+            x,
+            y,
+            rx,
+            ry,
+            rot=rot,
+            shape=np.where(faceted, Shape.FACETED, Shape.ROUGH_ELLIPSE).astype(np.int8),
+            bound_r=bound,
+            bounds=(x - bound, y - bound, x + bound, y + bound),
+            thickness=d.astype(np.float32),
+            profile=Profile.SPHERICAL,
+            layer=Layer.PREPARATION,
+            material=p.material,
+            grain=grain,
+            seed=pseed,
+            facet_n=np.where(faceted, nf, 0).astype(np.int8),
+            facet_j=fj,
+        )
         ok = placed & clustered
         counts = np.bincount(ci[ok], minlength=ncl)
         for c, k in zip(clusters, counts):
@@ -261,6 +314,7 @@ class NanoparticlesPreparation(Preparation):
 # Proteins / thin film / bulk / time-evolving
 # ---------------------------------------------------------------------------------------------
 
+
 class ProteinsPreparation(Preparation):
     kind = "proteins"
 
@@ -272,8 +326,16 @@ class ProteinsPreparation(Preparation):
     def populate(self, holder, area, seed) -> Batch:
         if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:
             return Batch(area.index, PrimitiveSet(0))
-        s = ProteinFieldStructure(self.median, self.sigma, self.density, self.thickness, MaterialId.PROTEIN,
-                                  self.stain, self.patch, self.dose)
+        s = ProteinFieldStructure(
+            self.median,
+            self.sigma,
+            self.density,
+            self.thickness,
+            MaterialId.PROTEIN,
+            self.stain,
+            self.patch,
+            self.dose,
+        )
         # 0 nm owner: the blobs are discrete and add on top of the embedding film.
         return Batch(area.index, _rect_prim(area, 0.0, MaterialId.PROTEIN, seed, structure=s))
 
@@ -304,7 +366,9 @@ class CalibrationStandardPreparation(Preparation):
         s = self.structure
         # the specimen lies on the grid at whatever angle it landed
         rot = 0.5 * math.pi * float(uniform_from_hash(hash_seed(seed, SeedKind.STRUCTURE, 0x607)))
-        return Batch(area.index, _rect_prim(area, s.base_nm(), s.base_material, seed, rotation=rot, structure=s))
+        return Batch(
+            area.index, _rect_prim(area, s.base_nm(), s.base_material, seed, rotation=rot, structure=s)
+        )
 
     def aggregate_params(self, holder, area, seed):
         return self.structure.mean_nm(), MaterialId.AMORPHOUS_CARBON, -1, 0.0
@@ -316,9 +380,17 @@ class CrossGratingPreparation(Preparation):
 
     kind = "cross_grating"
 
-    def __init__(self, lines_per_mm: float, base_nm: float, depth_nm: float, line_fraction: float = 0.5,
-                 metal: Optional[int] = MaterialId.PLATINUM, metal_nm: float = 2.0,
-                 elevation_deg: float = 30.0, azimuth_deg: float = 45.0):
+    def __init__(
+        self,
+        lines_per_mm: float,
+        base_nm: float,
+        depth_nm: float,
+        line_fraction: float = 0.5,
+        metal: int | None = MaterialId.PLATINUM,
+        metal_nm: float = 2.0,
+        elevation_deg: float = 30.0,
+        azimuth_deg: float = 45.0,
+    ):
         self.period_um = 1000.0 / max(float(lines_per_mm), 1e-6)
         self.base, self.depth, self.w = float(base_nm), float(depth_nm), float(line_fraction)
         self.metal = metal
@@ -330,10 +402,16 @@ class CrossGratingPreparation(Preparation):
 
         if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:
             return Batch(area.index, PrimitiveSet(0))
-        s = CrossGratingStructure(self.period_um, self.base, self.depth, self.w,
-                                  metal=self.metal if self.metal is not None else MaterialId.PLATINUM,
-                                  metal_nm=self.metal_nm, shadow_elevation_deg=self.elevation,
-                                  shadow_azimuth_deg=self.azimuth)
+        s = CrossGratingStructure(
+            self.period_um,
+            self.base,
+            self.depth,
+            self.w,
+            metal=self.metal if self.metal is not None else MaterialId.PLATINUM,
+            metal_nm=self.metal_nm,
+            shadow_elevation_deg=self.elevation,
+            shadow_azimuth_deg=self.azimuth,
+        )
         mean = cross_grating_mean_nm(self.base, self.depth, self.w)
         return Batch(area.index, _rect_prim(area, mean, MaterialId.AMORPHOUS_CARBON, seed, structure=s))
 
@@ -351,12 +429,16 @@ class ThinFilmPreparation(Preparation):
         self.pinhole, self.crack, self.material = pinhole, crack, int(material_id)
 
     def _mean(self, area):
-        return thin_film_mean_thickness_nm(self.thickness, self.gradient, self.pinhole, self.crack, area.center[0])
+        return thin_film_mean_thickness_nm(
+            self.thickness, self.gradient, self.pinhole, self.crack, area.center[0]
+        )
 
     def populate(self, holder, area, seed) -> Batch:
         if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:
             return Batch(area.index, PrimitiveSet(0))
-        s = ThinFilmStructure(self.grain_um, self.thickness, self.gradient, self.pinhole, self.crack, self.material)
+        s = ThinFilmStructure(
+            self.grain_um, self.thickness, self.gradient, self.pinhole, self.crack, self.material
+        )
         # Same builder as the aggregate: the LOD transition is seamless by construction.
         return Batch(area.index, _rect_prim(area, self._mean(area), self.material, seed, structure=s))
 
@@ -375,8 +457,13 @@ POLY_MIN_SPACING_UM = 0.02
 POLY_JITTER_NM = 8.0
 MULTILAYER_BAND_UM = 0.4
 MULTILAYER_DELTAS = (0.0, 12.0, -4.0, 6.0)
-BULK_KIND_MATERIAL = {0: MaterialId.IRON, 1: MaterialId.SILICON, 2: MaterialId.SILICON,
-                      3: MaterialId.ALUMINUM, 4: MaterialId.SILICON}
+BULK_KIND_MATERIAL = {
+    0: MaterialId.IRON,
+    1: MaterialId.SILICON,
+    2: MaterialId.SILICON,
+    3: MaterialId.ALUMINUM,
+    4: MaterialId.SILICON,
+}
 
 
 class BulkSamplePreparation(Preparation):
@@ -384,12 +471,13 @@ class BulkSamplePreparation(Preparation):
 
     kind = "bulk"
 
-    def __init__(self, bulk_kind: int, material_id: int, opts: SpecimenOptions):
+    def __init__(self, bulk_kind: int, material_id: int, options: SpecimenOptions):
         self.bulk_kind = int(bulk_kind)
         self.material = int(material_id)
-        self.opts = opts
-        self.required_layers = {1: frozenset({LAYER_DESCAN}),
-                                2: frozenset({LAYER_STRAIN})}.get(self.bulk_kind, frozenset())
+        self.opts = options
+        self.required_layers = {1: frozenset({LAYER_DESCAN}), 2: frozenset({LAYER_STRAIN})}.get(
+            self.bulk_kind, frozenset()
+        )
 
     def _structure(self, area: PlacementArea):
         o = self.opts
@@ -399,31 +487,49 @@ class BulkSamplePreparation(Preparation):
             n = int(min(PRECIP_COUNT_MAX, max(1.0, PRECIP_DENSITY_PER_UM2 * a)))
             return PrecipitatesStructure(n, PRECIP_MEDIAN_R_UM, MaterialId.PLATINUM, PRECIP_EXTRA_NM)
         if k == 1:
-            return JunctionStructure(JUNCTION_POSITION, o.junction_descan_x_px, o.junction_descan_y_px,
-                                     max(0.01, o.junction_width_frac))
+            return JunctionStructure(
+                JUNCTION_POSITION,
+                o.junction_descan_x_px,
+                o.junction_descan_y_px,
+                max(0.01, o.junction_width_frac),
+            )
         if k == 2:
             m = o.strain_magnitude
             return StrainFieldStructure(1.0 + m, m, 1.0 - 0.5 * m, STRAIN_BLUR_UM)
         if k == 3:
             # The C++ hard-codes Aluminum here even when the post's matrix is gold; we use the
             # matrix material so the grains belong to the lamella that carries them.
-            return VoronoiGrainsStructure(POLY_GRAIN_COUNT, POLY_MIN_SPACING_UM, self.material, POLY_JITTER_NM)
-        return MultilayerStructure(MULTILAYER_BAND_UM, [MaterialId.SILICON, MaterialId.PLATINUM,
-                                                        MaterialId.ALUMINUM, MaterialId.AMORPHOUS_CARBON],
-                                   MULTILAYER_DELTAS)
+            return VoronoiGrainsStructure(
+                POLY_GRAIN_COUNT, POLY_MIN_SPACING_UM, self.material, POLY_JITTER_NM
+            )
+        return MultilayerStructure(
+            MULTILAYER_BAND_UM,
+            [MaterialId.SILICON, MaterialId.PLATINUM, MaterialId.ALUMINUM, MaterialId.AMORPHOUS_CARBON],
+            MULTILAYER_DELTAS,
+        )
 
     def _matrix_grain(self, area, seed) -> int:
         if self.material == MaterialId.VACUUM or not material(self.material).crystalline:
             return -1
-        idx = max(0, area.post_index) * 16 + max(0, area.index)
-        return int(grain_id_from_hash(self.material, hash_seed(seed, SeedKind.GRAIN, idx)))
+        index = max(0, area.post_index) * 16 + max(0, area.index)
+        return int(grain_id_from_hash(self.material, hash_seed(seed, SeedKind.GRAIN, index)))
 
     def populate(self, holder, area, seed) -> Batch:
         if abs(area.half[0]) <= 0 or abs(area.half[1]) <= 0:
             return Batch(area.index, PrimitiveSet(0))
         # 0 nm owner: the matrix is the holder's Curtain-profile lamella body.
-        return Batch(area.index, _rect_prim(area, 0.0, self.material, seed, rotation=area.rotation,
-                                            grain=self._matrix_grain(area, seed), structure=self._structure(area)))
+        return Batch(
+            area.index,
+            _rect_prim(
+                area,
+                0.0,
+                self.material,
+                seed,
+                rotation=area.rotation,
+                grain=self._matrix_grain(area, seed),
+                structure=self._structure(area),
+            ),
+        )
 
     def aggregate_params(self, holder, area, seed):
         return 0.0, self.material, self._matrix_grain(area, seed), area.rotation
@@ -435,8 +541,13 @@ class TimeEvolvingPreparation(Preparation):
     kind = "time_evolving"
     time_dependent = True
 
-    def __init__(self, inner: Preparation, nucleation_per_area: int, growth_um_per_step: float,
-                 drift_um_per_step: tuple[float, float]):
+    def __init__(
+        self,
+        inner: Preparation,
+        nucleation_per_area: int,
+        growth_um_per_step: float,
+        drift_um_per_step: tuple[float, float],
+    ):
         self.inner = inner
         self.nucleation = max(1, int(nucleation_per_area))
         self.growth = max(0.0, float(growth_um_per_step))
@@ -445,16 +556,28 @@ class TimeEvolvingPreparation(Preparation):
 
     def populate(self, holder, area, seed) -> Batch:
         b = self.inner.populate(holder, area, seed)
-        inner_mat = int(b.prims.material[0]) if b.prims.n else getattr(getattr(self.inner, "p", None), "material", 0)
+        inner_mat = (
+            int(b.prims.material[0]) if b.prims.n else getattr(getattr(self.inner, "p", None), "material", 0)
+        )
         a = area.bounds.width * area.bounds.height
         cell = math.sqrt(a / self.nucleation) if a > 0 else 1.0
         s = TimeEvolvingStructure(cell, self.growth, self.drift)
-        carrier = PrimitiveSet.make(area.center[0], area.center[1], area.half[0], area.half[1],
-                                    shape=Shape.RECT, bound_r=math.hypot(*area.half),
-                                    bounds=tuple(np.array([v]) for v in area.bounds.as_tuple()),
-                                    thickness=0.0, profile=Profile.FLAT, layer=Layer.STRUCTURE,
-                                    material=inner_mat, structure=0, structures=[s],
-                                    seed=np.uint64(hash_seed(seed, SeedKind.TIME_EVOLUTION, area.index)))
+        carrier = PrimitiveSet.make(
+            area.center[0],
+            area.center[1],
+            area.half[0],
+            area.half[1],
+            shape=Shape.RECT,
+            bound_r=math.hypot(*area.half),
+            bounds=tuple(np.array([v]) for v in area.bounds.as_tuple()),
+            thickness=0.0,
+            profile=Profile.FLAT,
+            layer=Layer.STRUCTURE,
+            material=inner_mat,
+            structure=0,
+            structures=[s],
+            seed=np.uint64(hash_seed(seed, SeedKind.TIME_EVOLUTION, area.index)),
+        )
         return Batch(area.index, PrimitiveSet.concat([b.prims, carrier]), b.clusters)
 
     def aggregate_params(self, holder, area, seed):
@@ -467,6 +590,7 @@ class TimeEvolvingPreparation(Preparation):
 # ---------------------------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------------------------
+
 
 def nanoparticle_params(o: SpecimenOptions) -> NanoparticleParams:
     p = NanoparticleParams()
@@ -481,8 +605,14 @@ def nanoparticle_params(o: SpecimenOptions) -> NanoparticleParams:
     return p
 
 
-_MATERIAL_BY_NAME = {"gold": MaterialId.GOLD, "aluminum": MaterialId.ALUMINUM, "copper": MaterialId.COPPER,
-                     "iron": MaterialId.IRON, "silicon": MaterialId.SILICON, "platinum": MaterialId.PLATINUM}
+_MATERIAL_BY_NAME = {
+    "gold": MaterialId.GOLD,
+    "aluminum": MaterialId.ALUMINUM,
+    "copper": MaterialId.COPPER,
+    "iron": MaterialId.IRON,
+    "silicon": MaterialId.SILICON,
+    "platinum": MaterialId.PLATINUM,
+}
 
 
 def make_preparation(kind: str, holder_kind: str, film: str, o: SpecimenOptions) -> Preparation:
@@ -502,14 +632,24 @@ def make_preparation(kind: str, holder_kind: str, film: str, o: SpecimenOptions)
             p.open_hole_suppression = 0.0
         inner = NanoparticlesPreparation(p)
         if kind == "time_evolving" or holder_kind == "insitu_heating_chip":
-            return TimeEvolvingPreparation(inner, o.nucleation_sites_per_window, o.growth_rate_nm_per_step / 1000.0,
-                                           (o.drift_per_step_x_nm / 1000.0, o.drift_per_step_y_nm / 1000.0))
+            return TimeEvolvingPreparation(
+                inner,
+                o.nucleation_sites_per_window,
+                o.growth_rate_nm_per_step / 1000.0,
+                (o.drift_per_step_x_nm / 1000.0, o.drift_per_step_y_nm / 1000.0),
+            )
         return inner
     if kind == "proteins":
         median = min(max(o.protein_diameter_nm, 2.0), 100.0)
-        return ProteinsPreparation(median, 0.25, o.protein_density_per_um2, 0.7 * median,
-                                   o.negative_stain_fraction, o.protein_crystal_patch_fraction,
-                                   o.dose_fading_per_step)
+        return ProteinsPreparation(
+            median,
+            0.25,
+            o.protein_density_per_um2,
+            0.7 * median,
+            o.negative_stain_fraction,
+            o.protein_crystal_patch_fraction,
+            o.dose_fading_per_step,
+        )
     if kind == "thin_film":
         grain_um = min(max(o.grain_size_nm / 1000.0, 0.002), 5.0)
         thick = o.deposited_film_thickness_nm
@@ -524,18 +664,25 @@ def make_preparation(kind: str, holder_kind: str, film: str, o: SpecimenOptions)
                 thick = 10.0
             if abs(o.grain_size_nm - 150.0) < 1e-6:
                 grain_um = 0.03
-        return ThinFilmPreparation(grain_um, thick, o.thin_film_gradient_per_mm, o.pinhole_fraction,
-                                   o.crack_density_per_um, mat)
+        return ThinFilmPreparation(
+            grain_um, thick, o.thin_film_gradient_per_mm, o.pinhole_fraction, o.crack_density_per_um, mat
+        )
     if kind == "calibration_standard":
         return CalibrationStandardPreparation(str(o.standard))
     if kind == "cross_grating":
         metal = None if o.grating_metal == "none" else _MATERIAL_BY_NAME[o.grating_metal]
-        return CrossGratingPreparation(o.grating_lines_per_mm, o.grating_base_nm, o.grating_depth_nm,
-                                       metal=metal, metal_nm=o.grating_metal_nm,
-                                       elevation_deg=o.grating_shadow_elevation_deg,
-                                       azimuth_deg=o.grating_shadow_azimuth_deg)
+        return CrossGratingPreparation(
+            o.grating_lines_per_mm,
+            o.grating_base_nm,
+            o.grating_depth_nm,
+            metal=metal,
+            metal_nm=o.grating_metal_nm,
+            elevation_deg=o.grating_shadow_elevation_deg,
+            azimuth_deg=o.grating_shadow_azimuth_deg,
+        )
     if kind == "bulk":
         from .holders import _POST_SAMPLE_TO_KIND
+
         k = _POST_SAMPLE_TO_KIND.get(o.fib_post_sample, 0)
         return BulkSamplePreparation(k, BULK_KIND_MATERIAL[k], o)
     raise ValueError(f"unknown preparation {kind!r}")

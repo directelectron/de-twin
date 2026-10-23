@@ -9,14 +9,15 @@ microscope control without a microscope, a camera or DE-Server::
     image = twin.snap(1.0)
 """
 
-from importlib.metadata import PackageNotFoundError, version as _version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _version
 
 try:
     __version__ = _version("de-twin")
 except PackageNotFoundError:  # running from a source tree that is not installed
     __version__ = "0.0.0+unknown"
 
-__all__ = ["DigitalTwin", "AcquisitionRequest", "ExposureMode", "Clock", "ManualClock", "__version__"]
+__all__ = ["AcquisitionRequest", "Clock", "DigitalTwin", "ExposureMode", "ManualClock", "__version__"]
 
 
 def __getattr__(name):

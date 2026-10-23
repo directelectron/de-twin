@@ -41,13 +41,20 @@ def _build_twin(args):
         host, _, port = args.mirror_temchannel.partition(":")
         column = MirrorColumn(host=host, port=int(port or 5002), clock=clock)
         if args.corrector != "none":
-            print("--corrector ignored: the column mirrors a real DE-TEM-Channel (its corrector "
-                  "is read over SOAP)", file=sys.stderr)
+            print(
+                "--corrector ignored: the column mirrors a real DE-TEM-Channel (its corrector "
+                "is read over SOAP)",
+                file=sys.stderr,
+            )
     elif args.corrector != "none":
         from .column import Column
 
-        column = Column(clock=clock, corrector=args.corrector, seed=args.seed,
-                        corrector_options={"tuned": not args.corrector_cold})
+        column = Column(
+            clock=clock,
+            corrector=args.corrector,
+            seed=args.seed,
+            corrector_options={"tuned": not args.corrector_cold},
+        )
     render_config = None
     if getattr(args, "interactive", False):
         from .render import RenderConfig
@@ -70,12 +77,22 @@ def _add_twin_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--holder", default="none", help="none | sim-heating | impulse")
     p.add_argument("--time-scale", type=float, default=1.0, help="simulated seconds per wall second")
-    p.add_argument("--mirror-temchannel", metavar="HOST[:PORT]",
-                   help="follow a real/Dummy DE-TEM-Channel instead of simulating the column")
-    p.add_argument("--corrector", default="none", choices=("none", "probe", "image", "both"),
-                   help="fit a CEOS-like aberration corrector to the simulated column")
-    p.add_argument("--corrector-cold", action="store_true",
-                   help="start the corrector out of tune (cold start) instead of tuned")
+    p.add_argument(
+        "--mirror-temchannel",
+        metavar="HOST[:PORT]",
+        help="follow a real/Dummy DE-TEM-Channel instead of simulating the column",
+    )
+    p.add_argument(
+        "--corrector",
+        default="none",
+        choices=("none", "probe", "image", "both"),
+        help="fit a CEOS-like aberration corrector to the simulated column",
+    )
+    p.add_argument(
+        "--corrector-cold",
+        action="store_true",
+        help="start the corrector out of tune (cold start) instead of tuned",
+    )
 
 
 def cmd_serve(args) -> int:
@@ -87,8 +104,8 @@ def cmd_serve(args) -> int:
         else:
             from .faces.temchannel_soap import TemChannelServer
 
-            srv = TemChannelServer(twin.column, host=args.host, port=args.soap).start()
-            stoppers.append(srv.stop)
+            server = TemChannelServer(twin.column, host=args.host, port=args.soap).start()
+            stoppers.append(server.stop)
             corr = getattr(twin.column, "corrector", None)
             extra = f" (corrector: {corr.kind}, serving {corr.served_side})" if corr else ""
             print(f"TEM-Channel SOAP face on {args.host}:{args.soap}{extra}")
@@ -167,30 +184,61 @@ def cmd_list(args) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog="de-twin", description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        prog="de-twin", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("serve", help="host the twin and its faces")
     _add_twin_args(p)
     p.add_argument("--host", default="0.0.0.0", help="bind address for the SOAP face")
-    p.add_argument("--soap", type=int, nargs="?", const=5002, default=None,
-                   help="serve the DE-TEM-Channel SOAP API (default port 5002)")
-    p.add_argument("--deapi", type=int, nargs="?", const=13240, default=None,
-                   help="serve a deapi-compatible fake DE-Server (default port 13240)")
-    p.add_argument("--shm", nargs="?", const="DE_ExternalFrames", default=None, metavar="NAME",
-                   help="publish frames into the shared-memory ring for DE-Server")
-    p.add_argument("--reuse", type=int, default=1, metavar="N",
-                   help="shared memory: publish each rendered frame up to N times, so the stream "
-                        "keeps up with fast frame rates (a real camera's GB/s); 1 = every frame unique")
-    p.add_argument("--threads", type=int, default=None, metavar="N",
-                   help="shared memory: cores the detector physics may use (leave the rest for "
-                        "DE-Server's processing)")
-    p.add_argument("--interactive", action="store_true",
-                   help="live view: while the stage or magnification keeps changing, show a fast "
-                        "low-resolution render and the full one once the view settles "
-                        "(RenderConfig.interactive)")
+    p.add_argument(
+        "--soap",
+        type=int,
+        nargs="?",
+        const=5002,
+        default=None,
+        help="serve the DE-TEM-Channel SOAP API (default port 5002)",
+    )
+    p.add_argument(
+        "--deapi",
+        type=int,
+        nargs="?",
+        const=13240,
+        default=None,
+        help="serve a deapi-compatible fake DE-Server (default port 13240)",
+    )
+    p.add_argument(
+        "--shm",
+        nargs="?",
+        const="DE_ExternalFrames",
+        default=None,
+        metavar="NAME",
+        help="publish frames into the shared-memory ring for DE-Server",
+    )
+    p.add_argument(
+        "--reuse",
+        type=int,
+        default=1,
+        metavar="N",
+        help="shared memory: publish each rendered frame up to N times, so the stream "
+        "keeps up with fast frame rates (a real camera's GB/s); 1 = every frame unique",
+    )
+    p.add_argument(
+        "--threads",
+        type=int,
+        default=None,
+        metavar="N",
+        help="shared memory: cores the detector physics may use (leave the rest for DE-Server's processing)",
+    )
+    p.add_argument(
+        "--interactive",
+        action="store_true",
+        help="live view: while the stage or magnification keeps changing, show a fast "
+        "low-resolution render and the full one once the view settles "
+        "(RenderConfig.interactive)",
+    )
     p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("snap", help="render one frame to a file")
@@ -206,8 +254,10 @@ def main(argv=None) -> int:
     p.set_defaults(func=cmd_list)
 
     args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
-                        format="%(asctime)s %(name)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+    )
     return args.func(args)
 
 

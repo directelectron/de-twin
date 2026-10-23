@@ -31,7 +31,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -51,17 +51,19 @@ def _cache_dir() -> Path:
     return d
 
 
-def cahn_hilliard(n: int, mean: float, seed: int, eps: float = CH_EPS, steps: int = 450, dt: float = 0.5) -> np.ndarray:
+def cahn_hilliard(
+    n: int, mean: float, seed: int, eps: float = CH_EPS, steps: int = 450, dt: float = 0.5
+) -> np.ndarray:
     """dc/dt = lap(c^3 - c - eps^2 lap c) on an n x n torus (semi-implicit spectral)."""
     rng = np.random.default_rng(seed)
     c = mean + 0.05 * rng.standard_normal((n, n))
     k = 2 * np.pi * np.fft.fftfreq(n)
     k2 = k[:, None] ** 2 + k[None, :] ** 2
-    denom = 1.0 + dt * (eps ** 2 * k2 ** 2 + 2.0 * k2)
+    denom = 1.0 + dt * (eps**2 * k2**2 + 2.0 * k2)
     ch = np.fft.fft2(c)
     for _ in range(steps):
         c = np.real(np.fft.ifft2(ch))
-        ch = (ch - dt * k2 * np.fft.fft2(c ** 3 - 3.0 * c)) / denom
+        ch = (ch - dt * k2 * np.fft.fft2(c**3 - 3.0 * c)) / denom
     return np.real(np.fft.ifft2(ch))
 
 
@@ -78,8 +80,8 @@ def signed_distance(tile: np.ndarray) -> np.ndarray:
 
     n = tile.shape[0]
     big = np.tile(tile > 0, (3, 3))
-    inside = ndimage.distance_transform_edt(big)[n:2 * n, n:2 * n]
-    outside = ndimage.distance_transform_edt(~big)[n:2 * n, n:2 * n]
+    inside = ndimage.distance_transform_edt(big)[n : 2 * n, n : 2 * n]
+    outside = ndimage.distance_transform_edt(~big)[n : 2 * n, n : 2 * n]
     return np.where(tile > 0, inside - 0.5, 0.5 - outside)
 
 
@@ -150,10 +152,10 @@ def _coverage_table():
 
 def _level_offset(c: np.ndarray):
     """The family level and threshold offset that give coverage `c` per pixel."""
-    tiles, cov = phase_tiles()
+    _tiles, cov = phase_tiles()
     half = int(np.argmin(np.abs(cov - LABYRINTH)))
     levels, table = _coverage_table()
-    lv = np.interp(np.clip(c, cov[1], cov[half]), cov[1:half + 1], np.arange(1, half + 1, dtype=np.float64))
+    lv = np.interp(np.clip(c, cov[1], cov[half]), cov[1 : half + 1], np.arange(1, half + 1, dtype=np.float64))
     row = np.clip(np.rint((lv - 1.0) / (half - 1.0) * (_LEVELS - 1)).astype(np.int64), 0, _LEVELS - 1)
     off = np.empty_like(c)
     # each row's pixels as one slice of a (radix) sort, not a mask over all of them per row
@@ -182,8 +184,11 @@ def period_px() -> float:
 
 # ------------------------------------------------------------------ placement
 def _hash(seed, i, j):
-    return splitmix64_kernel(np.uint64(seed) ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
-                             ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F)))
+    return splitmix64_kernel(
+        np.uint64(seed)
+        ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
+        ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
+    )
 
 
 _njit = numba_jit
@@ -220,7 +225,7 @@ def field1(xk, yk, levk, tiles, seed, px_per_um, cells_per_um, sharp):
     fx = cx - 0.5 - ci
     fy = cy - 0.5 - cj
     lv = min(max(levk, 0.0), nlev - 1.0)
-    l0 = int(math.floor(lv))
+    l0 = math.floor(lv)
     l1 = min(l0 + 1, nlev - 1)
     tl = lv - l0
     acc = 0.0
@@ -228,7 +233,7 @@ def field1(xk, yk, levk, tiles, seed, px_per_um, cells_per_um, sharp):
     for dj in range(2):
         for di in range(2):
             w = (fx if di else 1.0 - fx) * (fy if dj else 1.0 - fy)
-            w = w ** sharp
+            w = w**sharp
             h = _hash_nb(seed, ci + di, cj + dj)
             var = int(h % np.uint64(nvar))
             d8 = int((h >> np.uint64(8)) % np.uint64(8))
@@ -255,14 +260,15 @@ def _field_nb(x, y, level, out, tiles, seed, px_per_um, cells_per_um, sharp):
         out[k] = field1(x[k], y[k], level[k], tiles, seed, px_per_um, cells_per_um, sharp)
 
 
-def field(seed: int, x_um, y_um, feature_um: float, coverage=0.5, cell_features: float = 12.0,
-          sharp: float = 6.0) -> np.ndarray:
+def field(
+    seed: int, x_um, y_um, feature_um: float, coverage=0.5, cell_features: float = 12.0, sharp: float = 6.0
+) -> np.ndarray:
     """A phase-separation field at world (x, y) um whose > 0 region covers `coverage` (a
     scalar or per pixel) with features `feature_um` apart: the signed distance (tile pixels)
     to the region's edge. Up to half coverage the shapes are droplets merging into worms;
     above, the labyrinth dilates and its channels thin. Cells `cell_features` features
     across each use their own tile and orientation."""
-    tiles, cov = phase_tiles()
+    tiles, _cov = phase_tiles()
     x = np.ascontiguousarray(x_um, np.float64).ravel()
     y = np.ascontiguousarray(y_um, np.float64).ravel()
     shape = np.shape(x_um)

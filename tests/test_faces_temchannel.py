@@ -49,6 +49,7 @@ def client(server):
 
 # --------------------------------------------------------------------- batch
 
+
 def test_batch_formats(server, column, client):
     column.set_stage(x=12.5, y=-3.25, z=1.0, alpha=10.0)
     column.wait_idle()
@@ -71,8 +72,9 @@ def test_batch_formats(server, column, client):
 
 def test_batch_answers_what_deserver_accepts(server, client):
     """DE-Server only accepts an answer that splits into exactly totalCommands fields."""
-    out = client.call("executeBatchCommands", commands=",".join(DESERVER_BATCH),
-                      totalCommands=len(DESERVER_BATCH))["r"]
+    out = client.call(
+        "executeBatchCommands", commands=",".join(DESERVER_BATCH), totalCommands=len(DESERVER_BATCH)
+    )["r"]
     fields = split_batch(out, len(DESERVER_BATCH))
     assert fields is not None and all(f != "" for f in fields)
     # totalCommands beyond what was sent is clamped, unknown keys answer empty
@@ -111,8 +113,10 @@ ROUNDTRIP = {
     "ObjectiveStig": ((0.05, 0.01), (0.05, 0.01)),
     "CondenserStig": ((-0.3, 0.3), (-0.3, 0.3)),
     "DiffractionShift": ((0.25, 0.125), (0.25, 0.125)),
-    "StagePosition": ({"x": 5.0, "y": -7.0, "z": 1.0, "a": 3.0, "b": -2.0},
-                      {"x": 5.0, "y": -7.0, "z": 1.0, "a": 3.0, "b": -2.0}),
+    "StagePosition": (
+        {"x": 5.0, "y": -7.0, "z": 1.0, "a": 3.0, "b": -2.0},
+        {"x": 5.0, "y": -7.0, "z": 1.0, "a": 3.0, "b": -2.0},
+    ),
     "StageX": (11.0, 11.0),
     "StageY": (-4.0, -4.0),
     "StageZ": (2.0, 2.0),
@@ -197,8 +201,12 @@ def test_fei_vendor_on_the_wire():
     with TemChannelServer(col, host="127.0.0.1", port=0) as srv:
         c = SoapTemChannelClient("127.0.0.1", srv.port)
         d = c.batch_dict(["INSTRUMENT_Type", "PROJ_SubMode", "ILLUM_ProbeMode", "PROJ_ScreenPosition"])
-        assert d == {"INSTRUMENT_Type": "FEI", "PROJ_SubMode": "2", "ILLUM_ProbeMode": "1",
-                     "PROJ_ScreenPosition": "2"}
+        assert d == {
+            "INSTRUMENT_Type": "FEI",
+            "PROJ_SubMode": "2",
+            "ILLUM_ProbeMode": "1",
+            "PROJ_ScreenPosition": "2",
+        }
         state, _ = state_from_batch(c.batch_dict())
         assert state.probe_mode == ProbeMode.MICROPROBE and state.screen_position == 0
 
@@ -215,6 +223,7 @@ def test_http_details(server):
 
 # -------------------------------------------------------------- de_microscope
 
+
 def _de_microscope():
     if not os.path.isdir(DE_MICROSCOPE):
         pytest.skip("de_microscope not found")
@@ -222,7 +231,7 @@ def _de_microscope():
         sys.path.insert(0, DE_MICROSCOPE)
     try:
         import de_microscope
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         pytest.skip(f"de_microscope not importable: {exc}")
     return de_microscope
 
@@ -236,7 +245,7 @@ def test_de_microscope_client(server, column):
             continue
         try:
             scope[name]
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             errors[name] = exc
     assert not errors, errors
     assert scope["InstrumentType"] == "JEOL"
@@ -273,6 +282,7 @@ def test_de_microscope_real_column(server, column):
 
 # ------------------------------------------------------------ recorded samples
 
+
 def _samples():
     out = []
     for d in SAMPLE_DIRS:
@@ -288,8 +298,8 @@ def test_replay_recorded_samples(column):
         res_path = req_path.replace(".req.xml", ".res.xml")
         if not os.path.exists(res_path):
             continue
-        req = open(req_path, "rb").read()
-        code, xml = srv.handle(req)
+        request = open(req_path, "rb").read()
+        code, xml = srv.handle(request)
         assert code == 200, (req_path, xml[:300])
         want_el, want = parse_body(open(res_path, "rb").read())
         got_el, got = parse_body(xml)
@@ -297,7 +307,7 @@ def test_replay_recorded_samples(column):
         assert list(got) == list(want), (req_path, list(got), list(want))
         for tag, recorded in want.items():
             # the regex extraction de_microscope uses finds every recorded tag
-            assert re.search(r"<%s[^>]*>(.*?)</%s>" % (tag, tag), xml, re.S), (req_path, tag)
+            assert re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", xml, re.DOTALL), (req_path, tag)
             if recorded not in ("", None) and tag != "r":
                 float(got[tag])  # numeric where the sample is numeric
         replayed += 1
@@ -305,6 +315,7 @@ def test_replay_recorded_samples(column):
 
 
 # ---------------------------------------------------------------------- mirror
+
 
 def test_mirror_follows_and_forwards():
     a = Column(stage_speed_um_s=1e5)

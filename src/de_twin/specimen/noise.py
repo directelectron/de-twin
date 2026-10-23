@@ -19,7 +19,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001 - numba missing: the NumPy path
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -217,8 +217,7 @@ def cell1(xv, yv, seed, merge, jitter):
             if u < merge:
                 continue  # the two islands have coalesced
             t = ((xv - 0.5 * (sx + bx)) * mx + (yv - 0.5 * (sy + by)) * my) / L
-            if -t < gap:
-                gap = -t
+            gap = min(gap, -t)
     return math.sqrt(best), gap, bh
 
 
@@ -281,5 +280,9 @@ class FastLattice:
         h = np.empty(n, np.uint64)
         if n:
             _nearest_nb(xs, ys, self.seed, self.jitter, sx, sy, d2, h)
-        return SimpleNamespace(sx=(sx * c).reshape(shape), sy=(sy * c).reshape(shape),
-                               d2=(d2 * c * c).reshape(shape), h=h.reshape(shape))
+        return SimpleNamespace(
+            sx=(sx * c).reshape(shape),
+            sy=(sy * c).reshape(shape),
+            d2=(d2 * c * c).reshape(shape),
+            h=h.reshape(shape),
+        )

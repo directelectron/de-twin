@@ -21,9 +21,12 @@ from de_twin.faces import gpu_frames
 from de_twin.faces.deapi_server import TwinDeapiServer
 
 needs_sharing = pytest.mark.skipif(
-    sys.platform != "win32" or importlib.util.find_spec("cupy") is None
-    or importlib.util.find_spec("deapi.gpu_frames") is None or not gpu_frames.sharing_available(),
-    reason="needs Windows, CuPy, deapi.gpu_frames and a GPU that shares memory between processes")
+    sys.platform != "win32"
+    or importlib.util.find_spec("cupy") is None
+    or importlib.util.find_spec("deapi.gpu_frames") is None
+    or not gpu_frames.sharing_available(),
+    reason="needs Windows, CuPy, deapi.gpu_frames and a GPU that shares memory between processes",
+)
 
 CLIENT = textwrap.dedent("""
     import json, os, sys
@@ -62,8 +65,13 @@ def test_a_client_maps_the_twins_frames_out_of_gpu_memory():
 
     twin = StubTwin()
     with TwinDeapiServer(twin, port=0, pace=True) as server:
-        result = subprocess.run([sys.executable, "-c", CLIENT, str(server.port)], capture_output=True, check=False,
-                                text=True, timeout=120)
+        result = subprocess.run(
+            [sys.executable, "-c", CLIENT, str(server.port)],
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=120,
+        )
     assert result.returncode == 0, result.stderr
     out = json.loads(result.stdout.strip().splitlines()[-1])
     assert out["type"] == "GpuFrames"  # the zero-copy path, not deapi's simulated stand-in

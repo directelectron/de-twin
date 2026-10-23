@@ -116,6 +116,21 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedE
 line-length = 110
 extend-exclude = ["docs/auto_examples"]
 
+[tool.ruff.lint]
+ignore = [
+    "S110",   # best-effort cleanup and optional-feature probes must never raise
+    "BLE001", # the same: closing a holder or column is best effort
+    "B008",   # the defaults are immutable (frozen dataclasses, an identity matrix, a stub camera)
+    "PYI034", # typing.Self needs Python 3.11; the package supports 3.10
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "SIM115", # reading a fixture file once; no handle outlives the line
+    "B017",   # these assert that the channel refuses, whatever it raises
+    "PLW1510", # the test checks the return code itself
+]
+
 # ---------------------------------------------------------------------------
 # Changelog management (towncrier)
 # ---------------------------------------------------------------------------

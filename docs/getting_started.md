@@ -17,12 +17,12 @@ from de_twin import DigitalTwin, ManualClock
 twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=0)
 
 twin.column.set("Magnification", 20_000)
-twin.column.move_stage(x=0.5, y=0.0)        # micrometres; waits for the stage
+twin.column.move_stage(x=0.5, y=0.0)  # micrometres; waits for the stage
 twin.column.set_defocus_um(-1.0)
 
-img = twin.snap(1.0)                         # 1 s, split into frames, dark/gain corrected, electrons
-raw = twin.raw_frame(0.025)                  # one raw uint16 frame: offset, noise, defects
-truth = twin.flux(twin.request())            # noiseless electrons / pixel / second
+img = twin.snap(1.0)  # 1 s, split into frames, dark/gain corrected, electrons
+raw = twin.raw_frame(0.025)  # one raw uint16 frame: offset, noise, defects
+truth = twin.flux(twin.request())  # noiseless electrons / pixel / second
 ```
 
 * `ManualClock` makes the run deterministic and instant. The default `Clock` runs in real

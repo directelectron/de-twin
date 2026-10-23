@@ -5,14 +5,21 @@ from de_twin.specimen import MaterialId, Specimen, SpecimenConfig, ViewWindow
 from de_twin.specimen.raster import Shape
 
 
-def _mesh(lod=0.5, **opts):
-    return Specimen(SpecimenConfig(seed=5, holder="mesh_grid", preparation="nanoparticles", film="continuous",
-                                   options=dict(lod_threshold_px=lod, **opts)))
+def _mesh(lod=0.5, **options):
+    return Specimen(
+        SpecimenConfig(
+            seed=5,
+            holder="mesh_grid",
+            preparation="nanoparticles",
+            film="continuous",
+            options=dict(lod_threshold_px=lod, **options),
+        )
+    )
 
 
 def _central_area(s):
     h = s.scene.holder
-    d = h.area_cx ** 2 + h.area_cy ** 2
+    d = h.area_cx**2 + h.area_cy**2
     return h.areas[int(np.argmin(np.where(h.area_film_ok, d, np.inf)))]
 
 
@@ -24,7 +31,7 @@ def test_population_mass_matches_aggregate():
     batch = prep.populate(s.scene.holder, area, seed)
     d = batch.prims.thickness.astype(np.float64)
     footprint = 4.0 * area.half[0] * area.half[1]
-    populated_nm = np.sum(np.pi / 6.0 * d ** 3) * 1e-6 / footprint  # nm^3 per um^2 -> nm
+    populated_nm = np.sum(np.pi / 6.0 * d**3) * 1e-6 / footprint  # nm^3 per um^2 -> nm
     agg = prep.aggregate_for(s.scene.holder, area, seed)
     assert agg.shape[0] == Shape.RECT and bool(agg.aggregate[0])
     assert populated_nm == pytest.approx(float(agg.thickness[0]), rel=0.15)

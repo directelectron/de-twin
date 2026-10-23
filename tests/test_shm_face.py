@@ -26,7 +26,7 @@ def served():
 
 
 def test_frames_arrive_in_order(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), frame_time_s=0.01, total_frames=10)
     frames = [consumer.read(timeout=10) for _ in range(10)]
     assert [h["frame_index"] for _, h in frames] == list(range(10))
@@ -36,7 +36,7 @@ def test_frames_arrive_in_order(served):
 
 
 def test_dark_request_produces_blanked_frames(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), total_frames=3, exposure_mode=ExposureMode.DARK)
     for _ in range(3):
         frame, info = consumer.read(timeout=10)
@@ -45,7 +45,7 @@ def test_dark_request_produces_blanked_frames(served):
 
 
 def test_new_request_preempts_live_stream(served):
-    twin, face, consumer = served
+    _twin, _face, consumer = served
     consumer.begin(frame_shape=(1024, 1024), total_frames=0)  # live: until told otherwise
     for _ in range(3):
         consumer.read(timeout=10)
@@ -74,7 +74,9 @@ def test_the_face_warms_the_twin_up_before_serving():
 def test_warm_up_can_be_skipped():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
     twin.frames = lambda *a, **k: pytest.fail("rendered without a request")
-    face = ShmFace(twin, name=f"DE_ExternalFramesCold_{uuid.uuid4().hex[:6]}", pace=False, warm_up=False).start()
+    face = ShmFace(
+        twin, name=f"DE_ExternalFramesCold_{uuid.uuid4().hex[:6]}", pace=False, warm_up=False
+    ).start()
     try:
         assert face.ready.wait(5)
     finally:
@@ -132,12 +134,12 @@ def test_recycling_publishes_faster_than_the_twin_renders(monkeypatch):
     monkeypatch.setattr(twin, "frames", slow_frames)
     try:
         consumer.begin(frame_shape=(1024, 1024), frame_time_s=0.001, total_frames=0)
-        buf = np.empty((1024, 1024), np.uint16)
-        consumer.read(timeout=60, out=buf)  # the first frame may wait for the kernels to compile
+        buffer = np.empty((1024, 1024), np.uint16)
+        consumer.read(timeout=60, out=buffer)  # the first frame may wait for the kernels to compile
         pub0, reused0 = face.frames_published, face.frames_reused
         t0, n = time.monotonic(), 0
         while time.monotonic() - t0 < 1.0:
-            consumer.read(timeout=10, out=buf)
+            consumer.read(timeout=10, out=buffer)
             n += 1
         # relative, not wall-clock: a slow runner renders fewer frames, but recycling still
         # publishes well over one frame per render
@@ -158,10 +160,9 @@ def test_a_view_change_drops_recycled_frames():
     from de_twin.faces.shm_face import _FramePool
 
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
-    pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.01), size=4, reuse=100,
-                      pace=False)
+    pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.01), size=4, reuse=100, pace=False)
     try:
-        (item, fresh) = pool.take(10)
+        (item, _fresh) = pool.take(10)
         x0 = item[1].microscope.stage.x_um
         twin.column.move_stage(x=x0 + 1.0)
         twin.column.state()  # the stage settles on the manual clock
@@ -169,7 +170,7 @@ def test_a_view_change_drops_recycled_frames():
 
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
-            (item, fresh) = pool.take(10)
+            (item, _fresh) = pool.take(10)
             if item[1].microscope.stage.x_um != x0:
                 break
         # from here on, only the new view comes back, fresh or recycled
@@ -201,8 +202,7 @@ def test_a_full_pool_is_a_library_until_the_view_changes(monkeypatch):
             yield item
 
     monkeypatch.setattr(twin, "frames", counted)
-    pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.001), size=4, reuse=10**9,
-                      pace=False)
+    pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.001), size=4, reuse=10**9, pace=False)
     try:
         x0 = pool.take(10)[0][1].microscope.stage.x_um
         assert len(pool.take_many(100, 10)) == 100  # far more than were rendered
@@ -229,8 +229,13 @@ def test_frames_are_taken_in_the_order_take_hands_them_out():
     pool.reuse, pool._cond, pool._end, pool._last = 2, threading.Condition(), None, None
     pool._ring = [[("a", None), 1], [("b", None), 0], [("c", None), 0]]
     got = pool.take_many(10, 0.0)
-    assert [(item[0], fresh) for item, fresh in got] == [("b", True), ("c", True), ("a", False),
-                                                         ("b", False), ("c", False)]
+    assert [(item[0], fresh) for item, fresh in got] == [
+        ("b", True),
+        ("c", True),
+        ("a", False),
+        ("b", False),
+        ("c", False),
+    ]
     assert pool.take_many(1, 0.0) == [(("c", None), False)]  # spent: the last frame, as a keep-alive
 
 

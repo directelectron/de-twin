@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Optional
 
 import numpy as np
 
@@ -43,7 +42,7 @@ class SyntheticSpecimen:
     particles: list = field(default_factory=list)  # Particle
     seed: int = 42
     crystallinity_value: float = 1.0
-    grains: Optional[GrainTable] = None
+    grains: GrainTable | None = None
     generation: int = 0
     rasterize_calls: int = 0
 
@@ -60,15 +59,15 @@ class SyntheticSpecimen:
 
     def rasterize(self, view: ViewWindow, layers: frozenset = frozenset()) -> FieldMap:
         self.rasterize_calls += 1
-        fm = FieldMap.empty(view, layers)
-        fm.generation = self.generation
+        field_map = FieldMap.empty(view, layers)
+        field_map.generation = self.generation
         x, y = view.world_grid()
-        fm.material_id[:] = self.film_material
-        fm.thickness_nm[:] = self.film_thickness_nm if self.film_material else 0.0
+        field_map.material_id[:] = self.film_material
+        field_map.thickness_nm[:] = self.film_thickness_nm if self.film_material else 0.0
         for hx, hy, hr in self.holes:
             m = (x - hx) ** 2 + (y - hy) ** 2 < hr * hr
-            fm.material_id[m] = MaterialId.VACUUM
-            fm.thickness_nm[m] = 0.0
+            field_map.material_id[m] = MaterialId.VACUUM
+            field_map.thickness_nm[m] = 0.0
         for p in self.particles:
             r_um = p.radius_nm / 1000.0
             bx0, by0, bx1, by1 = p.x_um - r_um, p.y_um - r_um, p.x_um + r_um, p.y_um + r_um
@@ -79,11 +78,11 @@ class SyntheticSpecimen:
             m = d2 < 1.0
             if not m.any():
                 continue
-            fm.material_id[m] = p.material
-            fm.thickness_nm[m] = (2.0 * p.radius_nm * np.sqrt(1.0 - d2[m])).astype(np.float32)
+            field_map.material_id[m] = p.material
+            field_map.thickness_nm[m] = (2.0 * p.radius_nm * np.sqrt(1.0 - d2[m])).astype(np.float32)
             gid = int(p.material) * GRAINS_PER_MATERIAL + int(p.grain)
-            fm.grain_id[m] = gid
-        return fm
+            field_map.grain_id[m] = gid
+        return field_map
 
 
 def on_zone_grains(grain_id: int, zone=(0, 0, 1), seed: int = 42, in_plane_rad: float = 0.0) -> GrainTable:
@@ -107,10 +106,15 @@ def _cached_grains(seed: int) -> GrainTable:
 
 
 # ----------------------------------------------------------- analysis helpers
-def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: Optional[float] = None,
-                          half_width_deg: float = 15.0, nbins: int = 256):
+def radial_power_spectrum(
+    image: np.ndarray,
+    pixel_nm: float,
+    sector_rad: float | None = None,
+    half_width_deg: float = 15.0,
+    nbins: int = 256,
+):
     """(k [1/nm], radially averaged |FFT|^2), optionally within a +-sector (mod 180 deg)."""
-    a = np.asarray(img, np.float64)
+    a = np.asarray(image, np.float64)
     f = np.abs(np.fft.fftshift(np.fft.fft2(a - a.mean()))) ** 2
     ny, nx = a.shape
     ky = (np.arange(ny) - ny // 2)[:, None] / (ny * pixel_nm)
@@ -122,24 +126,32 @@ def radial_power_spectrum(img: np.ndarray, pixel_nm: float, sector_rad: Optional
         d = np.angle(np.exp(2j * (ang - sector_rad))) / 2.0
         m = np.abs(d) < np.radians(half_width_deg)
     edges = np.linspace(0.0, 0.5 / pixel_nm, nbins + 1)
-    idx = np.digitize(k[m], edges)
-    s = np.bincount(idx, weights=f[m], minlength=nbins + 2)[1:nbins + 1]
-    n = np.bincount(idx, minlength=nbins + 2)[1:nbins + 1]
+    index = np.digitize(k[m], edges)
+    s = np.bincount(index, weights=f[m], minlength=nbins + 2)[1 : nbins + 1]
+    n = np.bincount(index, minlength=nbins + 2)[1 : nbins + 1]
     return 0.5 * (edges[1:] + edges[:-1]), s / np.maximum(n, 1)
 
 
 def ctf2(k, defocus_nm, wavelength_nm, cs_mm=1.2, amplitude_contrast=0.07):
     """(sin chi - kappa cos chi)^2 with the twin's sign convention (df < 0 underfocus)."""
-    kap = amplitude_contrast / np.sqrt(1.0 - amplitude_contrast ** 2)
-    chi = np.pi * wavelength_nm * defocus_nm * k ** 2 + 0.5 * np.pi * cs_mm * 1e6 * wavelength_nm ** 3 * k ** 4
+    kap = amplitude_contrast / np.sqrt(1.0 - amplitude_contrast**2)
+    chi = np.pi * wavelength_nm * defocus_nm * k**2 + 0.5 * np.pi * cs_mm * 1e6 * wavelength_nm**3 * k**4
     return (np.sin(chi) - kap * np.cos(chi)) ** 2
 
 
-def fit_defocus(img, pixel_nm, wavelength_nm, df_grid_nm, cs_mm=1.2, k_range=(0.3, 3.0),
-                sector_rad=None, amplitude_contrast=0.07):
+def fit_defocus(
+    image,
+    pixel_nm,
+    wavelength_nm,
+    df_grid_nm,
+    cs_mm=1.2,
+    k_range=(0.3, 3.0),
+    sector_rad=None,
+    amplitude_contrast=0.07,
+):
     """Brute-force CTF fit: the defocus whose CTF^2 best correlates with the
     background-flattened radial power spectrum. Returns (defocus_nm, score)."""
-    k, p = radial_power_spectrum(img, pixel_nm, sector_rad)
+    k, p = radial_power_spectrum(image, pixel_nm, sector_rad)
     sel = (k > k_range[0]) & (k < k_range[1])
     pr = p[sel]
     flat = pr / np.convolve(pr, np.ones(31) / 31.0, "same")

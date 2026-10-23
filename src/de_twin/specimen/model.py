@@ -5,15 +5,14 @@ from __future__ import annotations
 import dataclasses
 import functools
 import math
-from typing import Optional
 
 import numpy as np
 
 from ..state import HolderState
+from . import raster_nb as _raster_nb
 from .fieldmap import OPTIONAL_LAYERS, FieldMap, GrainTable, ViewWindow
 from .materials import MaterialId
 from .options import CLEARS_POPULATION, NON_REGENERATING, SpecimenConfig
-from . import raster_nb as _raster_nb
 from .raster import RasterContext, rasterize_scene
 from .scene import Feature, Scene
 
@@ -27,7 +26,7 @@ def _numba_threadsafe() -> bool:
     a parallel kernel has run (then the first raster is serial)."""
     try:
         import numba
-    except Exception:  # noqa: BLE001 - no numba: the NumPy paths
+    except Exception:
         return True
     try:
         return numba.threading_layer() in ("omp", "tbb")
@@ -40,8 +39,9 @@ REFERENCE_OVERHEAT_C = 100.0  # degrees above onset at which the budget advances
 MELT_RATE_PER_S = 40.0  # budget units shed per second at/above the melting point
 
 
-def advance_thermal_budget(budget_s: float, temperature_c: float, onset_c: float, melt_c: float,
-                           dt_s: float) -> float:
+def advance_thermal_budget(
+    budget_s: float, temperature_c: float, onset_c: float, melt_c: float, dt_s: float
+) -> float:
     """Integrate the crystallisation budget over ``dt_s`` at a constant temperature.
 
     Above the melting point the budget drains at 40 /s (re-amorphisation); below the onset it is
@@ -98,8 +98,11 @@ def grain_textures(scene: Scene) -> tuple[tuple, tuple]:
         if isinstance(prep, BulkSamplePreparation):
             gid = prep._matrix_grain(area, scene.area_seed(area.index))
             if gid >= 0:
-                overrides[int(gid)] = (SI_110_LAMELLA if prep.material == MaterialId.SILICON
-                                       else Texture("single", (0, 0, 1), 0.6))
+                overrides[int(gid)] = (
+                    SI_110_LAMELLA
+                    if prep.material == MaterialId.SILICON
+                    else Texture("single", (0, 0, 1), 0.6)
+                )
     return tuple(textures), tuple(sorted(overrides.items()))
 
 
@@ -115,19 +118,21 @@ class Specimen:
     #: that on a stage move; tests/test_render_caches.py checks it).
     raster_is_local = True
 
-    def __init__(self, config: Optional[SpecimenConfig] = None):
+    def __init__(self, config: SpecimenConfig | None = None):
         self.config = (config or SpecimenConfig()).copy()
         self.options = self.config.resolved_options()
         self._build()
         self._time_s = 0.0
-        self._last_update_s: Optional[float] = None
+        self._last_update_s: float | None = None
         self._budget_s = 0.0
         self._temperature_c = self.options.specimen_temperature_c
         self._generation = 0
 
     def _build(self):
         self.scene = Scene(self.config, self.options)
-        self.grains: GrainTable = _grain_table(int(self.config.seed) & 0xFFFFFFFF, *grain_textures(self.scene))
+        self.grains: GrainTable = _grain_table(
+            int(self.config.seed) & 0xFFFFFFFF, *grain_textures(self.scene)
+        )
 
     # -- where to start looking ------------------------------------------------------------------
     def home_um(self) -> tuple[float, float]:
@@ -152,21 +157,26 @@ class Specimen:
         area = next((a for a in ordered if usable(a)), ordered[0])
         try:
             clusters = list(scene._clusters(area, resident_ok=False))
-        except Exception:  # noqa: BLE001 - a preparation without clusters
+        except Exception:
             clusters = []
         if clusters:
-            best = max(clusters, key=lambda c: (c.count, -math.hypot(c.center[0] - area.center[0],
-                                                                     c.center[1] - area.center[1])))
+            best = max(
+                clusters,
+                key=lambda c: (
+                    c.count,
+                    -math.hypot(c.center[0] - area.center[0], c.center[1] - area.center[1]),
+                ),
+            )
             return (float(best.center[0]), float(best.center[1]))
         return (float(area.center[0]), float(area.center[1]))
 
     # -- options --------------------------------------------------------------------------------
-    def set_options(self, **kw) -> None:
+    def set_options(self, **options) -> None:
         """Change options live. World-changing options regenerate the scene (and reset the
         thermal budget, as a new specimen is a new experiment); others apply in place."""
-        new = self.options.replace(**kw)
-        changed = {k for k in kw if getattr(new, k) != getattr(self.options, k)}
-        self.config.options.update(kw)
+        new = self.options.replace(**options)
+        changed = {k for k in options if getattr(new, k) != getattr(self.options, k)}
+        self.config.options.update(options)
         self.options = new
         if changed - NON_REGENERATING:
             self._build()
@@ -183,7 +193,7 @@ class Specimen:
 
     @property
     def time_index(self) -> int:
-        return int(math.floor(self._time_s / self.options.time_step_s + 1e-9)) if self._time_s > 0 else 0
+        return math.floor(self._time_s / self.options.time_step_s + 1e-9) if self._time_s > 0 else 0
 
     @property
     def thermal_budget_s(self) -> float:
@@ -202,7 +212,7 @@ class Specimen:
     def time_dependent(self) -> bool:
         return self.scene.time_dependent
 
-    def update(self, time_s: float, holder: Optional[HolderState] = None) -> None:
+    def update(self, time_s: float, holder: HolderState | None = None) -> None:
         """Advance the scene clock to ``time_s`` and integrate the thermal budget.
 
         The temperature is ``holder.temperature_c`` when a holder state is given (and is not a
@@ -217,8 +227,13 @@ class Specimen:
             temp = float(self.options.specimen_temperature_c)
         if self._last_update_s is not None:
             dt = time_s - self._last_update_s
-            self._budget_s = advance_thermal_budget(self._budget_s, temp, self.options.crystallization_onset_c,
-                                                    self.options.melting_temperature_c, dt)
+            self._budget_s = advance_thermal_budget(
+                self._budget_s,
+                temp,
+                self.options.crystallization_onset_c,
+                self.options.melting_temperature_c,
+                dt,
+            )
         self._last_update_s = time_s
         self._time_s = time_s
         self._temperature_c = temp
@@ -242,8 +257,13 @@ class Specimen:
             return out
         ok = (g >= 0) & (g < self.grains.nucleation_u.shape[0])
         o = self.options
-        out[ok] = crystalline_fraction(self.grains.nucleation_u[g[ok]], self._budget_s, o.nucleation_start_s,
-                                       o.nucleation_end_s, o.crystal_growth_s)
+        out[ok] = crystalline_fraction(
+            self.grains.nucleation_u[g[ok]],
+            self._budget_s,
+            o.nucleation_start_s,
+            o.nucleation_end_s,
+            o.crystal_growth_s,
+        )
         return out
 
     # -- geometry -------------------------------------------------------------------------------
@@ -254,8 +274,14 @@ class Specimen:
         """Optional FieldMap layers this specimen can fill (descan/strain for FIB lamellae)."""
         return frozenset(self.scene.required_layers)
 
-    def rasterize(self, view: ViewWindow, layers: frozenset = frozenset(), *, span_px: Optional[int] = None,
-                  threads: int = 1) -> FieldMap:
+    def rasterize(
+        self,
+        view: ViewWindow,
+        layers: frozenset = frozenset(),
+        *,
+        span_px: int | None = None,
+        threads: int = 1,
+    ) -> FieldMap:
         """The specimen on ``view``. ``span_px``: the size of the whole view when ``view`` is
         a piece of one (the scene draws a piece as it draws the whole). ``threads`` > 1
         rasterises row strips of a large view in parallel (the pixels are local, so the
@@ -268,21 +294,27 @@ class Specimen:
         span = int(span_px) if span_px else max(view.shape)
         n = max(1, min(int(threads), max(view.shape) // MIN_STRIP_ROWS))
         if n > 1 and _numba_threadsafe() and self._numpy_work(drifted, span):
-            fm = self._rasterize_strips(drifted, layers, span, n)
+            field_map = self._rasterize_strips(drifted, layers, span, n)
         else:
-            ctx = self._rasterize_ctx(drifted, layers, span)
-            self.last_stats = dict(ctx.stats, **self.scene.last_stats)
-            fm = ctx.to_fieldmap(time_s=self._time_s)
+            context = self._rasterize_ctx(drifted, layers, span)
+            self.last_stats = dict(context.stats, **self.scene.last_stats)
+            field_map = context.to_fieldmap(time_s=self._time_s)
         self._generation += 1
-        fm.generation = self._generation
-        fm.view = view
-        return fm
+        field_map.generation = self._generation
+        field_map.view = view
+        return field_map
 
     def _rasterize_ctx(self, view: ViewWindow, layers: frozenset, span: int) -> RasterContext:
-        ctx = RasterContext(view, layers, grains=self.grains, time_index=self.time_index,
-                            lod_threshold_px=self.options.lod_threshold_px, span_px=span)
-        rasterize_scene(self.scene, ctx, curtain_depth=min(max(self.options.curtain_depth, 0.0), 1.0))
-        return ctx
+        context = RasterContext(
+            view,
+            layers,
+            grains=self.grains,
+            time_index=self.time_index,
+            lod_threshold_px=self.options.lod_threshold_px,
+            span_px=span,
+        )
+        rasterize_scene(self.scene, context, curtain_depth=min(max(self.options.curtain_depth, 0.0), 1.0))
+        return context
 
     def _numpy_work(self, view: ViewWindow, span: int) -> bool:
         """Whether rasterising ``view`` runs NumPy code (a structure or primitive profile without
@@ -298,9 +330,15 @@ class Specimen:
             return True
         ny, nx = view.shape
         px = float(view.pixel_um)
-        probe = SimpleNamespace(aabb=AABB(*view.bounds_um()), ny=ny, nx=nx, span_px=span, pixel_um=px,
-                                lod_threshold_px=self.options.lod_threshold_px,
-                                diameter_px=lambda r: 2.0 * np.asarray(r) / px)
+        probe = SimpleNamespace(
+            aabb=AABB(*view.bounds_um()),
+            ny=ny,
+            nx=nx,
+            span_px=span,
+            pixel_um=px,
+            lod_threshold_px=self.options.lod_threshold_px,
+            diameter_px=lambda r: 2.0 * np.asarray(r) / px,
+        )
         P = self.scene.query(probe)
         dpx = probe.diameter_px(P.bound_r)
         draw = P.intersects(probe.aabb) & (dpx >= probe.lod_threshold_px) & (dpx >= DUST_THRESHOLD_PX)
@@ -329,24 +367,25 @@ class Specimen:
             x, y = view.pixel_to_world(np.array([(r0 + r1 - 1) / 2.0]), np.array([(c0 + c1 - 1) / 2.0]))
             sub = dataclasses.replace(view, center_um=(float(x[0]), float(y[0])), shape=(r1 - r0, c1 - c0))
             return (r0, r1, c0, c1), self._rasterize_ctx(sub, layers, span).to_fieldmap(time_s=self._time_s)
+
         with ThreadPoolExecutor(n, thread_name_prefix="de-twin-raster") as ex:
             parts = list(ex.map(strip, range(n)))
-        fm = FieldMap.empty(view, layers)
-        fm.time_s = self._time_s
+        field_map = FieldMap.empty(view, layers)
+        field_map.time_s = self._time_s
         if any(p.under_thickness_nm is not None for _, p in parts):
-            fm.under_material = np.zeros((ny, nx), np.uint8)
-            fm.under_thickness_nm = np.zeros((ny, nx), np.float32)
+            field_map.under_material = np.zeros((ny, nx), np.uint8)
+            field_map.under_thickness_nm = np.zeros((ny, nx), np.float32)
         for (r0, r1, c0, c1), p in parts:
             for name in ("material_id", "thickness_nm", "grain_id", "under_material", "under_thickness_nm"):
                 a = getattr(p, name)
                 if a is not None:
-                    getattr(fm, name)[r0:r1, c0:c1] = a
+                    getattr(field_map, name)[r0:r1, c0:c1] = a
             for name in ("descan", "strain"):
                 a = getattr(p, name)
-                if a is not None and getattr(fm, name) is not None:
-                    getattr(fm, name)[:, r0:r1, c0:c1] = a
+                if a is not None and getattr(field_map, name) is not None:
+                    getattr(field_map, name)[:, r0:r1, c0:c1] = a
         self.last_stats = dict(self.scene.last_stats, strips=n)
-        return fm
+        return field_map
 
     def drift_um(self) -> tuple[float, float]:
         """Accumulated specimen drift (um) at the current time index."""
@@ -357,7 +396,7 @@ class Specimen:
     def features(self) -> list[Feature]:
         return self.scene.features()
 
-    def nearest_feature(self, x_um: float, y_um: float) -> Optional[Feature]:
+    def nearest_feature(self, x_um: float, y_um: float) -> Feature | None:
         return self.scene.nearest_feature(float(x_um), float(y_um))
 
     def overview(self, shape=(1024, 1024)) -> np.ndarray:
@@ -366,5 +405,5 @@ class Specimen:
         cx, cy = 0.5 * (xmin + xmax), 0.5 * (ymin + ymax)
         ny, nx = int(shape[0]), int(shape[1])
         px = max(1.05 * (xmax - xmin) / nx, 1.05 * (ymax - ymin) / ny)
-        fm = self.rasterize(ViewWindow(center_um=(cx, cy), pixel_um=px, shape=(ny, nx)))
-        return fm.thickness_nm
+        field_map = self.rasterize(ViewWindow(center_um=(cx, cy), pixel_um=px, shape=(ny, nx)))
+        return field_map.thickness_nm

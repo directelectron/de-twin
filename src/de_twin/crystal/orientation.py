@@ -38,7 +38,9 @@ def crystal_to_lab(q) -> np.ndarray:
 
 def rotation_from_crystal_to_lab(m) -> np.ndarray:
     """Quaternions (N, 4), ``a >= 0``, of the diffsims rotation whose crystal->lab matrix is ``m``."""
-    q = _R.from_matrix(np.asarray(m, np.float64).reshape(-1, 3, 3).transpose(0, 2, 1)).as_quat()[:, [3, 0, 1, 2]]
+    q = _R.from_matrix(np.asarray(m, np.float64).reshape(-1, 3, 3).transpose(0, 2, 1)).as_quat()[
+        :, [3, 0, 1, 2]
+    ]
     return np.where(q[:, :1] < 0, -q, q)
 
 

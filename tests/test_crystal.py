@@ -11,9 +11,15 @@ import pytest
 from orix.quaternion import Rotation
 from orix.vector import Vector3d
 
-from de_twin.crystal import (crystal_to_lab, effective_matrices, library_for, phase_for, quat_to_matrix,
-                             rotation_from_crystal_to_lab, stage_matrix)
-from de_twin.crystal.orientation import align
+from de_twin.crystal import (
+    crystal_to_lab,
+    effective_matrices,
+    library_for,
+    phase_for,
+    quat_to_matrix,
+    rotation_from_crystal_to_lab,
+    stage_matrix,
+)
 from de_twin.render.diffraction import bragg_fraction, bucket_patterns
 from de_twin.render.testing import Particle, SyntheticSpecimen, on_zone_grains
 from de_twin.specimen import Specimen, from_name
@@ -53,15 +59,20 @@ def test_library_matches_diffsims(mid):
 
     lib, phase = library_for(mid), phase_for(mid)
     t = 25.0
-    gen = SimulationGenerator(200, shape_factor_model=lambda s, w: np.sinc(t * 10 * s) ** 2,
-                              minimum_intensity=1e-12)
+    gen = SimulationGenerator(
+        200, shape_factor_model=lambda s, w: np.sinc(t * 10 * s) ** 2, minimum_intensity=1e-12
+    )
     q = np.random.default_rng(int(mid)).normal(size=(3, 4))
     for qi in q / np.linalg.norm(q, axis=1, keepdims=True):
         rot = Rotation(qi)
-        sim = gen.calculate_diffraction2d(phase, rotation=rot, reciprocal_radius=2.0, max_excitation_error=0.05,
-                                          with_direct_beam=False,
-                                          debye_waller_factors={phase.structure[0].element:
-                                                                MATERIALS[mid].debye_waller_a2})
+        sim = gen.calculate_diffraction2d(
+            phase,
+            rotation=rot,
+            reciprocal_radius=2.0,
+            max_excitation_error=0.05,
+            with_direct_beam=False,
+            debye_waller_factors={phase.structure[0].element: MATERIALS[mid].debye_waller_a2},
+        )
         c = sim.coordinates
         xy = c.data[:, :2] * 10.0  # 1/A -> 1/nm
         ex = lib.excite(crystal_to_lab(rot.data), gen.wavelength / 10.0, t, 200.0)
@@ -121,27 +132,27 @@ def test_stage_tilt_moves_a_grain_continuously_through_bragg_conditions():
 
 # ------------------------------------------------------------ textures
 def test_default_grain_orientations_are_uniform():
-    m = GrainTable.generate(7).matrices[AU * 512:(AU + 1) * 512]
+    m = GrainTable.generate(7).matrices[AU * 512 : (AU + 1) * 512]
     c = np.abs((m @ [0.0, 0.0, 1.0])[:, 2])  # |cos| of [001] with the beam: uniform on [0, 1]
-    assert abs(c.mean() - 0.5) < 0.05 and abs((c ** 2).mean() - 1 / 3) < 0.05
+    assert abs(c.mean() - 0.5) < 0.05 and abs((c**2).mean() - 1 / 3) < 0.05
 
 
 def test_thin_film_has_a_111_fibre_texture():
     s = Specimen(from_name("Au thin film 20 nm"))
-    m = s.grains.matrices[AU * 512:(AU + 1) * 512]
+    m = s.grains.matrices[AU * 512 : (AU + 1) * 512]
     tilt = np.degrees(np.arccos(np.abs((m @ (np.ones(3) / math.sqrt(3)))[:, 2])))
     assert np.median(tilt) < 5.0 and tilt.max() < 20.0
     azimuth = np.arctan2(*(m @ [1.0, 0.0, 0.0])[:, :2].T)
     assert np.ptp(azimuth) > 5.0  # random rotation about the fibre axis
     # nanoparticles stay random
-    p = Specimen(from_name("Dense Au on holey C")).grains.matrices[AU * 512:(AU + 1) * 512]
+    p = Specimen(from_name("Dense Au on holey C")).grains.matrices[AU * 512 : (AU + 1) * 512]
     assert np.median(np.degrees(np.arccos(np.abs((p @ (np.ones(3) / math.sqrt(3)))[:, 2])))) > 20.0
 
 
 # ------------------------------------------------------------- phases
 def test_phases_and_cif_registration(tmp_path):
-    from de_twin.crystal import phases
     from de_twin.crystal import library as library_mod
+    from de_twin.crystal import phases
 
     au = phase_for(AU)
     assert len(au.structure) == 4 and au.space_group.number == 225  # full unit cell
@@ -176,20 +187,21 @@ def test_ground_truth_crystal_map_includes_stage_tilt():
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 12.0, grain=3)])
     twin = DigitalTwin(spec, camera="DE16", clock=ManualClock())
     twin.column.set("TemStemMode", 1)
-    req = twin.request()
-    req.scan.enabled = True
-    req.scan.size = (16, 16)
-    req.scan.step_um = 0.002
+    request = twin.request()
+    request.scan.enabled = True
+    request.scan.size = (16, 16)
+    request.scan.step_um = 0.002
     gid = AU * GRAINS_PER_MATERIAL + 3
     for alpha in (0.0, 12.0):
         twin.column.move_stage(alpha=alpha)
-        xmap = twin.ground_truth(req)
+        xmap = twin.ground_truth(request)
         assert xmap.shape == (16, 16)
         au = xmap.phase_id == AU
         assert au.any() and (~au).any()
         assert set(np.unique(xmap.prop["grain_id"][au])) == {gid}
-        expect = rotation_from_crystal_to_lab(effective_matrices(spec.grains.matrices[[gid]],
-                                                                 math.radians(alpha), 0.0))
+        expect = rotation_from_crystal_to_lab(
+            effective_matrices(spec.grains.matrices[[gid]], math.radians(alpha), 0.0)
+        )
         got = xmap[au].rotations.data
         assert np.allclose(np.abs(got @ expect[0]), 1.0)
     twin.close()

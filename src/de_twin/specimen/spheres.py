@@ -16,7 +16,7 @@ try:
     import numba as nb
 
     AVAILABLE = True
-except Exception:  # noqa: BLE001
+except Exception:
     nb = None
     AVAILABLE = False
 
@@ -29,8 +29,8 @@ _prange = nb.prange if AVAILABLE else range
 
 @_njit()
 def _bin_of(x, y, x0, y0, inv, nx, ny):
-    i = int(math.floor((x - x0) * inv))
-    j = int(math.floor((y - y0) * inv))
+    i = math.floor((x - x0) * inv)
+    j = math.floor((y - y0) * inv)
     if i < 0 or j < 0 or i >= nx or j >= ny:
         return -1
     return j * nx + i
@@ -51,8 +51,7 @@ def top_chord1(xk, yk, cx, cy, r, start, members, x0, y0, inv, nx, ny):
             if d2 > 0.0:
                 half = math.sqrt(d2)
                 c += 2.0 * half
-                if r[s] + half > t:
-                    t = r[s] + half
+                t = max(t, r[s] + half)
     return t, c
 
 
@@ -63,8 +62,15 @@ def occlusion1(xk, yk, zk, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, d
     last = -2
     s_ = 0.0
     while s_ <= reach:
-        b = _bin_of(xk + dx / math.sqrt(dx * dx + dy * dy) * s_, yk + dy / math.sqrt(dx * dx + dy * dy) * s_,
-                    x0, y0, inv, nx, ny)
+        b = _bin_of(
+            xk + dx / math.sqrt(dx * dx + dy * dy) * s_,
+            yk + dy / math.sqrt(dx * dx + dy * dy) * s_,
+            x0,
+            y0,
+            inv,
+            nx,
+            ny,
+        )
         if b >= 0 and b != last:
             for m in range(start[b], start[b + 1]):
                 s = members[m]
@@ -98,21 +104,29 @@ def _top_chord_nb(x, y, cx, cy, r, start, members, x0, y0, inv, nx, ny, top, cho
                 if d2 > 0.0:
                     half = math.sqrt(d2)
                     c += 2.0 * half
-                    if r[s] + half > t:
-                        t = r[s] + half
+                    t = max(t, r[s] + half)
         top[k] = t
         chord[k] = c
 
 
 @_njit(parallel=True)
-def _occlusion_nb(x, y, z0, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, dy, dz, reach, step, pen, out):
+def _occlusion_nb(
+    x, y, z0, cx, cy, r, start, members, x0, y0, inv, nx, ny, dx, dy, dz, reach, step, pen, out
+):
     for k in _prange(x.size):
         occ = 0.0
         last = -2
         s_ = 0.0
         while s_ <= reach:
-            b = _bin_of(x[k] + dx / math.sqrt(dx * dx + dy * dy) * s_, y[k] + dy / math.sqrt(dx * dx + dy * dy) * s_,
-                        x0, y0, inv, nx, ny)
+            b = _bin_of(
+                x[k] + dx / math.sqrt(dx * dx + dy * dy) * s_,
+                y[k] + dy / math.sqrt(dx * dx + dy * dy) * s_,
+                x0,
+                y0,
+                inv,
+                nx,
+                ny,
+            )
             if b >= 0 and b != last:
                 for m in range(start[b], start[b + 1]):
                     s = members[m]
@@ -151,15 +165,15 @@ class SphereSet:
         rm = float(self.r.max())
         self.x0 = float(self.cx.min()) - rm
         self.y0 = float(self.cy.min()) - rm
-        self.nx = int(math.floor((float(self.cx.max()) + rm - self.x0) / self.bin)) + 1
-        self.ny = int(math.floor((float(self.cy.max()) + rm - self.y0) / self.bin)) + 1
+        self.nx = math.floor((float(self.cx.max()) + rm - self.x0) / self.bin) + 1
+        self.ny = math.floor((float(self.cy.max()) + rm - self.y0) / self.bin) + 1
         # every bin a sphere overlaps lists it
         lists = []
         for s in range(n):
-            i0 = int(math.floor((self.cx[s] - self.r[s] - self.x0) / self.bin))
-            i1 = int(math.floor((self.cx[s] + self.r[s] - self.x0) / self.bin))
-            j0 = int(math.floor((self.cy[s] - self.r[s] - self.y0) / self.bin))
-            j1 = int(math.floor((self.cy[s] + self.r[s] - self.y0) / self.bin))
+            i0 = math.floor((self.cx[s] - self.r[s] - self.x0) / self.bin)
+            i1 = math.floor((self.cx[s] + self.r[s] - self.x0) / self.bin)
+            j0 = math.floor((self.cy[s] - self.r[s] - self.y0) / self.bin)
+            j1 = math.floor((self.cy[s] + self.r[s] - self.y0) / self.bin)
             for j in range(max(j0, 0), min(j1, self.ny - 1) + 1):
                 for i in range(max(i0, 0), min(i1, self.nx - 1) + 1):
                     lists.append((j * self.nx + i, s))
@@ -178,8 +192,22 @@ class SphereSet:
         y = np.ascontiguousarray(y, np.float64).ravel()
         top, chord = np.zeros(x.size), np.zeros(x.size)
         if self.cx.size and x.size:
-            _top_chord_nb(x, y, self.cx, self.cy, self.r, self.start, self.members, self.x0, self.y0,
-                          1.0 / self.bin, self.nx, self.ny, top, chord)
+            _top_chord_nb(
+                x,
+                y,
+                self.cx,
+                self.cy,
+                self.r,
+                self.start,
+                self.members,
+                self.x0,
+                self.y0,
+                1.0 / self.bin,
+                self.nx,
+                self.ny,
+                top,
+                chord,
+            )
         return top.reshape(shape), chord.reshape(shape)
 
     def occlusion(self, x, y, z0, to_source, elev: float, penumbra: float):
@@ -193,9 +221,28 @@ class SphereSet:
         if self.cx.size and x.size:
             ce, se = math.cos(elev), math.sin(elev)
             reach = 2.0 * float(self.r.max()) / max(math.tan(elev), 1e-3) + float(self.r.max())
-            _occlusion_nb(x, y, z0, self.cx, self.cy, self.r, self.start, self.members, self.x0, self.y0,
-                          1.0 / self.bin, self.nx, self.ny, to_source[0] * ce, to_source[1] * ce, se,
-                          reach, 0.5 * self.bin, penumbra, out)
+            _occlusion_nb(
+                x,
+                y,
+                z0,
+                self.cx,
+                self.cy,
+                self.r,
+                self.start,
+                self.members,
+                self.x0,
+                self.y0,
+                1.0 / self.bin,
+                self.nx,
+                self.ny,
+                to_source[0] * ce,
+                to_source[1] * ce,
+                se,
+                reach,
+                0.5 * self.bin,
+                penumbra,
+                out,
+            )
         return out.reshape(shape)
 
 
@@ -204,7 +251,11 @@ def _sites_nb(seed, i0, i1, j0, j1, jitter, out_x, out_y, out_h):
     k = 0
     for j in range(j0, j1 + 1):
         for i in range(i0, i1 + 1):
-            z = seed ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15)) ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
+            z = (
+                seed
+                ^ (np.uint64(i) * np.uint64(0x9E3779B97F4A7C15))
+                ^ (np.uint64(j) * np.uint64(0xC2B2AE3D27D4EB4F))
+            )
             z = splitmix64_kernel(z)
             fx = float((z >> np.uint64(11)) & np.uint64(0xFFFFF)) / 1048576.0
             fy = float((z >> np.uint64(31)) & np.uint64(0xFFFFF)) / 1048576.0
@@ -216,8 +267,8 @@ def _sites_nb(seed, i0, i1, j0, j1, jitter, out_x, out_y, out_h):
 
 def lattice_sites(seed: int, cell_um: float, x0: float, y0: float, x1: float, y1: float, jitter: float = 0.4):
     """The jittered-lattice sites (x um, y um, hash) of every cell overlapping [x0, x1] x [y0, y1]."""
-    i0, i1 = int(math.floor(x0 / cell_um)), int(math.floor(x1 / cell_um))
-    j0, j1 = int(math.floor(y0 / cell_um)), int(math.floor(y1 / cell_um))
+    i0, i1 = math.floor(x0 / cell_um), math.floor(x1 / cell_um)
+    j0, j1 = math.floor(y0 / cell_um), math.floor(y1 / cell_um)
     n = (i1 - i0 + 1) * (j1 - j0 + 1)
     xs, ys, hs = np.empty(n), np.empty(n), np.empty(n, np.uint64)
     _sites_nb(np.uint64(int(seed) & 0xFFFFFFFFFFFFFFFF), i0, i1, j0, j1, float(jitter), xs, ys, hs)

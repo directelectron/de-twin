@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -33,18 +32,18 @@ class AABB:
     ymax: float
 
     @classmethod
-    def from_center_half(cls, cx, cy, hx, hy) -> "AABB":
+    def from_center_half(cls, cx, cy, hx, hy) -> AABB:
         return cls(cx - hx, cy - hy, cx + hx, cy + hy)
 
     @classmethod
-    def from_center_radius(cls, cx, cy, r) -> "AABB":
+    def from_center_radius(cls, cx, cy, r) -> AABB:
         return cls(cx - r, cy - r, cx + r, cy + r)
 
     @property
     def empty(self) -> bool:
         return self.xmax < self.xmin or self.ymax < self.ymin
 
-    def intersects(self, o: "AABB") -> bool:
+    def intersects(self, o: AABB) -> bool:
         if self.empty or o.empty:
             return False
         return self.xmin <= o.xmax and self.xmax >= o.xmin and self.ymin <= o.ymax and self.ymax >= o.ymin
@@ -52,11 +51,13 @@ class AABB:
     def contains(self, x, y):
         return (x >= self.xmin) & (x <= self.xmax) & (y >= self.ymin) & (y <= self.ymax)
 
-    def pad(self, m: float) -> "AABB":
+    def pad(self, m: float) -> AABB:
         return AABB(self.xmin - m, self.ymin - m, self.xmax + m, self.ymax + m)
 
-    def expand(self, o: "AABB") -> "AABB":
-        return AABB(min(self.xmin, o.xmin), min(self.ymin, o.ymin), max(self.xmax, o.xmax), max(self.ymax, o.ymax))
+    def expand(self, o: AABB) -> AABB:
+        return AABB(
+            min(self.xmin, o.xmin), min(self.ymin, o.ymin), max(self.xmax, o.xmax), max(self.ymax, o.ymax)
+        )
 
     @property
     def center(self) -> tuple[float, float]:
@@ -104,10 +105,12 @@ def lognormal_from_hash(h, median, sigma_log, lo, hi):
 
 # -- rough ellipse (MakeRoughEllipse outline, analytic) --------------------------------------
 
+
 def rough_rmod(theta, period=ROUGH_PERIOD, amplitude=1.0):
     """Radial modulation of MakeRoughEllipse in the ellipse's normalised frame."""
-    return 1.0 + amplitude * (np.sin((theta + 0.43) * period) / 15.0
-                              + np.sin((theta + 0.14) * period * 5) / 60.0)
+    return 1.0 + amplitude * (
+        np.sin((theta + 0.43) * period) / 15.0 + np.sin((theta + 0.14) * period * 5) / 60.0
+    )
 
 
 def inside_rough_ellipse(dx, dy, rx, ry):
@@ -137,6 +140,7 @@ def rough_ellipse_signed_dist(dx, dy, rx, ry):
 
 # -- jittered lattice -------------------------------------------------------------------------
 
+
 @dataclass
 class LatticeHit:
     i: np.ndarray  # int64 cell index
@@ -145,8 +149,8 @@ class LatticeHit:
     sy: np.ndarray
     d2: np.ndarray  # squared distance to the site, um^2
     h: np.ndarray  # uint64 cell hash
-    site: Optional[np.ndarray] = None  # index into grid_h (block evaluation only)
-    grid_h: Optional[np.ndarray] = None  # hashes of every site of the evaluated grid
+    site: np.ndarray | None = None  # index into grid_h (block evaluation only)
+    grid_h: np.ndarray | None = None  # hashes of every site of the evaluated grid
 
     def per_site(self, func) -> np.ndarray:
         """``func(cell_hash)`` per pixel, evaluated once per site when a site grid is available."""
@@ -154,9 +158,17 @@ class LatticeHit:
             return np.asarray(func(self.grid_h)).take(self.site)
         return np.asarray(func(self.h))
 
-    def masked(self, m) -> "LatticeHit":
-        return LatticeHit(self.i[m], self.j[m], self.sx[m], self.sy[m], self.d2[m], self.h[m],
-                          None if self.site is None else self.site[m], self.grid_h)
+    def masked(self, m) -> LatticeHit:
+        return LatticeHit(
+            self.i[m],
+            self.j[m],
+            self.sx[m],
+            self.sy[m],
+            self.d2[m],
+            self.h[m],
+            None if self.site is None else self.site[m],
+            self.grid_h,
+        )
 
     @property
     def dist(self) -> np.ndarray:
@@ -238,7 +250,6 @@ class JitteredLattice:
                 np.copyto(bh, h, where=m)
         return LatticeHit(bi, bj, bsx, bsy, best, bh)
 
-
     # -- block evaluation (exact, coarse-to-fine) ------------------------------------------------
     def _grid(self, x_lo, x_hi, y_lo, y_hi):
         L = self.cell_um
@@ -249,15 +260,23 @@ class JitteredLattice:
         SX, SY, HH = self.sites(gi[None, :], gj[:, None])
         # site coordinates relative to the grid origin, in float32 (cell-scale precision is ample)
         x0, y0 = imin * L, jmin * L
-        return ((SX - x0).astype(np.float32).ravel(), (SY - y0).astype(np.float32).ravel(), HH.ravel(),
-                imin, jmin, imax - imin + 1, x0, y0)
+        return (
+            (SX - x0).astype(np.float32).ravel(),
+            (SY - y0).astype(np.float32).ravel(),
+            HH.ravel(),
+            imin,
+            jmin,
+            imax - imin + 1,
+            x0,
+            y0,
+        )
 
     def _label(self, x, y, grid):
         """Flat grid index of the nearest site. Quadrant 2x2 search: with sites confined to the
         central half of their cells (jitter 0.25) the nearest site always lies in the 2x2 block
         of cells on the point's side of its cell (verified against the 3x3 search on 5x10^7
         random and adversarial points)."""
-        SX, SY, _HH, imin, jmin, W, x0, y0 = grid
+        SX, SY, _HH, _imin, _jmin, W, x0, y0 = grid
         L = self.cell_um
         u = (np.asarray(x, np.float64) - x0) * (1.0 / L)
         v = (np.asarray(y, np.float64) - y0) * (1.0 / L)
@@ -286,7 +305,7 @@ class JitteredLattice:
             np.copyto(bf, f, where=m)
         return bf
 
-    def block_labels(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)):
+    def block_labels(self, context, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)):
         """Nearest-site label for every pixel centre of a raster window.
 
         Returns ``(labels (r1 - r0, c1 - c0) int64, grid)``; ``grid = (SX, SY, HH, imin, jmin, W)``
@@ -298,11 +317,11 @@ class JitteredLattice:
         ox, oy = float(offset[0]), float(offset[1])
 
         def world(r, c):
-            X, Y = ctx.world(r, c)
+            X, Y = context.world(r, c)
             return X - ox, Y - oy
 
         H, Wd = r1 - r0, c1 - c0
-        step = max(math.hypot(ctx.axc, ctx.ayc), math.hypot(ctx.axr, ctx.ayr))
+        step = max(math.hypot(context.axc, context.ayc), math.hypot(context.axr, context.ayr))
         # node stride minimising (1/s^2 node work + ~4 s / C boundary work) for C px cells
         s = int(min(16, max(1, math.floor((0.5 * self.cell_um / step) ** (1.0 / 3.0) + 0.5))))
         nr_n = (H - 1) // s + 2 if s > 1 else 0
@@ -315,11 +334,28 @@ class JitteredLattice:
         from . import raster_nb as _rnb
 
         if _rnb.AVAILABLE:
-            SX, SY, _HH, imin, jmin, gw, x0, y0 = grid
+            SX, SY, _HH, _imin, _jmin, gw, x0, y0 = grid
             out = np.empty((H, Wd), np.int32)
-            _rnb.block_labels(np.array([ctx.ox, ctx.oy, ctx.axc, ctx.ayc, ctx.axr, ctx.ayr]), ox, oy, r0, r1, c0,
-                              c1, s, nr_n, nc_n, SX, SY, float(x0), float(y0), float(self.cell_um), int(gw),
-                              self.jitter_frac <= 0.25, out)
+            _rnb.block_labels(
+                np.array([context.ox, context.oy, context.axc, context.ayc, context.axr, context.ayr]),
+                ox,
+                oy,
+                r0,
+                r1,
+                c0,
+                c1,
+                s,
+                nr_n,
+                nc_n,
+                SX,
+                SY,
+                float(x0),
+                float(y0),
+                float(self.cell_um),
+                int(gw),
+                self.jitter_frac <= 0.25,
+                out,
+            )
             return out, grid
         rows = np.arange(r0, r1)
         cols = np.arange(c0, c1)
@@ -341,22 +377,24 @@ class JitteredLattice:
             lab[tr, tc] = self._label(X, Y, grid)
         return lab, grid
 
-    def nearest_block(self, ctx, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> "BlockHit":
-        lab, grid = self.block_labels(ctx, r0, r1, c0, c1, offset)
-        X, Y = ctx.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
+    def nearest_block(self, context, r0: int, r1: int, c0: int, c1: int, offset=(0.0, 0.0)) -> BlockHit:
+        lab, grid = self.block_labels(context, r0, r1, c0, c1, offset)
+        X, Y = context.world(np.arange(r0, r1)[:, None], np.arange(c0, c1)[None, :])
         shape = lab.shape
-        return BlockHit(lab, grid, np.broadcast_to(X, shape) - offset[0], np.broadcast_to(Y, shape) - offset[1])
+        return BlockHit(
+            lab, grid, np.broadcast_to(X, shape) - offset[0], np.broadcast_to(Y, shape) - offset[1]
+        )
 
 
 class BlockHit:
     """Lazy nearest-site result: per-pixel site labels into a small site table."""
 
-    __slots__ = ("site", "grid", "X", "Y")
+    __slots__ = ("X", "Y", "grid", "site")
 
     def __init__(self, site, grid, X, Y):
         self.site, self.grid, self.X, self.Y = site, grid, X, Y
 
-    def masked(self, m) -> "BlockHit":
+    def masked(self, m) -> BlockHit:
         return BlockHit(self.site[m], self.grid, self.X[m], self.Y[m])
 
     @property
@@ -420,8 +458,10 @@ def value_noise(seed: int, x, y):
         n01 = G.take(f + W)
         n11 = G.take(f + W + 1)
     else:
+
         def hu(a, b):
             return uniform_from_hash(hash_seed(s, SeedKind.SUPPORT_FILM, a, b))
+
         n00, n10, n01, n11 = hu(ix, iy), hu(ix + 1, iy), hu(ix, iy + 1), hu(ix + 1, iy + 1)
     a = n00 + (n10 - n00) * tx
     b = n01 + (n11 - n01) * tx
@@ -476,6 +516,7 @@ def value_noise_separable(seed: int, xs, ys):
 
 
 # -- polygons in raster space -----------------------------------------------------------------
+
 
 def polygon_mask_rows(pcol, prow, r0: int, r1: int, nx: int) -> np.ndarray:
     """Pixel-centre inside mask of a polygon given in raster coordinates.
