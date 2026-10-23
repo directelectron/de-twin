@@ -2,12 +2,6 @@
 
 import numpy as np
 
-from de_twin.clock import ManualClock
-from de_twin.twin import DigitalTwin
-
-
-def _twin():
-    return DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=2)
 
 
 def _frames(tw, **kw):
@@ -15,8 +9,8 @@ def _frames(tw, **kw):
     return [raw for raw, _ in tw.frames(req)]
 
 
-def test_a_seeded_acquisition_repeats_whatever_came_before():
-    tw = _twin()
+def test_a_seeded_acquisition_repeats_whatever_came_before(make_twin):
+    tw = make_twin(seed=2)
     first = _frames(tw, seed=7)
     _frames(tw)  # unrelated acquisitions in between
     again = _frames(tw, seed=7)
@@ -26,8 +20,8 @@ def test_a_seeded_acquisition_repeats_whatever_came_before():
     assert not np.array_equal(first[0], _frames(tw, seed=8)[0])
 
 
-def test_unseeded_acquisitions_differ_until_the_serial_is_reset():
-    tw = _twin()
+def test_unseeded_acquisitions_differ_until_the_serial_is_reset(make_twin):
+    tw = make_twin(seed=2)
     a = _frames(tw)
     b = _frames(tw)
     assert not np.array_equal(a[0], b[0])
@@ -36,8 +30,8 @@ def test_unseeded_acquisitions_differ_until_the_serial_is_reset():
     np.testing.assert_array_equal(a[0], c[0])
 
 
-def test_snap_takes_a_seed():
-    tw = _twin()
+def test_snap_takes_a_seed(make_twin):
+    tw = make_twin(seed=2)
     a = tw.snap(0.1, seed=11)
     tw.snap(0.1)
     b = tw.snap(0.1, seed=11)
