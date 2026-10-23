@@ -110,3 +110,36 @@ def make_stem_optics():
         )
 
     return build
+
+
+@pytest.fixture
+def make_state():
+    """A ``MicroscopeState`` with the given attributes set."""
+    from de_twin.state import MicroscopeState
+
+    def build(**attributes):
+        state = MicroscopeState()
+        for name, value in attributes.items():
+            setattr(state, name, value)
+        return state
+
+    return build
+
+
+@pytest.fixture
+def make_derived_optics():
+    """``derive_optics`` with a default state, request, camera, calibration and config."""
+    from de_twin.optics import Calibration, OpticsConfig, derive_optics
+    from de_twin.render.testing import StubCamera
+    from de_twin.state import AcquisitionRequest, MicroscopeState
+
+    def build(state=None, request=None, camera=None, config=None, calibration=None):
+        return derive_optics(
+            state or MicroscopeState(),
+            request or AcquisitionRequest(),
+            camera or StubCamera(),
+            calibration or Calibration.default(),
+            config or OpticsConfig(),
+        )
+
+    return build
