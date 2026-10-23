@@ -9,10 +9,11 @@ the reference and the fallback (``AVAILABLE`` False without numba); tests compar
 from __future__ import annotations
 
 import math
+from functools import partial
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -22,12 +23,7 @@ except Exception:  # noqa: BLE001
     AVAILABLE = False
 
 
-def njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, nogil=True, error_model="numpy", **kw)
+njit = partial(numba_jit, fastmath=False, error_model="numpy")
 
 
 prange = nb.prange if AVAILABLE else range

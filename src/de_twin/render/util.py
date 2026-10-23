@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 
 from ..hashing import hash_seed, mix_cell
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 TEXTURE_KIND = 48  # twin-only hash kind for world-locked textures
 _TILE = 128
@@ -41,7 +41,7 @@ def parallel_rows(fn, nrows: int, min_chunk: int = 64) -> None:
 try:  # numba: the cubic resampling kernel (NumPy fallback below)
     import numba as _nb
 
-    @_nb.njit(parallel=PARALLEL, cache=True, nogil=True)
+    @numba_jit(fastmath=False, parallel=True)
     def _cubic_nb(src, wr, wc, out):  # pragma: no cover - compiled
         ny, nx = out.shape
         for i in _nb.prange(ny):
@@ -89,7 +89,7 @@ def gaussian_filter_threaded(a: np.ndarray, sigma: float, **kw) -> np.ndarray:
 
 
 if _cubic_nb is not None:
-    @_nb.njit(parallel=PARALLEL, cache=True, nogil=True)
+    @numba_jit(fastmath=False, parallel=True)
     def _up2x_nb(a, c0, c1, out):  # pragma: no cover - compiled
         """`upsample2x_scaled` in one pass, the same float32 arithmetic in the same order."""
         ny, nx = a.shape

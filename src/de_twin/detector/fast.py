@@ -33,7 +33,7 @@ import math
 
 import numpy as np
 
-from ..parallel import PARALLEL
+from ..parallel import numba_jit
 
 try:
     import numba as nb
@@ -57,12 +57,7 @@ _GOLD = 0x9E3779B97F4A7C15
 _U53 = 1.0 / 9007199254740994.0
 
 
-def _njit(**kw):
-    if not AVAILABLE:
-        return lambda f: f
-    if kw.get("parallel"):
-        kw["parallel"] = PARALLEL
-    return nb.njit(cache=True, fastmath=True, nogil=True, **kw)  # nogil: other threads (publishing) run meanwhile
+_njit = numba_jit
 
 
 _TABLE = None
