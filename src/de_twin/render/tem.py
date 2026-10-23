@@ -391,7 +391,7 @@ def transmission_function(fm, optics, grains, crystallinity, config, seed: int, 
         if phi_d is not None:
             psi *= np.exp(1j * phi_d).astype(np.complex64)
     if bc.phase_grating or bc.kinematic or (config.lattice_fringes and config.lattice_phase_rad > 0):
-        lat = lattice_field(fm, optics, bc, t_full)
+        lat = lattice_field(optics, bc, t_full)
         if lat is not None:
             (rows, cols), val, _ = lat
             scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else config.lattice_phase_rad)
@@ -448,7 +448,7 @@ def _transmission_fast(fm, optics, config, bc, noise, sigma, mip_v, amorphous, t
         if phi_d is not None:
             _fp.mul_phase(psi, phi_d)
     if bc.phase_grating or bc.kinematic or (config.lattice_fringes and config.lattice_phase_rad > 0):
-        lat = lattice_field(fm, optics, bc, t_full)
+        lat = lattice_field(optics, bc, t_full)
         if lat is not None:
             (rows, cols), val, _ = lat
             scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else config.lattice_phase_rad)

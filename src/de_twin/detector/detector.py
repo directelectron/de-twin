@@ -328,9 +328,9 @@ class Detector:
                    a=m.charge_spread_at(ht) / (bx if direct else 1))
 
         with self._lock:
-            if m.hardware_counting and (sr or _fast_detector(m)):
+            if m.hardware_counting and (sr or _fast_detector()):
                 res = [self._expose_counting_fast(ctx, gh, gw, sr)]
-            elif _fast_detector(m):
+            elif _fast_detector():
                 res = [self._expose_fast(ctx, gh, gw)]
             elif m.hardware_counting:
                 res = list(_pool().map(ctx.counting_band, bands))
@@ -664,7 +664,7 @@ class _Ctx:
 _TLS = threading.local()
 
 
-def _fast_detector(model) -> bool:
+def _fast_detector() -> bool:
     """The fused numba kernels, unless numba is missing or ``DE_TWIN_NUMPY_DETECTOR=1``
     asks for the numpy path (a reference for comparisons). Super-resolution frames are
     numba only."""

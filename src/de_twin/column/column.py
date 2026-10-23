@@ -335,7 +335,7 @@ class Column:
             row = 2 if self._s.probe_mode in (ProbeMode.NANOPROBE, ProbeMode.NBD, ProbeMode.CBD,
                                               ProbeMode.EDS) else 0
         else:
-            row = jeol_row(self._s.instrument_type, self._s.probe_mode)
+            row = jeol_row(self._s.probe_mode)
         return L.convergence_mrad(row, self._s.alpha_selector, stem=self._s.tem_stem == TemStem.STEM)
 
     def state(self) -> MicroscopeState:

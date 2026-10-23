@@ -174,6 +174,6 @@ class Aberrations:
         return lo
 
 
-def uncorrected(cs_mm: float = 1.2, cc_mm: float = 1.4) -> Aberrations:
+def uncorrected(cs_mm: float = 1.2) -> Aberrations:
     """A typical uncorrected 200 kV objective: C3 only (C5 negligible)."""
     return Aberrations({"C3": cs_mm * 1e6})

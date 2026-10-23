@@ -41,7 +41,7 @@ def probe_mode_from_raw(instrument_type: str, raw: int) -> ProbeMode:
     return {0: ProbeMode.NANOPROBE, 1: ProbeMode.MICROPROBE}.get(raw, ProbeMode.UNKNOWN)
 
 
-def jeol_row(instrument_type: str, mode: ProbeMode) -> int:
+def jeol_row(mode: ProbeMode) -> int:
     """Row of the alpha/convergence table for a normalised probe mode."""
     return _JEOL_RAW[ProbeMode(mode)]
 

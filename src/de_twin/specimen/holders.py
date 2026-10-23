@@ -166,7 +166,7 @@ def _insitu_svg_to_world(p):
             (p[..., 1] - INSITU_SVG_ORIGIN[1]) * INSITU_SVG_SCALE_UM)
 
 
-def default_film_thickness_nm(film: str, opts: SpecimenOptions) -> float:
+def default_film_thickness_nm(film: str) -> float:
     return {"continuous": 12.0, "holey": 20.0, "lacey": 15.0, "vitreous_ice": 60.0,
             "auto": 20.0}.get(film, 0.0)
 
@@ -315,7 +315,7 @@ class Holder:
         f.type = film
         f.material = MaterialId.VITREOUS_ICE if film == "vitreous_ice" else MaterialId.AMORPHOUS_CARBON
         ov = self.opts.film_thickness_nm
-        f.thickness_nm = min(max(ov, 0.0), 1000.0) if ov > 0 else default_film_thickness_nm(film, self.opts)
+        f.thickness_nm = min(max(ov, 0.0), 1000.0) if ov > 0 else default_film_thickness_nm(film)
         if film == "vitreous_ice" and not ov > 0 and self.opts.ice_thickness_nm > 0:
             f.thickness_nm = min(self.opts.ice_thickness_nm, 1000.0)
         if film == "none":

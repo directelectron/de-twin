@@ -308,7 +308,7 @@ def amplitude_rows(fm, optics, r0, r1, loss) -> tuple:
 
 
 # ------------------------------------------------------------- lattice
-def lattice_field(fm, optics, bc: BraggContrast, t):
+def lattice_field(optics, bc: BraggContrast, t):
     """sum_w a_w cos(g_w . r + phase_w) / n_w over each grain's strongest resolved beams,
     times min(1, t / 10 nm). Returns ((rows, cols), weighted, unweighted) or None."""
     gids = list(bc.fringes)
