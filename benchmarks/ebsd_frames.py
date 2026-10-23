@@ -15,8 +15,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import struct
-import threading
 import time
 import uuid
 
@@ -139,14 +137,14 @@ def fused(tw, n):
     print(f"  twin.frames                  {fps:7.0f} frames/s")
 
 
-CONSUMER = r"""
+CONSUMER = rf"""
 import json, sys, time
 import numpy as np
 from de_twin.transport.shm import FrameConsumer
 
 name, n, copy = sys.argv[1], int(sys.argv[2]), sys.argv[3] == "1"
 consumer = FrameConsumer(name, max_frame_bytes=512 * 512 * 2)
-consumer.begin(frame_shape=(512, 512), binning=(2, 2), sensor_shape=(1024, 1024), frame_time_s=%r,
+consumer.begin(frame_shape=(512, 512), binning=(2, 2), sensor_shape=(1024, 1024), frame_time_s={DWELL!r},
                total_frames=0, scan_size=(256, 256))
 h = consumer.hdr
 buf = np.empty(512 * 512, np.uint16)
@@ -164,11 +162,11 @@ while got < n:
         t0, base = time.perf_counter(), got
 rate = (got - base) / (time.perf_counter() - t0)
 consumer.end()
-print(json.dumps({"rate": rate}))
+print(json.dumps({{"rate": rate}}))
 sys.stdout.flush()
 time.sleep(1.0)  # (the producer sees the end before the mapping goes)
 consumer.close()
-""" % DWELL
+"""
 
 
 def face(tw, n, *, steered, copy):

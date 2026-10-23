@@ -112,7 +112,7 @@ class IndentField:
         return dx, dy, np.hypot(dx, dy), np.arctan2(dy, dx)
 
     def inside_impression(self, x, y) -> np.ndarray:
-        dx, dy, r, th = self._polar(x, y)
+        dx, dy, _r, _th = self._polar(x, y)
         p = self.p
         n = p.corners
         t0 = math.radians(p.rotation_deg)

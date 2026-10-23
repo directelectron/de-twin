@@ -35,7 +35,6 @@ import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -66,10 +65,10 @@ class MasterPattern:
     resolution_deg: float
     #: Southern hemisphere (same coding), read at Lambert(x, y, |z|) for z < 0 as EMsoft stores
     #: it; None for a centrosymmetric pattern (the north read at -direction).
-    south: Optional[np.ndarray] = None
+    south: np.ndarray | None = None
     source: str = "kinematic"  # or the file / "array" a user master came from
     #: The cube map the renderer reads ((3 | 6, Nf, Nf) uint8, same coding; see kernels).
-    cube: Optional[np.ndarray] = None
+    cube: np.ndarray | None = None
 
     def values(self, hemisphere: str = "north") -> np.ndarray:
         """The standardised master pattern as float32 (N, N)."""
@@ -144,7 +143,7 @@ def bands(
 
 def cube_side(resolution_deg: float) -> int:
     """Nodes per side of a cube-map face whose (largest, face-centre) pixel is ``resolution_deg``."""
-    return int(math.ceil(2.0 / math.radians(max(resolution_deg, 0.01)))) | 1
+    return math.ceil(2.0 / math.radians(max(resolution_deg, 0.01))) | 1
 
 
 def quantise(*arrays):
@@ -183,7 +182,7 @@ def lambert_sample(north, south, dirs) -> np.ndarray:
 
 def lambert_side(resolution_deg: float) -> int:
     """Nodes per side of a square-Lambert hemisphere whose pixel is ``resolution_deg``."""
-    n = int(math.ceil(math.sqrt(2.0 * math.pi) / math.radians(max(resolution_deg, 0.01))))
+    n = math.ceil(math.sqrt(2.0 * math.pi) / math.radians(max(resolution_deg, 0.01)))
     return n | 1
 
 
@@ -244,7 +243,7 @@ def build_master(
         data.reshape(n, n),
         lo,
         scale,
-        int(len(hkl)),
+        len(hkl),
         time.perf_counter() - t0,
         float(resolution_deg),
         cube=cube.reshape(3, nf, nf),
@@ -256,7 +255,7 @@ class MasterCache:
 
     def __init__(self, budget_bytes: int = CACHE_BUDGET_BYTES):
         self.budget = int(budget_bytes)
-        self._d: "OrderedDict[tuple, MasterPattern]" = OrderedDict()
+        self._d: OrderedDict[tuple, MasterPattern] = OrderedDict()
         self._lock = threading.Lock()
         self.builds = 0
 

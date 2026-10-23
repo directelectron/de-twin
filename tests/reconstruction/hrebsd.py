@@ -72,7 +72,7 @@ def roi_centres(shape, n_side: int, size: int, margin: float = 0.12):
     h, w = shape
     ys = np.linspace(margin * h + size / 2, (1 - margin) * h - size / 2, n_side)
     xs = np.linspace(margin * w + size / 2, (1 - margin) * w - size / 2, n_side)
-    return [(int(round(y)), int(round(x))) for y in ys for x in xs]
+    return [(round(y), round(x)) for y in ys for x in xs]
 
 
 def _remap(R, beta, pcr, pct, binning, origin):

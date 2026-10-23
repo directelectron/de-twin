@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 from scipy import ndimage
@@ -298,7 +297,7 @@ def master_from_hemispheres(
     kv: float,
     resolution_deg: float,
     *,
-    centrosymmetric: Optional[bool] = None,
+    centrosymmetric: bool | None = None,
     point_group=None,
     source: str = "array",
     validate: bool = True,
@@ -412,12 +411,12 @@ def load_master_pattern(
     *,
     resolution_deg: float = 0.15,
     energy_kv=None,
-    kv: Optional[float] = None,
+    kv: float | None = None,
     projection=None,
     hemisphere=None,
     energies=None,
     weights=None,
-    centrosymmetric: Optional[bool] = None,
+    centrosymmetric: bool | None = None,
     validate: bool = True,
     point_group=None,
 ) -> MasterPattern:
@@ -479,12 +478,12 @@ def load_master_pattern(
 
 
 __all__ = [
+    "from_array",
     "load_master_pattern",
     "master_from_hemispheres",
     "read_emsoft",
     "read_kikuchipy",
     "read_master_file",
-    "from_array",
     "symmetry_error",
     "write_emsoft",
 ]

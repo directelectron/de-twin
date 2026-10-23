@@ -261,7 +261,6 @@ def _project_row(i, bank, n, face0, full, offs, scales, M1, M2, w2, x0, y0, dd, 
     yy = F32(Y * Y + dd * dd)
     yn = F32(Y * normal[1] + dd * normal[2])
     n0 = F32(normal[0])
-    tf = F32(t_nb)
     k_cos = F32(t_nb * e * (1.0 - lobe) / math.pi / (dd * dd))
     k_lobe = F32(t_nb * e * lobe * vmf / (dd * dd))
     inv_rim = F32(1.0 / 0.03)

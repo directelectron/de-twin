@@ -269,7 +269,7 @@ class DigitalTwin:
         return img
 
     def _flux(self, request, frame_index=0, scan_point=None, *, state=None, optics=None, time_s=None,
-              frame_time_s: Optional[float] = None):
+              frame_time_s: float | None = None):
         """``(flux, means)``: ``means`` (the detector's Poisson means, see ``Detector.expose``) when
         the renderer made them on the way (an EBSD frame with ``frame_time_s``), else None. That
         flux is a reused buffer, valid until the next frame."""
@@ -442,7 +442,7 @@ class DigitalTwin:
             self._frame_serial += 1
         return serial, self.detector.seed
 
-    def ebsd_frame_source(self, request: AcquisitionRequest, *, state: Optional[MicroscopeState] = None,
+    def ebsd_frame_source(self, request: AcquisitionRequest, *, state: MicroscopeState | None = None,
                           optics=None):
         """An :class:`~de_twin.ebsd.framesource.EbsdFrameSource` making *request*'s EBSD camera
         frames in one fused CPU pass each, at the column's current state (or *state*,
@@ -524,7 +524,7 @@ class DigitalTwin:
                     pending.append((nxt, count, slot, source.submit(workers, buf, ks, seed, serials)))
                     nxt += count
                     n_jobs += 1
-                first, count, slot, batch = pending.popleft()
+                _first, count, slot, batch = pending.popleft()
                 (electrons, _), = batch.wait()
                 chunk = ring[slot]
                 for b in range(count):
@@ -624,7 +624,7 @@ class DigitalTwin:
         an EBSD detector, else None."""
         return getattr(self.optics_config, "ebsd", None)
 
-    def configure_ebsd(self, geometry=None, *, beam_kv: Optional[float] = None, **fields):
+    def configure_ebsd(self, geometry=None, *, beam_kv: float | None = None, **fields):
         """Make the twin an SEM with this camera as its EBSD detector, and return the geometry.
 
         ``geometry``: an :class:`~de_twin.ebsd.EbsdGeometry` (default: the current one, or the
@@ -653,9 +653,9 @@ class DigitalTwin:
                 self.column._set_local("HighTension", float(beam_kv) * 1000.0)
         return g
 
-    def set_master_pattern(self, phase, source, *, energy_kv: Optional[float] = None, kv: Optional[float] = None,
-                           projection: Optional[str] = None, hemisphere: Optional[str] = None, energies=None,
-                           weights=None, centrosymmetric: Optional[bool] = None, validate: bool = True):
+    def set_master_pattern(self, phase, source, *, energy_kv: float | None = None, kv: float | None = None,
+                           projection: str | None = None, hemisphere: str | None = None, energies=None,
+                           weights=None, centrosymmetric: bool | None = None, validate: bool = True):
         """Use your own EBSD master pattern for ``phase`` instead of the kinematic one, and return
         it (a :class:`~de_twin.ebsd.MasterPattern`; ``nbytes``, ``symmetry_error``).
 

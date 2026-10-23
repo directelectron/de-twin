@@ -20,7 +20,7 @@ import os
 import queue
 import sys
 import threading
-from typing import Callable, Optional
+from collections.abc import Callable
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def _lower_priority() -> None:
             k32.GetCurrentThread.restype = ctypes.c_void_p
             k32.SetThreadPriority.argtypes = [ctypes.c_void_p, ctypes.c_int]
             k32.SetThreadPriority(k32.GetCurrentThread(), -1)  # THREAD_PRIORITY_BELOW_NORMAL
-    except Exception:  # noqa: BLE001 - priority is a courtesy only
+    except Exception:
         log.debug("could not lower a worker thread's priority", exc_info=True)
 
 
@@ -52,13 +52,13 @@ class Batch:
     def __init__(self, count: int):
         self._left = count
         self._results: list = [None] * count
-        self._error: Optional[BaseException] = None
+        self._error: BaseException | None = None
         self._done = threading.Event()
         self._lock = threading.Lock()
         if count == 0:
             self._done.set()
 
-    def _finish(self, index: int, result, error: Optional[BaseException]) -> None:
+    def _finish(self, index: int, result, error: BaseException | None) -> None:
         with self._lock:
             self._results[index] = result
             if error is not None and self._error is None:
@@ -70,11 +70,11 @@ class Batch:
     def done(self) -> bool:
         return self._done.is_set()
 
-    def wait_done(self, timeout: Optional[float] = None) -> bool:
+    def wait_done(self, timeout: float | None = None) -> bool:
         """Wait for the jobs, up to *timeout*; whether they are done (errors not raised)."""
         return self._done.wait(timeout)
 
-    def wait(self, timeout: Optional[float] = None) -> list:
+    def wait(self, timeout: float | None = None) -> list:
         if not self._done.wait(timeout):
             raise TimeoutError("frame jobs did not finish")
         if self._error is not None:
@@ -87,9 +87,9 @@ class Workers:
     ``fn(local, *args)``, where ``local`` is a dict private to the worker running it (for its
     scratch buffers)."""
 
-    def __init__(self, threads: Optional[int] = None):
+    def __init__(self, threads: int | None = None):
         self.threads = int(threads or default_threads())
-        self._jobs: "queue.SimpleQueue" = queue.SimpleQueue()
+        self._jobs: queue.SimpleQueue = queue.SimpleQueue()
         self._threads = [threading.Thread(target=self._run, name=f"de-twin-frames-{i}", daemon=True)
                          for i in range(self.threads)]
         for t in self._threads:
@@ -105,7 +105,7 @@ class Workers:
             fn, args, batch, index = item
             try:
                 result, error = fn(local, *args), None
-            except BaseException as exc:  # noqa: BLE001 - handed to the waiter
+            except BaseException as exc:
                 result, error = None, exc
             batch._finish(index, result, error)
             del item, fn, args, batch, result  # a finished job holds nothing (its frame buffer)
@@ -122,7 +122,7 @@ class Workers:
             self._jobs.put(None)
 
 
-_POOL: Optional[Workers] = None
+_POOL: Workers | None = None
 _POOL_LOCK = threading.Lock()
 
 

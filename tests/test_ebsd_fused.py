@@ -6,6 +6,7 @@ The general path (``render_ebsd_frame`` + ``Detector.expose``) is the reference;
 
 from __future__ import annotations
 
+import itertools
 import os
 import uuid
 
@@ -123,10 +124,10 @@ def test_noise_statistics_match_the_general_path(monkeypatch):
             samples.append(x.ravel()[::7])
         mean = total / n
         noise = np.array(samples) - np.mean(samples, axis=0)
-        correlations = [np.corrcoef(a, b)[0, 1] for a, b in zip(noise[:-1], noise[1:])]
+        correlations = [np.corrcoef(a, b)[0, 1] for a, b in itertools.pairwise(noise)]
         return mean, squares / n - mean ** 2, np.array(block_means), correlations
 
-    fused_mean, fused_var, fused_blocks, correlations = stack(11)
+    _fused_mean, fused_var, fused_blocks, correlations = stack(11)
     monkeypatch.setenv("DE_TWIN_FUSED_EBSD", "0")
     general_mean, general_var, general_blocks, _ = stack(12)
     monkeypatch.delenv("DE_TWIN_FUSED_EBSD")

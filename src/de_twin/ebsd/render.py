@@ -32,7 +32,6 @@ from __future__ import annotations
 import threading
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -61,8 +60,8 @@ class EbsdTables:
     matrices: np.ndarray  # (K, 3, 3) crystal -> sample
     mix: np.ndarray  # float32 weight of the neighbour (0 .. 0.5)
     quality: np.ndarray  # float32 surface quality (0, 1]
-    F: Optional[np.ndarray] = None  # (ny, nx, 3, 3) float32 deformation gradient (sample frame)
-    gnd: Optional[np.ndarray] = None  # (ny, nx) float32 GND density proxy, 1/m^2
+    F: np.ndarray | None = None  # (ny, nx, 3, 3) float32 deformation gradient (sample frame)
+    gnd: np.ndarray | None = None  # (ny, nx) float32 GND density proxy, 1/m^2
 
     @property
     def nbytes(self) -> int:
@@ -135,11 +134,11 @@ class EbsdRenderer:
 
     USER_MASTER_KV_TOLERANCE = 0.5
 
-    def __init__(self, seed: int = 0, user_masters: Optional[dict] = None):
+    def __init__(self, seed: int = 0, user_masters: dict | None = None):
         self.seed = int(seed)
         self.user_masters = user_masters if user_masters is not None else {}
-        self._tables: "OrderedDict[tuple, EbsdTables]" = OrderedDict()
-        self._plans: "OrderedDict[tuple, EbsdPlan]" = OrderedDict()
+        self._tables: OrderedDict[tuple, EbsdTables] = OrderedDict()
+        self._plans: OrderedDict[tuple, EbsdPlan] = OrderedDict()
         self._buffers: dict = {}
         self._lock = threading.RLock()
         self.patterns_rendered = 0
@@ -365,7 +364,7 @@ class EbsdRenderer:
 
     def _run(self, plan: EbsdPlan, optics, ks, out, raw=False, lam=None, p0=None, t_nb=0.0) -> float:
         g = ebsd_geometry(optics)
-        h, w, ox, oy, bx, by = self.grid(optics)
+        _h, _w, ox, oy, bx, by = self.grid(optics)
         want = lam is not None
         dummy = self._buffer("dummy", (1, 1, 1))
         rows = kernels.render(
@@ -424,7 +423,7 @@ class EbsdRenderer:
         *,
         material_id: int,
         matrix2=None,
-        material2: Optional[int] = None,
+        material2: int | None = None,
         mix: float = 0.0,
         quality: float = 1.0,
         raw: bool = False,

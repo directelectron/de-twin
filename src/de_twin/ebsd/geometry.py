@@ -54,7 +54,6 @@ from __future__ import annotations
 import dataclasses
 import math
 from dataclasses import dataclass, fields
-from typing import Optional
 
 import numpy as np
 
@@ -125,10 +124,10 @@ class EbsdGeometry:
         return dataclasses.asdict(self)
 
     @classmethod
-    def from_dict(cls, values: Optional[dict] = None) -> "EbsdGeometry":
+    def from_dict(cls, values: dict | None = None) -> EbsdGeometry:
         return cls().replace(**(values or {}))
 
-    def replace(self, **kw) -> "EbsdGeometry":
+    def replace(self, **kw) -> EbsdGeometry:
         """A copy with ``kw`` changed (numbers clamped to their documented range)."""
         meta = {f.name: f for f in fields(self)}
         out = {}

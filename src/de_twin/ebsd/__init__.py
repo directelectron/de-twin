@@ -19,11 +19,11 @@ from .master import MASTERS, MasterPattern, build_master, master_for
 from .render import EbsdRenderer
 
 __all__ = [
+    "MASTERS",
+    "PC_CONVENTION",
     "EbsdGeometry",
     "EbsdRenderer",
-    "MASTERS",
     "MasterPattern",
-    "PC_CONVENTION",
     "build_master",
     "convert_pc",
     "detector_position",

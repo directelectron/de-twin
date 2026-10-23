@@ -601,7 +601,7 @@ class _SteeredFeed:
     """A scan whose beam DE-Server's coil voltages place (`_PointLibrary`'s points), for
     `ShmFace._serve_fused`. A new scan or a move of the column makes a new source."""
 
-    def __init__(self, twin, library: "_PointLibrary"):
+    def __init__(self, twin, library: _PointLibrary):
         self.twin = twin
         self.library = library
         self.source = None

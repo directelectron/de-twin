@@ -27,7 +27,6 @@ import copy
 import threading
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -77,7 +76,7 @@ class BulkSurfaceConfig:
     #: plastic zone and cracks around each (the EBSD renderer distorts the patterns with them).
     indents: tuple = ()
 
-    def copy(self) -> "BulkSurfaceConfig":
+    def copy(self) -> BulkSurfaceConfig:
         return copy.deepcopy(self)
 
 
@@ -90,7 +89,7 @@ class BulkSurface:
     #: EBSD renderers call :meth:`sample` instead of rasterising.
     ebsd_surface = True
 
-    def __init__(self, config: Optional[BulkSurfaceConfig] = None):
+    def __init__(self, config: BulkSurfaceConfig | None = None):
         self.config = (config or BulkSurfaceConfig()).copy()
         c = self.config
         fr = np.array([max(float(p.fraction), 0.0) for p in c.phases], np.float64)
@@ -107,7 +106,7 @@ class BulkSurface:
             0,
             jitter_frac=min(max(float(c.grain_jitter), 0.0), 0.49),
         )
-        self._orient: "OrderedDict[int, np.ndarray]" = OrderedDict()
+        self._orient: OrderedDict[int, np.ndarray] = OrderedDict()
         self._lock = threading.Lock()
         self._scratches = self._make_scratches()
         from .indent import IndentField
@@ -270,7 +269,7 @@ class BulkSurface:
     # ------------------------------------------------------------------ surface quality
     def _make_scratches(self):
         c = self.config
-        k = int(round(max(c.scratch_density_per_mm, 0.0) * 10.0))  # over the 10 mm coupon
+        k = round(max(c.scratch_density_per_mm, 0.0) * 10.0)  # over the 10 mm coupon
         if k <= 0:
             return None
         rng = rng_for(c.seed, SeedKind.STRUCTURE, _SCRATCH_SALT)
@@ -342,12 +341,12 @@ _BULK = {
         surface_damage=0.0,
     ),
 }
-_INDENT_SI = dict(
-    phases=(_p(MaterialId.SILICON, 1.0, Texture("oriented", (0, 0, 1), 0.0, (1, 1, 0), 0.0)),),
-    single_crystal=True,
-    surface_damage=0.0,
-    seed=0,
-)
+_INDENT_SI = {
+    "phases": (_p(MaterialId.SILICON, 1.0, Texture("oriented", (0, 0, 1), 0.0, (1, 1, 0), 0.0)),),
+    "single_crystal": True,
+    "surface_damage": 0.0,
+    "seed": 0,
+}
 
 
 def _indent(kind, **kw):
@@ -369,7 +368,7 @@ _BULK["EBSD Si (001) Berkovich indent"] = BulkSurfaceConfig(
 BULK_PRESETS: dict[str, BulkSurfaceConfig] = _BULK
 
 
-def bulk_from_name(name: str, seed: Optional[int] = None) -> Optional[BulkSurfaceConfig]:
+def bulk_from_name(name: str, seed: int | None = None) -> BulkSurfaceConfig | None:
     """The bulk preset called ``name`` (case-insensitive), or None."""
     key = str(name).strip().lower()
     for k, cfg in BULK_PRESETS.items():

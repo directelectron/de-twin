@@ -15,9 +15,7 @@ rounding tips a draw (see :mod:`de_twin.ebsd.frames`).
 from __future__ import annotations
 
 import threading
-from typing import Optional
 
-import numba as nb
 import numpy as np
 
 from ..detector import fast
@@ -57,7 +55,7 @@ class EbsdFrameSource:
     ``EbsdPlan``; ``grid``: ``EbsdRenderer.grid(optics)``; ``exposure``: the detector's
     ``GridExposure`` for the frame time."""
 
-    def __init__(self, plan, grid, exposure, kappa_lobe: Optional[tuple] = None):
+    def __init__(self, plan, grid, exposure, kappa_lobe: tuple | None = None):
         h, w, ox, oy, bx, by = grid
         if (h, w) != tuple(exposure.shape) or w > _TABLE_WIDTH:
             raise ValueError("the EBSD grid and the detector's output grid differ")
@@ -119,7 +117,7 @@ class EbsdFrameSource:
         return workers.submit(self.render_into, [(out, np.asarray(ks, np.int64), int(seed),
                                                   np.asarray(serials, np.int64))])
 
-    def render(self, ks, seed: int, serials, out: Optional[np.ndarray] = None, band: Optional[int] = None):
+    def render(self, ks, seed: int, serials, out: np.ndarray | None = None, band: int | None = None):
         """Frames of flat scan points *ks* in one call on numba's threads, a band of rows a task
         (the way to make a few frames quickly): ``(frames (B, h, w) uint16, electrons, clipped)``."""
         import numba

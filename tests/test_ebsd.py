@@ -55,7 +55,7 @@ def _zone_centre(img, c, r, half=16):
     the region is symmetric about the axis."""
     from scipy import ndimage
 
-    r0, c0 = int(round(r)) - half, int(round(c)) - half
+    r0, c0 = round(r) - half, round(c) - half
     win = img[r0 : r0 + 2 * half + 1, c0 : c0 + 2 * half + 1].astype(np.float64)
     lab, _ = ndimage.label(win > 0.5 * (np.median(win) + win.max()))
     k = lab[np.unravel_index(np.argmax(win), win.shape)]
@@ -113,7 +113,7 @@ def test_known_zone_axes_at_predicted_positions():
         c, r = ex / 2 - 0.5, ey / 2 - 0.5
         fc, fr = _zone_centre(raw, c, r)
         assert abs(fc - c) <= 1.0 and abs(fr - r) <= 1.0, (uvw, fc, fr, c, r)
-        assert raw[int(round(r)), int(round(c))] > np.percentile(raw, 99)
+        assert raw[round(r), round(c)] > np.percentile(raw, 99)
     # a rotated crystal: its [001] moves with it
     rot = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]) @ _rx(15)
     v = rot @ np.array([0.0, 0.0, -1.0])
@@ -232,7 +232,7 @@ def test_pattern_centre_follows_the_beam():
     assert pcs[2, 1, 1] < pcs[1, 1, 1] and pcs[2, 1, 2] > pcs[1, 1, 2]
     # the Si [00-1] zone axis sits where the moved pattern centre puts it
     for ix, iy in [(1, 1), (2, 1), (1, 2), (0, 0)]:
-        raw, pc, optics = _raw(tw, req, ix, iy)
+        raw, pc, _optics = _raw(tw, req, ix, iy)
         G = tw.specimen.orientations([gt_hash(tw, req, ix, iy)], [0])[0]
         xy = detector_position(tw.ebsd, G, (0, 0, -1), pc, (H, W))
         c, r = xy[0] / 2 - 0.5, xy[1] / 2 - 0.5
@@ -324,7 +324,7 @@ def test_master_pattern_is_compact_and_cached():
     v = mp.values()
     assert abs(float(v.mean())) < 0.1
     # the strongest bands are {111} and {200}, of width 2 theta_B
-    hkl, normals, sin_tb, amp = bands(MaterialId.NICKEL, KV)
+    hkl, _normals, sin_tb, amp = bands(MaterialId.NICKEL, KV)
     assert sorted(abs(int(x)) for x in hkl[0]) == [1, 1, 1] and amp[0] == 1.0
     lam = 0.0085885  # nm at 20 kV
     assert sin_tb[0] == pytest.approx(lam * math.sqrt(3) / 0.3524 / 2, rel=1e-3)
@@ -459,13 +459,13 @@ def test_dictionary_indexing_recovers_orientations():
 
     rots = get_sample_fundamental(4.0, point_group=Oh)
     D = crystal_to_lab(rots.data)
-    idx, dncc = dictionary_index(exp_coarse, sim(optics, centre, 2), D)
+    idx, _dncc = dictionary_index(exp_coarse, sim(optics, centre, 2), D)
     errs = []
     for k in range(nx * ny):
         iy, ix = divmod(k, nx)
         if gt["quality"][iy, ix] < 0.7:  # on a boundary (mixed or in its zone)
             continue
-        m, c = refine(exp_fine[k], sim(optics, pcs[k]), D[idx[k]])
+        m, _c = refine(exp_fine[k], sim(optics, pcs[k]), D[idx[k]])
         G = crystal_to_lab(gt["quaternion"][iy, ix])[0]
         errs.append(float(misorientation_deg(m[None], G[None], Oh)[0]))
     errs = np.array(errs)
