@@ -53,8 +53,36 @@ def _mode_id(mag_mode) -> int:
     return _MODES.get("".join(ch for ch in str(mag_mode).lower() if ch.isalnum()), 2)
 
 
+class DefocusAndTruth:
+    """What every source of column geometry derives from its per-magnification values.
+
+    The subclass supplies ``hd_scale_per_um``, ``hd_rotation_deg_per_um``, ``backlash_um``
+    and the ``rotation_rad`` / ``pixel_scale`` / ``is_matrix`` / ``mag_offset_um`` /
+    ``bs_matrix`` lookups; this derives the rest the same way for the synthetic
+    :class:`ColumnRealism` and for a table read from SerialEM.
+    """
+
+    def defocus_scale(self, defocus_um: float) -> float:
+        """True pixel size factor at this defocus (the magnification drops as it grows)."""
+        return 1.0 + self.hd_scale_per_um * abs(float(defocus_um))
+
+    def defocus_rotation_rad(self, defocus_um: float) -> float:
+        return math.radians(self.hd_rotation_deg_per_um * float(defocus_um))
+
+    def truth(self, mag_mode, mag: float) -> dict:
+        """Every value at one magnification, for tests that calibrate against the twin."""
+        return {
+            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, mag)),
+            "pixel_scale": self.pixel_scale(mag_mode, mag),
+            "is_matrix_um_per_unit": self.is_matrix(mag_mode, mag).tolist(),
+            "mag_offset_um": self.mag_offset_um(mag_mode, mag),
+            "backlash_um": self.backlash_um,
+            "bs_matrix_um_per_unit": self.bs_matrix().tolist(),
+        }
+
+
 @dataclass(frozen=True)
-class ColumnRealism:
+class ColumnRealism(DefocusAndTruth):
     """The imperfect geometry of a real column (see the module docstring)."""
 
     seed: int = 0
@@ -151,21 +179,3 @@ class ColumnRealism:
         """The axial astigmatism A1 (complex nm) an image shift of (x, y) um adds."""
         phase = 2.0 * math.pi * _u(self.seed, 72)
         return self.is_astig_nm_per_um * complex(math.cos(phase), math.sin(phase)) * complex(isx_um, isy_um)
-
-    def defocus_scale(self, defocus_um: float) -> float:
-        """True pixel size factor at this defocus (the magnification drops as it grows)."""
-        return 1.0 + self.hd_scale_per_um * abs(float(defocus_um))
-
-    def defocus_rotation_rad(self, defocus_um: float) -> float:
-        return math.radians(self.hd_rotation_deg_per_um * float(defocus_um))
-
-    def truth(self, mag_mode, mag: float) -> dict:
-        """Every value at one magnification, for tests that calibrate against the twin."""
-        return {
-            "image_rotation_deg": math.degrees(self.rotation_rad(mag_mode, mag)),
-            "pixel_scale": self.pixel_scale(mag_mode, mag),
-            "is_matrix_um_per_unit": self.is_matrix(mag_mode, mag).tolist(),
-            "mag_offset_um": self.mag_offset_um(mag_mode, mag),
-            "backlash_um": self.backlash_um,
-            "bs_matrix_um_per_unit": self.bs_matrix().tolist(),
-        }
