@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="prev" title="Development and releases" href="dev/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.0" />
+  <meta name="docsearch:version" content="0.3.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -507,9 +507,95 @@
 <a class="reference external" href="https://towncrier.readthedocs.io/">towncrier</a> when a release is prepared
 (see <code class="docutils literal notranslate"><span class="pre">upcoming_changes/README.rst</span></code> for contributor instructions).</p>
 <section id="id1">
-<h2>0.2.0 (2026-09-27)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<h2>0.3.0 (2026-10-23)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="api-and-behaviour-changes">
+<h3>API and Behaviour Changes<a class="headerlink" href="#api-and-behaviour-changes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Magnification and camera-length ladders are one type, <code class="docutils literal notranslate"><span class="pre">de_twin.column.ladders.Ladder</span></code>,
+which carries both rules for picking the nearest rung (<code class="docutils literal notranslate"><span class="pre">snap_linear</span></code> for the column’s
+detents, <code class="docutils literal notranslate"><span class="pre">snap_logarithmic</span></code> for calibration tables). <code class="docutils literal notranslate"><span class="pre">Column.mag_ladder()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Column.cl_ladder()</span></code>, <code class="docutils literal notranslate"><span class="pre">Calibration.mag_ladder()</span></code> and <code class="docutils literal notranslate"><span class="pre">Calibration.cl_ladder()</span></code> return it,
+and the calibration’s built-in tables moved to <code class="docutils literal notranslate"><span class="pre">de_twin.column.ladders</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Column.mag_ladder()</span></code> and <code class="docutils literal notranslate"><span class="pre">Column.cl_ladder()</span></code> now return lists, empty when the mode has
+no such ladder (they returned <code class="docutils literal notranslate"><span class="pre">None</span></code>), and <code class="docutils literal notranslate"><span class="pre">cl_ladder()</span></code> is in millimeters like
+<code class="docutils literal notranslate"><span class="pre">Calibration.cl_ladder()</span></code> (it was centimeters). In <code class="docutils literal notranslate"><span class="pre">de_twin.column.ladders</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DIFF_CAMLENGTHS_CM</span></code> and <code class="docutils literal notranslate"><span class="pre">STEM_CAMLENGTHS_CM</span></code> became <code class="docutils literal notranslate"><span class="pre">DIFF_CAMERA_LENGTHS_MM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">STEM_CAMERA_LENGTHS_MM</span></code>. The <code class="docutils literal notranslate"><span class="pre">CameraLength</span></code> property is still centimeters, as on the
+DE-TEM-Channel protocol.</p></li>
+<li><p>Arguments are spelled out: <code class="docutils literal notranslate"><span class="pre">cfg</span></code> is <code class="docutils literal notranslate"><span class="pre">config</span></code> everywhere (<code class="docutils literal notranslate"><span class="pre">beam_current_pa(state,</span>
+<span class="pre">config=...)</span></code>, and so on), and catch-all <code class="docutils literal notranslate"><span class="pre">**kw</span></code> arguments have names that say what they
+carry. Several large modules were split by job, so a few names moved: the column’s property
+tables, vendor tables and errors (<code class="docutils literal notranslate"><span class="pre">column.properties</span></code>, <code class="docutils literal notranslate"><span class="pre">column.vendor</span></code>,
+<code class="docutils literal notranslate"><span class="pre">column.errors</span></code>), the CEOS corrector (<code class="docutils literal notranslate"><span class="pre">column.ceos</span></code>), coherent-imaging setup
+(<code class="docutils literal notranslate"><span class="pre">render.coherent_setup</span></code>), TEM contrast (<code class="docutils literal notranslate"><span class="pre">render.tem_contrast</span></code>) and the deapi server’s
+protocol, request, acquisition, property and result parts (<code class="docutils literal notranslate"><span class="pre">faces.deapi_*</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Calibration.default</span></code> no longer takes <code class="docutils literal notranslate"><span class="pre">post_magnification</span></code>, which scaled the served and the rendered pixel together and so could not express a calibration error. Set <code class="docutils literal notranslate"><span class="pre">OpticsConfig.post_magnification</span></code> instead. (<a class="reference external" href="https://github.com/directelectron/de-twin/pull/39">#39</a>)</p></li>
+</ul>
+</section>
 <section id="new-features">
 <h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">OpticsConfig.post_magnification</span></code> puts the camera behind a constant post-column magnification: the rendered pixel is the calibrated one divided by it at every magnification, while the served <code class="docutils literal notranslate"><span class="pre">Specimen</span> <span class="pre">Pixel</span> <span class="pre">Size</span></code> keeps reporting the nominal value. <code class="docutils literal notranslate"><span class="pre">calibration_truth()</span></code> reports the factor and the true pixel size. (<a class="reference external" href="https://github.com/directelectron/de-twin/pull/39">#39</a>)</p></li>
+<li><p>A scan follows DE-Server’s timing for coil changes: it runs a repeat at a time, and a pixel
+offset (or voltage, rotation or flip) written mid-scan reaches the beam one
+<code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">-</span> <span class="pre">Output</span> <span class="pre">Buffer</span> <span class="pre">(milliseconds)</span></code> later, on a repeat boundary, as the new DE-Server
+property queues it. The offset is clamped to half the scan’s voltage range, inside the scan
+card’s +-10 V. <code class="docutils literal notranslate"><span class="pre">get_gpu_frames()</span></code> now maps the twin’s own frames out of GPU memory, through
+DE-Server’s GPU frame sharing protocol, instead of deapi’s simulated stand-in.</p>
+<p>The shared-memory face keeps up with a fast camera: with <code class="docutils literal notranslate"><span class="pre">reuse</span></code>, a full frame pool is a
+library that is picked from rather than rendered into, re-rendered when the column moves, and
+frames go to DE-Server a batch at a time. Its C++ reader yields instead of sleeping for the
+first few ms of a wait. A 256x256 stream reaches about 27,000 frames a second, from 580.</p>
+<p>In a scan, the shared-memory face follows DE-Server’s scan coil voltages (<code class="docutils literal notranslate"><span class="pre">DE_ScanOutput</span></code>,
+which DE-Server’s scan simulator writes as a scan card would be written): each frame is
+rendered where its point’s voltages put the beam, so a pixel offset, an XY array or drift
+correction moves the beam with DE-Server’s output-buffer latency. A probe held on one point
+is rendered <code class="docutils literal notranslate"><span class="pre">pool_size</span></code> times and then picked from (about 25,000 frames a second at 256x256).</p>
+</li>
+<li><p>Calibration standards: Ted Pella’s TEM calibration specimens as presets (“Ted Pella 607 - …”), grouped in <code class="docutils literal notranslate"><span class="pre">CALIBRATION_STANDARDS</span></code> with their published numbers in <code class="docutils literal notranslate"><span class="pre">specimen.standards.PRODUCTS</span></code>: the grating replicas (607, 607-A, 606, 603, 603-A, 677, 673), gold-shadowed latex (628-B), evaporated aluminum (619) and MoO3 laths tied to their crystal axis (625). The replicas are conformal carbon films shadowed with metal at an angle (embossed at low magnification; a nanocrystalline island film with dense and sparse regions and soft shadows at high magnification). New: MoO3, and an <code class="docutils literal notranslate"><span class="pre">oriented</span></code> grain texture.</p></li>
+<li><p>Faster live-view re-renders on a magnification step or a stage move: the Bragg excitation is computed once per grain and thickness and kept across views, a stage move beyond the pan margin rasterizes only the strips of specimen it brings into view (<code class="docutils literal notranslate"><span class="pre">RenderConfig.reuse_rasters</span></code>), large rasters are rasterised in parallel strips (<code class="docutils literal notranslate"><span class="pre">RenderConfig.raster_threads</span></code>), and the exit wave, crops and upsampling are threaded or numba-compiled. Padded TEM rasters now sit on a world-fixed pixel lattice, with sub-pixel view offsets applied as a phase ramp and crops interpolated to a fraction of a pixel (a move inside the margin was rounded to whole raster pixels). <code class="docutils literal notranslate"><span class="pre">de-twin</span> <span class="pre">serve</span> <span class="pre">--interactive</span></code> turns on the fast previews for a live view.</p></li>
+<li><p>STEM scans now follow DE-Server’s scan coil voltages: <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">-</span> <span class="pre">Voltage</span> <span class="pre">H/V</span> <span class="pre">Min/Max</span></code> is the
+field the full scan grid spans (a smaller range zooms in, moving it pans), and
+<code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">-</span> <span class="pre">Pixel</span> <span class="pre">Offset</span> <span class="pre">X/Y</span></code> moves the probe by whole or fractional scan points. <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">-</span> <span class="pre">Rotation</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">-</span> <span class="pre">Flip</span> <span class="pre">Horizontally/Vertically</span></code> turn and mirror the grid. A live scan
+(<code class="docutils literal notranslate"><span class="pre">start_acquisition(0)</span></code>) picks up offset, voltage, rotation and flip changes at its next
+repetition, so a client can move the probe, correct drift, or pan and zoom while it scans.</p></li>
+<li><p>Specimen field maps can carry an amorphous layer under the primary material (<code class="docutils literal notranslate"><span class="pre">under_material</span></code>, <code class="docutils literal notranslate"><span class="pre">under_thickness_nm</span></code>: a support film under particles, stain around protein); the renderer adds its absorption, phase, amorphous texture and diffuse scattering. New <code class="docutils literal notranslate"><span class="pre">specimen.stamps</span></code>: organic shapes precomputed once (Cahn-Hilliard phase-separation tiles shipped as signed distances, 3D diffusion-limited aggregates) and placed fast in numba with exact coverage; <code class="docutils literal notranslate"><span class="pre">specimen.spheres</span></code>: binned sphere sets (chords, tops, cast shadows).</p></li>
+<li><p>TEM lattice fringes are kinematic by default (<code class="docutils literal notranslate"><span class="pre">RenderConfig.lattice_fringe_model=&quot;kinematic&quot;</span></code>): each resolved beam passing the objective aperture is a phase grating of its own kinematic strength, grown with thickness, times <code class="docutils literal notranslate"><span class="pre">lattice_fringe_efficiency</span></code> (0.5, calibrated on Ted Pella lattice images). The previous fixed amplitude (<code class="docutils literal notranslate"><span class="pre">&quot;fixed&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">lattice_phase_rad</span></code>) gave every crystal the same weak fringes.</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The cross grating’s second and fourth orders no longer outweigh its first. The renderer removed the electrons wherever the specimen’s phase changed quickly between raster pixels, and a raster pixel wider than a ridge wall (every frame larger than 1024 x 1024) put that dark rim on every edge of every hole. Rendered images change slightly wherever a specimen has steep edges: the mean frame intensity moves by under 1 % for most presets and by up to 5 % for a few. (<a class="reference external" href="https://github.com/directelectron/de-twin/pull/39">#39</a>)</p></li>
+<li><p>The twin no longer aborts on macOS when two threads render at once (a prefetch alongside a live frame, say). numba’s only threading layer there, the workqueue, aborts the process when two threads launch a parallel kernel together, so on it the kernels are compiled serial; each still releases the GIL, and the twin’s own threads run them side by side.</p></li>
+</ul>
+</section>
+<section id="removals">
+<h3>Removals<a class="headerlink" href="#removals" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">legacy</span></code> TEM imaging model and the <code class="docutils literal notranslate"><span class="pre">legacy</span></code> dose model are removed. The physical
+models were already the defaults and are now the only ones, so <code class="docutils literal notranslate"><span class="pre">RenderConfig.tem_model</span></code>,
+<code class="docutils literal notranslate"><span class="pre">OpticsConfig.dose_model</span></code> and <code class="docutils literal notranslate"><span class="pre">OpticsConfig.legacy_dose_rate_counts_per_s</span></code> no longer exist.</p></li>
+<li><p>The optics state no longer has <code class="docutils literal notranslate"><span class="pre">blur_sigma_px</span></code>, <code class="docutils literal notranslate"><span class="pre">fresnel_gain</span></code>, <code class="docutils literal notranslate"><span class="pre">fresnel_sign</span></code> or
+<code class="docutils literal notranslate"><span class="pre">fresnel_sigma_px</span></code>; only the removed legacy TEM renderer used them.</p></li>
+</ul>
+</section>
+<section id="maintenance">
+<h3>Maintenance<a class="headerlink" href="#maintenance" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Project links, the docs site URL and the trusted-publishing instructions now point at the directelectron organization (<a class="reference external" href="https://directelectron.github.io/de-twin/">https://directelectron.github.io/de-twin/</a>).</p></li>
+<li><p>Structural cleanup with no change to rendered output: one shared numba kernel decorator
+(<code class="docutils literal notranslate"><span class="pre">de_twin.parallel.numba_jit</span></code>) replaces the per-module copies, the column-realism classes
+share their derived values, and unused helpers (<code class="docutils literal notranslate"><span class="pre">log_snap</span></code>, <code class="docutils literal notranslate"><span class="pre">resample_object</span></code>,
+<code class="docutils literal notranslate"><span class="pre">upsample2x</span></code>, <code class="docutils literal notranslate"><span class="pre">point_in_polygon</span></code>, <code class="docutils literal notranslate"><span class="pre">AmorphousStructure</span></code>) are removed.</p></li>
+</ul>
+</section>
+</section>
+<section id="id5">
+<h2>0.2.0 (2026-09-27)<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<section id="id6">
+<h3>New Features<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A tilted specimen that is off eucentric height moves in the image (by dz sin(tilt) across the tilt axis), as it does on a real stage: what eucentric-height routines measure.</p></li>
 <li><p>Apollo super-resolution: <code class="docutils literal notranslate"><span class="pre">AcquisitionRequest(super_resolution=True)</span></code> (deapi: <code class="docutils literal notranslate"><span class="pre">Centroiding</span> <span class="pre">Mode</span> <span class="pre">=</span> <span class="pre">Super-resolution</span></code>) reads a counting camera out at 2x the ROI each way (8192² for a full Apollo frame, ~20 ms). Each event lands in one of its pixel’s 2x2 sub-pixels, drawn uniformly: the rendered flux has no detail finer than a sensor pixel, so that is what a real super-resolution readout of it would show.</p></li>
@@ -533,8 +619,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">de_twin.optics.serialem</span></code>: <code class="docutils literal notranslate"><span class="pre">to_serialem</span></code> writes a column’s calibrations as SerialEM would measure them (<code class="docutils literal notranslate"><span class="pre">SerialEMcalibrations.txt</span></code> entries: image-shift and stage-to-camera matrices, image-shift offsets, beam-shift calibrations, crossovers, high-focus magnification and focus calibrations; plus the camera’s <code class="docutils literal notranslate"><span class="pre">RotationAndPixel</span></code> lines), and <code class="docutils literal notranslate"><span class="pre">from_serialem</span></code> reads a microscope’s calibrations into a <code class="docutils literal notranslate"><span class="pre">ColumnDefinition</span></code> that goes in <code class="docutils literal notranslate"><span class="pre">OpticsConfig(realism=...)</span></code>, so a twin behaves like that microscope. The round trip is exact.</p></li>
 </ul>
 </section>
-<section id="bug-fixes">
-<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Bug Fixes<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A specimen with an amorphous material in a crystalline slot (the FIB-liftout pattern’s “auto” post) no longer raises in imaging or diffraction; it scatters no Bragg beams.</p></li>
 <li><p>A twin now starts where an operator would: the stage over the specimen (the nearest intact grid square, well, lamella or chip window, and its largest particle cluster) instead of the stage origin, which was a grid bar or chip frame for some presets and left them black; the beam at a dose the detector takes without saturating a frame; and cryo specimens 1.5 µm underfocus. <code class="docutils literal notranslate"><span class="pre">DigitalTwin(start_on_specimen=False)</span></code> keeps the old start, and a supplied column is never moved.</p></li>
@@ -555,10 +641,10 @@
 </ul>
 </section>
 </section>
-<section id="id2">
-<h2>0.1.1 (2026-09-24)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
-<section id="id3">
-<h3>Bug Fixes<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h2>0.1.1 (2026-09-24)<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<section id="id9">
+<h3>Bug Fixes<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The deapi face reports “Specimen Pixel Size X/Y (nanometers)” per binned pixel, including hardware and software binning, as DE-Server does.</p></li>
 <li><p>The deapi face treats <code class="docutils literal notranslate"><span class="pre">start_acquisition(0)</span></code> as live view (repeat until stopped), as
@@ -568,10 +654,10 @@ the frame index within each request.</p></li>
 </ul>
 </section>
 </section>
-<section id="id4">
-<h2>0.1.0 (2026-09-24)<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
-<section id="id5">
-<h3>New Features<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h2>0.1.0 (2026-09-24)<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<section id="id11">
+<h3>New Features<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>First release of the de-twin digital twin: a simulated TEM column (JEOL/TFS-style
 modes, magnification and camera-length ladders, stage motion, aberrations and an
@@ -588,8 +674,8 @@ through its processing pipeline (<code class="docutils literal notranslate"><spa
 Impulse holder instead of simulating them.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Bug Fixes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id12">
+<h3>Bug Fixes<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Coherent 4D-STEM data no longer depends on the machine: the probe’s partial-coherence
 modes were truncated through a degenerate pair of eigenmodes, whose basis LAPACK chooses
@@ -597,8 +683,8 @@ differently with BLAS threading, so the same request gave different patterns on 
 computers. Truncation now keeps degenerate groups whole.</p></li>
 </ul>
 </section>
-<section id="maintenance">
-<h3>Maintenance<a class="headerlink" href="#maintenance" title="Link to this heading">#</a></h3>
+<section id="id13">
+<h3>Maintenance<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Packaging, documentation site and release workflows (towncrier changelog,
 Prepare Release PR, PyPI publishing when a GitHub Release is published).</p></li>
@@ -649,20 +735,28 @@ runners can check them without being tuned to one workstation.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.2.0 (2026-09-27)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">0.3.0 (2026-10-23)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api-and-behaviour-changes">API and Behaviour Changes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New Features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removals">Removals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maintenance">Maintenance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">0.2.0 (2026-09-27)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">New Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">0.1.1 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Bug Fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">0.1.1 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Bug Fixes</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">0.1.0 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">New Features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maintenance">Maintenance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">0.1.0 (2026-09-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">New Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Maintenance</a></li>
 </ul>
 </li>
 </ul>
