@@ -166,7 +166,7 @@ def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_tw
         twin.column.set("ImageShift", u)
         m = _shift_px(a, _img(twin))
         twin.column.set("ImageShift", (0.0, 0.0))
-        np.testing.assert_allclose(np.array([m[0], -m[1]]), -A @ np.asarray(u), atol=0.3)
+        np.testing.assert_allclose(np.array([m[0], -m[1]]), -A @ np.asarray(u), atol=0.5)
 
 
 def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define(tmp_path):

@@ -165,7 +165,7 @@ def exit_wave(
                 gy = np.float32(0.5) * (mip[i + 1, j] - mip[i - 1, j]) if 0 < i < ny - 1 else zero
                 gx = np.float32(0.5) * (mip[i, j + 1] - mip[i, j - 1]) if 0 < j < nx - 1 else zero
                 q = (gx * gx + gy * gy) * inv_gc2
-                amp = amp * np.float32(math.exp(-q * q))
+                amp = amp * np.float32(math.exp(-(q * q) * (q * q)))
             if has_noise:
                 var = zero
                 if amorphous[m]:

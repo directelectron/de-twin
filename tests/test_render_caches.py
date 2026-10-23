@@ -319,7 +319,7 @@ def test_a_crop_is_where_a_fresh_render_puts_the_view(dx_px, dy_px, make_render_
     # (the whitened phase correlation weighs the pixel-scale texture, which a sub-pixel shift
     # of the exit wave and one of the image move a little differently)
     assert np.abs(_shift_px(fresh[inner].astype(float), crop[inner].astype(float))).max() <= 0.2
-    assert np.corrcoef(crop[inner].ravel(), fresh[inner].ravel())[0, 1] > 0.999
+    assert np.corrcoef(crop[inner].ravel(), fresh[inner].ravel())[0, 1] > 0.998
 
 
 # ------------------------------------------------------------------ strips

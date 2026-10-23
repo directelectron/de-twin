@@ -55,11 +55,11 @@ docs = [
 ]
 
 [project.urls]
-"Homepage" = "https://cssfrancis.github.io/de-twin/"
-"Documentation" = "https://cssfrancis.github.io/de-twin/"
-"Repository" = "https://github.com/CSSFrancis/de-twin"
-"Bug Tracker" = "https://github.com/CSSFrancis/de-twin/issues"
-"Changelog" = "https://github.com/CSSFrancis/de-twin/blob/main/CHANGELOG.rst"
+"Homepage" = "https://directelectron.github.io/de-twin/"
+"Documentation" = "https://directelectron.github.io/de-twin/"
+"Repository" = "https://github.com/directelectron/de-twin"
+"Bug Tracker" = "https://github.com/directelectron/de-twin/issues"
+"Changelog" = "https://github.com/directelectron/de-twin/blob/main/CHANGELOG.rst"
 
 [project.scripts]
 de-twin = "de_twin.cli:main"
@@ -140,7 +140,7 @@ package_dir      = "src"
 directory        = "upcoming_changes"
 filename         = "CHANGELOG.rst"
 start_string     = ".. towncrier release notes start\n"
-issue_format     = "`#{issue} <https://github.com/CSSFrancis/de-twin/pull/{issue}>`_"
+issue_format     = "`#{issue} <https://github.com/directelectron/de-twin/pull/{issue}>`_"
 title_format     = "{version} ({project_date})"
 underlines       = ["=", "-", "~"]
 

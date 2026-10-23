@@ -128,7 +128,7 @@ jobs:
           path = pathlib.Path("docs/_root/switcher.json")
           entries = [e for e in json.loads(path.read_text()) if e.get("version") != version]
           label = f"{version} (beta)" if is_beta else f"{version} (stable)"
-          url = f"https://cssfrancis.github.io/de-twin/{version}/"
+          url = f"https://directelectron.github.io/de-twin/{version}/"
           entries.insert(1, {"name": label, "version": version, "url": url})
           path.write_text(json.dumps(entries, indent=2) + "\n")
 

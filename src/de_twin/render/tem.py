@@ -79,6 +79,25 @@ class TransferCache:
         return buffers.empty(shape, dtype)
 
 
+def refraction_cutoff(optics, pixel_nm: float) -> float:
+    """The phase gradient (rad per raster pixel) beyond which the exit wave loses amplitude,
+    ``amplitude *= exp(-(gradient / cutoff) ** 8)``.
+
+    Electrons refracted outside the objective aperture are lost, so with an aperture the cutoff
+    is its acceptance. Without one nothing is lost physically (a replica's ridge wall refracts
+    by ~0.03 mrad), but a phase that changes by more than pi per pixel cannot be sampled at all
+    (a 30 rad particle rim would alias), so the cutoff is the phase's Nyquist limit. It is
+    steep so that a wall a few pixels wide stays untouched: the bright-field contrast of a
+    sharp edge must not depend on the raster's pixel size.
+    """
+    cutoff = math.pi
+    if optics.objective_aperture_mrad > 0:
+        cutoff = min(
+            cutoff, 2.0 * math.pi * pixel_nm * optics.objective_aperture_mrad * 1e-3 / optics.wavelength_nm
+        )
+    return cutoff
+
+
 def _kgrid(shape, pitch_nm):
     ny, nx = shape
     kx = sfft.fftfreq(nx, d=pitch_nm)
@@ -409,16 +428,8 @@ def transmission_function(
         if taper_px > 0.3:
             mip = gaussian_filter_threaded(mip, min(taper_px, 16.0), mode="nearest", truncate=3.0)
         if config.refraction_loss:
-            # Electrons refracted by a steep phase gradient beyond the imaging band (objective
-            # aperture, or half the raster Nyquist) are lost: amplitude *= exp(-(g/g_c)^4),
-            # g = |grad phi| in rad/px. This also stops a 30 rad particle rim from aliasing.
-            g_c = 0.5 * math.pi
-            if optics.objective_aperture_mrad > 0:
-                g_c = min(
-                    g_c, 2.0 * math.pi * p_nm * optics.objective_aperture_mrad * 1e-3 / optics.wavelength_nm
-                )
             q = np.empty_like(mip)
-            inv_gc2 = np.float32(1.0 / (g_c * g_c))
+            inv_gc2 = np.float32(1.0 / refraction_cutoff(optics, p_nm) ** 2)
 
             def q_rows(r0, r1):
                 gy = np.zeros((r1 - r0, nx), mip.dtype)
@@ -434,7 +445,7 @@ def transmission_function(
                 loss = np.empty((ny, nx), np.float32)
                 parallel_rows(
                     lambda r0, r1: loss.__setitem__(
-                        slice(r0, r1), np.exp(-q[r0:r1] * q[r0:r1]).astype(np.float32)
+                        slice(r0, r1), np.exp(-((q[r0:r1] * q[r0:r1]) ** 2)).astype(np.float32)
                     ),
                     ny,
                 )
@@ -546,12 +557,7 @@ def _transmission_fast(
         if taper_px > 0.3:
             mip = _fp.gaussian_nearest(mip, min(taper_px, 16.0), truncate=3.0)
         if config.refraction_loss:
-            g_c = 0.5 * math.pi
-            if optics.objective_aperture_mrad > 0:
-                g_c = min(
-                    g_c, 2.0 * math.pi * p_nm * optics.objective_aperture_mrad * 1e-3 / optics.wavelength_nm
-                )
-            inv_gc2 = np.float32(1.0 / (g_c * g_c))
+            inv_gc2 = np.float32(1.0 / refraction_cutoff(optics, p_nm) ** 2)
             refraction = bool(_fp.refraction_qmax(mip, inv_gc2) > 0.01)
     psi = alloc("psi", (ny, nx), np.complex64)
     t_full = alloc("t_full", (ny, nx), np.float32)

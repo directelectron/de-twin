@@ -18,7 +18,7 @@ version = release
 
 # In CI the Docs workflow sets DOCS_VERSION to the tag ("v0.1.0") or "dev".
 _docs_version = os.environ.get("DOCS_VERSION", "dev")
-_base = "https://cssfrancis.github.io/de-twin/"
+_base = "https://directelectron.github.io/de-twin/"
 html_baseurl = f"{_base}{_docs_version}/"
 
 # -- General configuration ---------------------------------------------------
@@ -88,7 +88,7 @@ html_title = "de-twin"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = {
-    "github_url": "https://github.com/CSSFrancis/de-twin",
+    "github_url": "https://github.com/directelectron/de-twin",
     "logo": {"text": "de-twin"},
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {

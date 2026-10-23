@@ -3,7 +3,7 @@
 ## Setting up
 
 ```
-git clone https://github.com/CSSFrancis/de-twin
+git clone https://github.com/directelectron/de-twin
 cd de-twin
 uv sync --group dev          # the package (editable), deapi, pytest, towncrier, ruff
 uv run pytest                # ~340 tests, a few minutes
@@ -52,7 +52,7 @@ Releases are prepared by a workflow and published by hand on GitHub.
 ### One-time setup
 
 - **PyPI**: on pypi.org, *Your projects → Publishing → Add a pending publisher*: project
-  `de-twin`, owner `CSSFrancis`, repository `de-twin`, workflow `release.yml`,
+  `de-twin`, owner `directelectron`, repository `de-twin`, workflow `release.yml`,
   environment `pypi`.
 - **GitHub**: create an environment named `pypi` (*Settings → Environments*); optionally
   require a reviewer for it. Enable GitHub Pages from the `gh-pages` branch once the Docs

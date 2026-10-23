@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import pytest
 
 from de_twin.clock import ManualClock
 from de_twin.specimen.materials import MaterialId
@@ -87,3 +88,50 @@ def test_the_islands_give_platinum_lattice_fringes():
     pt, bare = spectrum("platinum"), spectrum("none")
     g220 = math.sqrt(8.0) / 0.3924  # 1/nm
     assert pt(g220 - 0.1, g220 + 0.1) > 3.0 * bare(g220 - 0.1, g220 + 0.1)
+
+
+def _order_powers(image, expected_radius_px, orders=5):
+    """Power at 1..orders times the grating's first-order frequency, relative to the first order.
+
+    The first order is the strongest peak of the Hann-windowed spectrum within 20 % of
+    `expected_radius_px`; the others are read at its multiples along both lattice axes."""
+    n = image.shape[0]
+    window = np.hanning(n)[:, None] * np.hanning(n)[None, :]
+    power = np.abs(np.fft.fftshift(np.fft.fft2((image - image.mean()) * window))) ** 2
+    ky, kx = np.mgrid[:n, :n] - n // 2
+    radius = np.hypot(kx, ky)
+    band = np.where((radius > 0.8 * expected_radius_px) & (radius < 1.2 * expected_radius_px), power, 0.0)
+    peak_y, peak_x = np.unravel_index(np.argmax(band), band.shape)
+    first = np.array([kx[peak_y, peak_x], ky[peak_y, peak_x]], float)
+
+    def at(multiple_of):
+        x, y = (round(c) + n // 2 for c in multiple_of)
+        return power[y - 2 : y + 3, x - 2 : x + 3].max()
+
+    rows = [
+        np.array([at(m * axis) for m in range(1, orders + 1)])
+        for axis in (first, np.array([-first[1], first[0]]))
+    ]
+    return np.mean([row / row[0] for row in rows], axis=0)
+
+
+@pytest.mark.parametrize("raster_edge", [256, 1024])
+@pytest.mark.parametrize("intensity", [0.43, 0.7])
+def test_the_first_order_outweighs_its_harmonics(intensity, raster_edge):
+    """A replica's ridge walls are gently sloped for the electrons (they refract by ~0.03 mrad),
+    so the first order is the strongest however coarsely the raster samples a wall, and
+    widening the beam changes the dose, not the spectrum. A raster pixel wider than a wall
+    used to count the wall's phase step as an unrepresentable gradient and strip the electrons
+    off both sides of every hole, which put the power into the second and fourth orders."""
+    from de_twin.optics import OpticsConfig
+
+    config = OpticsConfig.realistic(seed=7, max_raster_pixels=raster_edge**2)
+    twin = DigitalTwin(
+        "Cross grating 2160 l/mm", camera="DESim", clock=ManualClock(), seed=1, optics_config=config
+    )
+    twin.column.set("Magnification", 2000.0)
+    twin.column.set("Intensity", intensity)
+    image = twin.flux(twin.request()).astype(float)
+    expected_radius = image.shape[0] * twin.calibration_truth()["true_pixel_nm"] / (1e6 / 2160.0)
+    harmonics = _order_powers(image, expected_radius)[1:]
+    assert harmonics.max() < 0.25, harmonics

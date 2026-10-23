@@ -1,7 +1,7 @@
 # de-twin
 
-[![Tests](https://github.com/CSSFrancis/de-twin/actions/workflows/tests.yml/badge.svg)](https://github.com/CSSFrancis/de-twin/actions/workflows/tests.yml)
-[![Docs](https://github.com/CSSFrancis/de-twin/actions/workflows/docs.yml/badge.svg)](https://cssfrancis.github.io/de-twin/)
+[![Tests](https://github.com/directelectron/de-twin/actions/workflows/tests.yml/badge.svg)](https://github.com/directelectron/de-twin/actions/workflows/tests.yml)
+[![Docs](https://github.com/directelectron/de-twin/actions/workflows/docs.yml/badge.svg)](https://directelectron.github.io/de-twin/)
 [![PyPI](https://img.shields.io/pypi/v/de-twin.svg)](https://pypi.org/project/de-twin/)
 [![Python](https://img.shields.io/pypi/pyversions/de-twin.svg)](https://pypi.org/project/de-twin/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -11,7 +11,7 @@ holder and the detector, advancing on one clock. Develop and test automated micr
 control without a microscope, a camera or DE-Server, and plug the same twin into the real
 software when you have it.
 
-**Documentation:** <https://cssfrancis.github.io/de-twin/>
+**Documentation:** <https://directelectron.github.io/de-twin/>
 
 ```
 pip install de-twin            # numpy, scipy, diffsims, orix
@@ -67,6 +67,6 @@ DE-Server's side of the shared-memory frame source is two small files in [`cpp/`
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Changes are recorded as
 [towncrier](https://towncrier.readthedocs.io/) fragments in `upcoming_changes/`, and releases
-follow the procedure in the [development docs](https://cssfrancis.github.io/de-twin/dev/dev/index.html).
+follow the procedure in the [development docs](https://directelectron.github.io/de-twin/dev/dev/index.html).
 
 MIT licensed.
