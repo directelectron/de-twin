@@ -189,7 +189,7 @@ STEM has two models (`RenderConfig.stem_model`: `"auto"` | `"coherent"` | `"kine
 
 * **kinematic** (`stem.py`): cached disk patterns per (grain, thickness, crystallinity).
   It is fast, but the bright-field disk has no interference.
-* **coherent** (`coherent.py`): the probe `IFFT[A(k) exp(-i chi(k))]` times the specimen
+* **coherent** (`coherent.py`, with its sampling, probe and specimen tile in `coherent_setup.py`): the probe `IFFT[A(k) exp(-i chi(k))]` times the specimen
   transmission `t(r)`, then `|FFT|^2` integrated over each binned detector pixel. `t(r)`
   comes from `tem.transmission_function`, the same object model as TEM imaging, built on a
   fine world-locked grid over the scan field. Scattering beyond the object band limit
@@ -236,14 +236,14 @@ class Column:                        # owns a MicroscopeState and behaves like a
     get(name) / set(name, value)     # DE-TEM-Channel property names
     set_stage(x=None, y=None, z=None, alpha=None, beta=None) ...  # plus typed setters for everything
     on_change(callback)
-    mag_ladder, cl_ladder            # lists (empty when the mode has none); camera lengths in mm
+    mag_ladder, cl_ladder            # `Ladder`s (empty when the mode has none); camera lengths in mm
 class MirrorColumn(Column):          # follows a real DE-TEM-Channel (SOAP client); sets are forwarded
 class SoapTemChannelClient           # stdlib-only SOAP client (executeBatchCommands, get*, set*)
 class ColumnAdapter                  # de_microscope/autopilot SimColumn duck type
 class Corrector                      # column.corrector when Column(corrector="probe"|"image"|"both")
 ```
 
-#### Aberration corrector (`column/corrector.py`)
+#### Aberration corrector (`column/corrector.py`; CEOS conventions and the measurement model in `column/ceos.py`)
 `Corrector` holds one `CorrectorUnit` per fitted side. Each unit models one
 CEOS-RPC server as DE-TEM-Channel's `CorrectorService` sees it: probe/CESCOR on
 7072, image/CETCOR on 7071.
@@ -299,6 +299,11 @@ publishes frames) and `FrameConsumer` (a Python stand-in for DE-Server, used by 
 * `deapi_server.py`: `TwinFakeServer`, a subclass of
   `deapi.simulated_server.fake_server.FakeServer` that renders through the
   twin, plus a launcher with deapi's CLI (positional port and "started" banner).
+  Its parts: `deapi_properties.py` (the property table), `deapi_results.py`
+  (GET_RESULT, movie buffers, virtual images), `deapi_acquisition.py` (one
+  acquisition), `deapi_request.py` (properties to an `AcquisitionRequest`),
+  `deapi_protocol.py` (command ids and names) and `deapi_compat.py` (stand-ins
+  for the optional `deapi` package).
 * `shm_face.py`: runs the producer loop. It reads DE-Server's request, renders
   frames and publishes them.
 
