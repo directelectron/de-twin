@@ -29,6 +29,7 @@ def _auto_stem_model_is_kinematic_for_legacy_tests(request, monkeypatch):
 
     monkeypatch.setattr(coherent, "choose_model", choose)
     import de_twin.render.renderer as renderer
+
     monkeypatch.setattr(renderer, "choose_model", choose)
     yield
 
@@ -75,8 +76,13 @@ def make_optics():
                 setattr(microscope.stage, key[-1] + "_um", value)
             else:
                 setattr(microscope, key, value)
-        return derive_optics(microscope, request or AcquisitionRequest(), camera or StubCamera(sensor_shape=(512, 512)),
-                             Calibration.default(), config or OpticsConfig())
+        return derive_optics(
+            microscope,
+            request or AcquisitionRequest(),
+            camera or StubCamera(sensor_shape=(512, 512)),
+            Calibration.default(),
+            config or OpticsConfig(),
+        )
 
     return build
 
@@ -99,6 +105,8 @@ def make_stem_optics():
         request.scan.enabled = scan
         request.scan.size = size
         request.scan.step_um = step_um
-        return derive_optics(microscope, request, StubCamera(), Calibration.default(), config or OpticsConfig())
+        return derive_optics(
+            microscope, request, StubCamera(), Calibration.default(), config or OpticsConfig()
+        )
 
     return build
