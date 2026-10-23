@@ -98,17 +98,17 @@ class MasterPattern:
         iy = np.clip(np.floor(fy).astype(int), 0, n - 2)
         tx, ty = np.clip(fx - ix, 0, 1), np.clip(fy - iy, 0, 1)
         out = np.empty(v.shape[:-1], np.float32)
-        for hemi, sel in (
+        for hemi, selected in (
             (("north", ~south), ("south", south)) if self.south is not None else (("north", None),)
         ):
             d = self.values(hemi)
             val = (d[iy, ix] * (1 - tx) + d[iy, ix + 1] * tx) * (1 - ty) + (
                 d[iy + 1, ix] * (1 - tx) + d[iy + 1, ix + 1] * tx
             ) * ty
-            if sel is None:
+            if selected is None:
                 out = val.astype(np.float32)
             else:
-                out[sel] = val[sel]
+                out[selected] = val[selected]
         return out
 
 
@@ -134,8 +134,8 @@ def bands(
     g, f2, hkl = lib.g[keep], lib.f2[keep], hkl[keep]
     order = np.argsort(-f2, kind="stable")
     g, f2, hkl = g[order], f2[order], hkl[order]
-    sel = f2 >= min_f2_fraction * f2.max()
-    g, f2, hkl = g[sel][:max_bands], f2[sel][:max_bands], hkl[sel][:max_bands]
+    selected = f2 >= min_f2_fraction * f2.max()
+    g, f2, hkl = g[selected][:max_bands], f2[selected][:max_bands], hkl[selected][:max_bands]
     glen = np.linalg.norm(g, axis=1)
     lam = electron_wavelength_nm(float(kv))
     return hkl, g / glen[:, None], 0.5 * lam * glen, f2 / f2.max()
@@ -279,7 +279,7 @@ class MasterCache:
             if hit is not None:
                 self._d.move_to_end(key)
                 return hit
-            mp = build_master(
+            master = build_master(
                 material,
                 kv,
                 energy_spread_frac=energy_spread_frac,
@@ -287,10 +287,10 @@ class MasterCache:
                 resolution_deg=resolution_deg,
             )
             self.builds += 1
-            self._d[key] = mp
+            self._d[key] = master
             while len(self._d) > 1 and self.nbytes > self.budget:
                 self._d.popitem(last=False)
-            return mp
+            return master
 
     @property
     def nbytes(self) -> int:

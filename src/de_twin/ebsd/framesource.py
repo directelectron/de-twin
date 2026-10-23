@@ -65,10 +65,10 @@ class EbsdFrameSource:
         self.sensor_pixels = h * w * round(1.0 / exposure.inv_nb)
         lobe, kappa = float(plan.lobe), float(plan.kappa)
         self._projection = (
-            np.ascontiguousarray(plan.bank).ravel(), int(plan.bank.shape[1]), plan.face0, plan.full, plan.offs,
+            np.ascontiguousarray(plan.bank).ravel(), int(plan.bank.shape[1]), plan.face0, plan.full, plan.offsets,
             plan.scales, plan.matrices, plan.o1, plan.o2, plan.ph1, plan.ph2, plan.mix, plan.contrast, plan.es,
             plan.finv, bool(plan.has_f), plan.dx, plan.dy, plan.pc_lin, plan.s2dT, float(ox), float(oy),
-            float(bx), float(by), plan.normal, plan.fwd, lobe, kappa, K._vmf(kappa), float(exposure.t_nb))
+            float(bx), float(by), plan.normal, plan.forward, lobe, kappa, K._vmf(kappa), float(exposure.t_nb))
         e = exposure
         self._detector = (h, e.gain, e.offset, e.hot_ptr, e.hot_col, e.hot_val, float(e.adu), float(e.k),
                           float(e.a), float(e.inv_nb), float(e.sigma), float(e.scale), float(e.vmax),

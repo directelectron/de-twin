@@ -68,12 +68,12 @@ def _reduce_energy(get_slice, energies, weights, energy_kv):
         )
     if weights is not None and np.sum(weights) > 0:
         w = np.asarray(weights, np.float64) / np.sum(weights)
-        acc = None
+        accumulator = None
         for i in range(ne):
             if w[i] > 0:
                 s = w[i] * np.asarray(get_slice(i), np.float64)
-                acc = s if acc is None else acc + s
-        return acc
+                accumulator = s if accumulator is None else accumulator + s
+        return accumulator
     return np.asarray(get_slice(int(np.argmax(e))), np.float64)
 
 
@@ -93,8 +93,8 @@ def read_emsoft(path, energy_kv=None) -> dict:
         energies = np.atleast_1d(np.asarray(g["EkeVs"][()], np.float64)) if "EkeVs" in g else None
         weights = None
         if "EMData/MCOpenCL/accum_e" in f:  # Monte-Carlo energy histogram (nE, ...)
-            acc = np.asarray(f["EMData/MCOpenCL/accum_e"][()], np.float64)
-            weights = acc.reshape(acc.shape[0], -1).sum(axis=1)
+            accumulator = np.asarray(f["EMData/MCOpenCL/accum_e"][()], np.float64)
+            weights = accumulator.reshape(accumulator.shape[0], -1).sum(axis=1)
         out = {"projection": projection}
         for key, name in zip(("north", "south"), names):
             if name not in g:
@@ -172,12 +172,12 @@ def read_kikuchipy(path, energy_kv=None) -> dict:
         for h in range(hemis):
 
             def get(i, h=h):
-                idx = [slice(None)] * d.ndim
+                index = [slice(None)] * d.ndim
                 if hemi_ax is not None:
-                    idx[hemi_ax] = h
+                    index[hemi_ax] = h
                 if en_ax is not None:
-                    idx[en_ax] = i
-                return d[tuple(idx)]
+                    index[en_ax] = i
+                return d[tuple(index)]
 
             arr = _reduce_energy(get, energies if energies is not None else [0.0], None, energy_kv)
             key = "north" if (h == 0 and hemi_name in ("upper", "north", "both")) else "south"
@@ -354,7 +354,7 @@ def master_from_hemispheres(
     )
     arrays = [north, cube] + ([south] if south is not None else [])
     lo, scale, codes = quantise(*arrays)
-    mp = MasterPattern(
+    master = MasterPattern(
         int(material),
         float(kv),
         codes[0],
@@ -367,8 +367,8 @@ def master_from_hemispheres(
         source=source,
         cube=codes[1],
     )
-    mp.symmetry_error = err
-    return mp
+    master.symmetry_error = err
+    return master
 
 
 # ---------------------------------------------------------------------- writer

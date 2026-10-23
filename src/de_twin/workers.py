@@ -102,19 +102,19 @@ class Workers:
             item = self._jobs.get()
             if item is None:
                 return
-            fn, args, batch, index = item
+            function, args, batch, index = item
             try:
-                result, error = fn(local, *args), None
+                result, error = function(local, *args), None
             except BaseException as exc:
                 result, error = None, exc
             batch._finish(index, result, error)
-            del item, fn, args, batch, result  # a finished job holds nothing (its frame buffer)
+            del item, function, args, batch, result  # a finished job holds nothing (its frame buffer)
 
-    def submit(self, fn: Callable, arg_list: list) -> Batch:
+    def submit(self, function: Callable, arg_list: list) -> Batch:
         """Run ``fn(local, *args)`` for each ``args`` of *arg_list*; returns their `Batch`."""
         batch = Batch(len(arg_list))
         for i, args in enumerate(arg_list):
-            self._jobs.put((fn, args, batch, i))
+            self._jobs.put((function, args, batch, i))
         return batch
 
     def close(self) -> None:

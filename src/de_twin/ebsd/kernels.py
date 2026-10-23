@@ -51,12 +51,12 @@ def lambert_directions(n: int) -> np.ndarray:
     with np.errstate(divide="ignore", invalid="ignore"):
         # |Y| <= |X|
         q = 2.0 * X / math.pi * np.sqrt(np.maximum(math.pi - X * X, 0.0))
-        ang = np.where(X != 0, math.pi * Y / (4.0 * np.where(X != 0, X, 1.0)), 0.0)
-        xa, ya, za = q * np.cos(ang), q * np.sin(ang), 1.0 - 2.0 * X * X / math.pi
+        angle = np.where(X != 0, math.pi * Y / (4.0 * np.where(X != 0, X, 1.0)), 0.0)
+        xa, ya, za = q * np.cos(angle), q * np.sin(angle), 1.0 - 2.0 * X * X / math.pi
         # |X| < |Y|
         q = 2.0 * Y / math.pi * np.sqrt(np.maximum(math.pi - Y * Y, 0.0))
-        ang = np.where(Y != 0, math.pi * X / (4.0 * np.where(Y != 0, Y, 1.0)), 0.0)
-        xb, yb, zb = q * np.sin(ang), q * np.cos(ang), 1.0 - 2.0 * Y * Y / math.pi
+        angle = np.where(Y != 0, math.pi * X / (4.0 * np.where(Y != 0, Y, 1.0)), 0.0)
+        xb, yb, zb = q * np.sin(angle), q * np.cos(angle), 1.0 - 2.0 * Y * Y / math.pi
     out[..., 0] = np.where(a, xa, xb)
     out[..., 1] = np.where(a, ya, yb)
     out[..., 2] = np.where(a, za, zb)
@@ -94,7 +94,7 @@ def accumulate_bands(dirs, normals, half_width, amp, sigma, sigma_edge, reach, o
     r2 = 1.0 / math.sqrt(2.0)
     for p in nb.prange(P):
         x, y, z = dirs[p, 0], dirs[p, 1], dirs[p, 2]
-        acc = 0.0
+        accumulator = 0.0
         for k in range(K):
             u = abs(x * normals[k, 0] + y * normals[k, 1] + z * normals[k, 2])
             t = u / half_width[k]
@@ -108,8 +108,8 @@ def accumulate_bands(dirs, normals, half_width, amp, sigma, sigma_edge, reach, o
             edge = EDGE_EXCESS * math.exp(-0.5 * a * a / (se * se)) - EDGE_DEFICIENCY * math.exp(
                 -0.5 * b * b / (se * se)
             )
-            acc += amp[k] * (band + edge)
-        out[p] = acc
+            accumulator += amp[k] * (band + edge)
+        out[p] = accumulator
 
 
 # ---------------------------------------------------------------------- projection
@@ -221,13 +221,13 @@ def cube_directions(n: int, faces: int = 3) -> np.ndarray:
 
 
 @numba_jit(error_model="numpy", inline="always")
-def _value(bank, face0, full, offs, scales, p, M, rx, ry, rz):
+def _value(bank, face0, full, offsets, scales, p, M, rx, ry, rz):
     """Standardised master value of phase ``p`` along detector direction r (unit) for the
     detector -> crystal matrix M (need not be orthogonal: the cube lookup is scale-free)."""
     cx = M[0, 0] * rx + M[0, 1] * ry + M[0, 2] * rz
     cy = M[1, 0] * rx + M[1, 1] * ry + M[1, 2] * rz
     cz = M[2, 0] * rx + M[2, 1] * ry + M[2, 2] * rz
-    return offs[p] + scales[p] * _cube_lookup(bank, face0[p], full[p], cx, cy, cz)
+    return offsets[p] + scales[p] * _cube_lookup(bank, face0[p], full[p], cx, cy, cz)
 
 
 @numba_jit(error_model="numpy")
@@ -236,16 +236,16 @@ def _detector_to_crystal(g, finv, has_f, s2dT, out):
     a = np.empty((3, 3))
     for i in range(3):
         for j in range(3):
-            acc = 0.0
+            accumulator = 0.0
             for k in range(3):
-                acc += (finv[i, k] if has_f else (1.0 if i == k else 0.0)) * s2dT[k, j]
-            a[i, j] = acc
+                accumulator += (finv[i, k] if has_f else (1.0 if i == k else 0.0)) * s2dT[k, j]
+            a[i, j] = accumulator
     for i in range(3):
         for j in range(3):
-            acc = 0.0
+            accumulator = 0.0
             for k in range(3):
-                acc += g[k, i] * a[k, j]
-            out[i, j] = acc
+                accumulator += g[k, i] * a[k, j]
+            out[i, j] = accumulator
 
 
 @numba_jit(error_model="numpy", parallel=True)
@@ -253,9 +253,9 @@ def render(
     bank,
     face0,
     full,
-    offs,
+    offsets,
     scales,
-    mats,
+    matrices,
     o1,
     o2,
     ph1,
@@ -277,7 +277,7 @@ def render(
     ss,
     raw,
     normal,
-    fwd,
+    forward,
     lobe,
     kappa,
     t_nb,
@@ -321,9 +321,9 @@ def render(
         g2 = o2[k]
         w2 = mix[k] if (g2 >= 0 and g1 >= 0) else 0.0
         if g1 >= 0:
-            _detector_to_crystal(mats[g1], finv[k if has_f else 0], has_f, s2dT, M1)
+            _detector_to_crystal(matrices[g1], finv[k if has_f else 0], has_f, s2dT, M1)
         if w2 > 0.0:
-            _detector_to_crystal(mats[g2], finv[k if has_f else 0], has_f, s2dT, M2)
+            _detector_to_crystal(matrices[g2], finv[k if has_f else 0], has_f, s2dT, M2)
         x0 = pc_lin[0] + pc_lin[1] * dx[k] + pc_lin[2] * dy[k]
         y0 = pc_lin[3] + pc_lin[4] * dx[k] + pc_lin[5] * dy[k]
         dd = pc_lin[6] + pc_lin[7] * dx[k] + pc_lin[8] * dy[k]
@@ -342,23 +342,23 @@ def render(
                 ja = min(a * LOBE_STEP, w - 1)
                 Xa = ox + (ja + 0.5) * bx - x0
                 ia = 1.0 / math.sqrt(Xa * Xa + Ya * Ya + dd * dd)
-                rfa = (Xa * fwd[0] + Ya * fwd[1] + dd * fwd[2]) * ia
+                rfa = (Xa * forward[0] + Ya * forward[1] + dd * forward[2]) * ia
                 lob[a] = math.exp(kappa * (rfa - 1.0))
         for j in range(w):
-            tot = 0.0
+            total = 0.0
             for sa in range(ss):
                 Y = oy + (i + (sa + 0.5) * inv_ss) * by - y0
                 for sb in range(ss):
                     X = ox + (j + (sb + 0.5) * inv_ss) * bx - x0
                     inv = 1.0 / math.sqrt(X * X + Y * Y + dd * dd)
                     rx, ry, rz = X * inv, Y * inv, dd * inv
-                    val = 0.0
+                    value = 0.0
                     if g1 >= 0:
-                        val = (1.0 - w2) * _value(bank, face0, full, offs, scales, p1, M1, rx, ry, rz)
+                        value = (1.0 - w2) * _value(bank, face0, full, offsets, scales, p1, M1, rx, ry, rz)
                         if w2 > 0.0:
-                            val += w2 * _value(bank, face0, full, offs, scales, p2, M2, rx, ry, rz)
+                            value += w2 * _value(bank, face0, full, offsets, scales, p2, M2, rx, ry, rz)
                     if raw:
-                        tot += val
+                        total += value
                         continue
                     rn = rx * normal[0] + ry * normal[1] + rz * normal[2]
                     if rn <= 0.0:
@@ -371,13 +371,13 @@ def render(
                         t = (j - j0) / (j1 - j0) if j1 > j0 else 0.0
                         ex = lob[a] + (lob[a + 1] - lob[a]) * t
                     else:
-                        rf = rx * fwd[0] + ry * fwd[1] + rz * fwd[2]
+                        rf = rx * forward[0] + ry * forward[1] + rz * forward[2]
                         ex = math.exp(kappa * (rf - 1.0))
                     bg = (1.0 - lobe) * rn / math.pi + lobe * vmf * ex
-                    v = e * shadow * bg * rz * rz * rz * inv_dd2 * (1.0 + c * val)
+                    v = e * shadow * bg * rz * rz * rz * inv_dd2 * (1.0 + c * value)
                     if v > 0.0:
-                        tot += v
-            v = tot * inv_ss * inv_ss
+                        total += v
+            v = total * inv_ss * inv_ss
             out[mi, i, j] = v
             if want_means:
                 lv = v * t_nb

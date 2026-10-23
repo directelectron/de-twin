@@ -41,14 +41,14 @@ def request(tw, frames=0, size=(256, 256)):
                       scan=ScanRequest(enabled=True, size=size, step_um=0.5, dwell_s=DWELL))
 
 
-def per_call(fn, n=200, reps=5) -> float:
+def per_call(function, n=200, reps=5) -> float:
     """Median seconds per call of fn(i)."""
-    fn(0)
+    function(0)
     out = []
     for _ in range(reps):
         t0 = time.perf_counter()
         for i in range(n):
-            fn(i)
+            function(i)
         out.append((time.perf_counter() - t0) / n)
     return float(np.median(out))
 
@@ -105,13 +105,13 @@ def fused(tw, n):
     from de_twin.workers import pool
 
     req = request(tw)
-    src = tw.ebsd_frame_source(req)
-    local, out = {}, np.empty(src.shape, np.uint16)
-    one = per_call(lambda i: src.render_one(local, out, (i * 37) % 65536, 1, i), n=100, reps=3)
+    source = tw.ebsd_frame_source(req)
+    local, out = {}, np.empty(source.shape, np.uint16)
+    one = per_call(lambda i: source.render_one(local, out, (i * 37) % 65536, 1, i), n=100, reps=3)
     per_job = tw.FRAMES_PER_JOB
     workers = pool()
     in_flight = workers.threads + workers.threads // 2  # as twin.frames keeps them
-    ring = [np.empty((per_job, *src.shape), np.uint16) for _ in range(in_flight + 1)]
+    ring = [np.empty((per_job, *source.shape), np.uint16) for _ in range(in_flight + 1)]
 
     def run(jobs):
         from collections import deque
@@ -121,7 +121,7 @@ def fused(tw, n):
             if len(pending) == in_flight:
                 pending.popleft().wait()
             ks = [(i * per_job * 37 + b) % 65536 for b in range(per_job)]
-            pending.append(src.submit(workers, ring[i % len(ring)], ks, 1, range(i * per_job, (i + 1) * per_job)))
+            pending.append(source.submit(workers, ring[i % len(ring)], ks, 1, range(i * per_job, (i + 1) * per_job)))
         for job in pending:
             job.wait()
 

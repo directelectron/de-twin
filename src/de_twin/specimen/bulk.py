@@ -239,11 +239,11 @@ class BulkSurface:
         if blend:
             sep = s2 - s1
             dist = np.linalg.norm(sep, axis=1)
-            nrm = sep / np.maximum(dist, 1e-12)[:, None]
+            norm = sep / np.maximum(dist, 1e-12)[:, None]
             out.update(
                 hash2=h2,
                 phase2=self._phase_of(h2),
-                normal=nrm,
+                normal=norm,
                 boundary_um=np.maximum((d2 - d1) / (2.0 * np.maximum(dist, 1e-12)), 0.0),
             )
         return out
@@ -273,8 +273,8 @@ class BulkSurface:
         if k <= 0:
             return None
         rng = rng_for(c.seed, SeedKind.STRUCTURE, _SCRATCH_SALT)
-        ang = np.radians(c.scratch_angle_deg + c.scratch_angle_spread_deg * rng.standard_normal(k))
-        normal = np.stack([-np.sin(ang), np.cos(ang)], 1)
+        angle = np.radians(c.scratch_angle_deg + c.scratch_angle_spread_deg * rng.standard_normal(k))
+        normal = np.stack([-np.sin(angle), np.cos(angle)], 1)
         offset = rng.uniform(-5000.0, 5000.0, k)
         width = c.scratch_width_um * np.exp(0.4 * rng.standard_normal(k))
         depth = c.scratch_depth * rng.uniform(0.4, 1.0, k)
@@ -286,18 +286,18 @@ class BulkSurface:
         y = np.asarray(y_um, np.float64).ravel()
         q = np.full(x.size, 1.0 - min(max(self.config.surface_damage, 0.0), 0.95))
         if self._scratches is not None:
-            nrm, off, wid, dep = self._scratches
+            norm, off, wid, dep = self._scratches
             loss = np.zeros(x.size)
             for k in range(len(off)):
-                d = x * nrm[k, 0] + y * nrm[k, 1] - off[k]
+                d = x * norm[k, 0] + y * norm[k, 1] - off[k]
                 loss = np.maximum(loss, dep[k] * np.exp(-0.5 * (d / wid[k]) ** 2))
             q *= 1.0 - loss
         return np.clip(q, 0.02, 1.0).astype(np.float32)
 
 
 # ---------------------------------------------------------------------- presets
-def _p(mid, frac=1.0, tex=RANDOM):
-    return BulkPhase(int(mid), float(frac), tex)
+def _p(material_id, frac=1.0, tex=RANDOM):
+    return BulkPhase(int(material_id), float(frac), tex)
 
 
 #: Cube texture {001}<100>, 10 deg spread (recrystallised aluminium / nickel sheet).
@@ -349,10 +349,10 @@ _INDENT_SI = {
 }
 
 
-def _indent(kind, **kw):
+def _indent(kind, **fields):
     from .indent import Indent
 
-    return Indent(kind=kind, **kw)
+    return Indent(kind=kind, **fields)
 
 
 _BULK["EBSD Si (001) Vickers indent"] = BulkSurfaceConfig(
@@ -371,9 +371,9 @@ BULK_PRESETS: dict[str, BulkSurfaceConfig] = _BULK
 def bulk_from_name(name: str, seed: int | None = None) -> BulkSurfaceConfig | None:
     """The bulk preset called ``name`` (case-insensitive), or None."""
     key = str(name).strip().lower()
-    for k, cfg in BULK_PRESETS.items():
-        if k.lower() == key:
-            out = cfg.copy()
+    for preset_name, preset in BULK_PRESETS.items():
+        if preset_name.lower() == key:
+            out = preset.copy()
             if seed is not None:
                 out.seed = int(seed)
             return out

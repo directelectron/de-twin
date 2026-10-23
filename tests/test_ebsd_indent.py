@@ -15,10 +15,10 @@ from de_twin.specimen.materials import MaterialId
 from de_twin.state import ScanRequest
 
 
-def _twin(name="EBSD Si (001) Vickers indent", **geom):
-    tw = DigitalTwin(name, camera="Celeritas")
-    tw.configure_ebsd(beam_kv=20.0, **geom)
-    return tw
+def _twin(name="EBSD Si (001) Vickers indent", **geometry):
+    twin = DigitalTwin(name, camera="Celeritas")
+    twin.configure_ebsd(beam_kv=20.0, **geometry)
+    return twin
 
 
 def test_indent_field_physics():
@@ -55,17 +55,17 @@ def test_indent_field_physics():
 def test_indent_ground_truth_and_patterns():
     from de_twin.crystal import crystal_to_lab
 
-    tw = _twin()
-    req = tw.request(
+    twin = _twin()
+    request = twin.request(
         hw_binning=(8, 8),
         frame_time_s=1e-3,
         total_frames=1,
         scan=ScanRequest(enabled=True, size=(21, 21), step_um=3.0, dwell_s=1e-3),
     )
-    gt = tw.ground_truth(req, as_arrays=True)
+    truth = twin.ground_truth(request, as_arrays=True)
     for k in ("deformation_gradient", "strain", "rotation", "gnd"):
-        assert k in gt
-    F, e, w = gt["deformation_gradient"], gt["strain"], gt["rotation"]
+        assert k in truth
+    F, e, w = truth["deformation_gradient"], truth["strain"], truth["rotation"]
     assert F.shape == (21, 21, 3, 3) and np.allclose(e, np.transpose(e, (0, 1, 3, 2)), atol=1e-9)
     from scipy.spatial.transform import Rotation as _R
 
@@ -73,29 +73,29 @@ def test_indent_ground_truth_and_patterns():
     assert np.allclose(
         np.einsum("nij,njk->nik", R, np.eye(3) + e.reshape(-1, 3, 3)), F.reshape(-1, 3, 3), atol=1e-9
     )
-    r = np.hypot(gt["x_um"], gt["y_um"])
+    r = np.hypot(truth["x_um"], truth["y_um"])
     assert np.degrees(np.linalg.norm(w, axis=-1))[(r > 9) & (r < 12)].max() > 1.0
     assert np.abs(e[r > 25]).max() < 1e-3
-    assert gt["band_contrast"][r < 4].max() < 0.2 * gt["band_contrast"][r > 25].max()
+    assert truth["band_contrast"][r < 4].max() < 0.2 * truth["band_contrast"][r > 25].max()
     # the local lattice orientation is the rotation applied to the wafer's
-    s = tw.specimen.sample([0.0], [0.0])
-    G = tw.specimen.orientations(s["hash"], s["phase"])[0]
+    s = twin.specimen.sample([0.0], [0.0])
+    G = twin.specimen.orientations(s["hash"], s["phase"])[0]
     k = np.unravel_index(np.argmin(np.abs(r - 11)), r.shape)
     want = R.reshape(21, 21, 3, 3)[k] @ G
-    assert np.allclose(crystal_to_lab(gt["quaternion"][k])[0], want, atol=1e-6)
+    assert np.allclose(crystal_to_lab(truth["quaternion"][k])[0], want, atol=1e-6)
     # the pattern at a strained point is the wafer's pattern through that F
-    optics = tw.optics(req)
-    rr = tw.renderer.ebsd
-    idx = k[0] * 21 + k[1]
+    optics = twin.optics(request)
+    rr = twin.renderer.ebsd
+    index = k[0] * 21 + k[1]
     p = rr.pattern(
         optics,
         G,
-        gt["pattern_centre"][k],
+        truth["pattern_centre"][k],
         material_id=MaterialId.SILICON,
         F=F[k],
-        quality=float(gt["quality"][k]),
+        quality=float(truth["quality"][k]),
     )
-    assert np.allclose(p, tw.flux(req, idx), rtol=1e-4)
+    assert np.allclose(p, twin.flux(request, index), rtol=1e-4)
     berk = BulkSurface(BULK_PRESETS["EBSD Si (001) Berkovich indent"]).sample([0.0, 30.0], [0.0, 0.0])
     assert berk["quality"][0] < 0.05 and "F" in berk
 
@@ -108,32 +108,32 @@ def test_hrebsd_recovers_strain_and_rotation():
     ~0.01 deg (RMS) of the ground truth relative to the reference."""
     from reconstruction.hrebsd import measure, truth_relative
 
-    tw = _twin()
-    req = tw.request(
+    twin = _twin()
+    request = twin.request(
         hw_binning=(1, 1),
         frame_time_s=1e-3,
         total_frames=1,
         scan=ScanRequest(enabled=True, size=(41, 41), step_um=2.0, dwell_s=1e-3),
     )
-    gt = tw.ground_truth(req, as_arrays=True)
-    s2d = tw.ebsd.sample_to_detector()
-    H, W = tw.optics(req).extras["sensor_shape"]
-    r = np.hypot(gt["x_um"], gt["y_um"]).ravel()
-    F = gt["deformation_gradient"].reshape(-1, 3, 3)
-    pcs = gt["pattern_centre"].reshape(-1, 3)
-    q = gt["quality"].ravel()
+    truth = twin.ground_truth(request, as_arrays=True)
+    s2d = twin.ebsd.sample_to_detector()
+    H, W = twin.optics(request).extras["sensor_shape"]
+    r = np.hypot(truth["x_um"], truth["y_um"]).ravel()
+    F = truth["deformation_gradient"].reshape(-1, 3, 3)
+    pcs = truth["pattern_centre"].reshape(-1, 3)
+    q = truth["quality"].ravel()
     pts = np.random.default_rng(0).choice(np.flatnonzero((r > 12) & (r < 32) & (q > 0.9)), 6, replace=False)
     rng = np.random.default_rng(5)
 
     def pattern(k):
-        f = tw.flux(req, int(k))
+        f = twin.flux(request, int(k))
         return rng.poisson(f / f.mean() * 8000.0).astype(float)
 
-    ref = pattern(0)
+    reference = pattern(0)
     es, ws, mags = [], [], []
     for k in pts:
         m = measure(
-            ref,
+            reference,
             pattern(k),
             pcs[0],
             pcs[k],

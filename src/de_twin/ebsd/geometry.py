@@ -127,11 +127,11 @@ class EbsdGeometry:
     def from_dict(cls, values: dict | None = None) -> EbsdGeometry:
         return cls().replace(**(values or {}))
 
-    def replace(self, **kw) -> EbsdGeometry:
-        """A copy with ``kw`` changed (numbers clamped to their documented range)."""
+    def replace(self, **changes) -> EbsdGeometry:
+        """A copy with ``changes`` made (numbers clamped to their documented range)."""
         meta = {f.name: f for f in fields(self)}
         out = {}
-        for k, v in kw.items():
+        for k, v in changes.items():
             if k not in meta:
                 raise KeyError(f"unknown EBSD geometry field {k!r}")
             f = meta[k]

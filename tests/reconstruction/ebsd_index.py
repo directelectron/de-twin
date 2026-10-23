@@ -77,13 +77,13 @@ def refine(
 
     s = np.radians(step_deg)
     simplex = np.vstack([np.zeros(3), np.eye(3) * s])
-    res = optimize.minimize(
+    result = optimize.minimize(
         cost,
         np.zeros(3),
         method="Nelder-Mead",
         options={"initial_simplex": simplex, "xatol": 1e-4, "fatol": 1e-6, "maxiter": 400},
     )
-    return _R.from_rotvec(res.x).as_matrix() @ start, -float(res.fun)
+    return _R.from_rotvec(result.x).as_matrix() @ start, -float(result.fun)
 
 
 def index(

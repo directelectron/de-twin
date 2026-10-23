@@ -96,9 +96,9 @@ class IndentField:
         self.p = indent
         rng = rng_for(indent.seed, SeedKind.STRUCTURE, 0x1D3)
         nm = 12
-        ang = rng.uniform(0, 2 * math.pi, (3, nm))
+        angle = rng.uniform(0, 2 * math.pi, (3, nm))
         kmag = 2 * math.pi / rng.uniform(0.6, 2.0, (3, nm))  # wavelengths 0.6-2 µm
-        self._k = np.stack([kmag * np.cos(ang), kmag * np.sin(ang)], -1)  # (3, nm, 2)
+        self._k = np.stack([kmag * np.cos(angle), kmag * np.sin(angle)], -1)  # (3, nm, 2)
         self._phi = rng.uniform(0, 2 * math.pi, (3, nm))
         self._amp = rng.normal(size=(3, nm)) / math.sqrt(nm)
         n = indent.corners
@@ -120,8 +120,8 @@ class IndentField:
         # support distance a cos(pi / n) exceeds the projection on its outward normal
         inside = np.ones(np.shape(dx), bool)
         for k in range(n):
-            nrm = t0 + (k + 0.5) * 2 * math.pi / n
-            inside &= dx * math.cos(nrm) + dy * math.sin(nrm) <= p.size_um * math.cos(math.pi / n)
+            norm = t0 + (k + 0.5) * 2 * math.pi / n
+            inside &= dx * math.cos(norm) + dy * math.sin(norm) <= p.size_um * math.cos(math.pi / n)
         return inside
 
     def rotation(self, x, y) -> np.ndarray:
@@ -158,9 +158,9 @@ class IndentField:
         if np.any(inside):
             fa = math.radians(p.face_angle_deg)
             k = np.floor(((th.ravel() - t0) % (2 * math.pi)) / (2 * math.pi / n))
-            nrm = t0 + (k + 0.5) * 2 * math.pi / n  # the face's outward direction
-            w[inside, 0] = -fa * np.sin(nrm[inside])
-            w[inside, 1] = fa * np.cos(nrm[inside])
+            norm = t0 + (k + 0.5) * 2 * math.pi / n  # the face's outward direction
+            w[inside, 0] = -fa * np.sin(norm[inside])
+            w[inside, 1] = fa * np.cos(norm[inside])
             w[inside, 2] = 0.0
         return w
 

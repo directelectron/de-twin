@@ -75,7 +75,7 @@ class EbsdPlan:
     bank: np.ndarray  # (B, Nf, Nf) uint8 cube-map faces of every phase
     face0: np.ndarray  # (P,) int32 bank index of each phase's first face
     full: np.ndarray  # (P,) bool: six faces (non-centrosymmetric), else three
-    offs: np.ndarray  # (P,) code -> standardised value
+    offsets: np.ndarray  # (P,) code -> standardised value
     scales: np.ndarray
     ph1: np.ndarray  # (n,) int32 phase of the grain (-1 none)
     ph2: np.ndarray
@@ -92,7 +92,7 @@ class EbsdPlan:
     pc_lin: np.ndarray  # (9,) pattern centre (sensor px) linear in the beam offset
     s2dT: np.ndarray
     normal: np.ndarray
-    fwd: np.ndarray
+    forward: np.ndarray
     lobe: float
     kappa: float
     masters: list = field(default_factory=list)
@@ -208,12 +208,12 @@ class EbsdRenderer:
             if g.boundary_blend:
                 m1 = s["material"]
                 for mid in np.unique(m1):
-                    sel = m1 == mid
+                    selected = m1 == mid
                     mm = material(int(mid))
                     rx, ry = footprint_um(
                         mm.z_eff, mm.density_g_cm3, optics.ht_kv, g.sample_tilt_deg, g.interaction_scale
                     )
-                    mix[sel] = boundary_mix(s["boundary_um"][sel], s["normal"][sel], rx, ry)
+                    mix[selected] = boundary_mix(s["boundary_um"][selected], s["normal"][selected], rx, ry)
             mix[o1 == o2] = 0.0
             F = s.get("F")
             gnd = s.get("gnd")
@@ -290,7 +290,7 @@ class EbsdRenderer:
         o1, o2 = tab.orient.ravel(), tab.orient2.ravel()
         m1, m2 = tab.material.ravel(), tab.material2.ravel()
         crystal = np.unique(np.concatenate([m1[o1 >= 0], m2[o2 >= 0]]))
-        bank, face0, full, offs, scales, masters = self._bank(crystal, optics.ht_kv, g)
+        bank, face0, full, offsets, scales, masters = self._bank(crystal, optics.ht_kv, g)
         lut = np.full(256, -1, np.int32)
         lut[crystal] = np.arange(len(crystal), dtype=np.int32)
         ph1 = np.where(o1 >= 0, lut[m1], -1).astype(np.int32)
@@ -307,7 +307,7 @@ class EbsdRenderer:
             bank,
             face0,
             full,
-            offs,
+            offsets,
             scales,
             ph1,
             ph2,
@@ -371,7 +371,7 @@ class EbsdRenderer:
             plan.bank,
             plan.face0,
             plan.full,
-            plan.offs,
+            plan.offsets,
             plan.scales,
             plan.matrices,
             plan.o1,
@@ -395,7 +395,7 @@ class EbsdRenderer:
             int(max(1, g.supersample)),
             bool(raw),
             plan.normal,
-            plan.fwd,
+            plan.forward,
             float(plan.lobe),
             float(plan.kappa),
             float(t_nb),
@@ -440,7 +440,7 @@ class EbsdRenderer:
         two = bool(matrix2 is not None and material2 and mix > 0 and ids)
         if two and int(material2) not in ids:
             ids.append(int(material2))
-        bank, face0, full, offs, scales, masters = self._bank(ids, optics.ht_kv, g)
+        bank, face0, full, offsets, scales, masters = self._bank(ids, optics.ht_kv, g)
         mats = (
             np.stack([np.asarray(matrix, np.float64)] + ([np.asarray(matrix2, np.float64)] if two else []))
             if ids
@@ -455,7 +455,7 @@ class EbsdRenderer:
             bank,
             face0,
             full,
-            offs,
+            offsets,
             scales,
             np.array([0 if ids else -1], np.int32),
             np.array([ids.index(int(material2)) if two else -1], np.int32),

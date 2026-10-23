@@ -609,10 +609,10 @@ class _SteeredFeed:
         self._remake()
 
     def _remake(self) -> None:
-        lib = self.library
-        request = dataclasses.replace(lib._request, total_frames=0, scan=lib.scan)
-        self.optics = self.twin.optics(request, lib._state)
-        self.source = self.twin.ebsd_frame_source(request, state=lib._state, optics=self.optics)
+        library = self.library
+        request = dataclasses.replace(library._request, total_frames=0, scan=library.scan)
+        self.optics = self.twin.optics(request, library._state)
+        self.source = self.twin.ebsd_frame_source(request, state=library._state, optics=self.optics)
 
     def changed(self) -> bool:
         if self.library.check():
@@ -622,8 +622,8 @@ class _SteeredFeed:
 
     def settled(self) -> int:
         """Frames whose beam position DE-Server has written (the rest hold the last one)."""
-        lib = self.library
-        return int((lib.coils.written - 1) / lib.geometry.points_per_frame) + 1
+        library = self.library
+        return int((library.coils.written - 1) / library.geometry.points_per_frame) + 1
 
     def points(self, first: int, count: int) -> list:
         return self.library.points(first, count)

@@ -93,7 +93,7 @@ def _remap(R, beta, pcr, pct, binning, origin):
 
 
 def measure(
-    ref,
+    reference,
     test,
     pc_ref,
     pc_test,
@@ -112,13 +112,13 @@ def measure(
     warped into the test's geometry with the current estimate (pattern-centre move + beta) and
     the remaining ROI shifts update beta, ``iterations`` times."""
     H, W = sensor_shape
-    R, T = flatten(ref, sigma), flatten(test, sigma)
+    R, T = flatten(reference, sigma), flatten(test, sigma)
     bp = _bandpass(size)
     pcr = np.array([pc_ref[0] * W, pc_ref[1] * H, pc_ref[2] * H])
     pct = np.array([pc_test[0] * W, pc_test[1] * H, pc_test[2] * H])
     beta = np.zeros((3, 3))
     centres = roi_centres(R.shape, n_side, size)
-    res = 0.0
+    result = 0.0
     for _ in range(max(1, iterations)):
         Rm = _remap(R, beta, pcr, pct, binning, roi_origin)
         rows, rhs = [], []
@@ -139,14 +139,14 @@ def measure(
         A, b = np.array(rows), np.array(rhs)
         sol, *_ = np.linalg.lstsq(A, b, rcond=None)
         d = np.insert(sol, 8, 0.0).reshape(3, 3)
-        res = float(np.sqrt(np.mean((A @ sol - b) ** 2)))
+        result = float(np.sqrt(np.mean((A @ sol - b) ** 2)))
         beta = (np.eye(3) + d) @ (np.eye(3) + beta) - np.eye(3)
     bs = s2d.T @ beta @ s2d
     sym = 0.5 * (bs + bs.T)
     dev = sym - np.trace(sym) / 3.0 * np.eye(3)
     anti = 0.5 * (bs - bs.T)
     rot = np.array([anti[2, 1], anti[0, 2], anti[1, 0]])
-    return HrebsdResult(bs, dev, rot, res)
+    return HrebsdResult(bs, dev, rot, result)
 
 
 def truth_relative(F_test, F_ref):

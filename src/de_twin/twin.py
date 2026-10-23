@@ -492,7 +492,7 @@ class DigitalTwin:
 
         workers = pool()
         frame_time = max(float(request.frame_time_s), 1e-6)
-        h, w = source.shape
+        height, width = source.shape
         total = request.total_frames
         per_job = self.FRAMES_PER_JOB
         jobs_ahead = workers.threads + workers.threads // 2
@@ -504,48 +504,51 @@ class DigitalTwin:
         ring = [None] * (jobs_ahead + 2)
         pending: deque = deque()  # (first frame, frames, slot, batch)
         t_start = self.clock.now()
-        i = nxt = 0
-        n_jobs = 0
+        index = next_frame = 0
+        jobs_submitted = 0
         try:
-            while total <= 0 or i < total:
+            while total <= 0 or index < total:
                 if stop is not None and stop.is_set():
                     return
-                while len(pending) < jobs_ahead and (total <= 0 or nxt < total):
-                    count = per_job if total <= 0 else min(per_job, total - nxt)
-                    slot = n_jobs % len(ring)
-                    buf = ring[slot]
-                    if buf is None or sys.getrefcount(buf) > 3:  # held elsewhere than ring, buf and the call
-                        buf = ring[slot] = np.empty((per_job, h, w), np.uint16)
-                    ks, serials, seed = [], [], 0
-                    for j in range(nxt, nxt + count):
-                        ks.append(self.renderer.ebsd_flat_point(optics, self.scan_point(request, j), j))
-                        serial, seed = self.noise_serial(request, j)
+                while len(pending) < jobs_ahead and (total <= 0 or next_frame < total):
+                    count = per_job if total <= 0 else min(per_job, total - next_frame)
+                    slot = jobs_submitted % len(ring)
+                    buffer = ring[slot]
+                    # held elsewhere than the ring, `buffer` and the call
+                    if buffer is None or sys.getrefcount(buffer) > 3:
+                        buffer = ring[slot] = np.empty((per_job, height, width), np.uint16)
+                    flat_points, serials, seed = [], [], 0
+                    for frame in range(next_frame, next_frame + count):
+                        point = self.scan_point(request, frame)
+                        flat_points.append(self.renderer.ebsd_flat_point(optics, point, frame))
+                        serial, seed = self.noise_serial(request, frame)
                         serials.append(serial)
-                    pending.append((nxt, count, slot, source.submit(workers, buf, ks, seed, serials)))
-                    nxt += count
-                    n_jobs += 1
+                    batch = source.submit(workers, buffer, flat_points, seed, serials)
+                    pending.append((next_frame, count, slot, batch))
+                    next_frame += count
+                    jobs_submitted += 1
                 _first, count, slot, batch = pending.popleft()
                 (electrons, _), = batch.wait()
                 chunk = ring[slot]
-                for b in range(count):
+                for in_batch in range(count):
                     if stop is not None and stop.is_set():
                         return
                     t = self.clock.now()
                     meta = FrameMeta(
-                        frame_index=i,
+                        frame_index=index,
                         time_s=t,
                         exposure_s=frame_time,
-                        electrons_per_pixel=float(electrons[b]) / source.sensor_pixels,
+                        electrons_per_pixel=float(electrons[in_batch]) / source.sensor_pixels,
                         render_mode=optics.render_mode,
                         blanked=False,
-                        scan_point=self.scan_point(request, i),
+                        scan_point=self.scan_point(request, index),
                         microscope=state,
                         holder=self.holder_state(t),
                     )
                     if pace:
-                        self.clock.sleep_until(t_start + (i + 1) * frame_time)
-                    yield chunk[b], meta
-                    i += 1
+                        self.clock.sleep_until(t_start + (index + 1) * frame_time)
+                    yield chunk[in_batch], meta
+                    index += 1
                 del chunk
         finally:
             # let the jobs finish with their buffers; not at interpreter exit, when the worker
@@ -553,7 +556,7 @@ class DigitalTwin:
             if not sys.is_finalizing():
                 for _, _, _, batch in pending:
                     batch.wait_done(10.0)
-            self.renderer.ebsd.patterns_rendered += nxt
+            self.renderer.ebsd.patterns_rendered += next_frame
 
     def reset_serial(self) -> None:
         """Restart the running frame count that seeds the detector noise, so the next
@@ -636,12 +639,13 @@ class DigitalTwin:
         """
         from .ebsd import EbsdGeometry
 
-        g = geometry if geometry is not None else (self.ebsd or EbsdGeometry())
+        if geometry is None:
+            geometry = self.ebsd or EbsdGeometry()
         if fields:
-            g = g.replace(**fields)
+            geometry = geometry.replace(**fields)
         with self.lock:
-            self.optics_config.ebsd = g
-            if (beam_kv is None and g.enabled and getattr(self, "_own_column", False)
+            self.optics_config.ebsd = geometry
+            if (beam_kv is None and geometry.enabled and getattr(self, "_own_column", False)
                     and not 5.0 <= float(self.column.state().ht_kv) <= 30.0):
                 beam_kv = 20.0
             if beam_kv is not None:
@@ -651,7 +655,7 @@ class DigitalTwin:
                 # Choosing the SEM's energy builds the instrument; the column's operator guard
                 # on HT (allow_ht) is for remote control, so go round it here.
                 self.column._set_local("HighTension", float(beam_kv) * 1000.0)
-        return g
+        return geometry
 
     def set_master_pattern(self, phase, source, *, energy_kv: float | None = None, kv: float | None = None,
                            projection: str | None = None, hemisphere: str | None = None, energies=None,
@@ -672,18 +676,28 @@ class DigitalTwin:
         from .ebsd import EbsdGeometry
         from .ebsd.io import load_master_pattern
 
-        mid = _material_id(phase)
-        g = self.ebsd or EbsdGeometry()
-        if kv is None and energy_kv is None and energies is None and not isinstance(source, (str, bytes)) \
-                and not hasattr(source, "__fspath__"):
+        material_id = _material_id(phase)
+        geometry = self.ebsd or EbsdGeometry()
+        is_path = isinstance(source, (str, bytes)) or hasattr(source, "__fspath__")
+        if kv is None and energy_kv is None and energies is None and not is_path:
             kv = float(self.column.state().ht_kv)
-        mp = load_master_pattern(source, mid, resolution_deg=g.master_resolution_deg, energy_kv=energy_kv, kv=kv,
-                                 projection=projection, hemisphere=hemisphere, energies=energies,
-                                 weights=weights, centrosymmetric=centrosymmetric, validate=validate)
+        master = load_master_pattern(
+            source,
+            material_id,
+            resolution_deg=geometry.master_resolution_deg,
+            energy_kv=energy_kv,
+            kv=kv,
+            projection=projection,
+            hemisphere=hemisphere,
+            energies=energies,
+            weights=weights,
+            centrosymmetric=centrosymmetric,
+            validate=validate,
+        )
         with self.lock:
-            lst = [m for m in self._user_masters.get(mid, []) if abs(m.kv - mp.kv) > 1e-6]
-            self._user_masters[mid] = lst + [mp]
-        return mp
+            others = [m for m in self._user_masters.get(material_id, []) if abs(m.kv - master.kv) > 1e-6]
+            self._user_masters[material_id] = [*others, master]
+        return master
 
     def clear_master_patterns(self, phase=None) -> None:
         """Back to kinematic master patterns (for ``phase``, or all)."""
@@ -698,10 +712,19 @@ class DigitalTwin:
         symmetry error."""
         from .specimen.materials import material
 
-        return [{"phase": material(mid).name, "material_id": mid, "kv": m.kv, "source": m.source,
-                 "nbytes": m.nbytes, "hemispheres": 1 if m.south is None else 2,
-                 "symmetry_error": getattr(m, "symmetry_error", float("nan"))}
-                for mid, lst in sorted(self._user_masters.items()) for m in lst]
+        return [
+            {
+                "phase": material(material_id).name,
+                "material_id": material_id,
+                "kv": master.kv,
+                "source": master.source,
+                "nbytes": master.nbytes,
+                "hemispheres": 1 if master.south is None else 2,
+                "symmetry_error": getattr(master, "symmetry_error", float("nan")),
+            }
+            for material_id, masters in sorted(self._user_masters.items())
+            for master in masters
+        ]
 
     def ebsd_patterns(self, request: AcquisitionRequest, *, out=None, dtype=np.float32) -> np.ndarray:
         """Noiseless EBSD patterns of the request's scan: (scan ny, nx, h, w) at the detector's

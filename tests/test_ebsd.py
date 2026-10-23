@@ -19,35 +19,35 @@ from de_twin.state import RenderMode, Roi, ScanRequest
 KV = 20.0
 
 
-def _twin(specimen="EBSD Si (001) wafer", camera="Celeritas", **geom):
-    tw = DigitalTwin(specimen, camera=camera)
-    tw.configure_ebsd(beam_kv=KV, **geom)
-    return tw
+def _twin(specimen="EBSD Si (001) wafer", camera="Celeritas", **geometry):
+    twin = DigitalTwin(specimen, camera=camera)
+    twin.configure_ebsd(beam_kv=KV, **geometry)
+    return twin
 
 
-def _scan(tw, nx=1, ny=1, step=1.0, binning=4, dwell=1e-3, **kw):
-    return tw.request(
+def _scan(twin, nx=1, ny=1, step=1.0, binning=4, dwell=1e-3, **request_fields):
+    return twin.request(
         hw_binning=(binning, binning),
         frame_time_s=dwell,
         total_frames=nx * ny,
         scan=ScanRequest(enabled=True, size=(nx, ny), step_um=step, dwell_s=dwell),
-        **kw,
+        **request_fields,
     )
 
 
-def _raw(tw, req, ix=0, iy=0, matrix=None, material=None, master=None):
+def _raw(twin, request, ix=0, iy=0, matrix=None, material=None, master=None):
     """The noise-free projected master values (no background) at a scan point."""
-    optics = tw.optics(req)
-    r = tw.renderer.ebsd
-    tab = r.tables(tw.specimen, optics)
-    o = int(tab.orient[iy, ix])
-    m = tab.matrices[o] if matrix is None else matrix
-    mid = int(tab.material[iy, ix]) if material is None else material
-    pc = r.pattern_centre(optics, tab, ix, iy)
-    return r.pattern(optics, m, pc, material_id=mid, raw=True), pc, optics
+    optics = twin.optics(request)
+    r = twin.renderer.ebsd
+    tables = r.tables(twin.specimen, optics)
+    o = int(tables.orient[iy, ix])
+    m = tables.matrices[o] if matrix is None else matrix
+    material_id = int(tables.material[iy, ix]) if material is None else material
+    pc = r.pattern_centre(optics, tables, ix, iy)
+    return r.pattern(optics, m, pc, material_id=material_id, raw=True), pc, optics
 
 
-def _zone_centre(img, c, r, half=16):
+def _zone_centre(image, c, r, half=16):
     """Where a zone axis is in ``img`` near (col c, row r): the unweighted centroid of the
     bright region (above the midpoint of window median and maximum) that contains the window's
     brightest pixel. Crossing top-hat bands make a flat-topped region with brighter excess
@@ -56,7 +56,7 @@ def _zone_centre(img, c, r, half=16):
     from scipy import ndimage
 
     r0, c0 = round(r) - half, round(c) - half
-    win = img[r0 : r0 + 2 * half + 1, c0 : c0 + 2 * half + 1].astype(np.float64)
+    win = image[r0 : r0 + 2 * half + 1, c0 : c0 + 2 * half + 1].astype(np.float64)
     lab, _ = ndimage.label(win > 0.5 * (np.median(win) + win.max()))
     k = lab[np.unravel_index(np.argmax(win), win.shape)]
     rr, cc = np.nonzero(lab == k)
@@ -65,15 +65,15 @@ def _zone_centre(img, c, r, half=16):
 
 # ---------------------------------------------------------------------- mode and optics
 def test_ebsd_mode_and_optics():
-    tw = _twin()
-    req = _scan(tw, 8, 6, step=0.25, binning=4)
-    o = tw.optics(req)
+    twin = _twin()
+    request = _scan(twin, 8, 6, step=0.25, binning=4)
+    o = twin.optics(request)
     assert o.render_mode == RenderMode.EBSD
     assert o.view.shape == (6, 8) and o.view.pixel_um == pytest.approx(0.25)
     assert o.ht_kv == pytest.approx(KV)
-    assert tw.flux(req, 0).shape == (256, 256)  # rendered on the binned grid
-    tw.configure_ebsd(enabled=False)
-    assert tw.optics(req).render_mode == RenderMode.STEM_4D
+    assert twin.flux(request, 0).shape == (256, 256)  # rendered on the binned grid
+    twin.configure_ebsd(enabled=False)
+    assert twin.optics(request).render_mode == RenderMode.STEM_4D
     g = EbsdGeometry.from_dict(EbsdGeometry(pcz=0.7, sample_tilt_deg=95).to_dict())
     assert g.pcz == 0.7 and g.sample_tilt_deg == 89.0  # clamped to range
     with pytest.raises(KeyError):
@@ -96,12 +96,12 @@ def test_known_zone_axes_at_predicted_positions():
     screen normal, so it is DD tan(20 deg) above the pattern centre; [0-1-1] bisects it and the
     down-slope direction (70 deg below), 25 deg below the screen normal. The rendered pattern
     has its zone axes (band crossings) there."""
-    tw = _twin()
-    req = _scan(tw, binning=2)
-    raw, pc, optics = _raw(tw, req, matrix=np.eye(3), material=MaterialId.SILICON)
+    twin = _twin()
+    request = _scan(twin, binning=2)
+    raw, pc, optics = _raw(twin, request, matrix=np.eye(3), material=MaterialId.SILICON)
     H, W = optics.extras["sensor_shape"]
     x0, y0, dd = pc_pixels(pc, (H, W))
-    g = tw.ebsd
+    g = twin.ebsd
     cases = {
         (0, 0, -1): (x0, y0 - dd * math.tan(math.radians(20.0))),
         (0, -1, -1): (x0, y0 + dd * math.tan(math.radians(25.0))),
@@ -131,16 +131,16 @@ def test_band_width_and_position():
     """A single (200) band of Ni, identity orientation: the plane normal [100] is x_d, so the band
     is the vertical strip |x - x_pc| < DD tan(theta_B) along the pattern-centre row. A (111)
     band of a rotated grain covers exactly |r . n| < sin(theta_B)."""
-    tw = _twin(
+    twin = _twin(
         "EBSD Ni polycrystal", master_resolution_deg=0.05, energy_spread_frac=0.02, angular_blur_deg=0.02
     )
-    g = tw.ebsd
-    req = _scan(tw, binning=1, hw_roi=Roi(312, 280, 400, 64))
-    optics = tw.optics(req)
-    r = tw.renderer.ebsd
+    g = twin.ebsd
+    request = _scan(twin, binning=1, hw_roi=Roi(312, 280, 400, 64))
+    optics = twin.optics(request)
+    r = twin.renderer.ebsd
     lam = optics.wavelength_nm
     for hkl in [(2, 0, 0)]:
-        mp = build_master(
+        master = build_master(
             MaterialId.NICKEL,
             KV,
             energy_spread_frac=0.02,
@@ -148,13 +148,13 @@ def test_band_width_and_position():
             resolution_deg=0.05,
             hkl_subset=[hkl],
         )
-        MASTERS._d[(int(MaterialId.NICKEL), round(KV, 2), 0.02, 0.02, 0.05)] = mp
+        MASTERS._d[(int(MaterialId.NICKEL), round(KV, 2), 0.02, 0.02, 0.05)] = master
         pc = g.pattern_centre()
-        img = r.pattern(optics, np.eye(3), pc, material_id=MaterialId.NICKEL, raw=True)
+        image = r.pattern(optics, np.eye(3), pc, material_id=MaterialId.NICKEL, raw=True)
         H, W = optics.extras["sensor_shape"]
         x0, y0, dd = pc_pixels(pc, (H, W))
-        row = img[int(y0) - 280]
-        x = 312 + np.arange(img.shape[1]) + 0.5
+        row = image[int(y0) - 280]
+        x = 312 + np.arange(image.shape[1]) + 0.5
         g_len = np.linalg.norm(hkl) / 0.3524
         theta = math.asin(lam * g_len / 2.0)
         half = dd * math.tan(theta)
@@ -170,7 +170,7 @@ def test_band_width_and_position():
         assert 0.5 * (above.max() + above.min()) == pytest.approx(x0, abs=1.0)
     MASTERS.clear()
     # (111) of a general orientation
-    mp = build_master(
+    master = build_master(
         MaterialId.NICKEL,
         KV,
         energy_spread_frac=0.02,
@@ -178,9 +178,9 @@ def test_band_width_and_position():
         resolution_deg=0.05,
         hkl_subset=[(1, 1, 1)],
     )
-    MASTERS._d[(int(MaterialId.NICKEL), round(KV, 2), 0.02, 0.02, 0.05)] = mp
-    req = _scan(tw, binning=2)
-    optics = tw.optics(req)
+    MASTERS._d[(int(MaterialId.NICKEL), round(KV, 2), 0.02, 0.02, 0.05)] = master
+    request = _scan(twin, binning=2)
+    optics = twin.optics(request)
     from scipy.spatial.transform import Rotation
 
     from de_twin.crystal.orientation import align
@@ -189,26 +189,26 @@ def test_band_width_and_position():
     v = g.sample_to_detector().T @ np.array([math.cos(0.5), math.sin(0.5), 0.0])
     G = Rotation.from_rotvec(0.7 * v).as_matrix() @ align(np.ones(3), v)
     pc = g.pattern_centre()
-    img = r.pattern(optics, G, pc, material_id=MaterialId.NICKEL, raw=True)
+    image = r.pattern(optics, G, pc, material_id=MaterialId.NICKEL, raw=True)
     H, W = optics.extras["sensor_shape"]
     x0, y0, dd = pc_pixels(pc, (H, W))
-    ys, xs = np.mgrid[0 : img.shape[0], 0 : img.shape[1]]
+    ys, xs = np.mgrid[0 : image.shape[0], 0 : image.shape[1]]
     X, Y = (xs + 0.5) * 2 - x0, (ys + 0.5) * 2 - y0
     rd = np.stack([X, Y, np.full_like(X, dd)], -1)
     rd /= np.linalg.norm(rd, axis=-1, keepdims=True)
     n = g.sample_to_detector() @ G @ (np.ones(3) / math.sqrt(3))
     t = np.abs(rd @ n) / (lam * math.sqrt(3) / 0.3524 / 2)
     assert (t < 0.6).sum() > 100
-    assert img[t < 0.6].mean() - img[t > 1.6].mean() > 0.5 * (img.max() - img.min())
+    assert image[t < 0.6].mean() - image[t > 1.6].mean() > 0.5 * (image.max() - image.min())
     edge = (t > 0.85) & (t < 1.15)
-    mid = 0.5 * (img[t < 0.6].mean() + img[t > 1.6].mean())
-    assert abs(img[edge].mean() - mid) < 0.25 * (img.max() - img.min())  # the edge is at t = 1
+    material_id = 0.5 * (image[t < 0.6].mean() + image[t > 1.6].mean())
+    assert abs(image[edge].mean() - material_id) < 0.25 * (image.max() - image.min())  # the edge is at t = 1
     MASTERS.clear()
 
 
 def test_pattern_centre_follows_the_beam():
-    tw = _twin(detector_tilt_deg=5.0)
-    g = tw.ebsd
+    twin = _twin(detector_tilt_deg=5.0)
+    g = twin.ebsd
     H, W, p = 1024, 1024, 15.0
     d = math.radians(70 - 5)
     pc0 = g.pattern_centre(0, 0, (H, W), p)
@@ -224,90 +224,90 @@ def test_pattern_centre_follows_the_beam():
     pc = g2.pattern_centre(0, 0, (H, W), p)
     assert pc[1] > g.pcy and pc[2] < g.pcz
     # through the renderer: the scan's pattern centres, and the zone axis moving with them
-    tw.configure_ebsd(detector_tilt_deg=0.0)
-    req = _scan(tw, 3, 3, step=120.0, binning=2)
-    gt = tw.ground_truth(req, as_arrays=True)
-    pcs = gt["pattern_centre"]
+    twin.configure_ebsd(detector_tilt_deg=0.0)
+    request = _scan(twin, 3, 3, step=120.0, binning=2)
+    truth = twin.ground_truth(request, as_arrays=True)
+    pcs = truth["pattern_centre"]
     assert pcs[1, 2, 0] - pcs[1, 1, 0] == pytest.approx(120 / (W * p))
     assert pcs[2, 1, 1] < pcs[1, 1, 1] and pcs[2, 1, 2] > pcs[1, 1, 2]
     # the Si [00-1] zone axis sits where the moved pattern centre puts it
     for ix, iy in [(1, 1), (2, 1), (1, 2), (0, 0)]:
-        raw, pc, _optics = _raw(tw, req, ix, iy)
-        G = tw.specimen.orientations([gt_hash(tw, req, ix, iy)], [0])[0]
-        xy = detector_position(tw.ebsd, G, (0, 0, -1), pc, (H, W))
+        raw, pc, _optics = _raw(twin, request, ix, iy)
+        G = twin.specimen.orientations([gt_hash(twin, request, ix, iy)], [0])[0]
+        xy = detector_position(twin.ebsd, G, (0, 0, -1), pc, (H, W))
         c, r = xy[0] / 2 - 0.5, xy[1] / 2 - 0.5
         fc, fr = _zone_centre(raw, c, r)
         assert abs(fc - c) <= 1.0 and abs(fr - r) <= 1.0, (ix, iy, fc, fr, c, r)
 
 
-def gt_hash(tw, req, ix, iy):
-    x, y = tw.optics(req).view.pixel_to_world(np.array([iy]), np.array([ix]))
-    return tw.specimen.sample(x, y)["hash"][0]
+def gt_hash(twin, request, ix, iy):
+    x, y = twin.optics(request).view.pixel_to_world(np.array([iy]), np.array([ix]))
+    return twin.specimen.sample(x, y)["hash"][0]
 
 
 # ---------------------------------------------------------------------- ground truth
 def test_ground_truth_round_trips():
     from de_twin.crystal import crystal_to_lab
 
-    tw = _twin("EBSD duplex steel", band_contrast=0.2)
-    req = _scan(tw, 12, 10, step=1.5, binning=8)
-    gt = tw.ground_truth(req, as_arrays=True)
-    assert set(np.unique(gt["material_id"])) == {MaterialId.IRON, MaterialId.AUSTENITE}
-    assert gt["quaternion"].shape == (10, 12, 4)
-    assert np.allclose(np.linalg.norm(gt["quaternion"], axis=-1), 1.0)
-    assert (gt["quaternion"][..., 0] >= 0).all()
-    s = tw.specimen.sample(gt["x_um"].ravel(), gt["y_um"].ravel())
-    mats = tw.specimen.orientations(s["hash"], s["phase"])
-    assert np.allclose(crystal_to_lab(gt["quaternion"].reshape(-1, 4)), mats, atol=1e-9)
-    assert (gt["grain_id"].ravel() == s["grain_id"]).all()
+    twin = _twin("EBSD duplex steel", band_contrast=0.2)
+    request = _scan(twin, 12, 10, step=1.5, binning=8)
+    truth = twin.ground_truth(request, as_arrays=True)
+    assert set(np.unique(truth["material_id"])) == {MaterialId.IRON, MaterialId.AUSTENITE}
+    assert truth["quaternion"].shape == (10, 12, 4)
+    assert np.allclose(np.linalg.norm(truth["quaternion"], axis=-1), 1.0)
+    assert (truth["quaternion"][..., 0] >= 0).all()
+    s = twin.specimen.sample(truth["x_um"].ravel(), truth["y_um"].ravel())
+    matrices = twin.specimen.orientations(s["hash"], s["phase"])
+    assert np.allclose(crystal_to_lab(truth["quaternion"].reshape(-1, 4)), matrices, atol=1e-9)
+    assert (truth["grain_id"].ravel() == s["grain_id"]).all()
     # re-simulating from the ground truth gives the frames' patterns
-    optics = tw.optics(req)
-    r = tw.renderer.ebsd
+    optics = twin.optics(request)
+    r = twin.renderer.ebsd
     for iy, ix in [(0, 0), (4, 7), (9, 11)]:
-        if gt["mix"][iy, ix] > 0:
+        if truth["mix"][iy, ix] > 0:
             continue
-        G = crystal_to_lab(gt["quaternion"][iy, ix])[0]
+        G = crystal_to_lab(truth["quaternion"][iy, ix])[0]
         p = r.pattern(
             optics,
             G,
-            gt["pattern_centre"][iy, ix],
-            material_id=int(gt["material_id"][iy, ix]),
-            quality=float(gt["quality"][iy, ix]),
+            truth["pattern_centre"][iy, ix],
+            material_id=int(truth["material_id"][iy, ix]),
+            quality=float(truth["quality"][iy, ix]),
         )
-        assert np.allclose(p, tw.flux(req, iy * 12 + ix), rtol=1e-5)
-    cm = tw.ground_truth(req)
+        assert np.allclose(p, twin.flux(request, iy * 12 + ix), rtol=1e-5)
+    cm = twin.ground_truth(request)
     assert cm.scan_unit == "um" and set(cm.prop) >= {"grain_id", "band_contrast", "pcx", "pcy", "pcz"}
     assert sorted(cm.phases.ids) == [MaterialId.IRON, MaterialId.AUSTENITE]
 
 
 def test_boundaries_mix_patterns_and_lower_band_contrast():
-    tw = _twin("EBSD Ni polycrystal", interaction_scale=3.0)
-    req = _scan(tw, 120, 1, step=0.02, binning=8)  # a 2.4 um line
-    gt = tw.ground_truth(req, as_arrays=True)
-    gid = gt["grain_id"][0]
+    twin = _twin("EBSD Ni polycrystal", interaction_scale=3.0)
+    request = _scan(twin, 120, 1, step=0.02, binning=8)  # a 2.4 um line
+    truth = twin.ground_truth(request, as_arrays=True)
+    gid = truth["grain_id"][0]
     cross = np.flatnonzero(np.diff(gid) != 0)
     if not len(cross):
         pytest.skip("line misses a boundary")
     i = int(cross[0])
-    assert gt["mix"][0, i] > 0.2 and gt["band_contrast"][0, i] < gt["band_contrast"][0, 0]
-    assert gt["grain_id2"][0, i] == gid[i + 1]
+    assert truth["mix"][0, i] > 0.2 and truth["band_contrast"][0, i] < truth["band_contrast"][0, 0]
+    assert truth["grain_id2"][0, i] == gid[i + 1]
     # the mixed pattern is the weighted sum of the two grains' patterns
-    optics = tw.optics(req)
-    r = tw.renderer.ebsd
-    tab = r.tables(tw.specimen, optics)
-    w = float(tab.mix[0, i])
-    p = r.raw_pattern(tw.specimen, optics, i, 0)
+    optics = twin.optics(request)
+    r = twin.renderer.ebsd
+    tables = r.tables(twin.specimen, optics)
+    w = float(tables.mix[0, i])
+    p = r.raw_pattern(twin.specimen, optics, i, 0)
     a = r.pattern(
         optics,
-        tab.matrices[tab.orient[0, i]],
-        gt["pattern_centre"][0, i],
+        tables.matrices[tables.orient[0, i]],
+        truth["pattern_centre"][0, i],
         material_id=MaterialId.NICKEL,
         raw=True,
     )
     b = r.pattern(
         optics,
-        tab.matrices[tab.orient2[0, i]],
-        gt["pattern_centre"][0, i],
+        tables.matrices[tables.orient2[0, i]],
+        truth["pattern_centre"][0, i],
         material_id=MaterialId.NICKEL,
         raw=True,
     )
@@ -318,10 +318,10 @@ def test_boundaries_mix_patterns_and_lower_band_contrast():
 def test_master_pattern_is_compact_and_cached():
     MASTERS.clear()
     g = EbsdGeometry()
-    mp = master_for(MaterialId.NICKEL, KV, g)
-    assert mp.data.dtype == np.uint8 and mp.cube.dtype == np.uint8 and mp.nbytes < 3e6
-    assert master_for(MaterialId.NICKEL, KV, g) is mp and MASTERS.builds >= 1
-    v = mp.values()
+    master = master_for(MaterialId.NICKEL, KV, g)
+    assert master.data.dtype == np.uint8 and master.cube.dtype == np.uint8 and master.nbytes < 3e6
+    assert master_for(MaterialId.NICKEL, KV, g) is master and MASTERS.builds >= 1
+    v = master.values()
     assert abs(float(v.mean())) < 0.1
     # the strongest bands are {111} and {200}, of width 2 theta_B
     hkl, _normals, sin_tb, amp = bands(MaterialId.NICKEL, KV)
@@ -332,7 +332,7 @@ def test_master_pattern_is_compact_and_cached():
     rng = np.random.default_rng(0)
     rand = rng.normal(size=(2000, 3))
     axes = np.array([[0, 0, 1.0], [0, 1.0, 0], [1.0, 1, 1]])
-    assert mp.value(axes).min() > np.percentile(mp.value(rand), 90)
+    assert master.value(axes).min() > np.percentile(master.value(rand), 90)
     assert MASTERS.nbytes <= MASTERS.budget
 
 
@@ -373,12 +373,12 @@ def test_bulk_specimens():
 
 
 def test_tem_specimen_in_ebsd_mode_uses_its_field_map():
-    tw = DigitalTwin("Al thin film 100 nm", camera="Celeritas")
-    tw.configure_ebsd(beam_kv=KV)
-    req = _scan(tw, 6, 4, step=0.2, binning=8)
-    gt = tw.ground_truth(req, as_arrays=True)
-    assert gt["grain_id"].shape == (4, 6)
-    f = tw.flux(req, 3)
+    twin = DigitalTwin("Al thin film 100 nm", camera="Celeritas")
+    twin.configure_ebsd(beam_kv=KV)
+    request = _scan(twin, 6, 4, step=0.2, binning=8)
+    truth = twin.ground_truth(request, as_arrays=True)
+    assert truth["grain_id"].shape == (4, 6)
+    f = twin.flux(request, 3)
     assert f.shape == (128, 128) and np.isfinite(f).all()
 
 
@@ -393,16 +393,16 @@ def test_low_kv_electrons_are_fully_absorbed():
 
 
 def test_frames_and_pattern_stack():
-    tw = _twin("EBSD Ni polycrystal")
-    req = _scan(tw, 5, 4, step=2.0, binning=8, dwell=2e-3)
-    stack = tw.datacube(req)
+    twin = _twin("EBSD Ni polycrystal")
+    request = _scan(twin, 5, 4, step=2.0, binning=8, dwell=2e-3)
+    stack = twin.datacube(request)
     assert stack.shape == (4, 5, 128, 128) and stack.dtype == np.float32
-    assert np.allclose(stack[1, 2], tw.flux(req, 7) * 64, rtol=1e-5)  # per binned pixel
-    frames = [(raw, meta) for raw, meta in tw.frames(req)]
+    assert np.allclose(stack[1, 2], twin.flux(request, 7) * 64, rtol=1e-5)  # per binned pixel
+    frames = [(raw, meta) for raw, meta in twin.frames(request)]
     assert len(frames) == 20 and frames[7][1].scan_point == (2, 1)
     raw = frames[7][0]
     assert raw.shape == (128, 128) and raw.dtype == np.uint16
-    assert raw.max() < tw.detector.model.max_value  # 0.1 nA, 2 ms: not saturated
+    assert raw.max() < twin.detector.model.max_value  # 0.1 nA, 2 ms: not saturated
     e_per_px = float(stack[1, 2].mean()) * 2e-3
     assert 1.0 < e_per_px < 100.0
 
@@ -429,22 +429,22 @@ def test_dictionary_indexing_recovers_orientations():
 
     from de_twin.crystal import crystal_to_lab
 
-    tw = _twin("EBSD Ni polycrystal", probe_current_na=0.1)
+    twin = _twin("EBSD Ni polycrystal", probe_current_na=0.1)
     nx, ny = 6, 5
-    req = _scan(tw, nx, ny, step=3.0, binning=8, dwell=5e-3, seed=7)
-    optics = tw.optics(req)
-    gt = tw.ground_truth(req, as_arrays=True)
-    dark = tw.detector.expected_dark(req.frame_time_s, req)
-    gain = tw.detector.expected_gain(req)
+    request = _scan(twin, nx, ny, step=3.0, binning=8, dwell=5e-3, seed=7)
+    optics = twin.optics(request)
+    truth = twin.ground_truth(request, as_arrays=True)
+    dark = twin.detector.expected_dark(request.frame_time_s, request)
+    gain = twin.detector.expected_gain(request)
     exp_fine, exp_coarse = [], []
-    for raw, meta in tw.frames(req):
+    for raw, meta in twin.frames(request):
         e = (raw.astype(np.float32) - dark) / gain
         exp_fine.append(flatten(e, sigma=12))
         exp_coarse.append(flatten(e, sigma=12, factor=2))
     exp_fine, exp_coarse = np.array(exp_fine), np.array(exp_coarse)
-    assert float(gt["band_contrast"].max()) > 0
-    r = tw.renderer.ebsd
-    pcs = gt["pattern_centre"].reshape(-1, 3)
+    assert float(truth["band_contrast"].max()) > 0
+    r = twin.renderer.ebsd
+    pcs = truth["pattern_centre"].reshape(-1, 3)
     centre = pcs.mean(axis=0)
 
     def sim(optics_, pc, factor=1):
@@ -459,14 +459,14 @@ def test_dictionary_indexing_recovers_orientations():
 
     rots = get_sample_fundamental(4.0, point_group=Oh)
     D = crystal_to_lab(rots.data)
-    idx, _dncc = dictionary_index(exp_coarse, sim(optics, centre, 2), D)
+    index, _dncc = dictionary_index(exp_coarse, sim(optics, centre, 2), D)
     errs = []
     for k in range(nx * ny):
         iy, ix = divmod(k, nx)
-        if gt["quality"][iy, ix] < 0.7:  # on a boundary (mixed or in its zone)
+        if truth["quality"][iy, ix] < 0.7:  # on a boundary (mixed or in its zone)
             continue
-        m, _c = refine(exp_fine[k], sim(optics, pcs[k]), D[idx[k]])
-        G = crystal_to_lab(gt["quaternion"][iy, ix])[0]
+        m, _c = refine(exp_fine[k], sim(optics, pcs[k]), D[index[k]])
+        G = crystal_to_lab(truth["quaternion"][iy, ix])[0]
         errs.append(float(misorientation_deg(m[None], G[None], Oh)[0]))
     errs = np.array(errs)
     assert len(errs) >= 20
@@ -478,8 +478,8 @@ def test_deapi_face_serves_ebsd():
     deapi = pytest.importorskip("deapi")
     from de_twin.faces.deapi_server import TwinDeapiServer
 
-    tw = DigitalTwin("EBSD Ni polycrystal", camera="Celeritas")
-    with TwinDeapiServer(tw, port=0, pace=False) as srv:
+    twin = DigitalTwin("EBSD Ni polycrystal", camera="Celeritas")
+    with TwinDeapiServer(twin, port=0, pace=False) as srv:
         c = deapi.Client()
         c.usingMmf = False
         c.connect(port=srv.port)
@@ -487,7 +487,7 @@ def test_deapi_face_serves_ebsd():
         c["Simulator EBSD Enable"] = "On"
         c["Simulator EBSD Pattern Center Z"] = 0.55
         c["Simulator EBSD Sample Tilt (degrees)"] = 70
-        assert tw.ebsd.enabled and tw.ebsd.pcz == pytest.approx(0.55)
+        assert twin.ebsd.enabled and twin.ebsd.pcz == pytest.approx(0.55)
         assert c["Simulator EBSD Beam Energy (kV)"] == pytest.approx(20.0)
         c["Hardware Binning X"] = 4
         c["Scan - Enable"] = "On"
@@ -501,8 +501,8 @@ def test_deapi_face_serves_ebsd():
         deadline = time.time() + 30
         while c.acquiring and time.time() < deadline:
             time.sleep(0.01)
-        img, *_ = c.get_result("singleframe_integrated")
+        image, *_ = c.get_result("singleframe_integrated")
         c["Simulator EBSD Enable"] = "Off"
         c.disconnect()
-    assert img.shape == (256, 256) and float(np.asarray(img).std()) > 0
-    assert not tw.ebsd.enabled
+    assert image.shape == (256, 256) and float(np.asarray(image).std()) > 0
+    assert not twin.ebsd.enabled
