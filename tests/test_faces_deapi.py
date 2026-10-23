@@ -12,11 +12,9 @@ pytestmark = pytest.mark.deapi
 
 from de_twin.clock import Clock  # noqa: E402
 from de_twin.column import Column  # noqa: E402
-from de_twin.faces.deapi_server import (  # noqa: E402
-    TEMPERATURE_PROP,
-    TwinDeapiServer,
-    request_from_properties,
-)
+from de_twin.faces.deapi_protocol import TEMPERATURE_PROP  # noqa: E402
+from de_twin.faces.deapi_request import request_from_properties  # noqa: E402
+from de_twin.faces.deapi_server import TwinDeapiServer  # noqa: E402
 from de_twin.holder import NoHolder  # noqa: E402
 from de_twin.state import ExposureMode, FrameMeta, RenderMode, Roi  # noqa: E402
 
