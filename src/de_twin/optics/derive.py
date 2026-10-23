@@ -54,7 +54,11 @@ MIN_DISK_RADIUS_PX = 0.75
 
 def select_render_mode(state: MicroscopeState, request: AcquisitionRequest,
                        cfg: OpticsConfig) -> RenderMode:
-    """C++ dispatch: STEM is tested before diffraction, then the override applies."""
+    """C++ dispatch: STEM is tested before diffraction, then the override applies. An EBSD
+    geometry (``cfg.ebsd``, enabled) makes every acquisition EBSD."""
+    ebsd = getattr(cfg, "ebsd", None)
+    if ebsd is not None and ebsd.enabled and cfg.render_mode_override is None:
+        return RenderMode.EBSD
     if request.scan.enabled:
         mode = RenderMode.STEM_4D
     elif state.tem_stem == TemStem.STEM:
@@ -159,6 +163,8 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
     cfg = cfg or OpticsConfig()
 
     mode = select_render_mode(state, request, cfg)
+    if mode == RenderMode.EBSD:
+        return _derive_ebsd(state, request, camera, cfg)
     scanning = mode in (RenderMode.STEM_4D, RenderMode.STEM_PARKED)
     output_shape, roi_offset_px = _output_geometry(request, camera)
     oh, ow = output_shape
@@ -445,6 +451,68 @@ def derive_optics(state: MicroscopeState, request: AcquisitionRequest, camera,
         source_size_nm=float(source_nm),
         extras=extras,
     )
+
+
+def _derive_ebsd(state: MicroscopeState, request: AcquisitionRequest, camera,
+                 cfg: OpticsConfig) -> OpticsState:
+    """EBSD optics: the scan grid on the (tilt-corrected) sample surface, the detector grid
+    (ROI and binning of the whole sensor, which the pattern centre refers to) and the SEM
+    probe current. The beam energy is the column's ``ht_kv``."""
+    from ..ebsd.geometry import EbsdGeometry
+
+    g = cfg.ebsd if cfg.ebsd is not None else EbsdGeometry()
+    ht_kv = state.ht_kv if state.ht_kv > 0 else 20.0
+    sh, sw = (int(v) for v in camera.sensor_shape)
+    r = request.hw_roi
+    if r is None or r.w <= 0 or r.h <= 0:
+        rx0, ry0, rw, rh = 0, 0, sw, sh
+    else:  # as Detector.roi resolves it
+        rx0, ry0 = min(max(int(r.x), 0), sw - 1), min(max(int(r.y), 0), sh - 1)
+        rw, rh = max(1, min(int(r.w), sw - rx0)), max(1, min(int(r.h), sh - ry0))
+    scan = request.scan
+    if scan.enabled:
+        nx, ny = max(1, int(scan.size[0])), max(1, int(scan.size[1]))
+        step_um = float(scan.step_um) if scan.step_um > 0 else float(g.step_um)
+    else:  # a single pattern with the beam on the optic axis
+        nx = ny = 1
+        step_um = float(g.step_um)
+    rotation = math.radians(scan.rotation_deg) if scan.enabled else 0.0
+    cx, cy = view_center_um(state, cfg, RenderMode.EBSD)
+    view = ViewWindow(center_um=(cx, cy), pixel_um=step_um, shape=(ny, nx), rotation_rad=rotation)
+    blanked = (state.beam_blanked or not state.ht_on or not state.column_valves_open
+               or state.screen_position == 1 or not request.beam_reaches_detector)
+    beam_e_s = max(float(g.probe_current_na), 0.0) * 1e-9 / 1.602176634e-19
+    bx, by = (request.hw_binning if request.hw_binning is not None else (1, 1))
+    lam = electron_wavelength_nm(ht_kv)
+    park = None
+    if scan.enabled and scan.park:
+        px, py = scan.park_position
+        wx, wy = view.pixel_to_world(np.array([py]), np.array([px]))
+        park = (float(wx[0]), float(wy[0]))
+    extras = {
+        "ebsd": g,
+        "sensor_shape": (sh, sw),
+        "sensor_pixel_um": float(camera.pixel_um),
+        "roi_origin": (rx0, ry0),
+        "hw_binning": (max(1, int(bx)), max(1, int(by))),
+        "exposure_s": (scan.dwell_s if scan.enabled else request.frame_time_s),
+        "scan_park": bool(scan.park),
+        "park_position": tuple(scan.park_position),
+        "view_center_um": (cx, cy),
+        "stem_step_nm": step_um * 1000.0,
+        "probe_blend_offset_px": 0.0,
+    }
+    return OpticsState(
+        render_mode=RenderMode.EBSD, ht_kv=float(ht_kv), wavelength_nm=float(lam), beam_blanked=bool(blanked),
+        output_shape=(int(rh), int(rw)), view=view, specimen_pixel_nm=step_um * 1000.0,
+        recip_pixel_inv_nm=0.0, camera_length_mm=0.0, diffraction_center_px=(rw / 2.0, rh / 2.0),
+        convergence_mrad=0.0, illumination_mrad=0.0, probe_diameter_nm=0.0, disk_radius_px=0.0,
+        illuminated_diameter_um=0.0, sa_aperture_um=0.0,
+        dose_e_per_px_s=float(0.1 * beam_e_s / float(rw * rh)),  # rough: ~10 % of the beam on the screen
+        beam_current_pa=float(g.probe_current_na) * 1000.0, defocus_um=0.0, blur_sigma_px=0.0,
+        fresnel_gain=0.0, fresnel_sign=0.0, fresnel_sigma_px=1.0,
+        scan_step_um=step_um, scan_shape=(ny, nx) if scan.enabled else (0, 0), scan_rotation_rad=rotation,
+        park_um=park, pattern_e_per_s=float(beam_e_s), extras=extras)
 
 
 def track_live_view(optics: OpticsState, state: MicroscopeState,

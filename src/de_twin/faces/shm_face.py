@@ -157,6 +157,10 @@ class ShmFace:
             coils = self._coils()
             if coils is not None:
                 return self._serve_steered(request_id, request, coils)
+            if self.reuse == 1 and self._fused():
+                feed = _RasterFeed.make(self.twin, request)
+                if feed is not None and self._fits(feed):
+                    return self._serve_fused(request_id, request, feed)
         p = self.producer
         h = p.hdr
         shape = (h.frame_height, h.frame_width)
@@ -230,6 +234,13 @@ class ShmFace:
         shape = (h.frame_height, h.frame_width)
         dtype = np.uint8 if h.bytes_per_pixel == 1 else np.uint16
         library = _PointLibrary(self.twin, request, coils, size=self.pool_size if self.reuse > 1 else 0)
+        if self.reuse == 1 and self._fused():
+            feed = _SteeredFeed(self.twin, library)
+            if feed.source is not None and self._fits(feed):
+                try:
+                    return self._serve_fused(request_id, request, feed)
+                finally:
+                    library.close()
         frame_time = max(float(request.frame_time_s), 1e-6)
         t0 = time.monotonic()
         k = 0
@@ -261,6 +272,99 @@ class ShmFace:
                         self._stop.wait(delay)
         finally:
             library.close()
+
+    def _fused(self) -> bool:
+        """Whether the twin can make frames with the fused EBSD kernel."""
+        return callable(getattr(self.twin, "ebsd_frame_source", None))
+
+    def _fits(self, feed) -> bool:
+        """Whether *feed*'s frames are the frames DE-Server asked for (shape and type)."""
+        h = self.producer.hdr
+        return h.bytes_per_pixel == 2 and tuple(feed.source.shape) == (h.frame_height, h.frame_width)
+
+    #: Frames a worker makes per job (see `DigitalTwin.FRAMES_PER_JOB`).
+    FRAMES_PER_JOB = 4
+
+    def _serve_fused(self, request_id: int, request, feed):
+        """`_serve` for frames made by the fused EBSD kernel (`DigitalTwin.ebsd_frame_source`):
+        a few frames a job for the worker threads (:mod:`de_twin.workers`), submitted ahead
+        into a ring of frame buffers, and published in order as DE-Server frees its slots.
+        DE-Server's ring holds a few frames, too few to keep every core busy, so the frames
+        are made in buffers of the twin's and copied into the slots (~40 us a frame).
+
+        A steered scan's frames are made only once DE-Server has written the voltages that
+        place their beam (`_SteeredFeed.settled`), as far ahead as it writes them."""
+        from collections import deque
+
+        from ..workers import pool
+
+        p = self.producer
+        h = p.hdr
+        shape = (h.frame_height, h.frame_width)
+        workers = pool()
+        per_job = self.FRAMES_PER_JOB
+        jobs_ahead = workers.threads + workers.threads // 2
+        ring = [np.empty((per_job, *shape), np.uint16) for _ in range(jobs_ahead + 1)]
+        frame_time = max(float(request.frame_time_s), 1e-6)
+        total = request.total_frames
+        pending: deque = deque()  # (first frame, frames, slot, batch)
+        t0 = time.monotonic()
+        k = nxt = 0
+        n_jobs = 0
+        last = None
+
+        def drain():
+            for *_, batch in pending:
+                batch.wait_done(10.0)
+            pending.clear()
+
+        try:
+            while True:
+                if self._stop.is_set() or p.request_changed(request_id):
+                    return p.poll_request()
+                if feed.changed():  # a new scan, or the column moved: frames from k on afresh
+                    drain()
+                    nxt = k
+                limit = 1 << 62 if total <= 0 else total
+                limit = min(limit, max(k + 1, feed.settled()))
+                while len(pending) < jobs_ahead and nxt < limit:
+                    count = min(per_job, limit - nxt)
+                    slot = n_jobs % len(ring)
+                    ks, serials, seed = [], [], 0
+                    for j, point in enumerate(feed.points(nxt, count), nxt):
+                        ks.append(feed.flat(point, j))
+                        serial, seed = self.twin.noise_serial(request, j)
+                        serials.append(serial)
+                    pending.append((nxt, count, slot, feed.source.submit(workers, ring[slot], ks, seed, serials)))
+                    nxt += count
+                    n_jobs += 1
+                first, count, slot, batch = pending[0]
+                if not batch.wait_done(KEEPALIVE_S):  # a slow start (the kernels compiling)
+                    if last is not None and p.free_slots() > 0:
+                        p.publish(last, request_id=request_id, frame_index=k)
+                        self.keepalives += 1
+                    continue
+                batch.wait()
+                pending.popleft()
+                for b in range(k - first, count):  # (after a restart, the frames before k are done)
+                    while not p.wait_slot_free(timeout=0.05):
+                        if self._stop.is_set() or p.request_changed(request_id):
+                            return p.poll_request()
+                    last = ring[slot][b]
+                    p.publish(last, request_id=request_id, frame_index=k)
+                    k += 1
+                    self.frames_published += 1
+                    if total > 0 and k >= total:
+                        return None
+                    if self.pace:
+                        delay = t0 + k * frame_time - time.monotonic()
+                        if delay > 0:
+                            self._stop.wait(delay)
+        finally:
+            drain()
+            if last is not None:  # the keep-alive frame for what comes next
+                frame = last.copy()
+                self._last_frame = (frame, (frame, _BEAM_ON))
 
     def _pool_for(self, request, recycle: bool) -> "_FramePool":
         """The frame pool for *request*: the running one when the request asks for the
@@ -439,6 +543,74 @@ VIEW_CHECK_S = 0.05
 POINTS_AHEAD = 1024
 
 
+class _BeamOn:
+    blanked = False
+
+
+_BEAM_ON = _BeamOn()
+
+
+class _RasterFeed:
+    """A scan rastered by frame index (no coil voltages), for `ShmFace._serve_fused`."""
+
+    def __init__(self, twin, request, source, optics):
+        self.twin, self.request, self.source, self.optics = twin, request, source, optics
+
+    @classmethod
+    def make(cls, twin, request):
+        state = twin.column.state()
+        optics = twin.optics(request, state)
+        source = twin.ebsd_frame_source(request, state=state, optics=optics)
+        return None if source is None else cls(twin, request, source, optics)
+
+    def changed(self) -> bool:
+        return False  # a scan freezes the optics for its acquisition, as `DigitalTwin.frames`
+
+    def settled(self) -> int:
+        return 1 << 62
+
+    def points(self, first: int, count: int) -> list:
+        return [self.twin.scan_point(self.request, j) for j in range(first, first + count)]
+
+    def flat(self, point, index: int) -> int:
+        return self.twin.renderer.ebsd_flat_point(self.optics, point, index)
+
+
+class _SteeredFeed:
+    """A scan whose beam DE-Server's coil voltages place (`_PointLibrary`'s points), for
+    `ShmFace._serve_fused`. A new scan or a move of the column makes a new source."""
+
+    def __init__(self, twin, library: "_PointLibrary"):
+        self.twin = twin
+        self.library = library
+        self.source = None
+        library.check()
+        self._remake()
+
+    def _remake(self) -> None:
+        lib = self.library
+        request = dataclasses.replace(lib._request, total_frames=0, scan=lib.scan)
+        self.optics = self.twin.optics(request, lib._state)
+        self.source = self.twin.ebsd_frame_source(request, state=lib._state, optics=self.optics)
+
+    def changed(self) -> bool:
+        if self.library.check():
+            self._remake()
+            return True
+        return False
+
+    def settled(self) -> int:
+        """Frames whose beam position DE-Server has written (the rest hold the last one)."""
+        lib = self.library
+        return int((lib.coils.written - 1) / lib.geometry.points_per_frame) + 1
+
+    def points(self, first: int, count: int) -> list:
+        return self.library.points(first, count)
+
+    def flat(self, point, index: int) -> int:
+        return self.twin.renderer.ebsd_flat_point(self.optics, point, index)
+
+
 class _Wanted:
     """A scan's points as ``twin.frames`` reads them: whichever point is rendered next."""
 
@@ -521,15 +693,22 @@ class _PointLibrary:
         xy[unset] = np.stack([index[unset] % nx, (index[unset] // nx) % ny], axis=1)  # nothing output yet
         return np.clip(xy, 0, [nx - 1, ny - 1]).astype(np.int64)
 
-    def frames(self, first_frame: int, count: int) -> list:
-        """``((raw, meta), fresh)`` for each of *count* frames from *first_frame* on."""
+    def check(self) -> bool:
+        """Start again on a new scan, or when the column has moved; True when it did."""
         now = time.monotonic()
         if self._render is None or self.coils.scan_id != self._scan_id:
             self._restart()
-        elif now - self._checked > VIEW_CHECK_S:
+            return True
+        if now - self._checked > VIEW_CHECK_S:
             self._checked = now
             if self.twin.column.state() != self._state:
                 self._restart()
+                return True
+        return False
+
+    def frames(self, first_frame: int, count: int) -> list:
+        """``((raw, meta), fresh)`` for each of *count* frames from *first_frame* on."""
+        self.check()
         return [self._frame(point) for point in self.points(first_frame, count)]
 
     def _frame(self, point: tuple[int, int]):

@@ -65,6 +65,9 @@ class RenderMode(IntEnum):
     TEM_DIFFRACTION = 1
     STEM_PARKED = 2
     STEM_4D = 3
+    #: SEM electron backscatter diffraction: a tilted bulk specimen scanned point by point,
+    #: the camera as the EBSD detector (`OpticsConfig.ebsd`, :mod:`de_twin.ebsd`).
+    EBSD = 4
 
 
 @dataclass

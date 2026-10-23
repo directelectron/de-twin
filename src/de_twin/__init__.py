@@ -9,7 +9,29 @@ microscope control without a microscope, a camera or DE-Server::
     image = twin.snap(1.0)
 """
 
+import os as _os
+import sys as _sys
 from importlib.metadata import PackageNotFoundError, version as _version
+
+
+def _keep_off_the_gpu() -> None:
+    """Keep the twin's process from initialising CUDA.
+
+    The twin renders on the CPU, and the GPU belongs to whoever reads its frames (DE-Server,
+    then Autopilot). Nothing of the twin's needs CUDA, but its crystallography stack does
+    (diffsims asks ``numba.cuda.is_available()`` on import, which calls ``cuInit`` and so
+    starts the driver in this process). ``NUMBA_DISABLE_CUDA`` makes numba answer "no" without
+    touching the driver. ``DE_TWIN_ALLOW_CUDA=1`` leaves the process alone (a notebook that
+    wants numba.cuda next to the twin)."""
+    if _os.environ.get("DE_TWIN_ALLOW_CUDA") == "1" or "numba.cuda" in _sys.modules:
+        return
+    _os.environ["NUMBA_DISABLE_CUDA"] = "1"
+    config = _sys.modules.get("numba.core.config")
+    if config is not None:  # numba already read its environment
+        config.DISABLE_CUDA = 1
+
+
+_keep_off_the_gpu()
 
 try:
     __version__ = _version("de-twin")

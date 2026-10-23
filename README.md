@@ -41,7 +41,8 @@ truth = twin.flux(twin.request())             # noiseless e-/px/s, for scoring a
 - **Specimen**: seeded grids, thin films, proteins in ice, FIB lamellae and an in-situ
   heating chip; every grain is a real crystal (diffsims + orix) that responds to tilt.
 - **Image formation**: wave-optical TEM with a CTF, kinematic SAED/NBD/CBED, coherent
-  4D-STEM for ptychography and tcBF, and physical dose.
+  4D-STEM for ptychography and tcBF, SEM EBSD (kinematic Kikuchi patterns of bulk
+  polycrystals, with ground-truth orientations), and physical dose.
 - **Detector**: every DE camera model, with dark, gain, noise, defects, saturation, binning
   and counting, so references are needed and work.
 - **Holder**: a simulated DENS-style heating chip, or a real DENS Impulse holder.

@@ -55,6 +55,35 @@ def test_adu_per_electron_ht_table():
     assert m.charge_spread_at(120) > m.charge_spread_at(300)
 
 
+def test_low_gain_mode_fills_the_adc_with_a_hundred_electrons():
+    high = camera("DESim")
+    low = high.with_(gain_mode="low")
+    assert high.gain_mode == "high"
+    span = high.max_value - high.dark_offset_adu
+    for kv in (20.0, 300.0):  # the full well in electrons, whatever the energy
+        assert low.adu_per_electron_at(kv) == pytest.approx(span / 100.0)
+    assert high.adu_per_electron_at(20.0) > 20 * low.adu_per_electron_at(20.0)
+    with pytest.raises(ValueError):
+        high.with_(gain_mode="medium").adu_per_electron_at(20.0)
+
+    # a pixel saturates near 100 electrons a frame; the per-electron spread is the high gain's
+    assert low.adu_cv == high.adu_cv and low.read_noise_adu == high.read_noise_adu
+    d = Detector("DESim", seed=3, ht_kv=20.0)
+    d.set_gain_mode("low")
+    t = 1e-3
+    shape = d.output_shape(req())
+    for electrons, expected in ((50.0, 0.5), (120.0, 1.0)):
+        frame, _ = d.expose(np.full(shape, electrons / t, np.float32), t, req(), 0)
+        level = (np.median(frame) - high.dark_offset_adu) / span
+        assert level == pytest.approx(expected, abs=0.08)
+    one, _ = d.expose(np.full(shape, 1.0 / t, np.float32), t, req(), 1)  # ~1 electron a pixel
+    deposit = one.astype(np.float64) - d.expected_dark(t)
+    assert deposit.mean() == pytest.approx(span / 100.0, rel=0.05)
+    assert deposit.std() > 2 * high.read_noise_adu  # each electron seen, not lost in the read noise
+    d.set_gain_mode("high")
+    assert d.model.gain_mode == "high"
+
+
 def test_overrides():
     d = Detector("DESim", read_noise_adu=3.0)
     assert d.model.read_noise_adu == 3.0

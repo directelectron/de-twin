@@ -30,6 +30,8 @@ class MaterialId(IntEnum):
     PLATINUM = 9
     PROTEIN = 10
     MOLYBDENUM_TRIOXIDE = 11
+    NICKEL = 12
+    AUSTENITE = 13  # face-centred cubic (gamma) iron, the austenite of steels; IRON is BCC ferrite
 
 
 N_MATERIALS = len(MaterialId)  # built-in materials (see n_materials() for registered ones)
@@ -116,6 +118,9 @@ MATERIALS: list[Material] = [
                      (("Mo", 0.1016, 0.25, 0.0867), ("O", 0.0866, 0.25, 0.5212),
                       ("O", 0.2214, 0.25, -0.0373), ("O", 0.4351, 0.25, 0.4994))), 0.5,
              halos=((3.0, 0.6), (5.0, 0.25))),
+    # Bulk metals for EBSD (de_twin.specimen.bulk). Mean free paths scaled from copper's by density.
+    _metal(M.NICKEL, "Nickel", "Ni", 225, 0.3524, 8.91, 65.0, 28.0, 21.0, 91.4, 0.37),
+    _metal(M.AUSTENITE, "Austenite", "Fe", 225, 0.3591, 8.01, 72.0, 26.0, 20.0, 86.4, 0.45),
 ]
 del M
 

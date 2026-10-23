@@ -57,6 +57,9 @@ Specimen and crystals
    specimen.Specimen
    specimen.SpecimenConfig
    specimen.from_name
+   specimen.BulkSurface
+   specimen.BulkSurfaceConfig
+   specimen.BulkPhase
    crystal.library.CrystalLibrary
 
 Detector
@@ -110,3 +113,19 @@ Faces (serving the twin)
    faces.shm_face.ShmFace
    transport.shm.FrameProducer
    transport.shm.FrameConsumer
+
+EBSD
+====
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   ebsd.EbsdGeometry
+   ebsd.EbsdRenderer
+   ebsd.MasterPattern
+   ebsd.build_master
+   ebsd.convert_pc
+   ebsd.load_master_pattern
+   ebsd.write_emsoft
+   specimen.indent.Indent

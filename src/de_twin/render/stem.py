@@ -67,8 +67,9 @@ def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, cfg=
     """(ix, iy) on the scan raster for this frame."""
     ny, nx = optics.view.shape
     if scan_point is not None:
-        return int(np.clip(int(scan_point[0]), 0, nx - 1)), int(np.clip(int(scan_point[1]), 0, ny - 1))
-    if optics.render_mode == RenderMode.STEM_4D:
+        return min(max(int(scan_point[0]), 0), nx - 1), min(max(int(scan_point[1]), 0), ny - 1)
+    if optics.render_mode == RenderMode.STEM_4D or (optics.render_mode == RenderMode.EBSD
+                                                     and not optics.extras.get("scan_park")):
         i = int(frame_index) % (nx * ny)
         return i % nx, i // nx
     if optics.extras.get("scan_park"):

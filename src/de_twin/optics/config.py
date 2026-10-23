@@ -82,6 +82,10 @@ class OpticsConfig:
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
     realism: Optional["ColumnRealism"] = None
+    #: An SEM with an EBSD detector (:class:`de_twin.ebsd.EbsdGeometry`): when set and enabled,
+    #: every acquisition renders EBSD patterns (``RenderMode.EBSD``) at the column's beam
+    #: energy. None: a TEM. ``DigitalTwin.configure_ebsd`` sets it.
+    ebsd: Optional["EbsdGeometry"] = None
 
     @classmethod
     def realistic(cls, seed: int = 0, **kw) -> "OpticsConfig":

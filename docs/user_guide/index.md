@@ -10,6 +10,7 @@ deserver
 mirroring
 corrector
 fourd_stem
+ebsd
 beam_tilt_precession
 low_dose
 realistic_column

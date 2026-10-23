@@ -162,6 +162,23 @@ class DynamicProperty(Property):  # type: ignore[misc]
         self._setter(value)
 
 
+#: ``Simulator EBSD <label>`` deapi properties -> EbsdGeometry fields.
+EBSD_PROPERTIES = {
+    "enabled": "Enable",
+    "sample_tilt_deg": "Sample Tilt (degrees)",
+    "detector_tilt_deg": "Detector Tilt (degrees)",
+    "working_distance_mm": "Working Distance (mm)",
+    "pcx": "Pattern Center X",
+    "pcy": "Pattern Center Y",
+    "pcz": "Pattern Center Z",
+    "probe_current_na": "Probe Current (nA)",
+    "step_um": "Default Step (micrometers)",
+    "band_contrast": "Band Contrast",
+    "background": "Background",
+    "boundary_blend": "Boundary Blend",
+}
+
+
 #: Read-only property naming the simulator behind the frames (``"de-twin <version>"``), so
 #: a client can stamp provenance on what it saves. A real DE-Server has no such property.
 SIMULATOR_SOURCE_PROPERTY = "Simulator Source"
@@ -637,8 +654,70 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
             "Simulator Auto References", lambda: "On" if self.auto_references else "Off",
             lambda v: setattr(self, "auto_references", _to_bool(v)),
             category="Simulator", options="On, Off"))
+        self._install_ebsd_properties()
         self._install_instrument_properties()
         self.virtual_masks = [np.ones((self._image_shape()), np.int8) for _ in range(5)]
+
+    def _install_ebsd_properties(self) -> None:
+        """``Simulator EBSD ...``: the twin's EBSD geometry (``DigitalTwin.configure_ebsd``), so a
+        deapi client can switch the twin to an SEM-EBSD system and set its pattern centre. A
+        real DE-Server has none of these: its metadata carries no EBSD geometry."""
+        twin = self.twin
+        if not callable(getattr(twin, "configure_ebsd", None)):
+            return
+        from ..ebsd import EbsdGeometry
+
+        def current():
+            return twin.ebsd or EbsdGeometry(enabled=False)
+
+        def setter(field):
+            def set_(value):
+                if field == "enabled" or isinstance(getattr(EbsdGeometry, field, None), bool):
+                    value = _to_bool(value)
+                g = current()
+                twin.configure_ebsd(g, **{field: value})
+            return set_
+
+        for field, label in EBSD_PROPERTIES.items():
+            default = EbsdGeometry.describe()[field]["default"]
+            if isinstance(default, bool):
+                self._put(DynamicProperty(f"Simulator EBSD {label}",
+                                          (lambda f=field: "On" if getattr(current(), f) else "Off"),
+                                          setter(field), category="Simulator", options="On, Off"))
+            else:
+                self._put(DynamicProperty(f"Simulator EBSD {label}", (lambda f=field: getattr(current(), f)),
+                                          setter(field), data_type="Float", category="Simulator"))
+
+        def set_kv(value):
+            twin.configure_ebsd(current(), beam_kv=float(value))
+
+        # user master pattern: a file on the twin's machine (deapi properties are strings: no upload)
+        self._ebsd_master_phase = "Nickel"
+        self._ebsd_master_status = "kinematic"
+
+        def set_master_file(value):
+            path = str(value).strip()
+            try:
+                if path:
+                    mp = twin.set_master_pattern(self._ebsd_master_phase, path)
+                    self._ebsd_master_status = (f"{self._ebsd_master_phase}: {path} at {mp.kv:g} kV, "
+                                                f"{mp.nbytes / 1e6:.1f} MB")
+                else:
+                    twin.clear_master_patterns(self._ebsd_master_phase)
+                    self._ebsd_master_status = "kinematic"
+            except Exception as exc:  # noqa: BLE001 - reported through the status property
+                self._ebsd_master_status = f"error: {exc}"
+                log.warning("EBSD master pattern %s: %s", path, exc)
+
+        self._put(DynamicProperty("Simulator EBSD Master Pattern Phase", lambda: self._ebsd_master_phase,
+                                  lambda v: setattr(self, "_ebsd_master_phase", str(v)), category="Simulator"))
+        self._put(DynamicProperty("Simulator EBSD Master Pattern File", lambda: "", set_master_file,
+                                  category="Simulator"))
+        self._put(DynamicProperty("Simulator EBSD Master Pattern Status", lambda: self._ebsd_master_status,
+                                  category="Simulator"))
+        self._put(DynamicProperty("Simulator EBSD Beam Energy (kV)", lambda: twin.column.state().ht_kv,
+                                  set_kv,
+                                  data_type="Float", category="Simulator"))
 
     def _install_instrument_properties(self) -> None:
         col = self.twin.column
