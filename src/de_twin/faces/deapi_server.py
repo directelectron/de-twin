@@ -122,7 +122,7 @@ _PROJECT_NAMES = {(0, 0): "MAG1", (1, 0): "MAG2", (2, 0): "Low Mag", (3, 0): "SM
                   (4, 0): "Diff Mag", (2, 1): "HR_STEM", (4, 1): "NBD_STEM"}
 
 
-def _norm(name: str) -> str:
+def _property_key(name: str) -> str:
     return name.replace(" ", "_").lower().replace("(", "").replace(")", "")
 
 
@@ -550,7 +550,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
     # ------------------------------------------------------------ properties
     def _put(self, prop) -> None:
         prop.server = self
-        self._values[_norm(prop.name)] = prop
+        self._values[_property_key(prop.name)] = prop
 
     def _plain(self, name, value, data_type="String", value_type="AllowAll", options="", category="Twin"):
         self._put(Property(name=name, value=str(value), data_type=data_type, category=category,
@@ -967,7 +967,7 @@ class TwinFakeServer(FakeServer):  # type: ignore[misc,valid-type]
 
     def _property_specifications(self, command):
         name = command.command[0].parameter[0].p_string
-        prop = self._values.get(_norm(name))
+        prop = self._values.get(_property_key(name))
         if prop is None:
             return (self._ack(command, f"Property not in Server: '{name}'", error=True),)
         vt = str(prop.value_type)
