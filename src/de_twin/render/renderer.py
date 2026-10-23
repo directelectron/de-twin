@@ -249,6 +249,9 @@ class Renderer:
         self._saed = SaedRenderer(self.config)
         self._stem = StemRenderer(self.cache, self.config, self.seed)
         self._coherent = CoherentStem(self.cache, self.config, self.seed)
+        self._ebsd = None  # EbsdRenderer, made on first EBSD render
+        #: material id -> user master patterns (``DigitalTwin.set_master_pattern``); the twin's dict
+        self.ebsd_user_masters: dict = {}
         self._grains_fallback: GrainTable | None = None
         self._lock = threading.RLock()  # render() and a prefetching thread share the caches
         self._prefetch_tem = TransferCache(size=1)
@@ -576,6 +579,7 @@ class Renderer:
         self._saed = SaedRenderer(self.config)
         self._stem = StemRenderer(self.cache, self.config, self.seed)
         self._coherent = CoherentStem(self.cache, self.config, self.seed)
+        self._ebsd = None
         self._grains_fallback = None
 
     # -------------------------------------------------------------- render
@@ -672,6 +676,9 @@ class Renderer:
         if optics.beam_blanked:
             return np.zeros((h, w), np.float32)
         mode = optics.render_mode
+        if mode == RenderMode.EBSD:
+            ix, iy = resolve_scan_point(optics, scan_point, frame_index, self.specimen, self.config)
+            return self.ebsd.render(self.specimen, optics, ix, iy, *self._ebsd_source(optics, time_s))
         if mode != RenderMode.TEM_IMAGING:  # precession only changes diffraction patterns
             optics = _precession_frame(optics, time_s)
         if mode == RenderMode.TEM_IMAGING and self.config.pan_margin > 0:
@@ -702,6 +709,52 @@ class Renderer:
         return self._stem.render(
             fm, token, optics, self.grains, self.crystallinity, scan_point, frame_index, self.specimen
         )
+
+    # --------------------------------------------------------------- EBSD
+    @property
+    def ebsd(self):
+        """The :class:`~de_twin.ebsd.EbsdRenderer` (scan tables; master patterns are process-wide)."""
+        if self._ebsd is None:
+            from ..ebsd import EbsdRenderer
+
+            self._ebsd = EbsdRenderer(self.seed, self.ebsd_user_masters)
+        return self._ebsd
+
+    def render_ebsd_frame(self, optics, frame_index: int, scan_point, time_s: float, t_nb: float):
+        """``(flux, means)`` of an EBSD camera frame (see ``EbsdRenderer.render_frame``)."""
+        with self._lock:
+            ix, iy = resolve_scan_point(optics, scan_point, frame_index, self.specimen, self.config)
+            return self.ebsd.render_frame(
+                self.specimen, optics, ix, iy, t_nb, *self._ebsd_source(optics, time_s)
+            )
+
+    def ebsd_plan(self, optics, time_s: float):
+        """The EBSD scan's per-point plan (``EbsdRenderer.plan``) at the current specimen."""
+        with self._lock:
+            return self.ebsd.plan(self.specimen, optics, *self._ebsd_source(optics, time_s))
+
+    def ebsd_flat_point(self, optics, scan_point, frame_index: int) -> int:
+        """The flat scan point (``iy * nx + ix``) :meth:`render_ebsd_frame` renders for this
+        frame."""
+        ix, iy = resolve_scan_point(optics, scan_point, frame_index, self.specimen, self.config)
+        return iy * optics.view.shape[1] + ix
+
+    def _ebsd_source(self, optics, time_s: float) -> tuple:
+        """(field map, grain table) for an EBSD scan of a specimen that has no ``sample``
+        (a TEM specimen read through its field map); (None, None) for a bulk surface."""
+        if callable(getattr(self.specimen, "sample", None)):
+            return None, None
+        fm, _ = self.field_map(optics, frozenset(), time_s)
+        return fm, self.grains
+
+    def ebsd_patterns(self, optics, *, time_s: float = 0.0, out=None, dtype=np.float32) -> np.ndarray:
+        """Noiseless EBSD patterns of the whole scan, (scan ny, nx, h, w) at the binned detector
+        shape, electrons per binned pixel per second."""
+        if optics.render_mode != RenderMode.EBSD:
+            raise ValueError("ebsd_patterns needs EBSD optics (OpticsConfig.ebsd)")
+        with self._lock:
+            src = self._ebsd_source(optics, time_s)
+            return self.ebsd.patterns(self.specimen, optics, *src, out=out, dtype=dtype)
 
     # ------------------------------------------------------ coherent STEM
     def _ctx(self, optics, time_s: float):
@@ -763,7 +816,10 @@ class Renderer:
 
     def datacube(self, optics, *, time_s: float = 0.0, model: str | None = None) -> np.ndarray:
         """Noiseless 4D-STEM data: float32 (scan ny, nx, Hd, Wd) at the *binned* detector shape,
-        electrons per binned pixel per second."""
+        electrons per binned pixel per second. EBSD optics: the EBSD pattern stack
+        (:meth:`ebsd_patterns`)."""
+        if optics.render_mode == RenderMode.EBSD:
+            return self.ebsd_patterns(optics, time_s=time_s)
         if optics.render_mode not in (RenderMode.STEM_4D, RenderMode.STEM_PARKED):
             raise ValueError("datacube needs STEM optics")
         fm, token = self.field_map(optics, STEM_LAYERS, time_s)
@@ -828,7 +884,11 @@ class Renderer:
     def ground_truth(self, optics, time_s: float = 0.0) -> dict:
         """Per raster pixel (TEM view) or scan point (STEM): ``material_id``, ``grain_id`` and the
         effective orientation ``quaternion`` (orix/diffsims rotation incl. the stage tilt;
-        identity where there is no crystal), plus ``thickness_nm``."""
+        identity where there is no crystal), plus ``thickness_nm``. EBSD optics: the EBSD ground
+        truth per scan point (:meth:`de_twin.ebsd.EbsdRenderer.ground_truth`; sample frame)."""
+        if optics.render_mode == RenderMode.EBSD:
+            with self._lock:
+                return self.ebsd.ground_truth(self.specimen, optics, *self._ebsd_source(optics, time_s))
         from ..crystal import effective_matrices, rotation_from_crystal_to_lab
         from ..specimen.materials import GRAINS_PER_MATERIAL
 
@@ -863,7 +923,9 @@ class Renderer:
     @property
     def stats(self) -> dict:
         s = self.cache.stats
+        ebsd = self._ebsd
         return {
+            "ebsd_patterns": ebsd.patterns_rendered if ebsd is not None else 0,
             "rasters_built": self.rasters_built,
             "frames_from_cache": self.frames_from_cache,
             "saed_exact_grains": self._saed.exact_grains,

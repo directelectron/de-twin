@@ -17,6 +17,7 @@ _CONCURRENT = textwrap.dedent(
 
     import numpy as np
 
+    from de_twin.ebsd.kernels import accumulate_bands
     from de_twin.parallel import PARALLEL
     from de_twin.render.fastpath import transpose
     from de_twin.render.stem_nb import window_dots
@@ -26,6 +27,16 @@ _CONCURRENT = textwrap.dedent(
     window = np.ones((16, 16), np.float32)
     expected = np.array([x[r:r + 16, r:r + 16].sum(dtype=np.float64) for r in corners])
 
+    rng = np.random.default_rng(0)
+    directions = rng.normal(size=(4096, 3))
+    directions /= np.linalg.norm(directions, axis=1)[:, None]
+    normals = rng.normal(size=(16, 3))
+    normals /= np.linalg.norm(normals, axis=1)[:, None]
+    widths, amplitudes = np.full(16, 0.05), np.ones(16)
+    sigmas, edge_sigmas, reach = np.full(16, 0.1), np.full(16, 0.05), np.full(16, 3.0)
+    bands = np.empty(len(directions))
+    accumulate_bands(directions, normals, widths, amplitudes, sigmas, edge_sigmas, reach, bands)
+
     def launch(_):
         for _ in range(50):
             out = np.empty((384, 512), np.float32)
@@ -34,6 +45,9 @@ _CONCURRENT = textwrap.dedent(
             dots = np.empty(len(corners))
             window_dots(x, corners, corners, window, dots)
             assert np.allclose(dots, expected)
+            again = np.empty(len(directions))
+            accumulate_bands(directions, normals, widths, amplitudes, sigmas, edge_sigmas, reach, again)
+            assert np.array_equal(again, bands)
 
     with ThreadPoolExecutor(4) as pool:
         list(pool.map(launch, range(4)))

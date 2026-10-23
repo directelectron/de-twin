@@ -1,0 +1,1 @@
+Importing ``de_twin`` sets ``NUMBA_DISABLE_CUDA=1``, so the twin never initialises CUDA (diffsims asked numba for a device on import, which started the driver in the process serving DE-Server). ``DE_TWIN_ALLOW_CUDA=1`` leaves the process alone.

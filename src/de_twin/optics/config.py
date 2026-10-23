@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from ..state import ProbeMode, RenderMode
 
 if TYPE_CHECKING:
+    from ..ebsd import EbsdGeometry
     from .realism import ColumnRealism
 
 
@@ -91,6 +92,10 @@ class OpticsConfig:
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
     realism: ColumnRealism | None = None
+    #: An SEM with an EBSD detector (:class:`de_twin.ebsd.EbsdGeometry`): when set and enabled,
+    #: every acquisition renders EBSD patterns (``RenderMode.EBSD``) at the column's beam
+    #: energy. None: a TEM. ``DigitalTwin.configure_ebsd`` sets it.
+    ebsd: EbsdGeometry | None = None
 
     @classmethod
     def realistic(cls, seed: int = 0, **overrides) -> OpticsConfig:
