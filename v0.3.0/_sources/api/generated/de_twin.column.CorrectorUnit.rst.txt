@@ -1,0 +1,51 @@
+﻿de\_twin.column.CorrectorUnit
+=============================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: CorrectorUnit
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CorrectorUnit.__init__
+      ~CorrectorUnit.aberration
+      ~CorrectorUnit.aberrations_string
+      ~CorrectorUnit.alignment_json
+      ~CorrectorUnit.endpoint
+      ~CorrectorUnit.info
+      ~CorrectorUnit.perturb
+      ~CorrectorUnit.post_correct
+      ~CorrectorUnit.post_fetch_alignment
+      ~CorrectorUnit.post_get_config
+      ~CorrectorUnit.post_measure_c1a1
+      ~CorrectorUnit.post_put_alignment
+      ~CorrectorUnit.post_readback
+      ~CorrectorUnit.post_reconnect
+      ~CorrectorUnit.post_set_config
+      ~CorrectorUnit.post_tableau
+      ~CorrectorUnit.residual
+      ~CorrectorUnit.set_beam_tilt
+      ~CorrectorUnit.set_residual
+      ~CorrectorUnit.simulate_measurement
+      ~CorrectorUnit.status
+      ~CorrectorUnit.time_to_idle
+      ~CorrectorUnit.total
+      ~CorrectorUnit.wait
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CorrectorUnit.busy
+   
+   

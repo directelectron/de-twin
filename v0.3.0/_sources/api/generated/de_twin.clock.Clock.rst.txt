@@ -1,0 +1,32 @@
+﻿de\_twin.clock.Clock
+====================
+
+.. currentmodule:: de_twin.clock
+
+.. autoclass:: Clock
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Clock.__init__
+      ~Clock.now
+      ~Clock.set_time_scale
+      ~Clock.sleep
+      ~Clock.sleep_until
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Clock.virtual
+   
+   

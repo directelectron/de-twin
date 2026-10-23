@@ -1,0 +1,74 @@
+﻿de\_twin.column.Column
+======================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: Column
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Column.__init__
+      ~Column.cl_ladder
+      ~Column.close
+      ~Column.convergence_mrad
+      ~Column.get
+      ~Column.mag_ladder
+      ~Column.move_stage
+      ~Column.now
+      ~Column.on_change
+      ~Column.op_state
+      ~Column.property_names
+      ~Column.set
+      ~Column.set_alpha_selector
+      ~Column.set_beam_blank
+      ~Column.set_beam_shift_um
+      ~Column.set_beam_tilt_mrad
+      ~Column.set_camera_length_cm
+      ~Column.set_camera_length_mm
+      ~Column.set_column_valves
+      ~Column.set_condenser_aperture
+      ~Column.set_condenser_stig
+      ~Column.set_convergence_mrad
+      ~Column.set_defocus_um
+      ~Column.set_diffraction_shift_mrad
+      ~Column.set_function_mode
+      ~Column.set_ht_kv
+      ~Column.set_image_shift_um
+      ~Column.set_instrument_type
+      ~Column.set_intensity
+      ~Column.set_magnification
+      ~Column.set_magnification_index
+      ~Column.set_objective_stig
+      ~Column.set_probe_mode
+      ~Column.set_projection
+      ~Column.set_screen
+      ~Column.set_spot_size
+      ~Column.set_stage
+      ~Column.set_tem_stem
+      ~Column.stage_position
+      ~Column.stage_target
+      ~Column.state
+      ~Column.stop
+      ~Column.time_to_idle
+      ~Column.values
+      ~Column.wait_idle
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Column.busy
+      ~Column.function_mode
+      ~Column.instrument_type
+   
+   

@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.column.ceos &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/column/ceos';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.3.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/v0.3.0/_modules/de_twin/column/ceos.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.column.ceos</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.column.ceos</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""CEOS conventions: the aberration list and string formats, the Zemlin tableau measurement model, and drift."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..optics.aberrations</span><span class="w"> </span><span class="kn">import</span> <span class="n">TERMS</span><span class="p">,</span> <span class="n">Aberrations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..optics.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">electron_wavelength_nm</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># CEOS constants</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="c1">#: The CEOS reference server's aberration list, in the order it reports (and</span>
+<span class="c1">#: truncates at ``maxFit``). We is image shift (m), WD the beam tilt (rad).</span>
+<span class="n">CEOS_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"C1"</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">,</span> <span class="s2">"C3"</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">,</span> <span class="s2">"A4"</span><span class="p">,</span> <span class="s2">"D4"</span><span class="p">,</span> <span class="s2">"B4"</span><span class="p">,</span> <span class="s2">"C5"</span><span class="p">,</span> <span class="s2">"A5"</span><span class="p">,</span> <span class="s2">"R5"</span><span class="p">,</span> <span class="s2">"S5"</span><span class="p">,</span> <span class="s2">"We"</span><span class="p">,</span> <span class="s2">"WD"</span><span class="p">)</span>
+<span class="n">FIT_NAMES</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">CEOS_ORDER</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">TERMS</span><span class="p">)</span>
+<span class="c1">#: tabType -&gt; (default outer angle mrad, default maxFit)</span>
+<span class="n">TABLEAU_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Fast"</span><span class="p">:</span> <span class="p">(</span><span class="mf">9.0</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">),</span> <span class="s2">"Standard"</span><span class="p">:</span> <span class="p">(</span><span class="mf">18.0</span><span class="p">,</span> <span class="s2">"A4"</span><span class="p">),</span> <span class="s2">"Enhanced"</span><span class="p">:</span> <span class="p">(</span><span class="mf">34.0</span><span class="p">,</span> <span class="s2">"A5"</span><span class="p">)}</span>
+<span class="c1">#: getInfo measurementRange (metres): the most one image can measure.</span>
+<span class="n">MEASUREMENT_RANGE_M</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"A1"</span><span class="p">:</span> <span class="mf">4.7e-07</span><span class="p">,</span> <span class="s2">"C1"</span><span class="p">:</span> <span class="mf">4.7e-07</span><span class="p">,</span> <span class="s2">"We"</span><span class="p">:</span> <span class="mf">2.56e-08</span><span class="p">}</span>
+<span class="n">PROTOCOL_VERSION</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">PROBE_PORT</span><span class="p">,</span> <span class="n">IMAGE_PORT</span> <span class="o">=</span> <span class="mi">7072</span><span class="p">,</span> <span class="mi">7071</span>
+<span class="n">CONFIG_DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"detilt"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"use2ndorder"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+<span class="c1">#: CorrectorService states (== DE-TEM-Channel OperationState for 0..3).</span>
+<span class="n">IDLE</span><span class="p">,</span> <span class="n">RUNNING</span><span class="p">,</span> <span class="n">DONE</span><span class="p">,</span> <span class="n">FAILED</span><span class="p">,</span> <span class="n">ABSENT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span>
+
+<span class="c1"># Durations on the twin clock (seconds): the reference server's sleeps.</span>
+<span class="n">T_MEASURE_C1A1</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">T_TABLEAU_OVERHEAD</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">T_TABLEAU_PER_IMAGE</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">T_CORRECT</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">T_ALIGNMENT</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">T_CONFIG</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">T_READBACK</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">T_RECONNECT</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1">#: Tableau tilt rings: (fraction of the outer angle, azimuths); plus one untilted image.</span>
+<span class="n">TABLEAU_RINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Fast"</span><span class="p">:</span> <span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),),</span>
+    <span class="s2">"Standard"</span><span class="p">:</span> <span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)),</span>
+    <span class="s2">"Enhanced"</span><span class="p">:</span> <span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Model parameters (nm)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="c1">#: Uncorrected lens at 200 kV: round terms signed, others |value| (random azimuth).</span>
+<span class="n">NATIVE_NOMINAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C3"</span><span class="p">:</span> <span class="mf">1.2e6</span><span class="p">,</span> <span class="s2">"C5"</span><span class="p">:</span> <span class="mf">2.0e6</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">150.0</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">3000.0</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">3000.0</span><span class="p">}</span>
+<span class="n">NATIVE_SPREAD</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C3"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s2">"C5"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+<span class="c1">#: A good tune at 200 kV (|value| drawn in [0.5, 1.5] x nominal, random azimuth / sign).</span>
+<span class="c1">#: Gives a pi/4 angle (excluding C1/A1, as CEOS quotes it) of ~24-30 mrad with C5 ~2 mm.</span>
+<span class="n">TUNED_NOMINAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">14.0</span><span class="p">,</span> <span class="s2">"C3"</span><span class="p">:</span> <span class="mf">400.0</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">130.0</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">400.0</span><span class="p">}</span>
+<span class="c1">#: Out of tune (cold start, after an HT change): added to the tuned offset.</span>
+<span class="c1">#: (C1/A1 stay mostly inside the 470 nm measurement range, so a Fast tableau or a</span>
+<span class="c1">#: C1A1 measurement still works; a Standard tableau loses its outer images.)</span>
+<span class="n">DETUNE_HT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="mf">150.0</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span> <span class="s2">"C3"</span><span class="p">:</span> <span class="mf">15000.0</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">5000.0</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">5000.0</span><span class="p">}</span>
+<span class="c1">#: Probe mode / function mode / TEM-STEM change.</span>
+<span class="n">DETUNE_MODE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">}</span>
+<span class="c1">#: Random-walk rates, nm per sqrt(second) (rms of |increment|).</span>
+<span class="n">DRIFT_RATES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">0.30</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="mf">0.20</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">0.60</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">"C3"</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">}</span>
+
+<span class="c1">#: Per-image measurement noise of the induced C1 / A1 (nm, 1 sigma) and relative part.</span>
+<span class="n">IMAGE_SIGMA_NM</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">IMAGE_SIGMA_REL</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="c1">#: Tilt calibration error (relative, fixed per unit) and jitter (mrad).</span>
+<span class="n">TILT_CAL_ERROR</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">TILT_JITTER_MRAD</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+<span class="c1">#: Correction: (fixed gain error sigma, fixed rotation error sigma in deg, jitter fraction).</span>
+<span class="n">CORRECT_ERRORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"C1"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
+    <span class="s2">"A1"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
+    <span class="s2">"B2"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">),</span>
+    <span class="s2">"A2"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">),</span>
+    <span class="s2">"C3"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
+    <span class="s2">"S3"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">),</span>
+    <span class="s2">"A3"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">CORRECT_ERRORS_DEFAULT</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+<span class="c1">#: Parasitic coupling: correcting X by |d| adds k*|d| (random azimuth) to each Y.</span>
+<span class="n">COUPLING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"A1"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">},</span>
+    <span class="s2">"B2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"C1"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">},</span>
+    <span class="s2">"A2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"A1"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+    <span class="s2">"C3"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"S3"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">},</span>
+    <span class="s2">"S3"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"C3"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">"B2"</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">},</span>
+    <span class="s2">"A3"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"C3"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">"A2"</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">},</span>
+    <span class="s2">"C5"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"C3"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">"S3"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">"A3"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+<span class="p">}</span>
+<span class="n">SELECT_ERROR_SCALE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fine"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"coarse"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="CorrectorError">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.CorrectorError.html#de_twin.column.CorrectorError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CorrectorError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A corrector command was refused or failed (``getCorrectorError`` text)."""</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_server_error</span><span class="p">(</span><span class="n">detail</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How CeosRpcClient joins a JSON-RPC error: message, data.message, code."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"Server error: </span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2"> (-32000)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_round</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">TERMS</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_symmetry</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">TERMS</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">TERMS</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="n">q</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_random_coeff</span><span class="p">(</span><span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">magnification</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">complex</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">_round</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">complex</span><span class="p">(</span><span class="n">magnification</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">complex</span><span class="p">(</span><span class="n">magnification</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> <span class="n">magnification</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">native_aberrations</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"probe"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The uncorrected objective of one side (deterministic from ``seed``)."""</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mi">7072</span> <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"probe"</span> <span class="k">else</span> <span class="mi">7071</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">nom</span> <span class="ow">in</span> <span class="n">NATIVE_NOMINAL</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">spread</span> <span class="o">=</span> <span class="n">NATIVE_SPREAD</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">magnification</span> <span class="o">=</span> <span class="n">nom</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">spread</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">magnification</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">_round</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">else</span> <span class="n">_random_coeff</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">magnification</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Aberrations</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tuned_residual</span><span class="p">(</span><span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Aberrations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A residual after a good tune (without C5, which stays native)."""</span>
+    <span class="k">return</span> <span class="n">Aberrations</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">_random_coeff</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">TUNED_NOMINAL</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">operator_c1a1</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stig_nm_per_unit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The operator's focus (C1) and stigmator (A1) of a MicroscopeState, nm, as the</span>
+<span class="sd">    optics adds them: C1 = (defocus + stage z) * 1000; A1 = condenser stig (probe) /</span>
+<span class="sd">    objective stig (image) x ``stig_nm_per_unit`` (OpticsConfig default 1000)."""</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">defocus_um</span><span class="p">)</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">stage</span><span class="o">.</span><span class="n">z_um</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1000.0</span>
+    <span class="n">stig</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">condenser_stig</span> <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"probe"</span> <span class="k">else</span> <span class="n">state</span><span class="o">.</span><span class="n">objective_stig</span>
+    <span class="k">return</span> <span class="n">c1</span><span class="p">,</span> <span class="nb">complex</span><span class="p">(</span><span class="n">stig</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">stig_nm_per_unit</span><span class="p">,</span> <span class="n">stig</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">stig_nm_per_unit</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pi4_angle_mrad</span><span class="p">(</span><span class="n">ab</span><span class="p">:</span> <span class="n">Aberrations</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_c1a1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The pi/4 angle a CEOS tableau quotes: C1 and A1 excluded (the operator sets</span>
+<span class="sd">    focus and stigmation), everything else in phase (worst azimuth)."""</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">electron_wavelength_nm</span><span class="p">(</span><span class="n">ht_kv</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">ab</span> <span class="k">if</span> <span class="n">include_c1a1</span> <span class="k">else</span> <span class="n">Aberrations</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ab</span><span class="o">.</span><span class="n">coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"C1"</span><span class="p">,</span> <span class="s2">"A1"</span><span class="p">)})</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">flat_angle_mrad</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Tableau physics</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">induced_c1a1</span><span class="p">(</span><span class="n">coeffs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">complex</span><span class="p">],</span> <span class="n">tilt</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Effective defocus C1 and two-fold astigmatism A1 (nm) seen with the beam tilted</span>
+<span class="sd">    by ``tilt`` (complex angle, rad): the second derivatives of chi about the tilt.</span>
+
+<span class="sd">    With chi = Re sum pre*c*wb^p*w^q: C1 = 2 Re f_{w wb}, A1 = f_{wb wb} + conj(f_{ww}).</span>
+<span class="sd">    (C3 alone gives the textbook 2*C3*|t|^2 and C3*t^2.)</span>
+<span class="sd">    """</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="mi">0</span><span class="n">j</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">TERMS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">pre</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">q</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">c1</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">tb</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">**</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">real</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">a1</span> <span class="o">+=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tb</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="o">**</span><span class="n">q</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">a1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tb</span><span class="o">**</span><span class="n">p</span> <span class="o">*</span> <span class="n">t</span> <span class="o">**</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">c1</span><span class="p">,</span> <span class="n">a1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tableau_tilts</span><span class="p">(</span><span class="n">tab_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">complex</span><span class="p">]:</span>
+    <span class="n">tilts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="n">j</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">frac</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">TABLEAU_RINGS</span><span class="p">[</span><span class="n">tab_type</span><span class="p">]:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">angle_mrad</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">frac</span>
+        <span class="n">off</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">frac</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">tilts</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="n">r</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">off</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">off</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="n">tilts</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_params</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Real unknowns of a fit: (name, basis unit 1 or 1j)."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_round</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_design_rows</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tilt</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""3 x P: rows = induced C1, Re A1, Im A1 per unit parameter."""</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="n">c1</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">induced_c1a1</span><span class="p">({</span><span class="n">n</span><span class="p">:</span> <span class="n">unit</span><span class="p">},</span> <span class="n">tilt</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">a1</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">a1</span><span class="o">.</span><span class="n">imag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Results</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="MeasurementResult">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MeasurementResult.html#de_twin.column.MeasurementResult">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MeasurementResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A tableau / C1A1 measurement, as the corrector reports it (plus confidence)."""</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># "C1A1" | "tableau"</span>
+    <span class="n">aberrations</span><span class="p">:</span> <span class="n">Aberrations</span>  <span class="c1"># measured, complex nm (TOTAL: incl. operator focus/stig)</span>
+    <span class="n">sigma_nm</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>  <span class="c1"># 1-sigma confidence of |coefficient|, nm</span>
+    <span class="n">tab_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">angle_mrad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">max_fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">images</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">images_lost</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">t_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">t_done</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"probe"</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="MeasurementResult.ceos">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MeasurementResult.html#de_twin.column.MeasurementResult.ceos">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ceos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">"""[(name, (x_m, y_m))] in CEOS order (the AberrationSet on the wire)."""</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aberrations</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">real</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">_round</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">imag</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="MeasurementResult.to_string">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MeasurementResult.html#de_twin.column.MeasurementResult.to_string">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``AberrationSet::toString``: ``C1=x,y;A1=x,y;...`` metres, ``%.9g``."""</span>
+        <span class="k">return</span> <span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.9g</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">y</span><span class="si">:</span><span class="s2">.9g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ceos</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="MeasurementResult.pi4_angle_mrad">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.MeasurementResult.html#de_twin.column.MeasurementResult.pi4_angle_mrad">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pi4_angle_mrad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pi4_angle_mrad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aberrations</span><span class="p">,</span> <span class="n">ht_kv</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">format_aberration_set</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.9g</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">y</span><span class="si">:</span><span class="s2">.9g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_aberration_set</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">"""Inverse of ``AberrationSet::toString`` (getAberrations / getCorrectorResult)."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sep</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ceos_to_nm</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""CEOS (x, y) metres -&gt; {name: complex nm} for the names chi knows (We/WD dropped)."""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">_round</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">else</span> <span class="n">y</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">TERMS</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_info</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""``CorrectorInfo::toString`` -&gt; dict (measurementRange kept as its string)."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sep</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Drift</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Drift</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Deterministic random walk sampled on a fixed time grid, independent of how</span>
+<span class="sd">    often (or when) it is read. Piecewise constant between grid points (``step_s``),</span>
+<span class="sd">    so render caches keyed on the aberrations stay valid within a step. Time must</span>
+<span class="sd">    not go backwards (it is clamped)."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">seed</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">step_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rates</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">round</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_round</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">step_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># grid index of self._cur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increments</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_increments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">re</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">round</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">s</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">round</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">s</span>
+        <span class="k">return</span> <span class="n">re</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">im</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">complex</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>  <span class="c1"># advance in chunks</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k</span><span class="p">,</span> <span class="mi">100_000</span><span class="p">)</span>
+            <span class="n">inc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increments</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">+=</span> <span class="n">n</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span>  <span class="c1"># value at the grid point at or before t (clamped: no going back)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="nb">complex</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">v</span><span class="p">)}</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
