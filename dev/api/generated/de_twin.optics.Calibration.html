@@ -615,7 +615,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.Calibration.cl_ladder" title="de_twin.optics.Calibration.cl_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cl_ladder</span></code></a>([tem_stem])</p></td>
 <td><p>Camera lengths in <strong>mm</strong> (the twin's unit; mag.yaml stores cm).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.Calibration.default" title="de_twin.optics.Calibration.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a>([post_magnification])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.optics.Calibration.default" title="de_twin.optics.Calibration.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a>()</p></td>
 <td><p>Built-in JEOL-like ladders, computed geometrically.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.optics.Calibration.from_mag_yaml" title="de_twin.optics.Calibration.from_mag_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_mag_yaml</span></code></a>(path, *[, reference_pixel_um, ...])</p></td>
@@ -670,17 +670,15 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.optics.Calibration.default">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_magnification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/calibration.html#Calibration.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.Calibration.default" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/optics/calibration.html#Calibration.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.optics.Calibration.default" title="Link to this definition">#</a></dt>
 <dd><p>Built-in JEOL-like ladders, computed geometrically.</p>
-<p>Tables are nm per 1-um pixel (<code class="docutils literal notranslate"><span class="pre">1000</span> <span class="pre">/</span> <span class="pre">(mag</span> <span class="pre">*</span> <span class="pre">post_magnification)</span></code>) and
-are scaled by the camera’s pixel pitch, so 20 kx on a 6.5 um pixel is
-0.325 nm/px. Camera lengths are geometric (<code class="docutils literal notranslate"><span class="pre">None</span></code> entries).</p>
+<p>Tables are nm per 1-um pixel (<code class="docutils literal notranslate"><span class="pre">1000</span> <span class="pre">/</span> <span class="pre">mag</span></code>) and are scaled by the camera’s pixel
+pitch, so 20 kx on a 6.5 um pixel is 0.325 nm/px. Camera lengths are geometric
+(<code class="docutils literal notranslate"><span class="pre">None</span></code> entries). A camera behind a post-column magnification is
+<code class="docutils literal notranslate"><span class="pre">OpticsConfig.post_magnification</span></code>: the calibration is what the column believes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>post_magnification</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#de_twin.optics.Calibration" title="de_twin.optics.calibration.Calibration"><em>Calibration</em></a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#de_twin.optics.Calibration" title="de_twin.optics.calibration.Calibration"><em>Calibration</em></a></p>
 </dd>
 </dl>
 </dd></dl>

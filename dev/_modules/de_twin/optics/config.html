@@ -509,6 +509,12 @@
     <span class="n">fallback_pixel_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># used when the calibration has no entry (sensor px)</span>
     <span class="n">fallback_recip_inv_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span>  <span class="c1"># 1/nm per unbinned detector pixel</span>
     <span class="n">pixel_size_override_nm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># &gt;0 replaces the calibration outright (and the STEM step)</span>
+    <span class="c1">#: The post-column magnification the camera sits behind (the DE camera as a second camera</span>
+    <span class="c1">#: is about 1.25 to 1.5x; behind an energy filter it is larger). The rendered TEM pixel</span>
+    <span class="c1">#: is the calibrated one divided by this at every magnification, while the calibration</span>
+    <span class="c1">#: (and so the served `Specimen Pixel Size`) still reports the nominal value: the column</span>
+    <span class="c1">#: does not know. Ignored when `pixel_size_override_nm` is set. 1.0 changes nothing.</span>
+    <span class="n">post_magnification</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">geometric_diffraction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># recip px from camera pixel / camera length (C++ SIMULATOR path)</span>
     <span class="n">default_camera_length_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">250.0</span>  <span class="c1"># used when the column reports CL &lt;= 0</span>
 

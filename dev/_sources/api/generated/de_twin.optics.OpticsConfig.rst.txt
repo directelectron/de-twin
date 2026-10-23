@@ -51,6 +51,7 @@
       ~OpticsConfig.objective_aperture_mrad
       ~OpticsConfig.objective_stig_zero
       ~OpticsConfig.pixel_size_override_nm
+      ~OpticsConfig.post_magnification
       ~OpticsConfig.probe_d0_nm
       ~OpticsConfig.realism
       ~OpticsConfig.reference_condenser_index

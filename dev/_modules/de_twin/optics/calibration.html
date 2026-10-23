@@ -660,16 +660,17 @@
 <div class="viewcode-block" id="Calibration.default">
 <a class="viewcode-back" href="../../../api/generated/de_twin.optics.Calibration.html#de_twin.optics.Calibration.default">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">post_magnification</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibration</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibration</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Built-in JEOL-like ladders, computed geometrically.</span>
 
-<span class="sd">        Tables are nm per 1-um pixel (``1000 / (mag * post_magnification)``) and</span>
-<span class="sd">        are scaled by the camera's pixel pitch, so 20 kx on a 6.5 um pixel is</span>
-<span class="sd">        0.325 nm/px. Camera lengths are geometric (``None`` entries).</span>
+<span class="sd">        Tables are nm per 1-um pixel (``1000 / mag``) and are scaled by the camera's pixel</span>
+<span class="sd">        pitch, so 20 kx on a 6.5 um pixel is 0.325 nm/px. Camera lengths are geometric</span>
+<span class="sd">        (``None`` entries). A camera behind a post-column magnification is</span>
+<span class="sd">        ``OpticsConfig.post_magnification``: the calibration is what the column believes.</span>
 <span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">mags</span><span class="p">(</span><span class="n">ladder</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">):</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">post_magnification</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ladder</span><span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">):</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ladder</span><span class="p">}</span>
 
         <span class="n">cl</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">DEFAULT_CAMERA_LENGTHS_MM</span><span class="p">}</span>
         <span class="n">projects</span> <span class="o">=</span> <span class="p">[</span>
