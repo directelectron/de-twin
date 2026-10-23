@@ -11,7 +11,7 @@ from coherent_helpers import stem_optics
 from de_twin.optics.aberrations import Aberrations
 from de_twin.optics.state import probe_aberrations_of
 from de_twin.render import RenderConfig, Renderer
-from de_twin.render.coherent import build_probe, plan_sampling
+from de_twin.render.coherent_setup import build_probe, plan_sampling
 from de_twin.render.testing import SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
 

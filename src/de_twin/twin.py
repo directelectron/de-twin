@@ -473,7 +473,7 @@ class DigitalTwin:
           stig) and ``C1_nm``, ``A1_nm``, ``B2_nm``, ``C3_nm``, ``C5_nm``; ``focal_spread_nm``,
           ``source_size_nm``, ``scan_step_nm``, ``scan_rotation_rad``;
         * ``detector_shape``, ``detector_recip_px_inv_nm``, ``detector_center_px`` (binned) and
-          ``sampling`` (:class:`~de_twin.render.coherent.Sampling`).
+          ``sampling`` (:class:`~de_twin.render.coherent_setup.Sampling`).
 
         the test helper ``tests/reconstruction.object_on_grid`` resamples the object to a reconstruction's pixel.
         """

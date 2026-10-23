@@ -682,7 +682,7 @@ class Renderer:
         return choose_model(optics, self.config, lambda: self._coherent.sampling(optics))
 
     def coherent_sampling(self, optics):
-        """The coherent simulation's :class:`~de_twin.render.coherent.Sampling` for these optics."""
+        """The coherent simulation's :class:`~de_twin.render.coherent_setup.Sampling` for these optics."""
         return self._coherent.sampling(optics)
 
     def datacube(self, optics, *, time_s: float = 0.0, model: Optional[str] = None) -> np.ndarray:
