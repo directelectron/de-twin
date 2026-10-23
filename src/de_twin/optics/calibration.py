@@ -26,23 +26,10 @@ from typing import Optional
 
 import yaml
 
+from ..column.ladders import (DEFAULT_CAMERA_LENGTHS_MM, DEFAULT_LOWMAG_MAGS, DEFAULT_SAMAG_MAGS, DEFAULT_STEM_MAGS,
+                              MAG1_MAGS, Ladder)
 from ..state import MicroscopeState
 from .physics import electron_wavelength_nm
-
-MAG1_LADDER = (2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000,
-               30000, 40000, 50000, 60000, 80000, 100000, 120000, 150000, 200000, 250000,
-               300000, 400000, 500000, 600000, 800000)
-LOWMAG_LADDER = (50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500)
-SAMAG_LADDER = (5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000, 30000, 40000, 50000,
-                60000, 80000, 100000, 120000, 150000)
-STEM_LADDER = (2500, 3000, 4000, 5000, 6000, 8000, 10000, 12000, 15000, 20000, 25000, 30000,
-               40000, 50000, 60000, 80000, 100000, 120000, 150000, 200000, 250000, 300000,
-               400000, 500000, 600000, 800000, 1000000, 1200000, 1500000, 2000000, 2500000,
-               3000000, 4000000, 5000000, 6000000, 8000000, 10000000, 12000000, 15000000,
-               20000000)
-CL_LADDER_MM = (20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800,
-                1000, 1200, 1500, 2000)
-
 
 def _alphanumeric_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", str(name).lower())
@@ -162,14 +149,14 @@ class Calibration:
         def mags(ladder):
             return {float(m): 1000.0 / (m * post_magnification) for m in ladder}
 
-        cl = {m / 10.0: None for m in CL_LADDER_MM}
+        cl = {m / 10.0: None for m in DEFAULT_CAMERA_LENGTHS_MM}
         projects = [
-            MagProject("MAG1", 1, 0, 0, mags(MAG1_LADDER)),
-            MagProject("MAG2", 1, 1, 0, mags(MAG1_LADDER)),
-            MagProject("LowMAG", 1, 2, 0, mags(LOWMAG_LADDER)),
-            MagProject("SAMAG", 1, 3, 0, mags(SAMAG_LADDER)),
+            MagProject("MAG1", 1, 0, 0, mags(MAG1_MAGS)),
+            MagProject("MAG2", 1, 1, 0, mags(MAG1_MAGS)),
+            MagProject("LowMAG", 1, 2, 0, mags(DEFAULT_LOWMAG_MAGS)),
+            MagProject("SAMAG", 1, 3, 0, mags(DEFAULT_SAMAG_MAGS)),
             MagProject("DIFF", 2, 4, 0, {}, dict(cl)),
-            MagProject("STEM", 1, 0, 1, {float(m): None for m in STEM_LADDER}, dict(cl)),
+            MagProject("STEM", 1, 0, 1, {float(m): None for m in DEFAULT_STEM_MAGS}, dict(cl)),
         ]
         return cls(projects, reference_pixel_um=1.0, name="default")
 
@@ -294,31 +281,23 @@ class Calibration:
     def mag_modes(self, tem_stem: int = 0) -> list[str]:
         return [p.name for p in self._candidates(tem_stem, want_cl=False)]
 
-    def mag_ladder(self, mode: Optional[str] = "MAG1", tem_stem: int = 0) -> list[float]:
+    def mag_ladder(self, mode: Optional[str] = "MAG1", tem_stem: int = 0) -> Ladder:
         p = self._mode_project(mode, tem_stem)
-        return sorted(p.mags) if p else []
+        return Ladder(sorted(p.mags)) if p else Ladder()
 
-    def cl_ladder(self, tem_stem: int = 0) -> list[float]:
+    def cl_ladder(self, tem_stem: int = 0) -> Ladder:
         """Camera lengths in **mm** (the twin's unit; mag.yaml stores cm)."""
         cands = self._candidates(tem_stem, want_cl=True)
         diff = [p for p in cands if p.is_diffraction] or cands
         if not diff:
-            return []
-        return sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm)
-
-    @staticmethod
-    def _snap(ladder, value):
-        if not ladder:
-            return value
-        if value is None or value <= 0:
-            return ladder[0]
-        return min(ladder, key=lambda k: abs(math.log(k / value)))
+            return Ladder()
+        return Ladder(sorted(round(k * 10.0, 6) for k in diff[0].cam_lengths_cm))
 
     def snap_mag(self, mode: Optional[str], mag: float, tem_stem: int = 0) -> float:
-        return self._snap(self.mag_ladder(mode, tem_stem), mag)
+        return self.mag_ladder(mode, tem_stem).snap_logarithmic(mag)
 
     def snap_cl(self, cl_mm: float, tem_stem: int = 0) -> float:
-        return self._snap(self.cl_ladder(tem_stem), cl_mm)
+        return self.cl_ladder(tem_stem).snap_logarithmic(cl_mm)
 
     def __repr__(self) -> str:
         return f"Calibration({self.name!r}, projects={[p.name for p in self.projects]})"

@@ -383,7 +383,7 @@ class Column:
         """Raw JEOL function mode 0..4 (MAG1, MAG2, LowMAG, SAMAG, DIFF)."""
         return self._fm
 
-    def mag_ladder(self) -> list[float]:
+    def mag_ladder(self) -> L.Ladder:
         """Magnifications a ``Magnification`` write can reach from here (empty in TEM
         diffraction). In TEM imaging that is LowMAG's and MAG1's together: a write
         beyond the active mode's ladder crosses into the other (`imaging_mode_for`),
@@ -391,13 +391,13 @@ class Column:
         stuck at the top of LowMAG."""
         with self.lock:
             if self._s.tem_stem == TemStem.TEM and self._fm != L.FM_DIFF:
-                return list(L.LOWMAG_MAGS + L.MAG1_MAGS)
-            return list(L.active_ladders(self._fm, int(self._s.tem_stem))[0] or ())
+                return L.LOWMAG_MAGS + L.MAG1_MAGS
+            return L.active_ladders(self._fm, int(self._s.tem_stem))[0] or L.Ladder()
 
-    def cl_ladder(self) -> list[float]:
+    def cl_ladder(self) -> L.Ladder:
         """Camera lengths in mm of the active optics mode (empty in TEM imaging)."""
         with self.lock:
-            return list(L.active_ladders(self._fm, int(self._s.tem_stem))[1] or ())
+            return L.active_ladders(self._fm, int(self._s.tem_stem))[1] or L.Ladder()
 
     def _update_stage(self) -> bool:
         """Advance the interpolated stage to now. Returns True while moving."""
@@ -659,9 +659,9 @@ class Column:
     def _resnap(self) -> None:
         mags, cams = self._ladders()
         if mags is not None:
-            self._s.magnification = L.snap(self._s.magnification, mags)
+            self._s.magnification = mags.snap_linear(self._s.magnification)
         if cams is not None:
-            self._s.camera_length_mm = L.snap(self._s.camera_length_mm, cams)
+            self._s.camera_length_mm = cams.snap_linear(self._s.camera_length_mm)
 
     def _mag_index(self) -> int:
         mags, cams = self._ladders()
@@ -686,7 +686,7 @@ class Column:
         mags, _ = self._ladders()
         if mags is None:
             raise ColumnRefused("no magnification in TEM diffraction")
-        s.magnification = L.snap(mag, mags)
+        s.magnification = mags.snap_linear(mag)
 
     def _s_mag_index(self, value) -> None:
         idx = int(value)
@@ -713,7 +713,7 @@ class Column:
         _, cams = self._ladders()
         if cams is None:
             raise ColumnRefused("no camera length in TEM imaging")
-        self._s.camera_length_mm = L.snap(cl, cams)
+        self._s.camera_length_mm = cams.snap_linear(cl)
 
     def _s_function_mode(self, fm: int) -> None:
         if not 0 <= fm <= 4:

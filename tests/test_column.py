@@ -56,7 +56,7 @@ def test_the_mag_ladder_steps_across_lowmag_and_mag1(col):
     """A client stepping `mag_ladder` rung by rung walks from LowMAG into MAG1 and back."""
     col.set("Magnification", 120)
     ladder = list(col.mag_ladder())
-    assert ladder == sorted(ladder) and ladder[0] == 120.0 and ladder[-1] == ladders.MAG1_MAGS[-1]
+    assert list(ladder) == sorted(ladder) and ladder[0] == 120.0 and ladder[-1] == ladders.MAG1_MAGS[-1]
     for rung in ladder:
         col.set("Magnification", rung)
         assert col.get("Magnification") == rung
@@ -267,7 +267,7 @@ def test_column_adapter_duck_type(col, clock):
 
 
 def test_ladders_are_lists_and_camera_lengths_are_millimeters(col):
-    assert col.cl_ladder() == []  # no camera length in TEM imaging
+    assert not col.cl_ladder()  # no camera length in TEM imaging
     col.set("ProjectionMode", 2)
-    assert col.mag_ladder() == []  # no magnification in TEM diffraction
+    assert not col.mag_ladder()  # no magnification in TEM diffraction
     assert col.cl_ladder()[0] == 15.0 and col.cl_ladder()[-1] == 4000.0
