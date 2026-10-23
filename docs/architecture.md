@@ -236,7 +236,7 @@ class Column:                        # owns a MicroscopeState and behaves like a
     get(name) / set(name, value)     # DE-TEM-Channel property names
     set_stage(x=None, y=None, z=None, alpha=None, beta=None) ...  # plus typed setters for everything
     on_change(callback)
-    mag_ladder, cl_ladder            # snapping like the Dummy instrument
+    mag_ladder, cl_ladder            # lists (empty when the mode has none); camera lengths in mm
 class MirrorColumn(Column):          # follows a real DE-TEM-Channel (SOAP client); sets are forwarded
 class SoapTemChannelClient           # stdlib-only SOAP client (executeBatchCommands, get*, set*)
 class ColumnAdapter                  # de_microscope/autopilot SimColumn duck type
