@@ -10,16 +10,20 @@ from de_twin import DigitalTwin
 from de_twin.state import ScanRequest
 
 twin = DigitalTwin("EBSD duplex steel", camera="Celeritas")
-twin.configure_ebsd(beam_kv=20.0, sample_tilt_deg=70.0, pcx=0.5, pcy=0.3, pcz=0.6,
-                    probe_current_na=0.1)
-request = twin.request(hw_binning=(4, 4), frame_time_s=1e-3, total_frames=100 * 80,
-                       scan=ScanRequest(enabled=True, size=(100, 80), step_um=0.5, dwell_s=1e-3))
+twin.configure_ebsd(beam_kv=20.0, sample_tilt_deg=70.0, pcx=0.5, pcy=0.3, pcz=0.6, probe_current_na=0.1)
+request = twin.request(
+    hw_binning=(4, 4),
+    frame_time_s=1e-3,
+    total_frames=100 * 80,
+    scan=ScanRequest(enabled=True, size=(100, 80), step_um=0.5, dwell_s=1e-3),
+)
 
-for raw, meta in twin.frames(request):    # raw camera frames, 256 x 256, as DE-Server sends them
+for raw, meta in twin.frames(request):  # raw camera frames, 256 x 256, as DE-Server sends them
     ...
-patterns = twin.ebsd_patterns(request)     # noiseless stack (80, 100, 256, 256), e- / binned px / s
-xmap = twin.ground_truth(request)          # orix CrystalMap: phase, orientation, grain_id, pcx/pcy/pcz,
-                                           # band_contrast per scan point (x, y in um)
+patterns = twin.ebsd_patterns(request)  # noiseless stack (80, 100, 256, 256), e- / binned px / s
+# orix CrystalMap: phase, orientation, grain_id, pcx/pcy/pcz, band_contrast per scan point
+# (x, y in um)
+xmap = twin.ground_truth(request)
 ```
 
 `configure_ebsd` sets `OpticsConfig.ebsd`, an {class}`~de_twin.ebsd.EbsdGeometry`: a frozen
@@ -123,11 +127,11 @@ patterns, load your own master (below).
 ## Your own master patterns
 
 ```python
-twin.set_master_pattern("Nickel", "Ni-master-20kV.h5")          # EMsoft EMEBSDmaster output
-twin.set_master_pattern("Nickel", "ni_mp.hspy", energy_kv=20)   # kikuchipy EBSDMasterPattern.save()
+twin.set_master_pattern("Nickel", "Ni-master-20kV.h5")  # EMsoft EMEBSDmaster output
+twin.set_master_pattern("Nickel", "ni_mp.hspy", energy_kv=20)  # kikuchipy EBSDMasterPattern.save()
 twin.set_master_pattern("Silicon", array, projection="lambert", hemisphere="both", kv=20.0)
-twin.master_patterns()                                           # what is in use, sizes, checks
-twin.clear_master_patterns()                                     # back to kinematic
+twin.master_patterns()  # what is in use, sizes, checks
+twin.clear_master_patterns()  # back to kinematic
 ```
 
 - **Formats**: EMsoft HDF5 (`EMData/EBSDmaster/mLPNH` / `mLPSH`, or the stereographic
