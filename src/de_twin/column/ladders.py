@@ -15,7 +15,6 @@ triples that exist in mag.yaml can be reached; see :func:`active_ladders`.
 
 from __future__ import annotations
 
-import math
 from typing import Optional, Sequence
 
 FM_MAG1 = 0
@@ -131,7 +130,3 @@ def convergence_mrad(raw_jeol_probe: int, alpha: int, stem: bool = False) -> flo
     return ALPHA_TABLE_MRAD[min(max(int(raw_jeol_probe), 0), 3)][a]
 
 
-def log_snap(value: float, ladder: Sequence[float]) -> float:
-    """Nearest entry by ratio (what an operator means by 'about 2300x')."""
-    v = max(float(value), 1e-12)
-    return float(min(ladder, key=lambda m: abs(math.log(m) - math.log(v))))

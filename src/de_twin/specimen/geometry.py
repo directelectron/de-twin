@@ -477,20 +477,6 @@ def value_noise_separable(seed: int, xs, ys):
 
 # -- polygons in raster space -----------------------------------------------------------------
 
-def point_in_polygon(x, y, px, py):
-    """Crossing-number test (PointInPolygon) of arbitrary points; px, py polygon vertices."""
-    x = np.asarray(x, np.float64)
-    y = np.asarray(y, np.float64)
-    inside = np.zeros(x.shape, bool)
-    n = len(px)
-    for k in range(n):
-        x0, y0, x1, y1 = px[k], py[k], px[(k + 1) % n], py[(k + 1) % n]
-        cond = (y0 > y) != (y1 > y)
-        xc = (x1 - x0) * (y - y0) / ((y1 - y0) + 1e-10) + x0
-        inside ^= cond & (x < xc)
-    return inside
-
-
 def polygon_mask_rows(pcol, prow, r0: int, r1: int, nx: int) -> np.ndarray:
     """Pixel-centre inside mask of a polygon given in raster coordinates.
 

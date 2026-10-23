@@ -214,7 +214,6 @@ class ProteinFieldStructure(Structure):
             ctx.stats["fast_fills"] = ctx.stats.get("fast_fills", 0) + 1
             return
         for B in _owner_pixels(ctx, owner):
-            flat = B.flat
             hit = B.nearest(ctx, blobs)
             d2 = hit.d2
             diam = hit.per_site(lambda h: lognormal_from_hash(h, med, sig, PROTEIN_MIN_D_NM, PROTEIN_MAX_D_NM))
@@ -518,14 +517,6 @@ class JunctionStructure(Structure):
             s = smoothstep((v - self.pos) / w + 0.5)
             ctx.descan[0, B.flat] += self.sx * s
             ctx.descan[1, B.flat] += self.sy * s
-
-
-class AmorphousStructure(Structure):
-    """Explicitly amorphous interior: clears grain ids."""
-
-    def fill(self, ctx, owner):
-        for B in _owner_pixels(ctx, owner):
-            ctx.grain[B.flat] = -1
 
 
 def cross_grating_mean_nm(base_nm: float, depth_nm: float, line_fraction: float) -> float:

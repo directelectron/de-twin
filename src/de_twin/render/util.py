@@ -146,23 +146,6 @@ def upsample2x_scaled(a: np.ndarray, scale: float = 1.0) -> np.ndarray:
     return out
 
 
-def upsample2x(a: np.ndarray) -> np.ndarray:
-    """Pixel-centre-aligned bilinear 2x upsampling with edge clamping (separable, fast)."""
-    a = np.asarray(a, np.float32)
-    # rows
-    up = np.empty((a.shape[0] * 2, a.shape[1]), np.float32)
-    prev = np.concatenate([a[:1], a[:-1]], axis=0)
-    nxt = np.concatenate([a[1:], a[-1:]], axis=0)
-    up[0::2] = 0.75 * a + 0.25 * prev
-    up[1::2] = 0.75 * a + 0.25 * nxt
-    out = np.empty((up.shape[0], a.shape[1] * 2), np.float32)
-    prev = np.concatenate([up[:, :1], up[:, :-1]], axis=1)
-    nxt = np.concatenate([up[:, 1:], up[:, -1:]], axis=1)
-    out[:, 0::2] = 0.75 * up + 0.25 * prev
-    out[:, 1::2] = 0.75 * up + 0.25 * nxt
-    return out
-
-
 def upsample_to(a: np.ndarray, factor: int, shape: tuple[int, int], scale: float = 1.0) -> np.ndarray:
     """Upsample by a power-of-two ``factor``, multiply by ``scale``, crop/edge-pad to ``shape``."""
     out = a
