@@ -79,7 +79,7 @@ jobs:
 
       # Trusted publishing - no API token required.
       # One-time setup on pypi.org: add a (pending) publisher for
-      #   Project: de-twin  Owner: CSSFrancis  Repo: de-twin
+      #   Project: de-twin  Owner: directelectron  Repo: de-twin
       #   Workflow: release.yml  Environment: pypi
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

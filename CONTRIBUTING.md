@@ -3,7 +3,7 @@
 ## Development setup
 
 ```
-git clone https://github.com/CSSFrancis/de-twin
+git clone https://github.com/directelectron/de-twin
 cd de-twin
 uv sync --group dev
 uv run pytest
