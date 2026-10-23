@@ -503,3 +503,22 @@ def test_apollo_super_resolution_over_deapi():
         c.disconnect()
     assert std.shape == (256, 256) and sr.shape == (512, 512)
     assert srv.fake.request().super_resolution is True
+
+
+def test_specimen_pixel_size_stays_nominal_behind_a_post_column_magnification():
+    """The column does not know the camera sits behind a post-column magnification, so the
+    served pixel size is the calibration's even though the rendered pixel is smaller."""
+    from de_twin.optics import OpticsConfig
+    from de_twin.twin import DigitalTwin
+
+    served = []
+    for post_magnification in (1.0, 1.4):
+        twin = DigitalTwin(camera="DESim", optics_config=OpticsConfig(post_magnification=post_magnification))
+        with TwinDeapiServer(twin, port=0, pace=False) as srv:
+            c = deapi.Client()
+            c.usingMmf = False
+            c.connect(port=srv.port)
+            served.append(c["Specimen Pixel Size X (nanometers)"])
+            c.disconnect()
+    assert served[0] > 0
+    assert served[1] == served[0]

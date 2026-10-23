@@ -400,3 +400,30 @@ def test_beam_shift_moves_a_scan_even_on_a_column_that_reports_tem(make_derived_
     b = make_derived_optics(make_state(beam_shift_um=Vec2(0.5, 0.0)), request=r)
     assert a.render_mode == RenderMode.STEM_4D
     assert b.view.center_um[0] - a.view.center_um[0] == pytest.approx(0.5)
+
+
+# ------------------------------------------------------ post-column magnification
+def test_post_magnification_shrinks_the_rendered_pixel_but_not_the_nominal_one(make_optics):
+    plain = make_optics(magnification=20000.0)
+    behind_a_filter = make_optics(magnification=20000.0, config=OpticsConfig(post_magnification=1.4))
+    assert plain.render_mode == RenderMode.TEM_IMAGING
+    assert behind_a_filter.specimen_pixel_nm == pytest.approx(plain.specimen_pixel_nm / 1.4)
+    assert behind_a_filter.extras["nominal_pixel_nm"] == plain.extras["nominal_pixel_nm"]
+
+
+def test_post_magnification_is_the_same_factor_at_every_magnification(make_optics):
+    config = OpticsConfig(post_magnification=1.25)
+    for magnification in (2000.0, 20000.0, 200000.0):
+        o = make_optics(magnification=magnification, config=config)
+        assert o.specimen_pixel_nm == pytest.approx(o.extras["nominal_pixel_nm"] / 1.25)
+
+
+def test_post_magnification_composes_with_the_per_magnification_pixel_scale(make_optics):
+    plain = make_optics(magnification=20000.0, config=OpticsConfig.realistic(seed=3))
+    both = make_optics(magnification=20000.0, config=OpticsConfig.realistic(seed=3, post_magnification=1.5))
+    assert both.specimen_pixel_nm == pytest.approx(plain.specimen_pixel_nm / 1.5)
+
+
+def test_a_pixel_size_override_ignores_the_post_magnification(make_optics):
+    config = OpticsConfig(pixel_size_override_nm=0.5, post_magnification=2.0)
+    assert make_optics(magnification=20000.0, config=config).specimen_pixel_nm == 0.5

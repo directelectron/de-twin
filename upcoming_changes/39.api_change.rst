@@ -1,0 +1,1 @@
+``Calibration.default`` no longer takes ``post_magnification``, which scaled the served and the rendered pixel together and so could not express a calibration error. Set ``OpticsConfig.post_magnification`` instead.

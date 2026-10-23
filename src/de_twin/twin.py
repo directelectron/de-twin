@@ -512,6 +512,7 @@ class DigitalTwin:
             "mag_mode": str(state.mag_mode),
             "nominal_pixel_nm": float(o.extras.get("nominal_pixel_nm", o.specimen_pixel_nm)),
             "true_pixel_nm": float(o.specimen_pixel_nm),
+            "post_magnification": float(config.post_magnification),
             "image_rotation_deg": math.degrees(o.view.rotation_rad) if imaging else 0.0,
             "is_matrix_um_per_unit": [[1.0, 0.0], [0.0, 1.0]],
             "mag_offset_um": (0.0, 0.0),

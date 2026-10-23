@@ -22,6 +22,12 @@ class OpticsConfig:
     fallback_pixel_nm: float = 1.0  # used when the calibration has no entry (sensor px)
     fallback_recip_inv_nm: float = 0.04  # 1/nm per unbinned detector pixel
     pixel_size_override_nm: float = 0.0  # >0 replaces the calibration outright (and the STEM step)
+    #: The post-column magnification the camera sits behind (the DE camera as a second camera
+    #: is about 1.25 to 1.5x; behind an energy filter it is larger). The rendered TEM pixel
+    #: is the calibrated one divided by this at every magnification, while the calibration
+    #: (and so the served `Specimen Pixel Size`) still reports the nominal value: the column
+    #: does not know. Ignored when `pixel_size_override_nm` is set. 1.0 changes nothing.
+    post_magnification: float = 1.0
     geometric_diffraction: bool = True  # recip px from camera pixel / camera length (C++ SIMULATOR path)
     default_camera_length_mm: float = 250.0  # used when the column reports CL <= 0
 
