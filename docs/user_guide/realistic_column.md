@@ -58,7 +58,7 @@ focus-dependent image shift and the tilt induced by image shift.
 ## Intensity zoom
 
 ```python
-cfg = OpticsConfig(intensity_zoom=True)      # or OpticsConfig.realistic(seed, intensity_zoom=True)
+config = OpticsConfig(intensity_zoom=True)      # or OpticsConfig.realistic(seed, intensity_zoom=True)
 ```
 
 Without intensity zoom, the dose per detector pixel goes as 1/mag². Zooming out from a

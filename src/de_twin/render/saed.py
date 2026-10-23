@@ -24,9 +24,9 @@ from .util import shift_bilinear
 MAX_EXACT_GRAINS = 4000
 
 
-def buckets(fm, optics, grains, crystallinity, cfg):
+def buckets(fm, optics, grains, crystallinity, config):
     """(mats, gids, t_nm, cryst, weight) of the inscribed disk + per-material diffuse weight."""
-    s = describe(fm, optics, grains, crystallinity, fallback_grains=False, diffuse=cfg.diffuse_scattering)
+    s = describe(fm, optics, grains, crystallinity, fallback_grains=False, diffuse=config.diffuse_scattering)
     ny, nx = s.mat.shape
     yy = (np.arange(ny) + 0.5 - ny / 2.0)[:, None]
     xx = (np.arange(nx) + 0.5 - nx / 2.0)[None, :]
@@ -81,8 +81,8 @@ PRECESSION_CACHE_BYTES = 256 * 1024 * 1024
 
 
 class SaedRenderer:
-    def __init__(self, cfg):
-        self.cfg = cfg
+    def __init__(self, config):
+        self.config = config
         self._composites: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
         self._tilts: "OrderedDict[tuple, np.ndarray]" = OrderedDict()
         self.exact_grains = 0
@@ -117,15 +117,15 @@ class SaedRenderer:
         return out
 
     def _render_one(self, fm, fm_token, optics, grains, crystallinity, keep: bool = True) -> np.ndarray:
-        cfg = self.cfg
+        config = self.config
         h, w = optics.output_shape
-        options = PatternOptions.from_config(cfg)
-        sig = (fm_token, optics, options, cfg.beam_stop_radius_px, cfg.diffuse_scattering)
+        options = PatternOptions.from_config(config)
+        sig = (fm_token, optics, options, config.beam_stop_radius_px, config.diffuse_scattering)
         img = self._composites.get(sig)
         if img is not None:
             self._composites.move_to_end(sig)
             return img.copy()
-        bk, diffuse = buckets(fm, optics, grains, crystallinity, cfg)
+        bk, diffuse = buckets(fm, optics, grains, crystallinity, config)
         if not len(bk[0]):
             return np.zeros((h, w), np.float32)
         spec, self.exact_grains = composite(bk, optics, grains, options)
@@ -139,7 +139,7 @@ class SaedRenderer:
         pat = shift_bilinear(pat, dcx - cx0, dcy - cy0)
         pat *= np.float32(optics.pattern_e_per_s)
         ax, ay = optics.extras.get("axis_center_px", (cx0, cy0))
-        apply_beam_stop(pat, ax, ay, cfg.beam_stop_radius_px)
+        apply_beam_stop(pat, ax, ay, config.beam_stop_radius_px)
         if not keep:
             return pat
         self._composites[sig] = pat

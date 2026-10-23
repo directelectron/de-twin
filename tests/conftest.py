@@ -22,10 +22,10 @@ def _auto_stem_model_is_kinematic_for_legacy_tests(request, monkeypatch):
 
     original = coherent.choose_model
 
-    def choose(optics, cfg, sampling_fn):
-        if str(cfg.stem_model).lower() == "auto":
+    def choose(optics, config, sampling_fn):
+        if str(config.stem_model).lower() == "auto":
             return "kinematic"
-        return original(optics, cfg, sampling_fn)
+        return original(optics, config, sampling_fn)
 
     monkeypatch.setattr(coherent, "choose_model", choose)
     import de_twin.render.renderer as renderer

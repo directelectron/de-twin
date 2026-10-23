@@ -53,9 +53,9 @@ def test_gold_shadowing_and_no_metal_are_options():
     from de_twin.specimen import Specimen, from_name
 
     for metal, mid in (("gold", MaterialId.GOLD), ("none", None)):
-        cfg = from_name("Cross grating 2160 l/mm", seed=1)
-        cfg.options["grating_metal"] = metal
-        tw = DigitalTwin(Specimen(cfg), camera="DESim", clock=ManualClock(), seed=1)
+        config = from_name("Cross grating 2160 l/mm", seed=1)
+        config.options["grating_metal"] = metal
+        tw = DigitalTwin(Specimen(config), camera="DESim", clock=ManualClock(), seed=1)
         tw.column.set("Magnification", 100000)
         m = tw.ground_truth(as_arrays=True)["material_id"]
         if mid is None:
@@ -70,9 +70,9 @@ def test_the_islands_give_platinum_lattice_fringes():
     from de_twin.specimen import Specimen, from_name
 
     def spectrum(metal):
-        cfg = from_name("Cross grating 2160 l/mm", seed=1)
-        cfg.options["grating_metal"] = metal
-        tw = DigitalTwin(Specimen(cfg), camera="DESim", clock=ManualClock(), seed=1)
+        config = from_name("Cross grating 2160 l/mm", seed=1)
+        config.options["grating_metal"] = metal
+        tw = DigitalTwin(Specimen(config), camera="DESim", clock=ManualClock(), seed=1)
         tw.column.set("Magnification", 400000)
         tw.column.set_defocus_um(-0.03)
         req = tw.request()

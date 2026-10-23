@@ -153,13 +153,13 @@ def _bragg_memo(grains, mid: int, max_g: float, optics, g_obj: float) -> _BraggM
 _BRAGG_LOCK = threading.RLock()
 
 
-def bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: float = 0.0,
+def bragg_contrast(fm, optics, grains, crystallinity, config, coherent_k_max: float = 0.0,
                    _scratch: bool = False) -> BraggContrast:
     with _BRAGG_LOCK:
-        return _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max, _scratch)
+        return _bragg_contrast(fm, optics, grains, crystallinity, config, coherent_k_max, _scratch)
 
 
-def _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: float = 0.0,
+def _bragg_contrast(fm, optics, grains, crystallinity, config, coherent_k_max: float = 0.0,
                     _scratch: bool = False) -> BraggContrast:
     """Per-pixel Bragg loss from the grain at its effective orientation and thickness bin,
     and the lattice fringes (strongest excited, resolvable, transmitted beams) per grain.
@@ -213,18 +213,18 @@ def _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: floa
     mids = (np.unique(present // GRAINS_PER_MATERIAL) if present is not None
             else np.flatnonzero(np.bincount(gid[gid >= 0] // GRAINS_PER_MATERIAL)))
     for mid in mids:
-        lib = library_for(int(mid), cfg.max_g_inv_nm)
+        lib = library_for(int(mid), config.max_g_inv_nm)
         if lib is None:
             continue  # an amorphous material: no Bragg contrast (the FIB-liftout pattern's "auto" post)
-        memo = _bragg_memo(grains, int(mid), cfg.max_g_inv_nm, optics, g_obj)
+        memo = _bragg_memo(grains, int(mid), config.max_g_inv_nm, optics, g_obj)
         g0 = int(mid) * GRAINS_PER_MATERIAL
         g1 = min(g0 + GRAINS_PER_MATERIAL, n)
         tab = memo.table(lib, grains, int(mid), optics, None if maxbin is None else maxbin[g0:g1])
         ids = np.arange(g0, g1)
         crm = np.ones(len(ids)) if crystallinity is None else np.asarray(crystallinity(ids), float).reshape(-1)
-        lut[g0 * nb:g1 * nb] = (cfg.diffraction_contrast_scale * (crm[:, None] * tab[:g1 - g0])).ravel()
+        lut[g0 * nb:g1 * nb] = (config.diffraction_contrast_scale * (crm[:, None] * tab[:g1 - g0])).ravel()
         # fringes need beams the raster resolves (and the aperture passes)
-        if coherent or (cfg.lattice_fringes and memo.min_gxy <= g_res):
+        if coherent or (config.lattice_fringes and memo.min_gxy <= g_res):
             fringe_mids.append(int(mid))
     if _fp.AVAILABLE:
         _fp.gather(lut, pix_all, loss)
@@ -232,7 +232,7 @@ def _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: floa
         parallel_rows(lambda r0, r1: loss.__setitem__(slice(r0, r1), lut[pix_all[r0:r1]]), mat.shape[0])
     if not fringe_mids:
         return BraggContrast(loss, gid, fringes, coherent, t_typ,
-                             coherent or (cfg.lattice_fringes and cfg.lattice_fringe_model == "kinematic"))
+                             coherent or (config.lattice_fringes and config.lattice_fringe_model == "kinematic"))
     pix = pix_all[pix_all >= 0]
     pix = pix[np.isin(pix // (nb * GRAINS_PER_MATERIAL), fringe_mids)]
     pair_count = np.bincount(pix, minlength=n * nb)
@@ -247,8 +247,8 @@ def _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: floa
     typical = counts.argmax(axis=1)  # most common thickness bin of each grain (for the fringes)
     for mid in np.unique(g_u // GRAINS_PER_MATERIAL):
         sel = np.flatnonzero(g_u // GRAINS_PER_MATERIAL == mid)
-        lib = library_for(int(mid), cfg.max_g_inv_nm)
-        memo = _bragg_memo(grains, int(mid), cfg.max_g_inv_nm, optics, g_obj)
+        lib = library_for(int(mid), config.max_g_inv_nm)
+        memo = _bragg_memo(grains, int(mid), config.max_g_inv_nm, optics, g_obj)
         # the per-beam intensities at each grain's typical thickness (exact, few)
         memo.values(lib, grains, g_u[sel], np.arange(len(sel)), tb_u[typical[sel]], optics)
         for j, gi in enumerate(sel):
@@ -276,21 +276,21 @@ def _bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max: floa
                 k = np.flatnonzero((gxy <= g_res) & (gxy > 1e-6) & ((gxy <= g_obj) | (g_obj == 0)))
                 f = inten[k] * frac
                 waves: list = []
-                kin = cfg.lattice_fringe_model == "kinematic"
+                kin = config.lattice_fringe_model == "kinematic"
                 for i, fi in zip(k[np.argsort(-f)], np.sort(f)[::-1]):
                     if len(waves) == MAX_FRINGE_BEAMS:
                         break
                     if not any(abs(gx_all[i] + wx) < 1e-6 and abs(gy_all[i] + wy) < 1e-6
                                for wx, wy, _ in waves):
                         # the Friedel pair (g, -g) carries 2 f: a phase grating 2 sqrt(f) cos(g r)
-                        a = (cfg.lattice_fringe_efficiency * math.sqrt(2.0 * 2.0 * fi) if kin
+                        a = (config.lattice_fringe_efficiency * math.sqrt(2.0 * 2.0 * fi) if kin
                              else min(1.0, math.sqrt(fi / FRINGE_BEAM_FRACTION)))
                         waves.append((gx_all[i], gy_all[i], a * cr[gi]))
                 if waves:
                     w = np.array(waves)
                     fringes[int(g_u[gi])] = (2 * math.pi * w[:, 0], 2 * math.pi * w[:, 1], w[:, 2])
                     t_typ[int(g_u[gi])] = max(float(tb_u[typical[gi]]) * THICKNESS_BIN_NM, THICKNESS_BIN_NM)
-    kinematic = coherent or (cfg.lattice_fringes and cfg.lattice_fringe_model == "kinematic")
+    kinematic = coherent or (config.lattice_fringes and config.lattice_fringe_model == "kinematic")
     return BraggContrast(loss, gid, fringes, coherent, t_typ, kinematic)
 
 

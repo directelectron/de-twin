@@ -140,9 +140,9 @@ def test_thickness_and_tilt_attenuation(make_stem_optics):
     o = make_stem_optics()
     thin = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 3.0)])
     thick = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 12.0)])
-    cfg = RenderConfig(intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False)
-    a = Renderer(thin, cfg).render(o, scan_point=(10, 10)).sum()
-    b = Renderer(thick, cfg).render(o, scan_point=(10, 10)).sum()
+    config = RenderConfig(intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False)
+    a = Renderer(thin, config).render(o, scan_point=(10, 10)).sum()
+    b = Renderer(thick, config).render(o, scan_point=(10, 10)).sum()
     assert b < a < o.pattern_e_per_s
     s = MicroscopeState()
     s.tem_stem = TemStem.STEM
@@ -154,8 +154,8 @@ def test_thickness_and_tilt_attenuation(make_stem_optics):
     rq.scan.step_um = STEP_UM
     ot = derive_optics(s, rq, CAM)
     film = SyntheticSpecimen(film_thickness_nm=30.0)
-    flat = Renderer(film, cfg).render(o, scan_point=(5, 5)).sum()
-    tilt = Renderer(film, cfg).render(ot, scan_point=(5, 5)).sum()
+    flat = Renderer(film, config).render(o, scan_point=(5, 5)).sum()
+    tilt = Renderer(film, config).render(ot, scan_point=(5, 5)).sum()
     assert tilt / flat == pytest.approx(math.exp(-30.0 / 150.0), rel=1e-3)  # 2x path, e^-t/L once more
 
 

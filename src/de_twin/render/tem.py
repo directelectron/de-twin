@@ -197,19 +197,19 @@ def _world_locked_noise(view, seed: int, salt: int, _scratch: bool = False) -> n
     return block[iy - y0, ix - x0].reshape(ny, nx)
 
 
-def texture_noise(optics, cfg, seed: int, _scratch: bool = False) -> np.ndarray:
+def texture_noise(optics, config, seed: int, _scratch: bool = False) -> np.ndarray:
     """World-locked unit white noise on the raster, band-limited by the atomic form factor."""
     view = optics.view
     p_nm = view.pixel_um * 1000.0
-    salt = cfg.texture_seed_salt ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
+    salt = config.texture_seed_salt ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
     noise = _world_locked_noise(view, seed, salt, _scratch)
-    sb = cfg.texture_bandlimit_nm / p_nm
+    sb = config.texture_bandlimit_nm / p_nm
     if sb > 0.3:
         noise = gaussian_filter_threaded(noise, sb, mode="wrap")
     return noise
 
 
-def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np.ndarray | None:
+def diffuse_phase(fm, optics, config, seed: int, weights: dict, k_max: float) -> np.ndarray | None:
     """Coherent diffuse (elastic) scattering as a world-locked random phase field.
 
     For each material ``m``: unit white noise filtered to the screened-Rutherford power
@@ -235,7 +235,7 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
         if w is None or not (w > 0).any():
             continue
         k0 = screening_angle_mrad(m, optics.wavelength_nm) / (1000.0 * optics.wavelength_nm)
-        salt = (cfg.texture_seed_salt * 31 + 7919 * int(m)) ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
+        salt = (config.texture_seed_salt * 31 + 7919 * int(m)) ^ (int(round(math.log2(max(p_nm, 1e-6)) * 64)) & 0xFFFF)
         noise = _world_locked_noise(view, seed, salt)
         psd = np.float32(1.0) / (k2 + np.float32(k0 * k0)) ** 2
         psd[k2 > np.float32(k_max * k_max)] = 0
@@ -249,7 +249,7 @@ def diffuse_phase(fm, optics, cfg, seed: int, weights: dict, k_max: float) -> np
     return out
 
 
-def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
+def transmission_function(fm, optics, grains, crystallinity, config, seed: int, *,
                           return_contrast: bool = False, coherent_k_max: float = 0.0, _scratch: bool = False):
     """The specimen's complex transmission ``t(r) = A(r) exp(i phi(r))`` on ``fm.view``
     (complex64, built in threaded row chunks), shared by TEM imaging and coherent STEM::
@@ -280,11 +280,11 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
     ny, nx = view.shape
     p_nm = view.pixel_um * 1000.0
     sigma = np.float32(interaction_constant(optics.ht_kv))
-    bc = bragg_contrast(fm, optics, grains, crystallinity, cfg, coherent_k_max,
+    bc = bragg_contrast(fm, optics, grains, crystallinity, config, coherent_k_max,
                         _scratch=_scratch and not return_contrast)
     amorphous = np.array([m.amorphous for m in MATERIALS])
     keep_diffuse = None
-    if coherent_k_max > 0 and cfg.diffuse_scattering:
+    if coherent_k_max > 0 and config.diffuse_scattering:
         from .diffraction import screening_angle_mrad
         theta_c = 1000.0 * optics.wavelength_nm * coherent_k_max
         kd = [0.0]
@@ -295,23 +295,23 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
         lam_abs = absorption_lengths_nm(optics.ht_kv)
         dkeep = {}
     mip_v = material_array("mean_inner_potential_v")
-    use_tex = cfg.phase_texture_scale > 0 and (bool(amorphous[np.unique(fm.material_id[::7, ::7])].any())
+    use_tex = config.phase_texture_scale > 0 and (bool(amorphous[np.unique(fm.material_id[::7, ::7])].any())
                                                or fm.under_thickness_nm is not None)
-    noise = texture_noise(optics, cfg, seed, _scratch and not return_contrast) if use_tex else None
-    tex_k = np.float32(sigma * cfg.phase_texture_scale / p_nm)
-    w = cfg.amplitude_contrast
+    noise = texture_noise(optics, config, seed, _scratch and not return_contrast) if use_tex else None
+    tex_k = np.float32(sigma * config.phase_texture_scale / p_nm)
+    w = config.amplitude_contrast
     kappa = np.float32(w / math.sqrt(max(1e-9, 1.0 - w * w))) if w > 0 else np.float32(0.0)
     inv_dens = (1.0 / material_array("scatterer_density_nm3")).astype(np.float32)
     psi = np.empty((ny, nx), np.complex64)
     t_full = np.empty((ny, nx), np.float32)
     mip = None
     loss = None
-    taper_px = cfg.edge_taper_nm / p_nm
+    taper_px = config.edge_taper_nm / p_nm
     if _fp.AVAILABLE:
-        return _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_k, kappa,
+        return _transmission_fast(fm, optics, config, bc, noise, sigma, mip_v, amorphous, tex_k, kappa,
                                   inv_dens, p_nm, taper_px, return_contrast, _scratch and not return_contrast,
                                   keep_diffuse, seed, coherent_k_max)
-    if cfg.mip_phase:
+    if config.mip_phase:
         # mean-inner-potential phase with rounded (not ideal-step) edges
         f_t = np.float32(optics.thickness_tilt_factor)
 
@@ -324,7 +324,7 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
         parallel_rows(lambda r0, r1: mip.__setitem__(slice(r0, r1), mip_rows(r0, r1)), ny)
         if taper_px > 0.3:
             mip = gaussian_filter_threaded(mip, min(taper_px, 16.0), mode="nearest", truncate=3.0)
-        if cfg.refraction_loss:
+        if config.refraction_loss:
             # Electrons refracted by a steep phase gradient beyond the imaging band (objective
             # aperture, or half the raster Nyquist) are lost: amplitude *= exp(-(g/g_c)^4),
             # g = |grad phi| in rad/px. This also stops a 30 rad particle rim from aliasing.
@@ -387,14 +387,14 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
             kept[r0:r1] = v
         weights = {int(m): np.where(fm.material_id == m, kept, np.float32(0.0))
                    for m in np.unique(fm.material_id) if m != 0}
-        phi_d = diffuse_phase(fm, optics, cfg, seed, weights, coherent_k_max)
+        phi_d = diffuse_phase(fm, optics, config, seed, weights, coherent_k_max)
         if phi_d is not None:
             psi *= np.exp(1j * phi_d).astype(np.complex64)
-    if bc.phase_grating or bc.kinematic or (cfg.lattice_fringes and cfg.lattice_phase_rad > 0):
+    if bc.phase_grating or bc.kinematic or (config.lattice_fringes and config.lattice_phase_rad > 0):
         lat = lattice_field(fm, optics, bc, t_full)
         if lat is not None:
             (rows, cols), val, _ = lat
-            scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else cfg.lattice_phase_rad)
+            scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else config.lattice_phase_rad)
 
             def fringe(a, b):
                 r, c = rows[a:b], cols[a:b]
@@ -403,7 +403,7 @@ def transmission_function(fm, optics, grains, crystallinity, cfg, seed: int, *,
     return (psi, bc) if return_contrast else psi
 
 
-def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_k, kappa, inv_dens, p_nm,
+def _transmission_fast(fm, optics, config, bc, noise, sigma, mip_v, amorphous, tex_k, kappa, inv_dens, p_nm,
                        taper_px, return_contrast, use_scratch=False, keep_diffuse=None, seed=0,
                        coherent_k_max=0.0):
     """`transmission_function` through :mod:`.fastpath` (``keep_diffuse``: the coherent-STEM
@@ -419,13 +419,13 @@ def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_
     refraction = False
     inv_gc2 = np.float32(0.0)
     alloc = _fp.scratch if use_scratch else (lambda name, shape, dt: np.empty(shape, dt))
-    if cfg.mip_phase:
+    if config.mip_phase:
         mip = alloc("mip", (ny, nx), np.float32)
         _fp.mip_phase(fm.material_id, fm.thickness_nm, umat, uthick, has_under, f_t, np.float32(sigma),
                       mip_v, mip)
         if taper_px > 0.3:
             mip = _fp.gaussian_nearest(mip, min(taper_px, 16.0), truncate=3.0)
-        if cfg.refraction_loss:
+        if config.refraction_loss:
             g_c = 0.5 * math.pi
             if optics.objective_aperture_mrad > 0:
                 g_c = min(g_c, 2.0 * math.pi * p_nm * optics.objective_aperture_mrad * 1e-3
@@ -436,7 +436,7 @@ def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_
     t_full = alloc("t_full", (ny, nx), np.float32)
     lam_abs = absorption_lengths_nm(optics.ht_kv)
     _fp.exit_wave(fm.material_id, fm.thickness_nm, umat, uthick, has_under, f_t, lam_abs, bc.loss, mip,
-                  bool(cfg.mip_phase), refraction, inv_gc2,
+                  bool(config.mip_phase), refraction, inv_gc2,
                   noise if noise is not None else np.zeros((1, 1), np.float32), noise is not None,
                   amorphous, np.float32(tex_k), mip_v, inv_dens, np.float32(kappa), psi, t_full,
                   keep_diffuse if has_keep else np.zeros(1, np.float32), has_keep, DIFFUSE_CUTOFF_LENGTHS,
@@ -444,14 +444,14 @@ def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_
     if has_keep:
         weights = {int(m): np.where(fm.material_id == m, kept, np.float32(0.0))
                    for m in np.flatnonzero(np.bincount(fm.material_id.ravel(), minlength=256)) if m != 0}
-        phi_d = diffuse_phase(fm, optics, cfg, seed, weights, coherent_k_max)
+        phi_d = diffuse_phase(fm, optics, config, seed, weights, coherent_k_max)
         if phi_d is not None:
             _fp.mul_phase(psi, phi_d)
-    if bc.phase_grating or bc.kinematic or (cfg.lattice_fringes and cfg.lattice_phase_rad > 0):
+    if bc.phase_grating or bc.kinematic or (config.lattice_fringes and config.lattice_phase_rad > 0):
         lat = lattice_field(fm, optics, bc, t_full)
         if lat is not None:
             (rows, cols), val, _ = lat
-            scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else cfg.lattice_phase_rad)
+            scale = np.float32(1.0 if (bc.phase_grating or bc.kinematic) else config.lattice_phase_rad)
 
             def fringe(a, b):
                 r, c = rows[a:b], cols[a:b]
@@ -460,9 +460,9 @@ def _transmission_fast(fm, optics, cfg, bc, noise, sigma, mip_v, amorphous, tex_
     return (psi, bc) if return_contrast else psi
 
 
-def exit_wave(fm, optics, grains, crystallinity, cfg, seed: int) -> np.ndarray:
+def exit_wave(fm, optics, grains, crystallinity, config, seed: int) -> np.ndarray:
     """TEM exit wave under plane-wave illumination: the transmission function itself."""
-    return transmission_function(fm, optics, grains, crystallinity, cfg, seed)
+    return transmission_function(fm, optics, grains, crystallinity, config, seed)
 
 
 def _shift_ramps(shape, shift_px) -> tuple[np.ndarray, np.ndarray] | None:
@@ -477,7 +477,7 @@ def _shift_ramps(shape, shift_px) -> tuple[np.ndarray, np.ndarray] | None:
     return ry, rx
 
 
-def render_physical(fm, optics, grains, crystallinity, cfg, seed: int, cache: TransferCache,
+def render_physical(fm, optics, grains, crystallinity, config, seed: int, cache: TransferCache,
                     fm_token, shift_px=(0.0, 0.0)) -> np.ndarray:
     """|psi|^2 on the raster; ``shift_px`` (rows, cols) translates the image content by a
     fraction of a pixel (a phase ramp on the spectrum), so a raster on a world-fixed pixel
@@ -486,17 +486,17 @@ def render_physical(fm, optics, grains, crystallinity, cfg, seed: int, cache: Tr
     shape = view.shape
     p_nm = view.pixel_um * 1000.0
     skey = (fm_token, round(optics.ht_kv, 6), round(optics.thickness_tilt_factor, 12), optics.alpha_rad,
-            optics.beta_rad, optics.objective_aperture_mrad, optics.convergence_mrad, cfg.max_g_inv_nm,
-            cfg.diffraction_contrast_scale, cfg.mip_phase, cfg.edge_taper_nm, cfg.refraction_loss, cfg.phase_texture_scale,
-            cfg.texture_bandlimit_nm, cfg.amplitude_contrast, cfg.lattice_fringes,
-            cfg.lattice_phase_rad, cfg.lattice_fringe_model, cfg.lattice_fringe_efficiency, seed)
+            optics.beta_rad, optics.objective_aperture_mrad, optics.convergence_mrad, config.max_g_inv_nm,
+            config.diffraction_contrast_scale, config.mip_phase, config.edge_taper_nm, config.refraction_loss, config.phase_texture_scale,
+            config.texture_bandlimit_nm, config.amplitude_contrast, config.lattice_fringes,
+            config.lattice_phase_rad, config.lattice_fringe_model, config.lattice_fringe_efficiency, seed)
     hkey = (shape, p_nm, optics.wavelength_nm, image_aberrations_of(optics).key(), _raster_tilt(optics),
             optics.illumination_mrad, optics.focal_spread_nm, optics.objective_aperture_mrad)
     if _fp.AVAILABLE:  # spectra and transfer kept TRANSPOSED (fastpath.fft2_t), buffers reused
         skey = skey + ("T",)
         spec = cache.spectra.get(skey)
         if spec is None:
-            psi = transmission_function(fm, optics, grains, crystallinity, cfg, seed, _scratch=True)
+            psi = transmission_function(fm, optics, grains, crystallinity, config, seed, _scratch=True)
             spec = _fp.fft2_t(psi, out=cache.buffer((shape[1], shape[0]), np.complex64))
             cache._put(cache.spectra, skey, spec)
         else:
@@ -521,7 +521,7 @@ def render_physical(fm, optics, grains, crystallinity, cfg, seed: int, cache: Tr
         return out
     spec = cache.spectra.get(skey)
     if spec is None:
-        psi = exit_wave(fm, optics, grains, crystallinity, cfg, seed)
+        psi = exit_wave(fm, optics, grains, crystallinity, config, seed)
         spec = sfft.fft2(psi, workers=-1, overwrite_x=True)
         cache._put(cache.spectra, skey, spec)
     else:
@@ -559,26 +559,26 @@ def render_physical(fm, optics, grains, crystallinity, cfg, seed: int, cache: Tr
 
 
 # --------------------------------------------------------------- driver
-def render_tem(fm, optics, grains, crystallinity, cfg, seed: int, cache: TransferCache,
+def render_tem(fm, optics, grains, crystallinity, config, seed: int, cache: TransferCache,
                fm_token) -> np.ndarray:
     """float32 electrons / detector pixel / s at ``optics.output_shape``."""
-    return finish_tem(render_tem_raster(fm, optics, grains, crystallinity, cfg, seed, cache,
-                                        fm_token), optics, cfg)
+    return finish_tem(render_tem_raster(fm, optics, grains, crystallinity, config, seed, cache,
+                                        fm_token), optics, config)
 
 
-def render_tem_raster(fm, optics, grains, crystallinity, cfg, seed: int, cache: TransferCache,
+def render_tem_raster(fm, optics, grains, crystallinity, config, seed: int, cache: TransferCache,
                       fm_token, shift_px=(0.0, 0.0)) -> np.ndarray:
     """The specimen's image in RASTER space, before the illumination disc and upsampling —
     what moves rigidly with the stage (see `Renderer` panning). ``shift_px`` (rows, cols)
     translates it by a fraction of a pixel."""
-    return render_physical(fm, optics, grains, crystallinity, cfg, seed, cache, fm_token, shift_px)
+    return render_physical(fm, optics, grains, crystallinity, config, seed, cache, fm_token, shift_px)
 
 
-def finish_tem(img, optics, cfg) -> np.ndarray:
+def finish_tem(img, optics, config) -> np.ndarray:
     """The illumination disc (fixed on the detector, not the specimen) and the upsampling
     to ``optics.output_shape``."""
     view = optics.view
-    if cfg.illumination_profile and optics.illuminated_diameter_um > 0:
+    if config.illumination_profile and optics.illuminated_diameter_um > 0:
         ny, nx = view.shape
         d = max(1, optics.raster_downsample)
         off = optics.extras.get("roi_offset_px", (0.0, 0.0))

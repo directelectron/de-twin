@@ -83,8 +83,8 @@ def test_render_mode_selection_and_override(make_derived_optics, make_state):
     r = AcquisitionRequest()
     r.scan.enabled = True
     assert make_derived_optics(request=r).render_mode == RenderMode.STEM_4D
-    cfg = OpticsConfig(render_mode_override=RenderMode.TEM_DIFFRACTION)
-    assert make_derived_optics(config=cfg).render_mode == RenderMode.TEM_DIFFRACTION
+    config = OpticsConfig(render_mode_override=RenderMode.TEM_DIFFRACTION)
+    assert make_derived_optics(config=config).render_mode == RenderMode.TEM_DIFFRACTION
 
 
 # ------------------------------------------------------------- scale
@@ -330,8 +330,8 @@ def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes(ma
 
     doses = {}
     for zoom in (False, True):
-        cfg = OpticsConfig(intensity_zoom=zoom)
-        doses[zoom] = [make_derived_optics(make_state(magnification=m), config=cfg).dose_e_per_px_s
+        config = OpticsConfig(intensity_zoom=zoom)
+        doses[zoom] = [make_derived_optics(make_state(magnification=m), config=config).dose_e_per_px_s
                        for m in (5000, 20000, 80000)]
     assert doses[True][0] == pytest.approx(doses[True][1], rel=1e-6)
     assert doses[True][2] == pytest.approx(doses[True][1], rel=1e-6)

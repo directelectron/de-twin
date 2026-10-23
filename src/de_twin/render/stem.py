@@ -48,14 +48,14 @@ class StemTables:
     all_specs: dict = None  # _tilt_key -> PatternSet of every key, built on first use
 
 
-def build_tables(fm, optics, grains, crystallinity, cfg, seed: int) -> StemTables:
-    s = describe(fm, optics, grains, crystallinity, fallback_grains=True, diffuse=cfg.diffuse_scattering)
+def build_tables(fm, optics, grains, crystallinity, config, seed: int) -> StemTables:
+    s = describe(fm, optics, grains, crystallinity, fallback_grains=True, diffuse=config.diffuse_scattering)
     codes = ((s.mat.astype(np.int64) << 44) | ((s.gid + 1) << 16) | (s.thickness_bin << 4)
              | crystal_bin_for(s.crystallinity))
     uniq, inv = np.unique(codes, return_inverse=True)
     keys = np.stack([uniq >> 44, ((uniq >> 16) & 0x0FFFFFFF) - 1, (uniq >> 4) & 0xFFF, uniq & 0xF], 1)
     ny, nx = s.mat.shape
-    if cfg.intensity_jitter:
+    if config.intensity_jitter:
         idx = np.arange(ny * nx, dtype=np.uint64).reshape(ny, nx)
         jit = (0.9 + 0.2 * uniform_from_hash(hash_seed(seed, SeedKind.INTENSITY_JITTER, idx))).astype(np.float32)
     else:
@@ -63,7 +63,7 @@ def build_tables(fm, optics, grains, crystallinity, cfg, seed: int) -> StemTable
     return StemTables(s, inv.reshape(ny, nx), keys, jit)
 
 
-def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, cfg=None) -> tuple[int, int]:
+def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, config=None) -> tuple[int, int]:
     """(ix, iy) on the scan raster for this frame."""
     ny, nx = optics.view.shape
     if scan_point is not None:
@@ -75,7 +75,7 @@ def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, cfg=
         px, py = optics.extras.get("park_position", (nx // 2, ny // 2))
         if 0 <= px < nx and 0 <= py < ny:
             return int(px), int(py)
-    if cfg is not None and cfg.park_on_feature and specimen is not None:
+    if config is not None and config.park_on_feature and specimen is not None:
         try:
             cx, cy = optics.view.center_um
             f = specimen.nearest_feature(cx, cy)
@@ -109,18 +109,18 @@ def _tilt_key(optics) -> tuple:
 
 
 class StemRenderer:
-    def __init__(self, cache: DiffractionCache, cfg, seed: int):
+    def __init__(self, cache: DiffractionCache, config, seed: int):
         self.cache = cache
-        self.cfg = cfg
+        self.config = config
         self.seed = seed
         self._tables: "OrderedDict[tuple, StemTables]" = OrderedDict()
 
     def tables(self, fm, fm_token, optics, grains, crystallinity) -> StemTables:
         key = (fm_token, optics.ht_kv, optics.thickness_tilt_factor, optics.alpha_rad, optics.beta_rad,
-               optics.convergence_mrad, self.cfg.diffuse_scattering, self.cfg.intensity_jitter)
+               optics.convergence_mrad, self.config.diffuse_scattering, self.config.intensity_jitter)
         t = self._tables.get(key)
         if t is None:
-            t = build_tables(fm, optics, grains, crystallinity, self.cfg, self.seed)
+            t = build_tables(fm, optics, grains, crystallinity, self.config, self.seed)
             self._tables[key] = t
             while len(self._tables) > 2:
                 self._tables.popitem(last=False)
@@ -130,7 +130,7 @@ class StemRenderer:
 
     def _bucket(self, keys, optics, grains):
         return bucket_patterns(keys[:, 0], keys[:, 1], keys[:, 2] * THICKNESS_BIN_NM, keys[:, 3] / CRYSTAL_BINS,
-                               grains, optics, PatternOptions.from_config(self.cfg))
+                               grains, optics, PatternOptions.from_config(self.config))
 
     def all_specs(self, tab: StemTables, optics, grains):
         """PatternSet of every key of the table (one vectorised batch, then kept)."""
@@ -153,21 +153,21 @@ class StemRenderer:
         h, w = optics.output_shape
         key = ("dp", tuple(int(v) for v in tab.keys[i]), (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px,
                optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv,
-               PatternOptions.from_config(self.cfg), _tilt_key(optics))
+               PatternOptions.from_config(self.config), _tilt_key(optics))
         return self.cache.get(key, lambda _k: render_pattern(self.spec(tab, i, optics, grains), (h, w),
                                                              optics.recip_pixel_inv_nm, optics.disk_radius_px))
 
     # ------------------------------------------------------------ CBED
     def render(self, fm, fm_token, optics, grains, crystallinity, scan_point, frame_index,
                specimen=None) -> np.ndarray:
-        cfg = self.cfg
+        config = self.config
         h, w = optics.output_shape
         tab = self.tables(fm, fm_token, optics, grains, crystallinity)
         s = tab.samples
-        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, cfg)
+        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, config)
         terms: dict = {}
         dterms: dict = {}
-        for x, y, wt in _blend_samples(optics, ix, iy, cfg.probe_footprint_blend):
+        for x, y, wt in _blend_samples(optics, ix, iy, config.probe_footprint_blend):
             k = int(tab.key_index[y, x])
             terms[k] = terms.get(k, 0.0) + wt * float(s.T[y, x])
             if s.diffuse_w[y, x] > 0:
@@ -186,10 +186,10 @@ class StemRenderer:
         # descan (instrument ramp + layer) and strain, about the pattern centre
         dx = dy = 0.0
         ny, nx = optics.view.shape
-        if cfg.add_descan and nx > 0 and ny > 0:
-            xs, ys, dg = cfg.descan_ramp_px
-            dx += cfg.descan_ramp_scale * (2.0 * (ix - nx / 2.0) / nx * xs + xs + iy * dg / ny)
-            dy += cfg.descan_ramp_scale * (2.0 * (iy - ny / 2.0) / ny * ys + ys)
+        if config.add_descan and nx > 0 and ny > 0:
+            xs, ys, dg = config.descan_ramp_px
+            dx += config.descan_ramp_scale * (2.0 * (ix - nx / 2.0) / nx * xs + xs + iy * dg / ny)
+            dy += config.descan_ramp_scale * (2.0 * (iy - ny / 2.0) / ny * ys + ys)
         if fm.descan is not None:
             dx += float(fm.descan[0, iy, ix])
             dy += float(fm.descan[1, iy, ix])
@@ -221,7 +221,7 @@ class StemRenderer:
         if s.under_mat is not None:
             sig = sig + s.under_w * dfrac[s.under_mat]
         sig = sig.astype(np.float32)
-        if len(_blend_samples(optics, 0, 0, self.cfg.probe_footprint_blend)) > 1:
+        if len(_blend_samples(optics, 0, 0, self.config.probe_footprint_blend)) > 1:
             o = int(round(float(optics.extras.get("probe_blend_offset_px", 0.0))))
             p = np.pad(sig, o, mode="edge")
             ny, nx = sig.shape

@@ -44,9 +44,9 @@ def test_defocused_bf_disk_shows_a_moving_shadow_image():
     o = stem_optics(scan=(16, 16), step_nm=0.5, defocus_nm=df, probe_ab={"C3": 0.0}, det_k_over_alpha=1.3,
                     roi=128)
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle(o, 8, 8, 0.8)])
-    cfg = RenderConfig(stem_model="coherent", coherent_focal_spread=False, coherent_source_size=False)
-    r = Renderer(spec, cfg)
-    vac = Renderer(SyntheticSpecimen(film_material=MaterialId.VACUUM), cfg).render(o, scan_point=(0, 0))
+    config = RenderConfig(stem_model="coherent", coherent_focal_spread=False, coherent_source_size=False)
+    r = Renderer(spec, config)
+    vac = Renderer(SyntheticSpecimen(film_material=MaterialId.VACUUM), config).render(o, scan_point=(0, 0))
     cx, cy = o.diffraction_center_px
     y, x = np.indices(vac.shape)
     disk = np.hypot(x - cx, y - cy) < 0.8 * o.disk_radius_px
@@ -118,9 +118,9 @@ def test_live_scan_reads_ahead_and_matches_the_datacube():
     o = stem_optics(scan=(12, 10), defocus_nm=-20.0, probe_ab={"C3": 0.0})
     spec = SyntheticSpecimen(film_material=MaterialId.AMORPHOUS_CARBON, film_thickness_nm=4,
                              particles=[_particle(o, 5, 5, 1.0)])
-    cfg = RenderConfig(stem_model="coherent", coherent_max_grid=128)
-    cube = Renderer(spec, cfg).datacube(o)
-    r = Renderer(spec, cfg)
+    config = RenderConfig(stem_model="coherent", coherent_max_grid=128)
+    cube = Renderer(spec, config).datacube(o)
+    r = Renderer(spec, config)
     for fi in range(120):
         assert np.array_equal(r.render(o, frame_index=fi), cube[fi // 12, fi % 12])
 

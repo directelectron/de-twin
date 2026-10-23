@@ -191,14 +191,14 @@ def _gold_specimen(n=400, seed=3):
     return SyntheticSpecimen(film_thickness_nm=10.0, particles=parts)
 
 
-def _saed_optics(cl_mm=120.0, cam=StubCamera(sensor_shape=(1024, 1024)), cfg=None, **kw):
+def _saed_optics(cl_mm=120.0, cam=StubCamera(sensor_shape=(1024, 1024)), config=None, **kw):
     s = MicroscopeState()
     s.projection = Projection.DIFFRACTION
     s.camera_length_mm = cl_mm
     for k, v in kw.items():
         setattr(s, k, v)
     return derive_optics(s, AcquisitionRequest(), cam, Calibration.default(),
-                         cfg or OpticsConfig(sa_aperture_um=0.5))
+                         config or OpticsConfig(sa_aperture_um=0.5))
 
 
 def test_saed_rings_are_camera_length_consistent():

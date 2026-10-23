@@ -51,61 +51,61 @@ def _probe_mode(state: MicroscopeState) -> ProbeMode:
         return ProbeMode.UNKNOWN
 
 
-def beam_current_pa(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
+def beam_current_pa(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
     """Probe current in picoamperes for the column state (gun on)."""
-    cfg = cfg or OpticsConfig()
+    config = config or OpticsConfig()
     if not state.ht_on:
         return 0.0
-    spot = int(state.spot_size) if state.spot_size and state.spot_size > 0 else cfg.reference_spot
-    current = cfg.reference_current_pa * (cfg.reference_spot / spot) ** cfg.spot_exponent
+    spot = int(state.spot_size) if state.spot_size and state.spot_size > 0 else config.reference_spot
+    current = config.reference_current_pa * (config.reference_spot / spot) ** config.spot_exponent
     mode = _probe_mode(state)
     if state.tem_stem == TemStem.STEM and mode in (ProbeMode.TEM, ProbeMode.UNKNOWN):
-        current *= cfg.stem_current_factor
+        current *= config.stem_current_factor
     else:
-        current *= float(cfg.probe_mode_current_factor.get(mode, 1.0))
+        current *= float(config.probe_mode_current_factor.get(mode, 1.0))
     idx = int(state.condenser_aperture_index)
-    aps = cfg.condenser_apertures_um
-    if aps and 1 <= idx <= len(aps) and 1 <= cfg.reference_condenser_index <= len(aps):
-        current *= (aps[idx - 1] / aps[cfg.reference_condenser_index - 1]) ** 2
+    aps = config.condenser_apertures_um
+    if aps and 1 <= idx <= len(aps) and 1 <= config.reference_condenser_index <= len(aps):
+        current *= (aps[idx - 1] / aps[config.reference_condenser_index - 1]) ** 2
     return float(current)
 
 
-def beam_electrons_per_s(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
-    return beam_current_pa(state, cfg) * 1e-12 / ELECTRON_CHARGE_C
+def beam_electrons_per_s(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
+    return beam_current_pa(state, config) * 1e-12 / ELECTRON_CHARGE_C
 
 
-def illuminated_diameter_um(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
+def illuminated_diameter_um(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
     """Diameter of the illuminated area on the specimen (TEM / SAED)."""
-    cfg = cfg or OpticsConfig()
-    if cfg.tem_illuminated_area_um > 0:
-        return float(cfg.tem_illuminated_area_um)
+    config = config or OpticsConfig()
+    if config.tem_illuminated_area_um > 0:
+        return float(config.tem_illuminated_area_um)
     mode = _probe_mode(state)
     if mode in _PROBE_FORMING:
-        spot = state.spot_size if state.spot_size > 0 else cfg.reference_spot
-        return cfg.nanoprobe_illuminated_um * spot / cfg.reference_spot
+        spot = state.spot_size if state.spot_size > 0 else config.reference_spot
+        return config.nanoprobe_illuminated_um * spot / config.reference_spot
     x = float(np.clip(state.intensity, 0.0, 1.0))
-    r = getattr(cfg, "realism", None)
+    r = getattr(config, "realism", None)
     if r is not None:
         # a real C2: the beam converges to a crossover and spreads again past it
         x0 = r.crossover(int(state.spot_size), int(state.probe_mode))
         span = max(x0, 1.0 - x0)
-        d = math.hypot(cfg.illum_min_diameter_um, cfg.illum_max_diameter_um * (x - x0) / span)
+        d = math.hypot(config.illum_min_diameter_um, config.illum_max_diameter_um * (x - x0) / span)
     else:
-        d = cfg.illum_min_diameter_um * (cfg.illum_max_diameter_um / cfg.illum_min_diameter_um) ** x
-    if _intensity_zoom(state, cfg):
+        d = config.illum_min_diameter_um * (config.illum_max_diameter_um / config.illum_min_diameter_um) ** x
+    if _intensity_zoom(state, config):
         # the condenser tracks the field of view (LowMAG included: no separate spread)
-        return float(d * cfg.intensity_zoom_reference_mag / float(state.magnification))
+        return float(d * config.intensity_zoom_reference_mag / float(state.magnification))
     mode = "".join(ch for ch in str(state.mag_mode).lower() if ch.isalnum())
     if mode.startswith("low") or mode == "lm":
-        d *= cfg.lowmag_illumination_factor
+        d *= config.lowmag_illumination_factor
     return float(d)
 
 
-def _intensity_zoom(state: MicroscopeState, cfg: OpticsConfig) -> bool:
+def _intensity_zoom(state: MicroscopeState, config: OpticsConfig) -> bool:
     """Intensity zoom applies to TEM imaging with a known magnification."""
-    if not getattr(cfg, "intensity_zoom", False) or not state.magnification or state.magnification <= 0:
+    if not getattr(config, "intensity_zoom", False) or not state.magnification or state.magnification <= 0:
         return False
-    if cfg.intensity_zoom_reference_mag <= 0:
+    if config.intensity_zoom_reference_mag <= 0:
         return False
     try:
         from ..state import Projection, TemStem
@@ -115,20 +115,20 @@ def _intensity_zoom(state: MicroscopeState, cfg: OpticsConfig) -> bool:
         return False
 
 
-def illumination_semi_angle_mrad(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
-    cfg = cfg or OpticsConfig()
-    if cfg.illumination_semi_angle_mrad > 0:
-        return float(cfg.illumination_semi_angle_mrad)
-    d = illuminated_diameter_um(state, cfg)
-    a = cfg.illum_reference_alpha_mrad * cfg.illum_reference_diameter_um / max(d, 1e-6)
+def illumination_semi_angle_mrad(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
+    config = config or OpticsConfig()
+    if config.illumination_semi_angle_mrad > 0:
+        return float(config.illumination_semi_angle_mrad)
+    d = illuminated_diameter_um(state, config)
+    a = config.illum_reference_alpha_mrad * config.illum_reference_diameter_um / max(d, 1e-6)
     return float(np.clip(a, 0.005, 5.0))
 
 
-def probe_d0_nm(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
+def probe_d0_nm(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
     """C++ NominalProbeDiameterNm(probeMode, spot), or the override."""
-    cfg = cfg or OpticsConfig()
-    if cfg.probe_d0_nm > 0:
-        return float(cfg.probe_d0_nm)
+    config = config or OpticsConfig()
+    if config.probe_d0_nm > 0:
+        return float(config.probe_d0_nm)
     mode = _probe_mode(state)
     if mode in (ProbeMode.NANOPROBE, ProbeMode.NBD):
         col = _D0_TABLE["nano"]
@@ -143,7 +143,7 @@ def probe_d0_nm(state: MicroscopeState, cfg: OpticsConfig | None = None) -> floa
     return col[idx]
 
 
-def current_density_e_per_nm2_s(state: MicroscopeState, cfg: OpticsConfig | None = None) -> float:
+def current_density_e_per_nm2_s(state: MicroscopeState, config: OpticsConfig | None = None) -> float:
     """Uniform current density inside the illuminated disk (TEM)."""
-    d_nm = illuminated_diameter_um(state, cfg) * 1000.0
-    return beam_electrons_per_s(state, cfg) / (math.pi * 0.25 * d_nm * d_nm)
+    d_nm = illuminated_diameter_um(state, config) * 1000.0
+    return beam_electrons_per_s(state, config) / (math.pi * 0.25 * d_nm * d_nm)

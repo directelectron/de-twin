@@ -493,8 +493,8 @@ class DigitalTwin:
         request = request or self.request()
         state = self.column.state()
         o = self.optics(request, state)
-        cfg = self.optics_config
-        r = cfg.realism
+        config = self.optics_config
+        r = config.realism
         imaging = o.render_mode == RenderMode.TEM_IMAGING
         out = {
             "magnification": float(state.magnification),
@@ -506,8 +506,8 @@ class DigitalTwin:
             "mag_offset_um": (0.0, 0.0),
             "stage_error_um": (float(state.stage_error_um.x), float(state.stage_error_um.y)),
             "backlash_um": float(self.column.backlash_um) if hasattr(self.column, "backlash_um") else 0.0,
-            "eucentric_offset_um": float(state.stage.z_um + cfg.stage_offset_um[2] - cfg.eucentric_height_um),
-            "flip": (bool(cfg.flip_x), bool(cfg.flip_y)),
+            "eucentric_offset_um": float(state.stage.z_um + config.stage_offset_um[2] - config.eucentric_height_um),
+            "flip": (bool(config.flip_x), bool(config.flip_y)),
         }
         out["bs_matrix_um_per_unit"] = [[1.0, 0.0], [0.0, 1.0]]
         out["crossover_intensity"] = None

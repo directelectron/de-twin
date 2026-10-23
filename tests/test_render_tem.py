@@ -166,11 +166,11 @@ def test_fresnel_fringe_at_hole_edge_flips_with_defocus(make_optics):
     """A hole in carbon: underfocus puts a bright Fresnel fringe just inside the hole
     edge, overfocus a dark one (the C++ fresnel_sign convention, here from the CTF)."""
     spec = SyntheticSpecimen(holes=[(0.0, 0.0, 0.03)], film_thickness_nm=30.0)
-    cfg = RenderConfig(phase_texture_scale=0.0)
+    config = RenderConfig(phase_texture_scale=0.0)
     rows = {}
     for df in (-3.0, 3.0):
         o = make_optics(magnification=30000, defocus_um=df)
-        img = Renderer(spec, cfg).render(o) / o.dose_e_per_px_s
+        img = Renderer(spec, config).render(o) / o.dose_e_per_px_s
         c = img.shape[0] // 2
         r_px = int(30.0 / o.specimen_pixel_nm)
         rows[df] = img[c, c + r_px - 16:c + r_px]  # inside the hole, next to the edge

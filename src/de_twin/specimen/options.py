@@ -376,10 +376,10 @@ def from_name(name: str, seed: Optional[int] = None) -> SpecimenConfig:
     """
     key = str(name).strip().lower()
     for table in (PRESETS, CALIBRATION_STANDARDS, PATTERNS):
-        for k, cfg in table.items():
+        for k, config in table.items():
             kl = k.lower()
             if key == kl or (kl.startswith("virtual specimen - ") and key == kl[len("virtual specimen - "):]):
-                out = cfg.copy()
+                out = config.copy()
                 if seed is not None:
                     out.seed = int(seed)
                 return out

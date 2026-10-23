@@ -12,7 +12,7 @@ from de_twin.specimen.materials import GRAINS_PER_MATERIAL
 from de_twin.twin import DigitalTwin
 
 
-def _dense_loss(fm, optics, grains, crystallinity, cfg):
+def _dense_loss(fm, optics, grains, crystallinity, config):
     """The Bragg loss per pixel from a dense (every grain x every thickness bin) excitation."""
     t = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     gid = fm.grain_id.astype(np.int64)
@@ -27,7 +27,7 @@ def _dense_loss(fm, optics, grains, crystallinity, cfg):
     table = np.zeros((len(g_u), len(tb_u)))
     for mid in np.unique(g_u // GRAINS_PER_MATERIAL):
         sel = np.flatnonzero(g_u // GRAINS_PER_MATERIAL == mid)
-        lib = library_for(int(mid), cfg.max_g_inv_nm)
+        lib = library_for(int(mid), config.max_g_inv_nm)
         if lib is None:
             continue
         m = effective_matrices(grains.matrices[g_u[sel]], optics.alpha_rad, optics.beta_rad)
@@ -37,7 +37,7 @@ def _dense_loss(fm, optics, grains, crystallinity, cfg):
         p_out = np.stack([np.bincount(ex.owner, weights=ex.intensity[:, j] * out, minlength=len(sel))
                           for j in range(len(tb_u))], 1)
         table[sel] = cr[sel, None] * bragg_fraction(ex.total) / np.maximum(ex.total, 1e-300) * p_out
-    loss[rows, cols] = cfg.diffraction_contrast_scale * table[g_inv, t_inv]
+    loss[rows, cols] = config.diffraction_contrast_scale * table[g_inv, t_inv]
     return loss
 
 

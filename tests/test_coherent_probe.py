@@ -18,9 +18,9 @@ from de_twin.specimen.materials import MaterialId
 COHERENT = RenderConfig(coherent_focal_spread=False, coherent_source_size=False)
 
 
-def _probe(conv, ab, df=0.0, k=4.0, cfg=COHERENT, **kw):
+def _probe(conv, ab, df=0.0, k=4.0, config=COHERENT, **kw):
     o = stem_optics(conv_mrad=conv, defocus_nm=df, probe_ab=ab, roi=128, det_k_over_alpha=k, **kw)
-    p = build_probe(o, cfg)
+    p = build_probe(o, config)
     n = p.sampling.n
     y, x = np.indices((n, n)) - n // 2
     r = np.hypot(x, y) * p.sampling.dx_nm
@@ -57,7 +57,7 @@ def test_defocused_probe_size_is_two_df_alpha():
 
 
 def test_probe_normalisation_and_modes():
-    o, p, _ = _probe(20.0, {"C3": 1000.0}, cfg=RenderConfig())
+    o, p, _ = _probe(20.0, {"C3": 1000.0}, config=RenderConfig())
     assert float(p.intensity.sum()) == pytest.approx(1.0, rel=1e-4)
     for m in p.modes:
         assert float((np.abs(m) ** 2).sum()) == pytest.approx(1.0, rel=1e-4)
@@ -124,8 +124,8 @@ def test_mode_truncation_keeps_degenerate_groups_whole():
     machines. Truncation must keep the whole group, so the probe intensity stays symmetric."""
     o = stem_optics(scan=(8, 8), step_nm=1.0, conv_mrad=15.0, defocus_nm=-500.0, roi=128, binning=2,
                     det_k_over_alpha=1.3, probe_ab={"C3": 1000.0})
-    cfg = RenderConfig(stem_model="coherent", coherent_max_modes=2)
-    p = build_probe(o, cfg)
+    config = RenderConfig(stem_model="coherent", coherent_max_modes=2)
+    p = build_probe(o, config)
     w = np.asarray(p.weights)
     assert len(w) >= 2
     # no kept mode has an (almost) equal partner that was dropped: the kept set ends at a gap

@@ -62,8 +62,8 @@ class PatternOptions:
     max_g_inv_nm: float = 25.0
 
     @classmethod
-    def from_config(cls, cfg) -> "PatternOptions":
-        return cls(bool(cfg.film_halo), bool(cfg.scaled_diffraction_saturation), float(cfg.max_g_inv_nm))
+    def from_config(cls, config) -> "PatternOptions":
+        return cls(bool(config.film_halo), bool(config.scaled_diffraction_saturation), float(config.max_g_inv_nm))
 
 
 @dataclass

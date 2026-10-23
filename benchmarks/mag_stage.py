@@ -130,13 +130,13 @@ def main():
     ap.add_argument("--profile", action="store_true")
     ap.add_argument("--interactive", action="store_true")
     args = ap.parse_args()
-    cfg = RenderConfig(interactive=args.interactive)
+    config = RenderConfig(interactive=args.interactive)
     prof = cProfile.Profile() if args.profile else None
     print(f"{'preset':28s} {'camera':6s} {'scenario':26s} {'total':>7s} {'raster':>7s} {'tem':>7s} "
           f"{'finish':>7s} {'detect':>7s} {'settled':>7s}  (ms)  raster")
     for preset in args.presets:
         for cam in args.cameras:
-            tw = DigitalTwin(preset, camera=cam, clock=ManualClock(), seed=0, render_config=cfg)
+            tw = DigitalTwin(preset, camera=cam, clock=ManualClock(), seed=0, render_config=config)
             req = tw.request()
             f = tw.flux(req)  # warm: imports, numba, populated areas
             _settle(tw, req)

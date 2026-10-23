@@ -122,13 +122,13 @@ def test_tem_bright_field_contrast_changes_with_tilt():
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[Particle(0.0, 0.0, 12.0, grain=4)],
                              grains=on_zone_grains(gid, (0, 1, 1), in_plane_rad=0.4))
     r = Renderer(spec, RenderConfig(phase_texture_scale=0.0, lattice_fringes=False))
-    cfg = OpticsConfig(objective_aperture_mrad=5.0)
+    config = OpticsConfig(objective_aperture_mrad=5.0)
     means = []
     for a in np.arange(0.0, 6.01, 0.5):
         s = MicroscopeState()
         s.magnification = 50000
         s.stage.alpha_deg = float(a)
-        o = derive_optics(s, AcquisitionRequest(), StubCamera(sensor_shape=(256, 256)), Calibration.default(), cfg)
+        o = derive_optics(s, AcquisitionRequest(), StubCamera(sensor_shape=(256, 256)), Calibration.default(), config)
         img = r.render(o) / o.dose_e_per_px_s
         fm, _ = r.field_map(o)
         inside = fm.grain_id == gid

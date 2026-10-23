@@ -67,8 +67,8 @@ class Sampling:
         return (cx + 0.5) / bx - 0.5, (cy + 0.5) / by - 0.5
 
 
-def _tilt_k(optics, cfg) -> tuple[float, float]:
-    if not getattr(cfg, "coherent_beam_tilt", True):
+def _tilt_k(optics, config) -> tuple[float, float]:
+    if not getattr(config, "coherent_beam_tilt", True):
         return 0.0, 0.0
     lam = optics.wavelength_nm
     return tuple(v / 1000.0 / lam for v in optics.beam_tilt_mrad)
@@ -91,7 +91,7 @@ def geometric_probe_radius_nm(ab, lam: float, k_alpha: float, tilt=(0.0, 0.0)) -
     return float(np.hypot(gx, gy).max()) / (2.0 * math.pi)
 
 
-def plan_sampling(optics, cfg) -> Sampling:
+def plan_sampling(optics, config) -> Sampling:
     lam = optics.wavelength_nm
     alpha = optics.convergence_mrad / 1000.0
     ka = alpha / lam
@@ -103,16 +103,16 @@ def plan_sampling(optics, cfg) -> Sampling:
     cx, cy = optics.diffraction_center_px
     kd = recip * max(cx + 0.5, w - 0.5 - cx, cy + 0.5, h - 0.5 - cy, 1.0)
     ab = probe_aberrations_of(optics)
-    tilt = _tilt_k(optics, cfg)
+    tilt = _tilt_k(optics, config)
     r_geo = geometric_probe_radius_nm(ab, lam, ka, tilt)
     sig_s = optics.source_size_nm / 2.3548
-    w_req = 2.0 * (1.1 * r_geo + cfg.coherent_probe_tail * lam / max(alpha, 1e-6) + 3.0 * sig_s)
+    w_req = 2.0 * (1.1 * r_geo + config.coherent_probe_tail * lam / max(alpha, 1e-6) + 3.0 * sig_s)
     dk1 = recip * g
     m = max(1, int(math.ceil(w_req * dk1 - 1e-9)))
 
     # no wrap-around onto the detector: exit-wave frequencies reach ka + K_t (K_t: the object's
     # band limit, enforced on the transmission tile), aliased ones land at k - 2 k_nyq
-    kt = float(cfg.coherent_object_bandwidth_inv_nm)
+    kt = float(config.coherent_object_bandwidth_inv_nm)
     kt = kd + ka if kt <= 0 else min(kt, kd + ka)
     k_nyq = max(kd, 0.5 * (kd + ka + kt))
 
@@ -128,7 +128,7 @@ def plan_sampling(optics, cfg) -> Sampling:
 
     n, dk, fx, fy = grid(m)
     truncated = False
-    cap = int(cfg.coherent_max_grid)
+    cap = int(config.coherent_max_grid)
     # over the cap: shrink the window toward the hard minimum (geometric disk + 2 lambda/alpha);
     # only a window below that minimum counts as truncated
     w_min = 2.0 * (r_geo + 2.0 * lam / max(alpha, 1e-6) + 2.0 * sig_s)
@@ -178,8 +178,8 @@ def _ramp(n: int, eps: float) -> np.ndarray:
     return np.exp(-2j * math.pi * eps * np.arange(n) / n).astype(np.complex64)
 
 
-def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) -> Probe:
-    s = s or plan_sampling(optics, cfg)
+def build_probe(optics, config, s: Optional[Sampling] = None, *, center_px=None) -> Probe:
+    s = s or plan_sampling(optics, config)
     lam = optics.wavelength_nm
     n, dk, ka = s.n, s.dk, s.k_alpha
     f = sfft.fftfreq(n, d=1.0 / (n * dk))
@@ -193,20 +193,20 @@ def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) ->
     sel = A > 0
     iy, ix, KX, KY, A = iy[sel], ix[sel], KX[sel], KY[sel], A[sel]
     ab = probe_aberrations_of(optics)
-    tilt = _tilt_k(optics, cfg)
+    tilt = _tilt_k(optics, config)
     chi0 = probe_phase(ab, KX, KY, lam, tilt)
     k2t = (KX + tilt[0]) ** 2 + (KY + tilt[1]) ** 2 - (tilt[0] ** 2 + tilt[1] ** 2)
 
     # temporal coherence: Gauss-Hermite over the focal spread
-    delta = float(optics.focal_spread_nm) if cfg.coherent_focal_spread else 0.0
+    delta = float(optics.focal_spread_nm) if config.coherent_focal_spread else 0.0
     phase_edge = math.pi * lam * delta * ka * ka
-    nf = int(cfg.coherent_focal_samples)
+    nf = int(config.coherent_focal_samples)
     if nf <= 0:
         nf = 1 if phase_edge < 0.15 else (3 if phase_edge < 2.5 else 5)
     fnodes, fweights = ((np.zeros(1), np.ones(1)) if nf == 1 else (_GH3 if nf == 3 else _GH5))
     fnodes = fnodes * delta
     # spatial coherence: Gauss-Hermite 3x3 over the effective source
-    sig = float(optics.source_size_nm) / 2.3548 if cfg.coherent_source_size else 0.0
+    sig = float(optics.source_size_nm) / 2.3548 if config.coherent_source_size else 0.0
     use_src = sig > 0.02 * lam / max(ka * lam, 1e-9)  # sigma > 2 % of lambda/alpha
     snodes = [(0.0, 0.0, 1.0)]
     if use_src:
@@ -254,8 +254,8 @@ def build_probe(optics, cfg, s: Optional[Sampling] = None, *, center_px=None) ->
         ev, V = np.clip(ev[order], 0.0, None), V[:, order]
         frac = ev / ev.sum()
         first = float(frac[0])
-        keep = int(np.searchsorted(np.cumsum(frac), cfg.coherent_mode_power) + 1)
-        keep = max(1, min(keep, int(cfg.coherent_max_modes), len(ev)))
+        keep = int(np.searchsorted(np.cumsum(frac), config.coherent_mode_power) + 1)
+        keep = max(1, min(keep, int(config.coherent_max_modes), len(ev)))
         # The symmetric source sampling gives degenerate eigenvalues (e.g. an x/y pair). Within
         # a degenerate group the eigenvectors are an arbitrary basis that LAPACK picks
         # differently with BLAS threading, so cutting through a group makes the patterns
@@ -328,12 +328,12 @@ def diffuse_beyond_fraction(mid: int, wavelength_nm: float, theta_c_mrad: float)
     return t0 * t0 / (theta_c_mrad * theta_c_mrad + t0 * t0)
 
 
-def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: float = 0.0) -> Tile:
+def build_tile(fm, optics, grains, crystallinity, config, seed: int, bandwidth: float = 0.0) -> Tile:
     """Transmission function (band-limited to ``bandwidth``) plus the incoherent remainder:
     Bragg beams beyond ``bandwidth`` and the diffuse part beyond ``lambda bandwidth``."""
     stem_optics = dataclasses.replace(optics, view=fm.view, objective_aperture_mrad=0.0)
-    kmax = bandwidth if (bandwidth > 0 and cfg.coherent_incoherent_scattering) else 0.0
-    t, bc = transmission_function(fm, stem_optics, grains, crystallinity, cfg, seed, return_contrast=True,
+    kmax = bandwidth if (bandwidth > 0 and config.coherent_incoherent_scattering) else 0.0
+    t, bc = transmission_function(fm, stem_optics, grains, crystallinity, config, seed, return_contrast=True,
                                   coherent_k_max=kmax)
     if bandwidth > 0:
         t = band_limit(t, fm.view.pixel_um * 1000.0, bandwidth)
@@ -343,7 +343,7 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
     fb = np.array([diffuse_beyond_fraction(m, optics.wavelength_nm, theta_c) if kmax > 0 else (1.0 if m else 0.0)
                    for m in range(len(MATERIALS))], np.float32)
     if _snb.AVAILABLE:
-        return _tile_fast(fm, optics, cfg, t, bc, mat, lam_all, fb, kmax)
+        return _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax)
     thick = fm.thickness_nm.astype(np.float32) * np.float32(optics.thickness_tilt_factor)
     lam_px = lam_all[mat]
     T = np.exp(-thick / lam_px).astype(np.float32)
@@ -356,12 +356,12 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
         under = (umat, ((1.0 - Tu) * np.exp(-tu / (DIFFUSE_CUTOFF_LENGTHS * lam_all[umat]))).astype(np.float32))
         T = T * Tu
         dw = dw * Tu
-    kept = T + (dw * (1.0 - fb[mat]) if (kmax > 0 and cfg.diffuse_scattering) else 0.0)
+    kept = T + (dw * (1.0 - fb[mat]) if (kmax > 0 and config.diffuse_scattering) else 0.0)
     bragg = None
     if (bc.loss > 0).any():
         bragg = (kept * bc.loss).astype(np.float32)
     diffuse = {}
-    if cfg.diffuse_scattering and cfg.coherent_incoherent_scattering:
+    if config.diffuse_scattering and config.coherent_incoherent_scattering:
         dwb = dw * fb[mat]
         for m in np.unique(mat):
             if m == 0:
@@ -376,18 +376,18 @@ def build_tile(fm, optics, grains, crystallinity, cfg, seed: int, bandwidth: flo
                     continue
                 add = np.where(umat == m, uw * fb[m], np.float32(0.0))
                 diffuse[int(m)] = diffuse[int(m)] + add if int(m) in diffuse else add
-    return Tile(fm.view, t, bragg if cfg.coherent_incoherent_scattering else None, bc.gid.astype(np.int32),
+    return Tile(fm.view, t, bragg if config.coherent_incoherent_scattering else None, bc.gid.astype(np.int32),
                 thickness_bin_for(thick).astype(np.int16), mat, diffuse)
 
 
-def _tile_fast(fm, optics, cfg, t, bc, mat, lam_all, fb, kmax) -> Tile:
+def _tile_fast(fm, optics, config, t, bc, mat, lam_all, fb, kmax) -> Tile:
     """`build_tile`'s add-on maps in one numba pass (:func:`de_twin.render.stem_nb.tile_maps`)."""
     ny, nx = mat.shape
     has_under = fm.under_thickness_nm is not None
     umat = fm.under_material if has_under else mat
     uthick = fm.under_thickness_nm if has_under else fm.thickness_nm
-    diffuse_on = bool(cfg.diffuse_scattering and cfg.coherent_incoherent_scattering)
-    has_loss = bool(cfg.coherent_incoherent_scattering and (bc.loss > 0).any())
+    diffuse_on = bool(config.diffuse_scattering and config.coherent_incoherent_scattering)
+    has_loss = bool(config.coherent_incoherent_scattering and (bc.loss > 0).any())
     present = np.bincount(mat.ravel(), minlength=256)
     upresent = np.bincount(umat.ravel(), minlength=256) if has_under else np.zeros(256, np.int64)
     mids = [m for m in range(1, 256) if present[m] or upresent[m]] if diffuse_on else []
@@ -400,7 +400,7 @@ def _tile_fast(fm, optics, cfg, t, bc, mat, lam_all, fb, kmax) -> Tile:
     tbin = np.empty((ny, nx), np.int16)
     _snb.tile_maps(mat, fm.thickness_nm, np.float32(optics.thickness_tilt_factor), np.asarray(lam_all, np.float64),
                    has_under, umat, uthick, float(DIFFUSE_CUTOFF_LENGTHS), fb,
-                   bool(kmax > 0 and cfg.diffuse_scattering), bc.loss if has_loss else bragg, has_loss,
+                   bool(kmax > 0 and config.diffuse_scattering), bc.loss if has_loss else bragg, has_loss,
                    diffuse_on, slot, bragg, dmaps, dmax, tbin)
     diffuse = {}
     if diffuse_on:

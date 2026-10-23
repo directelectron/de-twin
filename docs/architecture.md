@@ -129,7 +129,7 @@ class Calibration:             # magnification -> nm/px and camera length -> 1/n
     def recip_pixel_inv_nm(self, state, camera) -> float
     mag_ladder(mode) / cl_ladder()
 def beam_current_pa(state) -> float
-def derive_optics(state, request, camera: CameraModel, calibration, cfg) -> OpticsState
+def derive_optics(state, request, camera: CameraModel, calibration, config) -> OpticsState
 ```
 
 Aberrations (`aberrations.py`, CEOS notation, complex nm; `chi`, `gradient`) are wired by

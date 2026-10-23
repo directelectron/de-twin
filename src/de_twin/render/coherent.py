@@ -119,9 +119,9 @@ class CoherentStem:
     ``field_map(view) -> (FieldMap, token)`` rasterises the specimen on a fine view (the
     renderer's cached rasteriser)."""
 
-    def __init__(self, cache, cfg, seed: int):
+    def __init__(self, cache, config, seed: int):
         self.cache = cache  # DiffractionCache (Bragg / diffuse add-on patterns)
-        self.cfg = cfg
+        self.config = config
         self.seed = seed
         self._lock = threading.RLock()  # the caches below; the read-ahead thread shares them
         self._probes: "OrderedDict[tuple, Probe]" = OrderedDict()
@@ -136,7 +136,7 @@ class CoherentStem:
 
     # ------------------------------------------------------------ keys
     def _cfg_key(self) -> tuple:
-        c = self.cfg
+        c = self.config
         return (c.coherent_max_grid, c.coherent_probe_tail, c.coherent_mode_power, c.coherent_max_modes,
                 c.coherent_focal_samples, c.coherent_focal_spread, c.coherent_source_size, c.coherent_beam_tilt,
                 c.coherent_incoherent_scattering, c.diffuse_scattering, c.max_g_inv_nm, c.mip_phase,
@@ -167,7 +167,7 @@ class CoherentStem:
                 return p.sampling
             hit = self._samplings.get(key)
             if hit is None:
-                hit = plan_sampling(optics, self.cfg)
+                hit = plan_sampling(optics, self.config)
                 self._samplings[key] = hit
                 while len(self._samplings) > 8:
                     self._samplings.popitem(last=False)
@@ -182,7 +182,7 @@ class CoherentStem:
                 return p
         if not build:
             return None
-        p = build_probe(optics, self.cfg, self.sampling(optics))  # outside the lock (prefetch thread)
+        p = build_probe(optics, self.config, self.sampling(optics))  # outside the lock (prefetch thread)
         with self._lock:
             if key in self._probes:
                 return self._probes[key]
@@ -208,7 +208,7 @@ class CoherentStem:
         rows if they fit, else runs of one row) each of whose fields fits, and the points are
         grouped by scan tile - the same tiles whichever block asks (live frames and the
         datacube agree), and a sparse scan is never one tile spanning all its points."""
-        limit = self.cfg.coherent_field_max_px
+        limit = self.config.coherent_field_max_px
         ny, nx = optics.view.shape
         allx, ally = self._scan_world(optics, self._full_scan_points(optics))
         full = field_view(allx, ally, s, optics.view)
@@ -260,7 +260,7 @@ class CoherentStem:
                 return tile
         if not build:
             return None
-        tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.cfg, self.seed,
+        tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed,
                           s.object_bandwidth)  # outside the lock (prefetch thread)
         with self._lock:
             if key in self._tiles:
@@ -294,13 +294,13 @@ class CoherentStem:
 
     # ------------------------------------------------------------ descan
     def _descan_px(self, optics, fm, ix: int, iy: int) -> tuple[float, float]:
-        cfg = self.cfg
+        config = self.config
         dx = dy = 0.0
         ny, nx = optics.view.shape
-        if cfg.add_descan and nx > 0 and ny > 0:
-            xs, ys, dg = cfg.descan_ramp_px
-            dx += cfg.descan_ramp_scale * (2.0 * (ix - nx / 2.0) / nx * xs + xs + iy * dg / ny)
-            dy += cfg.descan_ramp_scale * (2.0 * (iy - ny / 2.0) / ny * ys + ys)
+        if config.add_descan and nx > 0 and ny > 0:
+            xs, ys, dg = config.descan_ramp_px
+            dx += config.descan_ramp_scale * (2.0 * (ix - nx / 2.0) / nx * xs + xs + iy * dg / ny)
+            dy += config.descan_ramp_scale * (2.0 * (iy - ny / 2.0) / ny * ys + ys)
         if fm is not None and fm.descan is not None:
             dx += float(fm.descan[0, iy, ix])
             dy += float(fm.descan[1, iy, ix])
@@ -498,13 +498,13 @@ class CoherentStem:
         hd, wd = s.det_shape
         rb = s.det_recip_px[0]
         ck = ("coh-bragg", key, (hd, wd), rb, round(center_b[0], 3), round(center_b[1], 3), s.object_bandwidth,
-              optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv, self.cfg.max_g_inv_nm,
+              optics.convergence_mrad, optics.alpha_rad, optics.beta_rad, optics.ht_kv, self.config.max_g_inv_nm,
               _tilt_key(optics))
 
         def render(_k):
             mid, gid, tb = key
             ps = bucket_patterns([mid], [gid], [tb * THICKNESS_BIN_NM], [1.0], ctx.grains, optics,
-                                 PatternOptions(film_halo=False, max_g_inv_nm=self.cfg.max_g_inv_nm))
+                                 PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm))
             sp = ps[0].spots
             sp = sp[np.hypot(sp[:, 0], sp[:, 1]) > max(1e-9, s.object_bandwidth)]
             tot = float(sp[:, 2].sum()) if len(sp) else 0.0
@@ -519,7 +519,7 @@ class CoherentStem:
     def diffuse_cut_mrad(self, optics) -> float:
         """Inner angle of the incoherent diffuse background in coherent mode: the scattering
         angle ``lambda K_t`` beyond which the band-limited transmission function has none."""
-        if not self.cfg.coherent_incoherent_scattering:
+        if not self.config.coherent_incoherent_scattering:
             return 0.0
         return 1000.0 * optics.wavelength_nm * self.sampling(optics).object_bandwidth
 
@@ -585,7 +585,7 @@ class CoherentStem:
         ny, nx = optics.view.shape
         total = max(1, ny * nx)
         per = s.det_shape[0] * s.det_shape[1] * 4
-        work = s.n * s.n * max(1.0, math.log2(s.n)) * max(1, int(self.cfg.coherent_max_modes))
+        work = s.n * s.n * max(1.0, math.log2(s.n)) * max(1, int(self.config.coherent_max_modes))
         b = int(min(256, max(16, BLOCK_WORK // work)))
         b = min(total, b, max(1, (32 << 20) // per))
         return int(b)
@@ -632,7 +632,7 @@ class CoherentStem:
             self.blocks_computed += 1
             self._blocks[key] = blk
             self._block_bytes += blk.nbytes
-            budget = int(self.cfg.coherent_cache_mb) << 20
+            budget = int(self.config.coherent_cache_mb) << 20
             while self._block_bytes > budget and len(self._blocks) > 1:
                 _, v = self._blocks.popitem(last=False)
                 self._block_bytes -= v.nbytes
@@ -668,7 +668,7 @@ class CoherentStem:
     def _read_ahead(self, ctx, optics, fm_scan, fm_token, bsz: int, b: int, nblocks: int) -> None:
         """Compute the next ``coherent_read_ahead`` blocks of the scan in the background (live
         4D-STEM walks the scan in order), when their probe and tile are already built."""
-        n_ahead = int(getattr(self.cfg, "coherent_read_ahead", 0))
+        n_ahead = int(getattr(self.config, "coherent_read_ahead", 0))
         if n_ahead <= 0 or nblocks <= 1:
             return
         for d in range(1, min(n_ahead, nblocks - 1) + 1):
@@ -726,7 +726,7 @@ class CoherentStem:
                 self._inflight.pop(key, None)
 
     def binned(self, ctx, fm_scan, fm_token, optics, scan_point, frame_index, specimen=None) -> np.ndarray:
-        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, self.cfg)
+        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, self.config)
         nx = optics.view.shape[1]
         blk, j = self._block(ctx, optics, fm_scan, fm_token, iy * nx + ix, read_ahead=scan_point is None)
         return blk[j]
@@ -782,7 +782,7 @@ class CoherentStem:
                 if key not in bfrac:
                     mid, gid, tb = key
                     ps = bucket_patterns([mid], [gid], [tb * THICKNESS_BIN_NM], [1.0], ctx.grains, optics,
-                                         PatternOptions(film_halo=False, max_g_inv_nm=self.cfg.max_g_inv_nm))
+                                         PatternOptions(film_halo=False, max_g_inv_nm=self.config.max_g_inv_nm))
                     sp = ps[0].spots
                     sp = sp[np.hypot(sp[:, 0], sp[:, 1]) > max(1e-9, s.object_bandwidth)]
                     tot = float(sp[:, 2].sum()) if len(sp) else 0.0
@@ -812,7 +812,7 @@ class CoherentStem:
                optics.convergence_mrad, self.seed, self._cfg_key())
         tile = self._tiles.get(key)
         if tile is None:
-            tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.cfg, self.seed,
+            tile = build_tile(fm, optics, ctx.grains, ctx.crystallinity, self.config, self.seed,
                               s.object_bandwidth)
         rows, cols = tile.view.world_to_pixel(allx, ally)
         ny, nx = optics.view.shape
@@ -852,19 +852,19 @@ def expand_binned(pat: np.ndarray, optics) -> np.ndarray:
     return out
 
 
-def choose_model(optics, cfg, sampling_fn: Callable[[], Sampling]) -> str:
+def choose_model(optics, config, sampling_fn: Callable[[], Sampling]) -> str:
     """``RenderConfig.stem_model`` resolved for these optics ("coherent" | "kinematic")."""
-    m = str(cfg.stem_model).lower()
+    m = str(config.stem_model).lower()
     if m in ("coherent", "kinematic"):
         return m
     try:
         s = sampling_fn()
     except Exception:  # noqa: BLE001 - degenerate geometry: fall back to the robust model
         return "kinematic"
-    if s.truncated or s.n > cfg.coherent_max_grid:
+    if s.truncated or s.n > config.coherent_max_grid:
         return "kinematic"
     hd, wd = s.det_shape
-    if hd * wd <= cfg.coherent_auto_max_pattern_px:
+    if hd * wd <= config.coherent_auto_max_pattern_px:
         return "coherent"
     # larger patterns: when the scan oversamples the probe (ptychography-style overlap)
     if 0 < optics.scan_step_um * 1000.0 < 2.0 * s.probe_size_nm:

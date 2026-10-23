@@ -24,8 +24,8 @@ def _check_fieldmap(fm, s):
 
 
 def test_same_seed_identical_different_seed_differs():
-    cfg = from_name("Dense Au on holey C", seed=11)
-    a, b = Specimen(cfg), Specimen(cfg)
+    config = from_name("Dense Au on holey C", seed=11)
+    a, b = Specimen(config), Specimen(config)
     v = _feature_view(a, 0.004, 256)
     fa, fb = a.rasterize(v, ALL_LAYERS), b.rasterize(v, ALL_LAYERS)
     assert np.array_equal(fa.material_id, fb.material_id)

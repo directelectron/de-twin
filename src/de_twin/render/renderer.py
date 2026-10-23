@@ -245,8 +245,8 @@ class Renderer:
     # ----------------------------------------------------------- specimen
     @property
     def seed(self) -> int:
-        cfg = getattr(self.specimen, "config", None)
-        return int(getattr(cfg, "seed", 42) or 42)
+        config = getattr(self.specimen, "config", None)
+        return int(getattr(config, "seed", 42) or 42)
 
     @property
     def grains(self) -> Optional[GrainTable]:
