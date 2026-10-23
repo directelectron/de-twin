@@ -12,6 +12,7 @@ import math
 
 import numpy as np
 
+from ..hashing import splitmix64, splitmix64_kernel
 from ..parallel import numba_jit
 
 try:
@@ -31,8 +32,6 @@ LACUNARITY = 2.3
 
 _KI = 0x9E3779B97F4A7C15
 _KJ = 0xC2B2AE3D27D4EB4F
-_M1 = 0xBF58476D1CE4E5B9
-_M2 = 0x94D049BB133111EB
 _INV53 = 1.0 / 9007199254740992.0
 
 
@@ -42,10 +41,7 @@ _njit = numba_jit
 @_njit()
 def _corner(seed, i, j):
     z = seed ^ (np.uint64(i) * np.uint64(_KI)) ^ (np.uint64(j) * np.uint64(_KJ))
-    z = z + np.uint64(0x9E3779B97F4A7C15)
-    z = (z ^ (z >> np.uint64(30))) * np.uint64(_M1)
-    z = (z ^ (z >> np.uint64(27))) * np.uint64(_M2)
-    z = z ^ (z >> np.uint64(31))
+    z = splitmix64_kernel(z)
     return float(z >> np.uint64(11)) * _INV53
 
 
@@ -115,10 +111,7 @@ def _fbm_nb(x, y, out, seeds, cs, sn, amps):
 def _corner_np(seed, i, j):
     with np.errstate(over="ignore"):
         z = np.uint64(seed) ^ (i.astype(np.uint64) * np.uint64(_KI)) ^ (j.astype(np.uint64) * np.uint64(_KJ))
-        z = z + np.uint64(0x9E3779B97F4A7C15)
-        z = (z ^ (z >> np.uint64(30))) * np.uint64(_M1)
-        z = (z ^ (z >> np.uint64(27))) * np.uint64(_M2)
-        z = z ^ (z >> np.uint64(31))
+    z = splitmix64(z)
     return (z >> np.uint64(11)).astype(np.float64) * _INV53
 
 
@@ -175,10 +168,7 @@ def fbm(seed: int, x_um, y_um, scale_um: float, octaves: int = 3, gain: float = 
 def _site(seed, i, j, jitter):
     """(x, y, hash) of the jittered nucleation site of cell (i, j), in cell units."""
     z = seed ^ (np.uint64(i) * np.uint64(_KI)) ^ (np.uint64(j) * np.uint64(_KJ))
-    z = z + np.uint64(0x9E3779B97F4A7C15)
-    z = (z ^ (z >> np.uint64(30))) * np.uint64(_M1)
-    z = (z ^ (z >> np.uint64(27))) * np.uint64(_M2)
-    z = z ^ (z >> np.uint64(31))
+    z = splitmix64_kernel(z)
     fx = float((z >> np.uint64(11)) & np.uint64(0xFFFFF)) / 1048576.0
     fy = float((z >> np.uint64(31)) & np.uint64(0xFFFFF)) / 1048576.0
     return i + 0.5 + jitter * (fx - 0.5), j + 0.5 + jitter * (fy - 0.5), z

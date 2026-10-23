@@ -12,16 +12,7 @@ import math
 import numpy as np
 import pytest
 
-from de_twin.clock import ManualClock
 from de_twin.optics import OpticsConfig
-from de_twin.twin import DigitalTwin
-
-
-def _twin(name="Dense Au on holey C", realistic=True, seed=7, mag=20000.0):
-    cfg = OpticsConfig.realistic(seed=seed) if realistic else OpticsConfig()
-    tw = DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=1, optics_config=cfg)
-    tw.column.set("Magnification", mag)
-    return tw
 
 
 def _shift_px(a: np.ndarray, b: np.ndarray, up: int = 20) -> np.ndarray:
@@ -109,22 +100,22 @@ def _predicted_px(truth: dict, world_um) -> np.ndarray:
     return -np.array([u, v]) * 1000.0 / truth["true_pixel_nm"]
 
 
-def test_the_ideal_twin_reports_an_ideal_column():
-    t = _twin(realistic=False).calibration_truth()
+def test_the_ideal_twin_reports_an_ideal_column(make_realistic_twin):
+    t = make_realistic_twin(realistic=False).calibration_truth()
     assert t["image_rotation_deg"] == 0.0 and t["true_pixel_nm"] == t["nominal_pixel_nm"]
     assert t["is_matrix_um_per_unit"] == [[1.0, 0.0], [0.0, 1.0]] and t["mag_offset_um"] == (0.0, 0.0)
     assert t["stage_error_um"] == (0.0, 0.0)
 
 
-def test_find_pixel_size_on_a_cross_grating():
-    tw = _twin("Cross grating 2160 l/mm", mag=2000.0)
+def test_find_pixel_size_on_a_cross_grating(make_realistic_twin):
+    tw = make_realistic_twin("Cross grating 2160 l/mm", magnification=2000.0)
     truth = tw.calibration_truth()
     measured_nm, _ = _grating(tw)
     assert measured_nm == pytest.approx(truth["true_pixel_nm"], rel=0.005)
     assert abs(truth["true_pixel_nm"] / truth["nominal_pixel_nm"] - 1) > 0.002, "the calibration had something to find"
 
-def test_image_shift_calibration_recovers_the_matrix_and_rotation():
-    tw = _twin()
+def test_image_shift_calibration_recovers_the_matrix_and_rotation(make_realistic_twin):
+    tw = make_realistic_twin()
     truth = tw.calibration_truth()
     a = _img(tw)
     measured = []
@@ -138,8 +129,8 @@ def test_image_shift_calibration_recovers_the_matrix_and_rotation():
         assert got == pytest.approx(want, abs=0.25)
 
 
-def test_stage_calibration_sees_the_image_rotation():
-    tw = _twin()
+def test_stage_calibration_sees_the_image_rotation(make_realistic_twin):
+    tw = make_realistic_twin()
     truth = tw.calibration_truth()
     a = _img(tw)
     s = tw.column.state().stage
@@ -152,8 +143,8 @@ def test_stage_calibration_sees_the_image_rotation():
     assert angle == pytest.approx(math.degrees(math.atan2(want[1], want[0])), abs=1.0)
 
 
-def test_each_magnification_has_its_own_rotation_scale_and_offset():
-    tw = _twin()
+def test_each_magnification_has_its_own_rotation_scale_and_offset(make_realistic_twin):
+    tw = make_realistic_twin()
     seen = []
     for mag in (15000.0, 20000.0, 25000.0):
         tw.column.set("Magnification", mag)
@@ -172,8 +163,8 @@ def test_each_magnification_has_its_own_rotation_scale_and_offset():
     assert M.shape == (2, 2)
 
 
-def test_backlash_depends_on_the_approach_direction():
-    tw = _twin()
+def test_backlash_depends_on_the_approach_direction(make_realistic_twin):
+    tw = make_realistic_twin()
     s = tw.column.state().stage
     x = s.x_um
     tw.column.move_stage(x=x - 1.0)
@@ -192,8 +183,8 @@ def test_backlash_depends_on_the_approach_direction():
     assert tw.column.state().stage.x_um == x, "the reported position is the commanded one"
 
 
-def test_a_tilted_specimen_off_eucentric_height_moves():
-    tw = _twin(realistic=False)
+def test_a_tilted_specimen_off_eucentric_height_moves(make_realistic_twin):
+    tw = make_realistic_twin(realistic=False)
     tw.column.move_stage(z=0.1)  # 0.1 um above eucentric
     tw.column.move_stage(alpha=-20.0)
     a = _img(tw)
@@ -220,8 +211,8 @@ def _disc(img: np.ndarray):
     return np.array([x.mean(), y.mean()]), 2.0 * math.sqrt(m.sum() / math.pi)
 
 
-def test_beam_crossover_is_where_the_beam_is_smallest():
-    tw = _twin("Cross grating 2160 l/mm", mag=2000.0)
+def test_beam_crossover_is_where_the_beam_is_smallest(make_realistic_twin):
+    tw = make_realistic_twin("Cross grating 2160 l/mm", magnification=2000.0)
     x0 = tw.calibration_truth()["crossover_intensity"]
     xs = np.round(np.linspace(x0 - 0.03, x0 + 0.03, 13), 4)
     peak = []
@@ -234,8 +225,8 @@ def test_beam_crossover_is_where_the_beam_is_smallest():
     assert peak[0] < max(peak) and peak[-1] < max(peak)
 
 
-def test_beam_shift_calibration_follows_the_disc():
-    tw = _twin("Cross grating 2160 l/mm", mag=2000.0)
+def test_beam_shift_calibration_follows_the_disc(make_realistic_twin):
+    tw = make_realistic_twin("Cross grating 2160 l/mm", magnification=2000.0)
     truth = tw.calibration_truth()
     x0 = truth["crossover_intensity"]
     tw.column.set("Intensity", x0 + 0.012)  # a ~1.5 um disc inside a 5 um field
@@ -251,8 +242,8 @@ def test_beam_shift_calibration_follows_the_disc():
         assert cb - ca == pytest.approx(want, abs=2.0)
 
 
-def test_beam_shift_moves_the_beam_not_the_image():
-    tw = _twin(realistic=False, mag=20000.0)
+def test_beam_shift_moves_the_beam_not_the_image(make_realistic_twin):
+    tw = make_realistic_twin(realistic=False, magnification=20000.0)
     a = _img(tw)
     tw.column.set("BeamShift", (0.01, 0.0))
     b = _img(tw)
@@ -276,10 +267,10 @@ def _tilt_pair_shift(tw, tau_mrad: float) -> np.ndarray:
     return _shift_px(a, b)
 
 
-def test_autofocus_calibration_tilt_pairs_measure_the_defocus():
+def test_autofocus_calibration_tilt_pairs_measure_the_defocus(make_realistic_twin):
     """SerialEM's autofocus: the image displacement between +tau and -tau beam tilt is
     2 * defocus * tau, so a calibration of it reads the defocus back."""
-    tw = _twin()
+    tw = make_realistic_twin()
     px_nm = tw.calibration_truth()["true_pixel_nm"]
     tau = 3.0  # mrad
     shifts = {}
@@ -296,10 +287,10 @@ def test_autofocus_calibration_tilt_pairs_measure_the_defocus():
     assert abs(float(u @ v)) > 0.99
 
 
-def test_image_shift_brings_coma_which_the_coma_vs_is_calibration_measures():
+def test_image_shift_brings_coma_which_the_coma_vs_is_calibration_measures(make_realistic_twin):
     """Off the coma-free axis a defocus change moves the image by (defocus change) * (the
     effective tilt of the image shift): SerialEM's ComaVsIS measures that tilt."""
-    tw = _twin()
+    tw = make_realistic_twin()
     truth = tw.calibration_truth()
     K = np.asarray(truth["is_coma_mrad_per_is_um"]).T  # mrad per specimen um of image shift
     M = np.asarray(truth["is_matrix_um_per_unit"])
@@ -327,8 +318,8 @@ def test_image_shift_brings_coma_which_the_coma_vs_is_calibration_measures():
     assert abs(float(s @ d)) / (np.hypot(*s) * np.hypot(*d)) > 0.95
 
 
-def test_high_defocus_changes_magnification_and_rotation():
-    tw = _twin("Cross grating 2160 l/mm", mag=2000.0)
+def test_high_defocus_changes_magnification_and_rotation(make_realistic_twin):
+    tw = make_realistic_twin("Cross grating 2160 l/mm", magnification=2000.0)
     p0, a0 = _grating(tw)
     t0 = tw.calibration_truth()
     tw.column.set_defocus_um(-200.0)
@@ -345,10 +336,10 @@ def test_high_defocus_changes_magnification_and_rotation():
     assert abs(want) > 1.0 and turn == pytest.approx(-want, abs=0.3)
 
 
-def test_texture_moves_with_the_specimen_when_the_view_is_rotated():
+def test_texture_moves_with_the_specimen_when_the_view_is_rotated(make_realistic_twin):
     """A texture-dominated specimen (no particles to lean on): an image-shift or stage move
     that re-renders must move the carbon texture the way the specimen moves."""
-    tw = _twin("Negative stain on carbon", mag=100000.0)
+    tw = make_realistic_twin("Negative stain on carbon", magnification=100000.0)
     tw.column.set("Intensity", 0.95)
     truth = tw.calibration_truth()
     assert abs(truth["image_rotation_deg"]) > 1.0

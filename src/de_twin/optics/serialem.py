@@ -273,7 +273,7 @@ def to_serialem(realism, camera, calibrations_path, properties_path=None, *,
 
 
 # ------------------------------------------------------------------ SerialEM -> column
-def _floats(parts):
+def _to_floats(parts):
     return [float(v) for v in parts]
 
 
@@ -327,26 +327,26 @@ def from_serialem(calibrations_path, properties_path=None, *, camera, mag_table:
                     p = lines[i].split()
                     i += 1
                     if int(p[1]) == camera_index:
-                        is_cam[int(p[0])] = np.array(_floats(p[2:6])).reshape(2, 2)
+                        is_cam[int(p[0])] = np.array(_to_floats(p[2:6])).reshape(2, 2)
             elif key == "StageToCameraMatrix" and int(parts[2]) == camera_index:
-                stage_cam[int(parts[1])] = np.array(_floats(parts[3:7])).reshape(2, 2)
+                stage_cam[int(parts[1])] = np.array(_to_floats(parts[3:7])).reshape(2, 2)
             elif key == "ImageShiftOffsets":
                 for _ in range(int(parts[1])):
                     p = lines[i].split()
                     i += 1
                     if int(p[1]) == 0:
-                        offsets[int(p[0])] = np.array(_floats(p[2:4]))
+                        offsets[int(p[0])] = np.array(_to_floats(p[2:4]))
             elif key == "BeamShiftCalibration" and len(parts) >= 6:
-                bs_rows.append((int(parts[1]), np.array(_floats(parts[2:6])).reshape(2, 2)))
+                bs_rows.append((int(parts[1]), np.array(_to_floats(parts[2:6])).reshape(2, 2)))
             elif key == "CrossoverIntensity" and len(parts) >= 3:
                 spot = int(parts[1])
-                vals = _floats(parts[2:4])
+                vals = _to_floats(parts[2:4])
                 if vals[0]:
                     cross[(spot, 1)] = vals[0]
                 if len(vals) > 1 and vals[1]:
                     cross[(spot, 0)] = vals[1]
             elif key == "HighFocusMagCal":
-                hf.append(_floats(parts[3:7]))  # defocus, intensity, scale, rotation
+                hf.append(_to_floats(parts[3:7]))  # defocus, intensity, scale, rotation
             elif key == "FocusCalibration":
                 i += int(parts[6])
             elif key == "STEMfocusVersusZ":

@@ -51,7 +51,7 @@ def _i(values: dict, key: str) -> Optional[int]:
     return None if v is None else int(v)
 
 
-def _floats(values: dict, key: str, n: int) -> Optional[list[float]]:
+def _parse_semicolon_floats(values: dict, key: str, n: int) -> Optional[list[float]]:
     raw = values.get(key, "")
     if not raw:
         return None
@@ -130,19 +130,19 @@ def state_from_batch(
     if (v := _f(values, "PROJ_Defocus")) is not None:
         s.defocus_um = v  # DE-Server reads PROJ_Defocus as micrometres
 
-    if (pos := _floats(values, "STAGE_PositionFull", 5)) is not None:
+    if (pos := _parse_semicolon_floats(values, "STAGE_PositionFull", 5)) is not None:
         s.stage = StagePosition(*pos)
-    if (p := _floats(values, "ILLUM_BeamShift", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "ILLUM_BeamShift", 2)) is not None:
         s.beam_shift_um = Vec2(*p)
-    if (p := _floats(values, "ILLUM_ImageShift", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "ILLUM_ImageShift", 2)) is not None:
         s.image_shift_um = Vec2(*p)
-    if (p := _floats(values, "ILLUM_BeamTilt", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "ILLUM_BeamTilt", 2)) is not None:
         s.beam_tilt_mrad = Vec2(p[0] * BEAM_TILT_MRAD_PER_UNIT, p[1] * BEAM_TILT_MRAD_PER_UNIT)
-    if (p := _floats(values, "PROJ_ObjStig", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "PROJ_ObjStig", 2)) is not None:
         s.objective_stig = Vec2(*p)
-    if (p := _floats(values, "ILLUM_CondenserStig", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "ILLUM_CondenserStig", 2)) is not None:
         s.condenser_stig = Vec2(*p)
-    if (p := _floats(values, "PROJ_DiffractionShift", 2)) is not None:
+    if (p := _parse_semicolon_floats(values, "PROJ_DiffractionShift", 2)) is not None:
         s.diffraction_shift_mrad = Vec2(p[0] * DIFF_SHIFT_MRAD_PER_UNIT, p[1] * DIFF_SHIFT_MRAD_PER_UNIT)
 
     if (v := _i(values, "ILLUM_SpotSize")) is not None and v > 0:

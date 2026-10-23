@@ -84,19 +84,15 @@ def test_a_twin_defined_by_serialem_calibrations_is_that_column(files):
 
 
 # ---------------------------------------------------------- against the twin's own images
-def _se_twin():
-    from test_realism_calibrations import _twin
-
-    return _twin()
 
 
-def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files):
+def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files, make_realistic_twin):
     """SerialEM: image motion (right-handed camera px, y up) = -StageToCamera @ stage step,
     and at rotation 0 +X moves the image right, +Y up. Measured on the twin's images."""
     from test_realism_calibrations import _img, _shift_px
 
     cal, props = files
-    tw = _se_twin()
+    tw = make_realistic_twin()
     tw.column.backlash_um = 0.0  # backlash has its own test; here only the matrix
     to_serialem(tw.optics_config.realism, CAMERA, cal, props)
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
@@ -118,11 +114,11 @@ def test_the_stage_matrix_is_serialems_convention_measured_on_the_twin(files):
         np.testing.assert_allclose(m_se, -S @ step_se, atol=0.3)
 
 
-def test_the_image_shift_matrix_is_measured_on_the_twin(files):
+def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_twin):
     from test_realism_calibrations import _img, _shift_px
 
     cal, props = files
-    tw = _se_twin()
+    tw = make_realistic_twin()
     to_serialem(tw.optics_config.realism, CAMERA, cal, props)
     ind = next(i for i, m in twin_mag_table().items() if m == 20000.0)
     text = cal.read_text().splitlines()

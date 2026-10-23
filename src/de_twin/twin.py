@@ -218,6 +218,14 @@ class DigitalTwin:
         state = state or self.column.state()
         return derive_optics(state, request, self.detector.model, self.calibration, self.optics_config)
 
+    def _optics_with_specimen_at_now(self, request: AcquisitionRequest):
+        """The optics for ``request`` and the clock time, with the specimen advanced to it.
+        Call with the lock held."""
+        optics = self.optics(request, self.column.state())
+        t = self.clock.now()
+        self.specimen.update(t, self.holder_state(t))
+        return optics, t
+
     def beam_on_detector(self, request: AcquisitionRequest, state: MicroscopeState) -> bool:
         if not request.beam_reaches_detector:
             return False
@@ -441,10 +449,7 @@ class DigitalTwin:
         detector's *binned* output shape, electrons per binned pixel per second (multiply by the
         dwell time for electrons per pattern). The same patterns :meth:`frames` exposes."""
         with self.lock:
-            state = self.column.state()
-            optics = self.optics(request, state)
-            t = self.clock.now()
-            self.specimen.update(t, self.holder_state(t))
+            optics, t = self._optics_with_specimen_at_now(request)
             return self.renderer.datacube(optics, time_s=t)
 
     def stem_model(self, request: AcquisitionRequest) -> str:
@@ -472,10 +477,7 @@ class DigitalTwin:
         the test helper ``tests/reconstruction.object_on_grid`` resamples the object to a reconstruction's pixel.
         """
         with self.lock:
-            state = self.column.state()
-            optics = self.optics(request, state)
-            t = self.clock.now()
-            self.specimen.update(t, self.holder_state(t))
+            optics, t = self._optics_with_specimen_at_now(request)
             return self.renderer.ground_truth_ptychography(optics, time_s=t)
 
     def calibration_truth(self, request: Optional[AcquisitionRequest] = None) -> dict:
@@ -530,10 +532,7 @@ class DigitalTwin:
         ``-1`` = not indexed: vacuum/amorphous; props ``grain_id``, ``thickness_nm``; x/y in nm),
         or the raw arrays with ``as_arrays=True``."""
         with self.lock:
-            state = self.column.state()
-            optics = self.optics(request or self.request(), state)
-            t = self.clock.now()
-            self.specimen.update(t, self.holder_state(t))
+            optics, t = self._optics_with_specimen_at_now(request or self.request())
             gt = self.renderer.ground_truth(optics, time_s=t)
         if as_arrays:
             return gt

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 @dataclass
 class RenderConfig:
     # ---- TEM imaging ------------------------------------------------------
-    tem_model: str = "physical"  # "physical" (exit wave + CTF) | "legacy" (C++ port)
     diffraction_contrast_scale: float = 1.0  # scales the Bragg loss from the bright-field beam
     mip_phase: bool = True  # mean-inner-potential phase (gives Fresnel fringes)
     edge_taper_nm: float = 1.0  # Gaussian roughness of specimen edges applied to the MIP phase

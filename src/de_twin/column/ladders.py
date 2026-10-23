@@ -34,16 +34,16 @@ FM_FROM_FEI_SUBMODE = {1: FM_LOWMAG, 2: FM_MAG1, 3: FM_SAMAG, 4: FM_MAG2, 5: FM_
 TEM = 0
 STEM = 1
 
-# --- DummyDetents.h -------------------------------------------------------
+# --- DummyDetents.h (its camera lengths are cm; converted to mm, the twin's unit) ---
 MAG1_MAGS = (
     2000.0, 2500.0, 3000.0, 4000.0, 5000.0, 6000.0, 8000.0, 10000.0, 12000.0, 15000.0,
     20000.0, 25000.0, 30000.0, 40000.0, 50000.0, 60000.0, 80000.0, 100000.0, 120000.0,
     150000.0, 200000.0, 250000.0, 300000.0, 400000.0, 500000.0, 600000.0, 800000.0,
 )
 LOWMAG_MAGS = (120.0, 150.0, 200.0)
-DIFF_CAMLENGTHS_CM = (
-    1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 13.0, 14.0, 15.0, 20.0, 25.0,
-    30.0, 40.0, 80.0, 100.0, 200.0, 300.0, 400.0,
+DIFF_CAMERA_LENGTHS_MM = (
+    15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 80.0, 100.0, 120.0, 130.0, 140.0, 150.0,
+    200.0, 250.0, 300.0, 400.0, 800.0, 1000.0, 2000.0, 3000.0, 4000.0,
 )
 STEM_MAGS = (
     2500.0, 3000.0, 4000.0, 5000.0, 6000.0, 8000.0, 10000.0, 12000.0, 15000.0, 20000.0,
@@ -54,9 +54,9 @@ STEM_MAGS = (
 )
 NBD_STEM_MAGS = STEM_MAGS  # kNbdStemMags == kHrStemMags
 HR_STEM_MAGS = STEM_MAGS
-STEM_CAMLENGTHS_CM = (
-    1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 13.0, 14.0, 15.0, 20.0, 25.0,
-    30.0, 40.0, 80.0, 100.0,
+STEM_CAMERA_LENGTHS_MM = (
+    15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 80.0, 100.0, 120.0, 130.0, 140.0, 150.0,
+    200.0, 250.0, 300.0, 400.0, 800.0, 1000.0,
 )
 
 # --- DummyEMInstrument.cpp ------------------------------------------------
@@ -84,17 +84,17 @@ STEM_ALPHA_TABLE_MRAD = (5.0, 10.0, 15.0, 22.0, 30.0)
 
 
 def active_ladders(function_mode: int, tem_stem: int) -> tuple[Optional[Sequence[float]], Optional[Sequence[float]]]:
-    """(magnifications, camera lengths in cm) live in one optics mode.
+    """(magnifications, camera lengths in mm) live in one optics mode.
 
     ``None`` means the mode has no such ladder: no magnification in TEM
     diffraction, no camera length in TEM imaging (the Dummy refuses those sets).
     """
     if tem_stem == STEM:
         if function_mode == FM_DIFF:
-            return NBD_STEM_MAGS, STEM_CAMLENGTHS_CM
-        return HR_STEM_MAGS, STEM_CAMLENGTHS_CM
+            return NBD_STEM_MAGS, STEM_CAMERA_LENGTHS_MM
+        return HR_STEM_MAGS, STEM_CAMERA_LENGTHS_MM
     if function_mode == FM_DIFF:
-        return None, DIFF_CAMLENGTHS_CM
+        return None, DIFF_CAMERA_LENGTHS_MM
     if function_mode == FM_LOWMAG:
         return LOWMAG_MAGS, None
     return MAG1_MAGS, None

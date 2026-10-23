@@ -8,13 +8,21 @@ import math
 import numpy as np
 import pytest
 
-from de_twin.clock import ManualClock
 from de_twin.specimen import CALIBRATION_STANDARDS, from_name
 from de_twin.specimen.materials import MaterialId
 from de_twin.specimen.standards import (PRODUCTS, ShadowedReplicaStructure, WaffleGrating, build_structure,
                                         island_film, preset_name)
 from de_twin.specimen.fieldmap import ViewWindow
-from de_twin.twin import DigitalTwin
+
+
+@pytest.fixture
+def make_standard_twin(make_twin):
+    """A twin showing calibration standard ``number`` at ``magnification``."""
+
+    def build(number, magnification):
+        return make_twin(preset_name(number), magnification=magnification)
+
+    return build
 
 
 def _centre_on(tw, kind, pixel_um, n=512):
@@ -40,12 +48,6 @@ def _centre_on(tw, kind, pixel_um, n=512):
             tw.clock.advance(30.0)  # let the stage get there
             return fm
     raise AssertionError(f"no {kind} found")
-
-
-def _twin(number, mag):
-    tw = DigitalTwin(preset_name(number), camera="DESim", clock=ManualClock(), seed=1)
-    tw.column.set("Magnification", mag)
-    return tw
 
 
 def test_every_product_is_a_preset():
@@ -79,8 +81,8 @@ def _period_nm(img, pixel_nm, near_nm):
 
 
 @pytest.mark.parametrize("number", ["607", "607-A", "606", "677"])
-def test_the_grating_period_is_the_published_one(number):
-    tw = _twin(number, 2000)
+def test_the_grating_period_is_the_published_one(number, make_standard_twin):
+    tw = make_standard_twin(number, 2000)
     tw.column.set("Intensity", 0.95)  # a beam spread past the field: no disc edge
     tw.column.set_defocus_um(-3.0)
     req = tw.request()
@@ -90,11 +92,11 @@ def test_the_grating_period_is_the_published_one(number):
 
 
 @pytest.mark.parametrize("number", ["603", "673", "628-B"])
-def test_latex_spheres_have_the_published_diameter(number):
+def test_latex_spheres_have_the_published_diameter(number, make_standard_twin):
     """The spheres on the gratings (262 nm, the tech notes) and 628-B's 204 nm: their chords
     peak at the published size (for 628-B under its gold: the layer under the metal)."""
     d = {"603": 262.0, "673": 262.0, "628-B": 204.0}[number]
-    tw = _twin(number, 4000)
+    tw = make_standard_twin(number, 4000)
     _centre_on(tw, "latex", 0.004)
     gt = tw.ground_truth(as_arrays=True)
     latex = gt["material_id"] == int(MaterialId.PROTEIN)
@@ -106,12 +108,12 @@ def test_latex_spheres_have_the_published_diameter(number):
     assert 0.94 * d < chord.max() < 1.15 * d
 
 
-def test_the_aluminium_rings_are_at_the_published_spacings():
+def test_the_aluminium_rings_are_at_the_published_spacings(make_standard_twin):
     """619: the SAED rings of the evaporated aluminium at Ted Pella's d-spacings (camera
     length calibration: K = S d must agree across the rings)."""
     from scipy import ndimage
 
-    tw = _twin("619", 20000)
+    tw = make_standard_twin("619", 20000)
     tw.column.set("Intensity", 0.95)  # SAED: a parallel beam
     tw.column.set("ProjectionMode", 2)
     req = tw.request()
@@ -161,22 +163,22 @@ def test_shadowing_coats_the_facing_side_and_leaves_a_shadow_behind_a_ridge():
     assert gx[(x > 0.39) & (x < 0.41)].max() > 1.0 and gx[(x > 0.59) & (x < 0.61)].min() < -1.0
 
 
-def test_the_shadowed_replica_has_gold_islands_at_high_magnification():
-    tw = _twin("607", 16000)
+def test_the_shadowed_replica_has_gold_islands_at_high_magnification(make_standard_twin):
+    tw = make_standard_twin("607", 16000)
     gt = tw.ground_truth(as_arrays=True)
     au = gt["material_id"] == int(MaterialId.GOLD)
     assert 0.2 < au.mean() < 0.8
     assert np.unique(gt["grain_id"][au]).size > 200, "nanocrystalline islands"
 
 
-def test_a_moo3_lath_long_edge_is_its_crystal_long_axis():
+def test_a_moo3_lath_long_edge_is_its_crystal_long_axis(make_standard_twin):
     """The image / diffraction rotation standard: each lath's crystal [010] (Pnma; [001] Pbnm)
     lies along its long edge, so the edge in the image and the spots of its pattern are tied."""
     from scipy import ndimage
 
     from de_twin.specimen.fieldmap import _direct_basis
 
-    tw = _twin("625", 2500)
+    tw = make_standard_twin("625", 2500)
     fm = _centre_on(tw, "moo3", 0.02)
     mid = int(MaterialId.MOLYBDENUM_TRIOXIDE)
     lab, n = ndimage.label(fm.material_id == mid)

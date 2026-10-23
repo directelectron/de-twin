@@ -86,10 +86,17 @@ def test_a_stage_tilt_is_a_new_excitation():
 
 
 # ------------------------------------------------------------------ raster reuse
-def _twin(name="Dense Au on holey C", **cfg):
+
+
+@pytest.fixture
+def make_render_twin(make_twin):
+    """A twin whose ``RenderConfig`` takes the keyword options."""
     from de_twin.render.config import RenderConfig
 
-    return DigitalTwin(name, camera="DESim", clock=ManualClock(), seed=3, render_config=RenderConfig(**cfg))
+    def build(name="Dense Au on holey C", **render_options):
+        return make_twin(name, seed=3, render_config=RenderConfig(**render_options))
+
+    return build
 
 
 def _move(tw, dx_um, dy_um=0.0):
@@ -99,8 +106,8 @@ def _move(tw, dx_um, dy_um=0.0):
 
 @pytest.mark.parametrize("name", ["Dense Au on holey C", GRATING, "Negative stain on carbon"])
 @pytest.mark.parametrize("dx,dy", [(0.3, 0.0), (0.0, -0.4), (-0.35, 0.3)])
-def test_a_reused_field_map_is_the_fresh_raster(name, dx, dy):
-    tw = _twin(name)
+def test_a_reused_field_map_is_the_fresh_raster(name, dx, dy, make_render_twin):
+    tw = make_render_twin(name)
     req = tw.request()
     tw.flux(req)
     n = tw.optics(req).view.shape[0]
@@ -131,12 +138,12 @@ def _same_raster(fm, ref):
 
 
 @pytest.mark.parametrize("rotation", [0.0, 0.5 * np.pi])
-def test_a_turned_flipped_tilted_view_reuses_on_its_own_lattice(rotation):
+def test_a_turned_flipped_tilted_view_reuses_on_its_own_lattice(rotation, make_render_twin):
     import dataclasses
 
     from de_twin.render import Renderer
 
-    tw = _twin()
+    tw = make_render_twin()
     o = tw.optics(tw.request())
     v = dataclasses.replace(o.view, rotation_rad=rotation, flip_x=True, cos_alpha=0.9)
     r = Renderer(tw.specimen, tw.renderer.config)
@@ -150,8 +157,8 @@ def test_a_turned_flipped_tilted_view_reuses_on_its_own_lattice(rotation):
     _same_raster(fm, tw.specimen.rasterize(fm.view))
 
 
-def test_a_moved_view_is_the_image_without_reuse():
-    a, b = _twin(), _twin(reuse_rasters=False)
+def test_a_moved_view_is_the_image_without_reuse(make_render_twin):
+    a, b = make_render_twin(), make_render_twin(reuse_rasters=False)
     req = a.request()
     for tw in (a, b):
         tw.flux(req)
@@ -164,10 +171,10 @@ def test_a_moved_view_is_the_image_without_reuse():
     assert img_a.mean() == pytest.approx(img_b.mean(), rel=1e-4)
 
 
-def test_a_view_is_the_same_image_however_it_was_reached():
+def test_a_view_is_the_same_image_however_it_was_reached(make_render_twin):
     """World-locked and deterministic: a view reached by a drag (crops of lattice-centred
     rasters) is the fresh render of that view, away from the transfer's periodic edges."""
-    a, b = _twin(), _twin()
+    a, b = make_render_twin(), make_render_twin()
     req = a.request()
     a.flux(req)
     n = a.optics(req).view.shape[0]
@@ -182,8 +189,8 @@ def test_a_view_is_the_same_image_however_it_was_reached():
     assert img_a[inner].mean() == pytest.approx(img_b[inner].mean(), rel=0.01)
 
 
-def test_a_magnification_step_renders_the_new_view():
-    tw, ref = _twin(), _twin()
+def test_a_magnification_step_renders_the_new_view(make_render_twin):
+    tw, ref = make_render_twin(), make_render_twin()
     req = tw.request()
     tw.flux(req)
     built = tw.renderer.rasters_built
@@ -194,8 +201,8 @@ def test_a_magnification_step_renders_the_new_view():
     np.testing.assert_array_equal(img, ref.flux(req))
 
 
-def test_a_jump_back_is_a_crop():
-    tw = _twin()
+def test_a_jump_back_is_a_crop(make_render_twin):
+    tw = make_render_twin()
     req = tw.request()
     home = tw.flux(req)
     _move(tw, 30.0, 20.0)
@@ -207,11 +214,11 @@ def test_a_jump_back_is_a_crop():
 
 
 # ------------------------------------------------------------------ interactive
-def test_a_magnification_step_previews_then_settles_to_the_full_render():
+def test_a_magnification_step_previews_then_settles_to_the_full_render(make_render_twin):
     import time
 
-    tw = _twin(interactive=True, settle_s=0.05)
-    ref = _twin()
+    tw = make_render_twin(interactive=True, settle_s=0.05)
+    ref = make_render_twin()
     req = tw.request()
     tw.flux(req)
     for t in (tw, ref):
@@ -226,10 +233,10 @@ def test_a_magnification_step_previews_then_settles_to_the_full_render():
     assert tw.renderer.previews_rendered == 1
 
 
-def test_previews_do_not_push_out_the_field_maps_a_move_reuses():
+def test_previews_do_not_push_out_the_field_maps_a_move_reuses(make_render_twin):
     import time
 
-    tw = _twin(interactive=True, settle_s=0.05)
+    tw = make_render_twin(interactive=True, settle_s=0.05)
     req = tw.request()
     tw.flux(req)
     n = tw.optics(req).view.shape[0]
@@ -255,13 +262,13 @@ def test_serve_interactive_flag():
 
 
 @pytest.mark.parametrize("dx_px,dy_px", [(7.4, -3.3), (0.5, 0.25), (-120.7, 60.45)])
-def test_a_crop_is_where_a_fresh_render_puts_the_view(dx_px, dy_px):
+def test_a_crop_is_where_a_fresh_render_puts_the_view(dx_px, dy_px, make_render_twin):
     """Inside the margin a move is a crop, interpolated to a fraction of a pixel: the image
     sits where a fresh render of the view puts it (not on the nearest raster pixel)."""
     from test_realism_calibrations import _shift_px
 
     # the fixed 15 % pan margin, so the larger moves stay inside it
-    tw, ref = _twin(adaptive_margin=False), _twin(adaptive_margin=False)
+    tw, ref = make_render_twin(adaptive_margin=False), make_render_twin(adaptive_margin=False)
     req = tw.request()
     tw.flux(req)
     built = tw.renderer.rasters_built
@@ -280,12 +287,12 @@ def test_a_crop_is_where_a_fresh_render_puts_the_view(dx_px, dy_px):
 
 # ------------------------------------------------------------------ strips
 @pytest.mark.parametrize("name", ["Dense Au on holey C", GRATING, "Negative stain on carbon"])
-def test_a_raster_in_parallel_strips_is_the_serial_raster(name, monkeypatch):
+def test_a_raster_in_parallel_strips_is_the_serial_raster(name, monkeypatch, make_render_twin):
     from de_twin.specimen.model import Specimen, _numba_threadsafe
 
     # strips are only used where NumPy work remains; force them here
     monkeypatch.setattr(Specimen, "_numpy_work", lambda self, view, span: True)
-    tw = _twin(name)
+    tw = make_render_twin(name)
     req = tw.request()
     tw.flux(req)  # runs the numba kernels (the threading layer is known after)
     v = tw.renderer._padded_optics(tw.optics(req))[0].view
@@ -312,12 +319,12 @@ def test_a_piece_of_a_view_is_drawn_as_the_whole_view():
     assert not np.array_equal(alone.material_id, piece.material_id), "a small view alone decides otherwise"
 
 
-def test_a_rotated_view_is_rasterised_whole():
+def test_a_rotated_view_is_rasterised_whole(make_render_twin):
     import dataclasses
 
     from de_twin.render import Renderer
 
-    tw = _twin()
+    tw = make_render_twin()
     o = tw.optics(tw.request())
     v = dataclasses.replace(o.view, rotation_rad=0.7)
     r = Renderer(tw.specimen, tw.renderer.config)
@@ -351,8 +358,8 @@ def test_the_bragg_table_is_the_exact_excitation(name):
     np.testing.assert_allclose(table[gids - mid * GRAINS_PER_MATERIAL, tbs], exact, rtol=1e-6, atol=1e-12)
 
 
-def test_a_tilt_series_keeps_its_tables():
-    tw = _twin()
+def test_a_tilt_series_keeps_its_tables(make_render_twin):
+    tw = make_render_twin()
     req = tw.request()
     tw.flux(req)
     tem._BRAGG_MEMOS.clear()
@@ -400,10 +407,10 @@ def test_the_fused_kernels_are_the_numpy_reference(name, mag, defocus, monkeypat
 
 
 # ------------------------------------------------------------------ prefetch
-def test_a_series_is_prefetched_and_is_the_exact_render():
+def test_a_series_is_prefetched_and_is_the_exact_render(make_render_twin):
     """With prefetch on, the view that repeating the last change gives is rendered in the
     background; asking for it is a crop, and the image is the one rendered on demand."""
-    live, ref = _twin(prefetch=True), _twin()
+    live, ref = make_render_twin(prefetch=True), make_render_twin()
     req = live.request()
     for t in (live, ref):
         t.flux(req)
@@ -420,8 +427,8 @@ def test_a_series_is_prefetched_and_is_the_exact_render():
     assert live.renderer.rasters_built == built
 
 
-def test_prefetch_is_off_by_default():
-    tw = _twin()
+def test_prefetch_is_off_by_default(make_render_twin):
+    tw = make_render_twin()
     req = tw.request()
     tw.flux(req)
     tw.column.set("Magnification", 25000.0)
@@ -429,7 +436,7 @@ def test_prefetch_is_off_by_default():
     assert getattr(tw, "_pf_future", None) is None
 
 
-def test_strips_only_where_numpy_work_remains():
+def test_strips_only_where_numpy_work_remains(make_render_twin):
     """A specimen drawn entirely by numba kernels is rasterised whole (its kernels are
     parallel); one with NumPy structures in strips. Decided per view, so a view is always
     rasterised the same way."""
@@ -437,10 +444,10 @@ def test_strips_only_where_numpy_work_remains():
 
     if not raster_nb.AVAILABLE:
         pytest.skip("no numba")
-    au = _twin()
+    au = make_render_twin()
     v = au.renderer._padded_optics(au.optics(au.request()))[0].view
     assert not au.specimen._numpy_work(v, max(v.shape))
-    film = _twin("Au thin film 20 nm")
+    film = make_render_twin("Au thin film 20 nm")
     v = film.renderer._padded_optics(film.optics(film.request()))[0].view
     assert film.specimen._numpy_work(v, max(v.shape))
 

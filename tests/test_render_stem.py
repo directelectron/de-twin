@@ -8,7 +8,7 @@ import time
 import numpy as np
 import pytest
 
-from de_twin.optics import Calibration, OpticsConfig, derive_optics
+from de_twin.optics import OpticsConfig, derive_optics
 from de_twin.render import RenderConfig, Renderer
 from de_twin.render.testing import Particle, StubCamera, SyntheticSpecimen
 from de_twin.specimen.materials import MaterialId
@@ -20,20 +20,6 @@ NSCAN = 32
 STEP_UM = 0.002
 
 
-def _optics(scan=True, size=(NSCAN, NSCAN), step_um=STEP_UM, cl_mm=13.0, cfg=None, **state):
-    s = MicroscopeState()
-    s.tem_stem = TemStem.STEM
-    s.camera_length_mm = cl_mm
-    s.convergence_semi_angle_mrad = 10.0
-    for k, v in state.items():
-        setattr(s, k, v)
-    r = AcquisitionRequest(hw_roi=Roi(1920, 1920, 256, 256))
-    r.scan.enabled = scan
-    r.scan.size = size
-    r.scan.step_um = step_um
-    return derive_optics(s, r, CAM, Calibration.default(), cfg or OpticsConfig())
-
-
 def _particle_at(o, ix, iy, radius_nm=4.0, **kw):
     wx, wy = o.view.pixel_to_world(iy, ix)
     return Particle(float(wx), float(wy), radius_nm, **kw)
@@ -43,16 +29,16 @@ def _spec_with_particle(o, ix=24, iy=9, **kw):
     return SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, ix, iy, **kw)])
 
 
-def test_geometry():
-    o = _optics()
+def test_geometry(make_stem_optics):
+    o = make_stem_optics()
     assert o.render_mode == RenderMode.STEM_4D
     assert o.view.shape == (NSCAN, NSCAN) and o.output_shape == (256, 256)
     assert o.disk_radius_px == pytest.approx(10.0 / (6.5 / 13.0), rel=1e-6)
 
 
-def test_vacuum_cbed_is_the_probe_current():
+def test_vacuum_cbed_is_the_probe_current(make_stem_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
-    o = _optics()
+    o = make_stem_optics()
     r = Renderer(spec)
     img = r.render(o, scan_point=(3, 4))
     assert img.shape == (256, 256) and img.dtype == np.float32 and img.min() >= 0
@@ -66,8 +52,8 @@ def test_vacuum_cbed_is_the_probe_current():
     assert img[rr > o.disk_radius_px + 12].sum() < 1e-5 * img.sum()
 
 
-def test_scan_point_addressing_and_frame_index():
-    o = _optics()
+def test_scan_point_addressing_and_frame_index(make_stem_optics):
+    o = make_stem_optics()
     spec = _spec_with_particle(o, 24, 9, radius_nm=4.0)
     r = Renderer(spec, RenderConfig(probe_footprint_blend=False, intensity_jitter=False))
     on = r.render(o, scan_point=(24, 9))
@@ -82,8 +68,8 @@ def test_scan_point_addressing_and_frame_index():
     assert np.array_equal(same, on)
 
 
-def test_parked_probe_uses_park_position():
-    o = _optics(scan=False)
+def test_parked_probe_uses_park_position(make_stem_optics):
+    o = make_stem_optics(scan=False)
     assert o.render_mode == RenderMode.STEM_PARKED
     spec = _spec_with_particle(o, NSCAN // 2, NSCAN // 2, radius_nm=4.0)
     r = Renderer(spec, RenderConfig(probe_footprint_blend=False))
@@ -93,9 +79,9 @@ def test_parked_probe_uses_park_position():
     assert centre[outside].sum() > 0.05 * centre.sum()
 
 
-def test_descan_ramp_and_layer_shift_the_pattern():
+def test_descan_ramp_and_layer_shift_the_pattern(make_stem_optics):
     spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
-    o = _optics()
+    o = make_stem_optics()
     r0 = Renderer(spec, RenderConfig(intensity_jitter=False))
     r1 = Renderer(spec, RenderConfig(intensity_jitter=False, add_descan=True))
     y, x = np.indices((256, 256))
@@ -122,9 +108,9 @@ class _LayeredSpecimen(SyntheticSpecimen):
         return fm
 
 
-def test_descan_and_strain_layers():
+def test_descan_and_strain_layers(make_stem_optics):
     spec = _LayeredSpecimen(film_material=MaterialId.VACUUM)
-    o = _optics()
+    o = make_stem_optics()
     r = Renderer(spec, RenderConfig(intensity_jitter=False))
     y, x = np.indices((256, 256))
     right = r.render(o, scan_point=(24, 5))  # descan only
@@ -136,10 +122,10 @@ def test_descan_and_strain_layers():
     assert wx(left, (left * x).sum() / left.sum()) == pytest.approx(1.05 * wx(right, cx), rel=0.02)
 
 
-def test_probe_blend_mixes_neighbours():
+def test_probe_blend_mixes_neighbours(make_stem_optics):
     # a wide probe (d0 = 8 nm on a 2 nm step -> +-2 step arms) sees the particle from next door
     ocfg = OpticsConfig(probe_d0_nm=8.0)
-    o = _optics(cfg=ocfg)
+    o = make_stem_optics(config=ocfg)
     assert o.extras["probe_blend_offset_px"] == pytest.approx(2.0)
     spec = _spec_with_particle(o, 16, 16, radius_nm=1.5)
     y, x = np.indices((256, 256))
@@ -150,8 +136,8 @@ def test_probe_blend_mixes_neighbours():
     assert blended[outside].sum() > 10 * max(single[outside].sum(), 1e-30)
 
 
-def test_thickness_and_tilt_attenuation():
-    o = _optics()
+def test_thickness_and_tilt_attenuation(make_stem_optics):
+    o = make_stem_optics()
     thin = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 3.0)])
     thick = SyntheticSpecimen(film_material=MaterialId.VACUUM, particles=[_particle_at(o, 10, 10, 12.0)])
     cfg = RenderConfig(intensity_jitter=False, probe_footprint_blend=False, diffuse_scattering=False)
@@ -173,8 +159,8 @@ def test_thickness_and_tilt_attenuation():
     assert tilt / flat == pytest.approx(math.exp(-30.0 / 150.0), rel=1e-3)  # 2x path, e^-t/L once more
 
 
-def test_virtual_bright_field_and_haadf():
-    o = _optics()
+def test_virtual_bright_field_and_haadf(make_stem_optics):
+    o = make_stem_optics()
     spec = _spec_with_particle(o, 24, 9, radius_nm=5.0)
     r = Renderer(spec, RenderConfig(intensity_jitter=False))
     bf = r.virtual_image(o, 0.0, o.convergence_mrad)
@@ -186,8 +172,8 @@ def test_virtual_bright_field_and_haadf():
     assert np.unravel_index(np.argmin(bf), bf.shape) == (9, 24)
 
 
-def test_virtual_image_agrees_with_cbed():
-    o = _optics()
+def test_virtual_image_agrees_with_cbed(make_stem_optics):
+    o = make_stem_optics()
     spec = _spec_with_particle(o, 16, 16, radius_nm=6.0)
     r = Renderer(spec)
     edge = o.convergence_mrad + 1.5  # include the blurred disk edge
@@ -199,15 +185,15 @@ def test_virtual_image_agrees_with_cbed():
         assert cbed[rr < edge].sum() == pytest.approx(vbf[iy, ix], rel=0.05)
 
 
-def test_blanked_stem():
-    o = _optics(beam_blanked=True)
+def test_blanked_stem(make_stem_optics):
+    o = make_stem_optics(beam_blanked=True)
     r = Renderer(SyntheticSpecimen())
     assert not r.render(o, scan_point=(1, 1)).any()
     assert not r.virtual_image(o, 0, 10).any()
 
 
-def test_cache_is_used_and_warm_up():
-    o = _optics()
+def test_cache_is_used_and_warm_up(make_stem_optics):
+    o = make_stem_optics()
     rng = np.random.default_rng(1)
     parts = [_particle_at(o, int(i), int(j), 3.0, grain=int(g))
              for i, j, g in zip(rng.integers(0, NSCAN, 20), rng.integers(0, NSCAN, 20), range(20))]
@@ -224,8 +210,8 @@ def test_cache_is_used_and_warm_up():
 
 
 @pytest.mark.slow
-def test_perf_cbed_from_cache():
-    o = _optics()
+def test_perf_cbed_from_cache(make_stem_optics):
+    o = make_stem_optics()
     spec = SyntheticSpecimen(particles=[_particle_at(o, 16, 16, 5.0)])
     r = Renderer(spec)
     r.render(o, scan_point=(16, 16))
