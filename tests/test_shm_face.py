@@ -20,6 +20,7 @@ def served():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
     consumer = FrameConsumer(name, max_frame_bytes=1024 * 1024 * 2)  # DE-Server creates the mapping
     face = ShmFace(twin, name=name, pace=False).start()
+    assert face.ready.wait(60)  # warmed up: a test that wraps twin.frames sees only its own calls
     yield twin, face, consumer
     face.stop()
     consumer.close()
@@ -117,6 +118,7 @@ def _served_with(**kw):
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
     consumer = FrameConsumer(name, max_frame_bytes=1024 * 1024 * 2)
     face = ShmFace(twin, name=name, pace=False, **kw).start()
+    assert face.ready.wait(60)  # warmed up: a test that wraps twin.frames sees only its own calls
     return twin, face, consumer
 
 
