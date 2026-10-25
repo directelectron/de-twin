@@ -507,6 +507,11 @@
 <span class="sd">  deg), pairs are ``x;y``, ``ILLUM_ConvergenceAngle`` is ``%.3f``, unknown keys</span>
 <span class="sd">  (and ``STAGE_Position``, which the channel never implemented) answer empty,</span>
 <span class="sd">  ``PROJ_ImageShift``/``PROJ_ImageBeamShift``/``STAGE_Status`` answer ``0``;</span>
+<span class="sd">* an SEM (``Column.enter_sem``) answers as DE-TEM-Channel's SEM backends do: the</span>
+<span class="sd">  defocus slot (``getDeFocusValue``, ``setDefocus``, ``PROJ_Defocus``, ``getProperty</span>
+<span class="sd">  Defocus``) carries the working distance in meters, and ``getProperty WorkingDistance``</span>
+<span class="sd">  (mm) / ``SampleTilt`` (deg) are twin extensions; ``InstrumentType``, ``TemStemMode``</span>
+<span class="sd">  and the projection modes come from the column;</span>
 <span class="sd">* units: ``GUN_HT`` volts, ``PROJ_CameraLength`` cm, ``PROJ_Defocus`` um,</span>
 <span class="sd">  shifts um, ``PROJ_SubMode`` the raw JEOL EOS function mode (0 MAG1,</span>
 <span class="sd">  1 MAG2, 2 LowMAG, 3 SAMAG, 4 DIFF) or the TFS submode when the column</span>
@@ -780,6 +785,25 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">op_id</span><span class="p">,</span> <span class="n">OP_IDLE</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="TemChannelServer.defocus">
+<a class="viewcode-back" href="../../../api/generated/de_twin.faces.temchannel_soap.TemChannelServer.html#de_twin.faces.temchannel_soap.TemChannelServer.defocus">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">defocus</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The defocus slot: um on a TEM; on an SEM its working distance in meters, the only</span>
+<span class="sd">        meters-valued focus slot the channel has (``JeolSemInstrument::getDeFocus``)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">sem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"WorkingDistance"</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Defocus"</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TemChannelServer.set_defocus">
+<a class="viewcode-back" href="../../../api/generated/de_twin.faces.temchannel_soap.TemChannelServer.html#de_twin.faces.temchannel_soap.TemChannelServer.set_defocus">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_defocus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">sem</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"WorkingDistance"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"Defocus"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">stage_mask</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fn</span><span class="p">()</span>
@@ -884,7 +908,7 @@
             <span class="s2">"getMagMode"</span><span class="p">:</span> <span class="n">sh</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">function_mode</span><span class="p">),</span>
             <span class="s2">"getMagStr"</span><span class="p">:</span> <span class="n">string</span><span class="p">(</span><span class="s2">"getMagStrResponse"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">g</span><span class="p">(</span><span class="s2">"MagString"</span><span class="p">)),</span>
             <span class="s2">"getFocusValue"</span><span class="p">:</span> <span class="n">fl</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">g</span><span class="p">(</span><span class="s2">"Focus"</span><span class="p">)),</span>
-            <span class="s2">"getDeFocusValue"</span><span class="p">:</span> <span class="n">fl</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">g</span><span class="p">(</span><span class="s2">"Defocus"</span><span class="p">)),</span>
+            <span class="s2">"getDeFocusValue"</span><span class="p">:</span> <span class="n">fl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defocus</span><span class="p">),</span>
             <span class="s2">"getScreenPosition"</span><span class="p">:</span> <span class="n">sh</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">g</span><span class="p">(</span><span class="s2">"ScreenPosition"</span><span class="p">)),</span>
             <span class="s2">"getExposureTime"</span><span class="p">:</span> <span class="n">fl</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">g</span><span class="p">(</span><span class="s2">"ExposureTime"</span><span class="p">)),</span>
             <span class="s2">"getImageShift"</span><span class="p">:</span> <span class="n">pair</span><span class="p">(</span><span class="s2">"ImageShift"</span><span class="p">),</span>
@@ -916,7 +940,9 @@
             <span class="s2">"setScanRotation"</span><span class="p">:</span> <span class="n">set_value</span><span class="p">(</span><span class="s2">"ScanRotation"</span><span class="p">,</span> <span class="s2">"SCANROTATION"</span><span class="p">,</span> <span class="s2">"deg"</span><span class="p">),</span>
             <span class="s2">"setGunShift"</span><span class="p">:</span> <span class="n">set_pair</span><span class="p">(</span><span class="s2">"GunShift"</span><span class="p">,</span> <span class="s2">"GUNSHIFT"</span><span class="p">),</span>
             <span class="s2">"setGunTilt"</span><span class="p">:</span> <span class="n">set_pair</span><span class="p">(</span><span class="s2">"GunTilt"</span><span class="p">,</span> <span class="s2">"GUNTILT"</span><span class="p">),</span>
-            <span class="s2">"setDefocus"</span><span class="p">:</span> <span class="n">set_value</span><span class="p">(</span><span class="s2">"Defocus"</span><span class="p">,</span> <span class="s2">"DEFOCUS"</span><span class="p">,</span> <span class="s2">"defocus-m"</span><span class="p">),</span>
+            <span class="s2">"setDefocus"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span>
+                <span class="s2">"DEFOCUS"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_defocus</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"defocus-m"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="p">),</span>
             <span class="s2">"setImageShift"</span><span class="p">:</span> <span class="n">set_pair</span><span class="p">(</span><span class="s2">"ImageShift"</span><span class="p">,</span> <span class="s2">"IMAGESHIFT"</span><span class="p">),</span>
             <span class="s2">"setDiffractionShift"</span><span class="p">:</span> <span class="n">set_pair</span><span class="p">(</span><span class="s2">"DiffractionShift"</span><span class="p">,</span> <span class="s2">"DIFFRACTIONSHIFT"</span><span class="p">),</span>
             <span class="s2">"setBeamShift"</span><span class="p">:</span> <span class="n">set_pair</span><span class="p">(</span><span class="s2">"BeamShift"</span><span class="p">,</span> <span class="s2">"BEAMSHIFT"</span><span class="p">),</span>
@@ -1134,6 +1160,8 @@
         <span class="s2">"SubMode"</span><span class="p">:</span> <span class="s2">"FUNCTIONMODE"</span><span class="p">,</span>
         <span class="s2">"FunctionMode"</span><span class="p">:</span> <span class="s2">"FUNCTIONMODE"</span><span class="p">,</span>
         <span class="s2">"ProbeMode"</span><span class="p">:</span> <span class="s2">"GLOBAL"</span><span class="p">,</span>
+        <span class="s2">"WorkingDistance"</span><span class="p">:</span> <span class="s2">"DEFOCUS"</span><span class="p">,</span>
+        <span class="s2">"SampleTilt"</span><span class="p">:</span> <span class="s2">"GLOBAL"</span><span class="p">,</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="TemChannelServer.property_value">
@@ -1156,7 +1184,6 @@
             <span class="s2">"FunctionMode"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">floats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"Defocus"</span><span class="p">,</span>
             <span class="s2">"Magnification"</span><span class="p">,</span>
             <span class="s2">"ScreenCurrent"</span><span class="p">,</span>
             <span class="s2">"Intensity"</span><span class="p">,</span>
@@ -1171,6 +1198,10 @@
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ints</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"Defocus"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">defocus</span><span class="p">()</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"WorkingDistance"</span><span class="p">,</span> <span class="s2">"SampleTilt"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">floats</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"ConvergenceAngle"</span><span class="p">:</span>
@@ -1217,7 +1248,7 @@
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"PROJ_Focus"</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="s2">"Focus"</span><span class="p">)))</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"PROJ_Defocus"</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_g</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="s2">"Defocus"</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_g</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defocus</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"PROJ_ScreenPosition"</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="s2">"ScreenPosition"</span><span class="p">)))</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"CAMERA_MeasuredExposureTime"</span><span class="p">:</span>

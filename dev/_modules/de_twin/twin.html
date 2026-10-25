@@ -594,6 +594,9 @@
         <span class="c1"># Only a column the twin built is its to move: a supplied one may be a mirror of</span>
         <span class="c1"># real hardware, whose stage and beam are the operator's.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_own_column</span> <span class="o">=</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_own_column</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_column_as_sem</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">on_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_follow_sem_column</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start_on_specimen</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_own_column</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_on_specimen</span><span class="p">()</span></div>
 
@@ -1203,6 +1206,8 @@
             <span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span><span class="o">.</span><span class="n">ebsd</span> <span class="o">=</span> <span class="n">geometry</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_own_column"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_column_as_sem</span><span class="p">()</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">beam_kv</span> <span class="ow">is</span> <span class="kc">None</span>
                 <span class="ow">and</span> <span class="n">geometry</span><span class="o">.</span><span class="n">enabled</span>
@@ -1220,6 +1225,26 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">_set_local</span><span class="p">(</span><span class="s2">"HighTension"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">beam_kv</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">geometry</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_column_as_sem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Make the twin's own column say what the instrument is: an SEM with the EBSD</span>
+<span class="sd">        geometry's working distance and sample tilt in EBSD mode, else a TEM."""</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebsd</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geometry</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">enter_sem</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">working_distance_mm</span><span class="p">,</span> <span class="n">geometry</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">leave_sem</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_follow_sem_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A working distance or sample tilt written to the column moves the EBSD geometry the</span>
+<span class="sd">        patterns are rendered from, so the column and the patterns cannot disagree."""</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"WorkingDistance"</span><span class="p">:</span> <span class="s2">"working_distance_mm"</span><span class="p">,</span> <span class="s2">"SampleTilt"</span><span class="p">:</span> <span class="s2">"sample_tilt_deg"</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebsd</span>
+            <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geometry</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optics_config</span><span class="o">.</span><span class="n">ebsd</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)})</span>
 
 <div class="viewcode-block" id="DigitalTwin.set_master_pattern">
 <a class="viewcode-back" href="../../api/generated/de_twin.twin.DigitalTwin.html#de_twin.twin.DigitalTwin.set_master_pattern">[docs]</a>

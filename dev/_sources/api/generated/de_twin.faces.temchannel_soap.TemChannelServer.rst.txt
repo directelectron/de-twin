@@ -16,10 +16,12 @@
       ~TemChannelServer.__init__
       ~TemChannelServer.batch_field
       ~TemChannelServer.corrector_unit
+      ~TemChannelServer.defocus
       ~TemChannelServer.handle
       ~TemChannelServer.op_status
       ~TemChannelServer.operations
       ~TemChannelServer.property_value
+      ~TemChannelServer.set_defocus
       ~TemChannelServer.start
       ~TemChannelServer.stop
    

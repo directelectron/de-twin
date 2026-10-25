@@ -17,7 +17,9 @@
       ~Column.cl_ladder
       ~Column.close
       ~Column.convergence_mrad
+      ~Column.enter_sem
       ~Column.get
+      ~Column.leave_sem
       ~Column.mag_ladder
       ~Column.move_stage
       ~Column.now

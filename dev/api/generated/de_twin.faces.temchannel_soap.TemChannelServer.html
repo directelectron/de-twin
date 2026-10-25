@@ -637,17 +637,23 @@ recorded samples).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit" title="de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrector_unit</span></code></a>()</p></td>
 <td><p>The served <a class="reference internal" href="de_twin.column.CorrectorUnit.html#de_twin.column.CorrectorUnit" title="de_twin.column.corrector.CorrectorUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrectorUnit</span></code></a>, or None.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.handle" title="de_twin.faces.temchannel_soap.TemChannelServer.handle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle</span></code></a>(xml)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.defocus" title="de_twin.faces.temchannel_soap.TemChannelServer.defocus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defocus</span></code></a>()</p></td>
+<td><p>The defocus slot: um on a TEM; on an SEM its working distance in meters, the only meters-valued focus slot the channel has (<code class="docutils literal notranslate"><span class="pre">JeolSemInstrument::getDeFocus</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.handle" title="de_twin.faces.temchannel_soap.TemChannelServer.handle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle</span></code></a>(xml)</p></td>
 <td><p>Answer one SOAP request.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.op_status" title="de_twin.faces.temchannel_soap.TemChannelServer.op_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">op_status</span></code></a>(op_id)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.op_status" title="de_twin.faces.temchannel_soap.TemChannelServer.op_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">op_status</span></code></a>(op_id)</p></td>
 <td><p>GetPropertyOperationStatus: stage ops are Running while the column moves.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.operations" title="de_twin.faces.temchannel_soap.TemChannelServer.operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operations</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.operations" title="de_twin.faces.temchannel_soap.TemChannelServer.operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operations</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.property_value" title="de_twin.faces.temchannel_soap.TemChannelServer.property_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">property_value</span></code></a>(key)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.property_value" title="de_twin.faces.temchannel_soap.TemChannelServer.property_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">property_value</span></code></a>(key)</p></td>
 <td><p>The getProperty string for <code class="docutils literal notranslate"><span class="pre">key</span></code> (&quot;&quot; for unknown keys, like the channel).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.set_defocus" title="de_twin.faces.temchannel_soap.TemChannelServer.set_defocus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_defocus</span></code></a>(value)</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.faces.temchannel_soap.TemChannelServer.start" title="de_twin.faces.temchannel_soap.TemChannelServer.start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></a>()</p></td>
 <td><p></p></td>
@@ -737,6 +743,31 @@ recorded samples).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.faces.temchannel_soap.TemChannelServer.defocus">
+<span class="sig-name descname"><span class="pre">defocus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/faces/temchannel_soap.html#TemChannelServer.defocus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.faces.temchannel_soap.TemChannelServer.defocus" title="Link to this definition">#</a></dt>
+<dd><p>The defocus slot: um on a TEM; on an SEM its working distance in meters, the only
+meters-valued focus slot the channel has (<code class="docutils literal notranslate"><span class="pre">JeolSemInstrument::getDeFocus</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.faces.temchannel_soap.TemChannelServer.set_defocus">
+<span class="sig-name descname"><span class="pre">set_defocus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/faces/temchannel_soap.html#TemChannelServer.set_defocus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.faces.temchannel_soap.TemChannelServer.set_defocus" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -841,6 +872,8 @@ recorded samples).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.handle"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.operations"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.operations()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.op_status"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.op_status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.defocus"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.defocus()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.set_defocus"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.set_defocus()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.MAX_CORRECTOR_WAIT_MS"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.MAX_CORRECTOR_WAIT_MS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.corrector_unit"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.corrector_unit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.temchannel_soap.TemChannelServer.property_value"><code class="docutils literal notranslate"><span class="pre">TemChannelServer.property_value()</span></code></a></li>

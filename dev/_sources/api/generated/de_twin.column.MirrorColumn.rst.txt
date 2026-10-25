@@ -17,7 +17,9 @@
       ~MirrorColumn.cl_ladder
       ~MirrorColumn.close
       ~MirrorColumn.convergence_mrad
+      ~MirrorColumn.enter_sem
       ~MirrorColumn.get
+      ~MirrorColumn.leave_sem
       ~MirrorColumn.mag_ladder
       ~MirrorColumn.move_stage
       ~MirrorColumn.now

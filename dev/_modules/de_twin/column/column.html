@@ -506,6 +506,13 @@
 <span class="sd">  ``ILLUM_ProbeMode``, ``ScreenPosition`` enumerations); the state is always</span>
 <span class="sd">  vendor-normalised.</span>
 
+<span class="sd">An SEM: :meth:`Column.enter_sem` (``DigitalTwin.configure_ebsd`` calls it) makes the column</span>
+<span class="sd">report what DE-TEM-Channel's SEM backends report: ``InstrumentType`` names an SEM</span>
+<span class="sd">(``"JEOL SEM (EIK)"``, ``vendor.is_sem``), ``TemStemMode`` is 1 and ``ProjectionMode`` /</span>
+<span class="sd">``SubMode`` are 0, and projection writes are refused. ``WorkingDistance`` and</span>
+<span class="sd">``SampleTilt`` read and write the SEM's setup; on a TEM they read -1 and refuse writes.</span>
+<span class="sd">:meth:`Column.leave_sem` returns to the TEM state the column had.</span>
+
 <span class="sd">Safety as in de_microscope: high tension and filament writes are refused unless</span>
 <span class="sd">the column was built with ``allow_ht=True``.</span>
 
@@ -547,7 +554,9 @@
 <span class="sd">ScreenPosition          JEOL 0 up / 1 down; FEI 2 up / 3 down</span>
 <span class="sd">ColumnValvesOpen        0/1</span>
 <span class="sd">HighTension (HT)        volts (write refused unless allow_ht)</span>
-<span class="sd">InstrumentType          "JEOL" | "FEI" | ...</span>
+<span class="sd">InstrumentType          "JEOL" | "FEI" | ...; an SEM's: "JEOL SEM (EIK)" | "Thermo Fisher / FEI xT"</span>
+<span class="sd">WorkingDistance         [SEM] mm; -1 on a TEM</span>
+<span class="sd">SampleTilt              [SEM] deg, towards the EBSD detector; -1 on a TEM</span>
 <span class="sd">======================  ====================================================</span>
 
 <span class="sd">Aberration corrector: ``Column(corrector="probe" | "image" | "both", seed=...)`` fits</span>
@@ -686,6 +695,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">backlash_um</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_approach</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_op_state</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># DE-TEM-Channel OperationState of the last set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sem</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_working_distance_mm</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_tilt_deg</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">L</span><span class="o">.</span><span class="n">APERTURE_KIND_COUNT</span>
         <span class="n">sizes</span><span class="p">[</span><span class="n">L</span><span class="o">.</span><span class="n">APERTURE_KIND_CLA</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">condenser_aperture_index</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -1161,6 +1173,38 @@
 <a class="viewcode-back" href="../../../api/generated/de_twin.column.Column.html#de_twin.column.Column.set_instrument_type">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_instrument_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vendor</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"InstrumentType"</span><span class="p">,</span> <span class="n">vendor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Column.enter_sem">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.Column.html#de_twin.column.Column.enter_sem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enter_sem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">working_distance_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sample_tilt_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Make the column an SEM with this working distance (mm) and sample tilt (deg)."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">before</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_distance_mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_tilt_deg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sem</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="s2">"WorkingDistance"</span><span class="p">,</span> <span class="n">working_distance_mm</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"SampleTilt"</span><span class="p">,</span> <span class="n">sample_tilt_deg</span><span class="p">),</span>
+                <span class="p">):</span>
+                    <span class="n">SETTERS</span><span class="p">[</span><span class="n">name</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ColumnRefused</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_distance_mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_tilt_deg</span> <span class="o">=</span> <span class="n">before</span>
+                <span class="k">raise</span>
+            <span class="n">readback</span> <span class="o">=</span> <span class="n">GETTERS</span><span class="p">[</span><span class="s2">"InstrumentType"</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_notify</span><span class="p">(</span><span class="s2">"InstrumentType"</span><span class="p">,</span> <span class="n">readback</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Column.leave_sem">
+<a class="viewcode-back" href="../../../api/generated/de_twin.column.Column.html#de_twin.column.Column.leave_sem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">leave_sem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Make the column a TEM again, in the state it had."""</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sem</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sem</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">readback</span> <span class="o">=</span> <span class="n">GETTERS</span><span class="p">[</span><span class="s2">"InstrumentType"</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_notify</span><span class="p">(</span><span class="s2">"InstrumentType"</span><span class="p">,</span> <span class="n">readback</span><span class="p">)</span></div>
 
 
     <span class="c1"># ------------------------------------------------------------- control</span>

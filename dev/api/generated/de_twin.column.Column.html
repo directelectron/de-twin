@@ -643,8 +643,14 @@ or <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.column.Column.convergence_mrad" title="de_twin.column.Column.convergence_mrad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence_mrad</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.column.Column.get" title="de_twin.column.Column.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(name)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.column.Column.enter_sem" title="de_twin.column.Column.enter_sem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enter_sem</span></code></a>(working_distance_mm, sample_tilt_deg)</p></td>
+<td><p>Make the column an SEM with this working distance (mm) and sample tilt (deg).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.column.Column.get" title="de_twin.column.Column.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(name)</p></td>
 <td><p>Read a property by its DE-TEM-Channel name (see the module docstring).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.column.Column.leave_sem" title="de_twin.column.Column.leave_sem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leave_sem</span></code></a>()</p></td>
+<td><p>Make the column a TEM again, in the state it had.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.column.Column.mag_ladder" title="de_twin.column.Column.mag_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_ladder</span></code></a>()</p></td>
 <td><p>Magnifications a <code class="docutils literal notranslate"><span class="pre">Magnification</span></code> write can reach from here (empty in TEM diffraction).</p></td>
@@ -1325,6 +1331,34 @@ stuck at the top of LowMAG.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="de_twin.column.Column.enter_sem">
+<span class="sig-name descname"><span class="pre">enter_sem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">working_distance_mm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_tilt_deg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/column/column.html#Column.enter_sem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.column.Column.enter_sem" title="Link to this definition">#</a></dt>
+<dd><p>Make the column an SEM with this working distance (mm) and sample tilt (deg).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>working_distance_mm</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>sample_tilt_deg</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.column.Column.leave_sem">
+<span class="sig-name descname"><span class="pre">leave_sem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/column/column.html#Column.leave_sem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.column.Column.leave_sem" title="Link to this definition">#</a></dt>
+<dd><p>Make the column a TEM again, in the state it had.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="de_twin.column.Column.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/column/column.html#Column.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.column.Column.stop" title="Link to this definition">#</a></dt>
 <dd><p>Freeze the stage wherever its trajectory has reached (stopStage).</p>
@@ -1458,6 +1492,8 @@ has one, so a <code class="docutils literal notranslate"><span class="pre">Manua
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.set_column_valves"><code class="docutils literal notranslate"><span class="pre">Column.set_column_valves()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.set_ht_kv"><code class="docutils literal notranslate"><span class="pre">Column.set_ht_kv()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.set_instrument_type"><code class="docutils literal notranslate"><span class="pre">Column.set_instrument_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.enter_sem"><code class="docutils literal notranslate"><span class="pre">Column.enter_sem()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.leave_sem"><code class="docutils literal notranslate"><span class="pre">Column.leave_sem()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.stop"><code class="docutils literal notranslate"><span class="pre">Column.stop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.wait_idle"><code class="docutils literal notranslate"><span class="pre">Column.wait_idle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.close"><code class="docutils literal notranslate"><span class="pre">Column.close()</span></code></a></li>

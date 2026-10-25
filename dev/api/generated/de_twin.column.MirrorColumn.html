@@ -650,8 +650,14 @@ corrector operations is asked once.</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence_mrad</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enter_sem</span></code>(working_distance_mm, sample_tilt_deg)</p></td>
+<td><p>Make the column an SEM with this working distance (mm) and sample tilt (deg).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(name)</p></td>
 <td><p>Read a property by its DE-TEM-Channel name (see the module docstring).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">leave_sem</span></code>()</p></td>
+<td><p>Make the column a TEM again, in the state it had.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mag_ladder</span></code>()</p></td>
 <td><p>Magnifications a <code class="docutils literal notranslate"><span class="pre">Magnification</span></code> write can reach from here (empty in TEM diffraction).</p></td>
