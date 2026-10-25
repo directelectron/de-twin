@@ -46,17 +46,35 @@ def test_magnification_snaps_to_ladder(col):
 def test_magnification_crosses_lowmag_and_back(col):
     col.set("Magnification", 150)
     assert col.get("MagMode") == "LowMAG" and col.get("Magnification") == 150.0
-    col.set("Magnification", 1000)  # above the LowMAG ceiling -> MAG1 floor
+    col.set("Magnification", 1800)  # above the LowMAG ceiling -> MAG1 floor
     assert col.get("MagMode") == "MAG1" and col.get("Magnification") == 2000.0
     col.set("MagnificationIndex", -1)  # stepping below MAG1 crosses to LowMAG
-    assert col.get("MagMode") == "LowMAG" and col.get("Magnification") == 200.0
+    assert col.get("MagMode") == "LowMAG" and col.get("Magnification") == 1500.0
+
+
+def test_tem_imaging_reaches_the_magnifications_between_lowmag_and_mag1(col):
+    """500x and 1000x are LowMAG rungs on a real JEOL; DE-Server's mag.yaml lacked them."""
+    for magnification in (500.0, 1000.0, 1500.0):
+        col.set("Magnification", magnification)
+        assert col.get("MagMode") == "LowMAG" and col.get("Magnification") == magnification
+
+
+@pytest.mark.parametrize(("vendor", "largest"), [("JEOL", 9), ("FEI", 11)])
+def test_spot_size_reaches_the_vendor_range(clock, vendor, largest):
+    column = Column(clock=clock, instrument_type=vendor)
+    column.set("SpotSize", largest)
+    assert column.get("SpotSize") == largest
+    column.set("SpotSize", largest + 5)
+    assert column.get("SpotSize") == largest
+    column.set("SpotSize", 0)
+    assert column.get("SpotSize") == 1
 
 
 def test_the_mag_ladder_steps_across_lowmag_and_mag1(col):
     """A client stepping `mag_ladder` rung by rung walks from LowMAG into MAG1 and back."""
     col.set("Magnification", 120)
     ladder = list(col.mag_ladder())
-    assert list(ladder) == sorted(ladder) and ladder[0] == 120.0 and ladder[-1] == ladders.MAG1_MAGS[-1]
+    assert list(ladder) == sorted(ladder) and ladder[0] == 100.0 and ladder[-1] == ladders.MAG1_MAGS[-1]
     for rung in ladder:
         col.set("Magnification", rung)
         assert col.get("Magnification") == rung
@@ -213,8 +231,8 @@ def test_initial_state_is_resnapped(clock):
 def test_on_change_and_every_property_roundtrips(col):
     seen = []
     col.on_change(lambda name, value: seen.append((name, value)))
-    col.set("SpotSize", 9)
-    assert seen[-1] == ("SpotSize", 5)  # clamped like the Dummy, readback reported
+    col.set("SpotSize", 12)
+    assert seen[-1] == ("SpotSize", 9)  # clamped to a JEOL's range, readback reported
     for name in Column.property_names():
         if name in ("HighTension", "HT", "HTState", "Filament"):
             continue

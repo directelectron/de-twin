@@ -32,7 +32,7 @@ Magnification           x (snaps to the active ladder)
 MagnificationIndex      write only, index into the active ladder
 CameraLength            **cm** (DE-TEM-Channel unit; state keeps mm)
 Defocus                 um
-SpotSize                1..5
+SpotSize                1..9 (JEOL), 1..11 (FEI); clamped
 ProbeMode               raw vendor value (JEOL 0 TEM 1 EDS 2 NBD 3 CBD;
                         FEI 0 nanoprobe 1 microprobe); a ProbeMode or its
                         name is accepted on set
