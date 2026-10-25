@@ -434,13 +434,17 @@ def _fit(frame: np.ndarray, shape: tuple[int, int], dtype) -> np.ndarray:
 class _FramePool:
     """The twin's frames for one request, rendered on a thread of their own.
 
-    A ring of up to *size* frames of the CURRENT view: when the microscope state of a new
-    frame differs from the last one's, the older frames are dropped, so a recycled frame
-    never shows a view the column has left. `take` hands out the oldest frame not yet
-    published, else (recycling) the least-used one still under *reuse* publications, else
-    waits; after *keepalive* seconds with nothing new it hands back the last frame
-    anyway. *threads* caps the numba threads the detector uses (leave cores for the
-    consumer's own processing).
+    A ring of up to *size* frames of the CURRENT view. `take` hands out the oldest frame
+    not yet published, else (recycling) the least-used one still under *reuse*
+    publications, else waits; after *keepalive* seconds with nothing new it hands back
+    the last frame anyway. *threads* caps the numba threads the detector uses (leave
+    cores for the consumer's own processing).
+
+    Outside a scan, a frame is only ever handed out while the column is still in the
+    state it was rendered in: a `take` after a move of the stage (or any other change to
+    the column) has returned gets a frame of the new view, never one the ring kept from
+    the old. A scan freezes the optics for its acquisition (`DigitalTwin.frames`), and its
+    pool lives for that one request.
     """
 
     def __init__(self, twin, request, *, size: int, reuse: int, pace: bool, threads: int | None = None):
@@ -451,6 +455,10 @@ class _FramePool:
         self._last = None
         self._end = None  # _DONE or an exception
         self._stop = threading.Event()
+        self._column = twin.column
+        self._watch = not request.scan.enabled
+        self._view = None  # the column state the frames in the ring were rendered in
+        self._seen = None  # (revision, time) of the last look at the column
         self._thread = threading.Thread(
             target=self._render, args=(twin, request, pace, threads), name="de-twin-shm-render", daemon=True
         )
@@ -464,43 +472,72 @@ class _FramePool:
                 numba.set_num_threads(max(1, min(int(threads), numba.config.NUMBA_NUM_THREADS)))
             except Exception:
                 pass
-        state = None
-        # A scan's frames depend on their index, so only a fixed view is re-rendered from
-        # the start when the column moves (diffraction and STEM freeze the optics for the
-        # whole of a `frames` call, so a running one would never see the move).
-        watch = not request.scan.enabled
         try:
             restart = True
             while restart:
                 restart = False
-                for item in twin.frames(request, pace=pace, stop=self._stop):
+                frames = twin.frames(request, pace=pace, stop=self._stop)
+                for item in frames:
                     with self._cond:
-                        if item[1].microscope != state:
-                            state = item[1].microscope
-                            self._ring = []  # a new view: nothing older may be shown
                         # A ring full of frames that may still be published is a library:
                         # stop rendering, which also stops taking the interpreter from the
                         # thread that publishes them, until the view changes.
                         while not self._stop.is_set() and self._publishable() >= self.size:
                             self._cond.wait(0.05)
-                            if watch and twin.column.state() != state:
-                                restart, self._ring = True, []
+                            if self._watch and self._moved():
                                 break
                         if self._stop.is_set():
                             return
-                        if restart:
+                        state = item[1].microscope
+                        # Rendered before the column moved (TEM imaging reads the column
+                        # once a buffer, diffraction and STEM once a `frames` call): start
+                        # again from the column as it is now.
+                        if self._watch and state != self._column.state():
+                            restart = True
                             break
+                        if state != self._view:
+                            self._view, self._ring = state, []  # a new view: nothing older
                         self._ring.append([item, 0])
                         if len(self._ring) > self.size:  # drop the most-used frame
                             worst = max(range(len(self._ring) - 1), key=lambda i: self._ring[i][1])
                             del self._ring[worst]
                         self._cond.notify_all()
+                frames.close()
             end = _DONE
         except Exception as e:
             end = e
         with self._cond:
             self._end = end
             self._cond.notify_all()
+
+    def _moved(self) -> bool:
+        """Whether the column has left the view of the frames in the ring; if it has, the
+        ring is emptied. Call with the lock held.
+
+        A snapshot of the column costs a few hundred microseconds, too much to take for
+        every frame of a stream at thousands a second, so one is taken only when the
+        column has been written to since the last, while its stage is still on its way, or
+        every `VIEW_CHECK_S` (what changes without a write: a corrector's drift)."""
+        if self._view is None:
+            return False
+        column = self._column
+        revision = getattr(column, "revision", None)
+        now = time.monotonic()
+        seen = self._seen
+        if (
+            revision is not None
+            and seen is not None
+            and seen[0] == revision
+            and now - seen[1] < VIEW_CHECK_S
+            and not column.busy
+        ):
+            return False
+        self._seen = (revision, now)
+        if column.state() == self._view:
+            return False
+        self._view, self._ring, self._last = None, [], None
+        self._cond.notify_all()
+        return True
 
     def _publishable(self) -> int:
         return sum(1 for e in self._ring if e[1] < self.reuse)
@@ -519,6 +556,8 @@ class _FramePool:
 
         deadline = time.monotonic() + keepalive
         with self._cond:
+            if self._watch:
+                self._moved()
             while True:
                 taken = [e for e in self._ring if e[1] == 0][:count]
                 for e in taken:

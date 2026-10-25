@@ -179,6 +179,9 @@ class Column:
         self.tilt_speed_deg_s = float(tilt_speed_deg_s)
         self.stage_limits = tuple(float(v) for v in stage_limits)
         self._callbacks: list[Callable[[str, Any], None]] = []
+        #: Counts the writes to the column: a reader that saw the same revision, with the
+        #: stage at rest, knows the state has not changed without taking a snapshot.
+        self.revision = 0
 
         s = (state or MicroscopeState()).copy()
         if instrument_type is not None:
@@ -455,6 +458,7 @@ class Column:
                 self._last_op_state = 3
                 raise
             self._last_op_state = 2
+            self.revision += 1
             if before is not None:
                 after = self._tune_key()
                 if after[0] != before[0]:
@@ -597,6 +601,7 @@ class Column:
             self._stage_target = list(self._stage_now)
             self._move_t0 = self._now()
             self._last_op_state = 4
+            self.revision += 1
 
     def wait_idle(self, timeout: float | None = None) -> bool:
         """Block until the stage has arrived. Uses ``clock.sleep`` when the clock
@@ -833,6 +838,7 @@ class Column:
             self._stage_now = list(pos)
             self._move_t0 = self._now()
             self._convergence_explicit = convergence_explicit
+            self.revision += 1
             self._extra["ApertureSizes"][L.APERTURE_KIND_CLA] = int(s.condenser_aperture_index)
             if extra:
                 self._extra.update(extra)
