@@ -62,7 +62,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Development and releases" href="dev/index.html" />
-    <link rel="prev" title="de_twin.transport.shm.FrameConsumer" href="api/generated/de_twin.transport.shm.FrameConsumer.html" />
+    <link rel="prev" title="de_twin.specimen.indent.Indent" href="api/generated/de_twin.specimen.indent.Indent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.3.0" />
@@ -713,6 +713,23 @@ below 2x the probe size) and the probe window fits <code class="docutils literal
 </li>
 </ul>
 </section>
+<section id="de-twin-ebsd">
+<h3><code class="docutils literal notranslate"><span class="pre">de_twin.ebsd</span></code><a class="headerlink" href="#de-twin-ebsd" title="Link to this heading">#</a></h3>
+<p>EBSD in an SEM (<code class="docutils literal notranslate"><span class="pre">RenderMode.EBSD</span></code>, set by <code class="docutils literal notranslate"><span class="pre">OpticsConfig.ebsd</span></code> / <code class="docutils literal notranslate"><span class="pre">DigitalTwin.configure_ebsd</span></code>).
+The specimen is a bulk polycrystal (<code class="docutils literal notranslate"><span class="pre">specimen/bulk.py</span></code>, <code class="docutils literal notranslate"><span class="pre">BulkSurface</span></code>), sampled per scan point
+rather than rasterised; <code class="docutils literal notranslate"><span class="pre">specimen/indent.py</span></code> adds an indent’s strain field.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geometry.py</span></code>: <code class="docutils literal notranslate"><span class="pre">EbsdGeometry</span></code> (tilts, working distance, Bruker pattern centre, probe
+current) and how the pattern centre follows the beam.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">master.py</span></code>: kinematic Kikuchi master patterns per phase and energy, cached process-wide;
+<code class="docutils literal notranslate"><span class="pre">io.py</span></code> reads user masters (EMsoft, kikuchipy, NumPy).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render.py</span></code>: <code class="docutils literal notranslate"><span class="pre">EbsdRenderer</span></code>, the per-point patterns and ground truth (<code class="docutils literal notranslate"><span class="pre">Renderer.ebsd</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernels.py</span></code>, <code class="docutils literal notranslate"><span class="pre">frames.py</span></code>, <code class="docutils literal notranslate"><span class="pre">framesource.py</span></code>: numba kernels through <code class="docutils literal notranslate"><span class="pre">numba_jit</span></code>. A camera frame
+is made in one fused pass (projection, Poisson draw, detector) from <code class="docutils literal notranslate"><span class="pre">Detector.grid_exposure</span></code>;
+<code class="docutils literal notranslate"><span class="pre">DigitalTwin.frames</span></code> and the shared-memory face hand frames to <code class="docutils literal notranslate"><span class="pre">de_twin.workers</span></code>, a pool of
+below-normal-priority threads, a few frames per job.</p></li>
+</ul>
+</section>
 <section id="reconstruction-checks-tests-reconstruction">
 <h3>Reconstruction checks (<code class="docutils literal notranslate"><span class="pre">tests/reconstruction/</span></code>)<a class="headerlink" href="#reconstruction-checks-tests-reconstruction" title="Link to this heading">#</a></h3>
 <p>de-twin produces data; it does not ship reconstruction methods. The test suite keeps small
@@ -833,6 +850,8 @@ or virtual, with a time scale, so in-situ experiments can be fast-forwarded.</p>
 <span class="n">twin</span><span class="o">.</span><span class="n">datacube</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>     <span class="c1"># noiseless 4D-STEM (scan y, x, binned det y, x), e/px/s</span>
 <span class="n">twin</span><span class="o">.</span><span class="n">ground_truth_ptychography</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>  <span class="c1"># object t(r), probe modes, positions, aberrations</span>
 <span class="n">twin</span><span class="o">.</span><span class="n">stem_model</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>          <span class="c1"># "coherent" | "kinematic"</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">configure_ebsd</span><span class="p">(</span><span class="n">beam_kv</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>        <span class="c1"># an SEM with this camera as its EBSD detector</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">ebsd_patterns</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>              <span class="c1"># noiseless EBSD patterns (scan y, x, binned det y, x)</span>
 </pre></div>
 </div>
 </section>
@@ -859,12 +878,12 @@ layout, <code class="docutils literal notranslate"><span class="pre">CheckBuffer
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="api/generated/de_twin.transport.shm.FrameConsumer.html"
+       href="api/generated/de_twin.specimen.indent.Indent.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">de_twin.transport.shm.FrameConsumer</p>
+        <p class="prev-next-title">de_twin.specimen.indent.Indent</p>
       </div>
     </a>
     <a class="right-next"
@@ -904,6 +923,7 @@ layout, <code class="docutils literal notranslate"><span class="pre">CheckBuffer
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-optics"><code class="docutils literal notranslate"><span class="pre">de_twin.optics</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-crystal"><code class="docutils literal notranslate"><span class="pre">de_twin.crystal</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-render"><code class="docutils literal notranslate"><span class="pre">de_twin.render</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-ebsd"><code class="docutils literal notranslate"><span class="pre">de_twin.ebsd</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstruction-checks-tests-reconstruction">Reconstruction checks (<code class="docutils literal notranslate"><span class="pre">tests/reconstruction/</span></code>)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-detector"><code class="docutils literal notranslate"><span class="pre">de_twin.detector</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de-twin-column"><code class="docutils literal notranslate"><span class="pre">de_twin.column</span></code></a><ul class="nav section-nav flex-column">

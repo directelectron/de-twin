@@ -479,6 +479,9 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.Specimen.html">de_twin.specimen.Specimen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.SpecimenConfig.html">de_twin.specimen.SpecimenConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.from_name.html">de_twin.specimen.from_name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurface.html">de_twin.specimen.BulkSurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurfaceConfig.html">de_twin.specimen.BulkSurfaceConfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkPhase.html">de_twin.specimen.BulkPhase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.crystal.library.CrystalLibrary.html">de_twin.crystal.library.CrystalLibrary</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -508,6 +511,16 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.faces.shm_face.ShmFace.html">de_twin.faces.shm_face.ShmFace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameProducer.html">de_twin.transport.shm.FrameProducer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameConsumer.html">de_twin.transport.shm.FrameConsumer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html">de_twin.ebsd.EbsdGeometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html">de_twin.ebsd.EbsdRenderer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.MasterPattern.html">de_twin.ebsd.MasterPattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.build_master.html">de_twin.ebsd.build_master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.convert_pc.html">de_twin.ebsd.convert_pc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.load_master_pattern.html">de_twin.ebsd.load_master_pattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.write_emsoft.html">de_twin.ebsd.write_emsoft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.indent.Indent.html">de_twin.specimen.indent.Indent</a></li>
 </ul>
 </div>
 </nav></div>
@@ -601,23 +614,35 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.datacube" title="de_twin.render.Renderer.datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code></a>(optics, *[, time_s, model])</p></td>
 <td><p>Noiseless 4D-STEM data: float32 (scan ny, nx, Hd, Wd) at the <em>binned</em> detector shape, electrons per binned pixel per second.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.field_map" title="de_twin.render.Renderer.field_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map</span></code></a>(optics[, layers, time_s, store])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ebsd_flat_point" title="de_twin.render.Renderer.ebsd_flat_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_flat_point</span></code></a>(optics, scan_point, frame_index)</p></td>
+<td><p>The flat scan point (<code class="docutils literal notranslate"><span class="pre">iy</span> <span class="pre">*</span> <span class="pre">nx</span> <span class="pre">+</span> <span class="pre">ix</span></code>) <a class="reference internal" href="#de_twin.render.Renderer.render_ebsd_frame" title="de_twin.render.Renderer.render_ebsd_frame"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render_ebsd_frame()</span></code></a> renders for this frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ebsd_patterns" title="de_twin.render.Renderer.ebsd_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_patterns</span></code></a>(optics, *[, time_s, out, dtype])</p></td>
+<td><p>Noiseless EBSD patterns of the whole scan, (scan ny, nx, h, w) at the binned detector shape, electrons per binned pixel per second.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ebsd_plan" title="de_twin.render.Renderer.ebsd_plan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_plan</span></code></a>(optics, time_s)</p></td>
+<td><p>The EBSD scan's per-point plan (<code class="docutils literal notranslate"><span class="pre">EbsdRenderer.plan</span></code>) at the current specimen.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.field_map" title="de_twin.render.Renderer.field_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_map</span></code></a>(optics[, layers, time_s, store])</p></td>
 <td><p>(FieldMap, token): rasterise only when view / layers / generation / time change.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ground_truth" title="de_twin.render.Renderer.ground_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth</span></code></a>(optics[, time_s])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ground_truth" title="de_twin.render.Renderer.ground_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth</span></code></a>(optics[, time_s])</p></td>
 <td><p>Per raster pixel (TEM view) or scan point (STEM): <code class="docutils literal notranslate"><span class="pre">material_id</span></code>, <code class="docutils literal notranslate"><span class="pre">grain_id</span></code> and the effective orientation <code class="docutils literal notranslate"><span class="pre">quaternion</span></code> (orix/diffsims rotation incl.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ground_truth_ptychography" title="de_twin.render.Renderer.ground_truth_ptychography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth_ptychography</span></code></a>(optics, *[, time_s])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ground_truth_ptychography" title="de_twin.render.Renderer.ground_truth_ptychography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ground_truth_ptychography</span></code></a>(optics, *[, time_s])</p></td>
 <td><p>Complex object, probe (modes), scan positions and aberrations of the coherent simulation (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">de_twin.render.coherent.CoherentStem.ground_truth()</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.invalidate" title="de_twin.render.Renderer.invalidate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invalidate</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.invalidate" title="de_twin.render.Renderer.invalidate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invalidate</span></code></a>()</p></td>
 <td><p>Drop every cached raster, frame and pattern (e.g. after the specimen changed).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.prefetch" title="de_twin.render.Renderer.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(optics[, time_s])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.prefetch" title="de_twin.render.Renderer.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(optics[, time_s])</p></td>
 <td><p>Render the TEM view <code class="docutils literal notranslate"><span class="pre">optics</span></code> into the caches, off the caller's thread: the padded raster and its field map, so asking for that view later is a crop.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.render" title="de_twin.render.Renderer.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a>(optics, *[, frame_index, scan_point, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.render" title="de_twin.render.Renderer.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a>(optics, *[, frame_index, scan_point, ...])</p></td>
 <td><p>float32 (ny, nx) = optics.output_shape, electrons / detector pixel / second.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.render_ebsd_frame" title="de_twin.render.Renderer.render_ebsd_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_ebsd_frame</span></code></a>(optics, frame_index, ...)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(flux,</span> <span class="pre">means)</span></code> of an EBSD camera frame (see <code class="docutils literal notranslate"><span class="pre">EbsdRenderer.render_frame</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.scan_point_for" title="de_twin.render.Renderer.scan_point_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point_for</span></code></a>(optics[, frame_index, scan_point])</p></td>
 <td><p></p></td>
@@ -640,18 +665,30 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.crystallinity" title="de_twin.render.Renderer.crystallinity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crystallinity</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.grains" title="de_twin.render.Renderer.grains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grains</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ebsd" title="de_twin.render.Renderer.ebsd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd</span></code></a></p></td>
+<td><p>The <a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer" title="de_twin.ebsd.EbsdRenderer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdRenderer</span></code></a> (scan tables; master patterns are process-wide).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.grains" title="de_twin.render.Renderer.grains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grains</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.seed" title="de_twin.render.Renderer.seed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seed</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.seed" title="de_twin.render.Renderer.seed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seed</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.stats" title="de_twin.render.Renderer.stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.render.Renderer.stats" title="de_twin.render.Renderer.stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.render.Renderer.ebsd_user_masters" title="de_twin.render.Renderer.ebsd_user_masters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_user_masters</span></code></a></p></td>
+<td><p>material id -&gt; user master patterns (<code class="docutils literal notranslate"><span class="pre">DigitalTwin.set_master_pattern</span></code>); the twin's dict</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.ebsd_user_masters">
+<span class="sig-name descname"><span class="pre">ebsd_user_masters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a></span><a class="headerlink" href="#de_twin.render.Renderer.ebsd_user_masters" title="Link to this definition">#</a></dt>
+<dd><p>material id -&gt; user master patterns (<code class="docutils literal notranslate"><span class="pre">DigitalTwin.set_master_pattern</span></code>); the twin’s dict</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="de_twin.render.Renderer.seed">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">seed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><a class="headerlink" href="#de_twin.render.Renderer.seed" title="Link to this definition">#</a></dt>
@@ -730,6 +767,68 @@ patterns. Returns whether anything was rendered.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.ebsd">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ebsd</span></span><a class="headerlink" href="#de_twin.render.Renderer.ebsd" title="Link to this definition">#</a></dt>
+<dd><p>The <a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer" title="de_twin.ebsd.EbsdRenderer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdRenderer</span></code></a> (scan tables; master patterns are process-wide).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.render_ebsd_frame">
+<span class="sig-name descname"><span class="pre">render_ebsd_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_nb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.render_ebsd_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.render_ebsd_frame" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(flux,</span> <span class="pre">means)</span></code> of an EBSD camera frame (see <code class="docutils literal notranslate"><span class="pre">EbsdRenderer.render_frame</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>t_nb</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.ebsd_plan">
+<span class="sig-name descname"><span class="pre">ebsd_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.ebsd_plan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.ebsd_plan" title="Link to this definition">#</a></dt>
+<dd><p>The EBSD scan’s per-point plan (<code class="docutils literal notranslate"><span class="pre">EbsdRenderer.plan</span></code>) at the current specimen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.ebsd_flat_point">
+<span class="sig-name descname"><span class="pre">ebsd_flat_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.ebsd_flat_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.ebsd_flat_point" title="Link to this definition">#</a></dt>
+<dd><p>The flat scan point (<code class="docutils literal notranslate"><span class="pre">iy</span> <span class="pre">*</span> <span class="pre">nx</span> <span class="pre">+</span> <span class="pre">ix</span></code>) <a class="reference internal" href="#de_twin.render.Renderer.render_ebsd_frame" title="de_twin.render.Renderer.render_ebsd_frame"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render_ebsd_frame()</span></code></a> renders for this
+frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.render.Renderer.ebsd_patterns">
+<span class="sig-name descname"><span class="pre">ebsd_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.ebsd_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.ebsd_patterns" title="Link to this definition">#</a></dt>
+<dd><p>Noiseless EBSD patterns of the whole scan, (scan ny, nx, h, w) at the binned detector
+shape, electrons per binned pixel per second.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.render.Renderer.stem_model">
 <span class="sig-name descname"><span class="pre">stem_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.stem_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.stem_model" title="Link to this definition">#</a></dt>
@@ -752,7 +851,8 @@ patterns. Returns whether anything was rendered.</p>
 <dt class="sig sig-object py" id="de_twin.render.Renderer.datacube">
 <span class="sig-name descname"><span class="pre">datacube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.datacube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.datacube" title="Link to this definition">#</a></dt>
 <dd><p>Noiseless 4D-STEM data: float32 (scan ny, nx, Hd, Wd) at the <em>binned</em> detector shape,
-electrons per binned pixel per second.</p>
+electrons per binned pixel per second. EBSD optics: the EBSD pattern stack
+(<a class="reference internal" href="#de_twin.render.Renderer.ebsd_patterns" title="de_twin.render.Renderer.ebsd_patterns"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ebsd_patterns()</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -825,7 +925,8 @@ and the pattern specs directly - no per-point CBED is rendered.</p>
 <span class="sig-name descname"><span class="pre">ground_truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/render/renderer.html#Renderer.ground_truth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.render.Renderer.ground_truth" title="Link to this definition">#</a></dt>
 <dd><p>Per raster pixel (TEM view) or scan point (STEM): <code class="docutils literal notranslate"><span class="pre">material_id</span></code>, <code class="docutils literal notranslate"><span class="pre">grain_id</span></code> and the
 effective orientation <code class="docutils literal notranslate"><span class="pre">quaternion</span></code> (orix/diffsims rotation incl. the stage tilt;
-identity where there is no crystal), plus <code class="docutils literal notranslate"><span class="pre">thickness_nm</span></code>.</p>
+identity where there is no crystal), plus <code class="docutils literal notranslate"><span class="pre">thickness_nm</span></code>. EBSD optics: the EBSD ground
+truth per scan point (<a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.ground_truth" title="de_twin.ebsd.EbsdRenderer.ground_truth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">de_twin.ebsd.EbsdRenderer.ground_truth()</span></code></a>; sample frame).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>time_s</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p>
@@ -907,6 +1008,7 @@ identity where there is no crystal), plus <code class="docutils literal notransl
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer"><code class="docutils literal notranslate"><span class="pre">Renderer</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.__init__"><code class="docutils literal notranslate"><span class="pre">Renderer.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.ebsd_user_masters"><code class="docutils literal notranslate"><span class="pre">Renderer.ebsd_user_masters</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.seed"><code class="docutils literal notranslate"><span class="pre">Renderer.seed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.grains"><code class="docutils literal notranslate"><span class="pre">Renderer.grains</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.crystallinity"><code class="docutils literal notranslate"><span class="pre">Renderer.crystallinity</span></code></a></li>
@@ -914,6 +1016,11 @@ identity where there is no crystal), plus <code class="docutils literal notransl
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.invalidate"><code class="docutils literal notranslate"><span class="pre">Renderer.invalidate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.render"><code class="docutils literal notranslate"><span class="pre">Renderer.render()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.prefetch"><code class="docutils literal notranslate"><span class="pre">Renderer.prefetch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.ebsd"><code class="docutils literal notranslate"><span class="pre">Renderer.ebsd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.render_ebsd_frame"><code class="docutils literal notranslate"><span class="pre">Renderer.render_ebsd_frame()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.ebsd_plan"><code class="docutils literal notranslate"><span class="pre">Renderer.ebsd_plan()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.ebsd_flat_point"><code class="docutils literal notranslate"><span class="pre">Renderer.ebsd_flat_point()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.ebsd_patterns"><code class="docutils literal notranslate"><span class="pre">Renderer.ebsd_patterns()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.stem_model"><code class="docutils literal notranslate"><span class="pre">Renderer.stem_model()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.coherent_sampling"><code class="docutils literal notranslate"><span class="pre">Renderer.coherent_sampling()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.render.Renderer.datacube"><code class="docutils literal notranslate"><span class="pre">Renderer.datacube()</span></code></a></li>

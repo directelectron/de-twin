@@ -21,4 +21,10 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ShmFace.FRAMES_PER_JOB
+   
    

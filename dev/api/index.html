@@ -479,6 +479,9 @@
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.Specimen.html">de_twin.specimen.Specimen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.SpecimenConfig.html">de_twin.specimen.SpecimenConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.from_name.html">de_twin.specimen.from_name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.BulkSurface.html">de_twin.specimen.BulkSurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.BulkSurfaceConfig.html">de_twin.specimen.BulkSurfaceConfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.BulkPhase.html">de_twin.specimen.BulkPhase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.crystal.library.CrystalLibrary.html">de_twin.crystal.library.CrystalLibrary</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -508,6 +511,16 @@
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.faces.shm_face.ShmFace.html">de_twin.faces.shm_face.ShmFace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.transport.shm.FrameProducer.html">de_twin.transport.shm.FrameProducer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="generated/de_twin.transport.shm.FrameConsumer.html">de_twin.transport.shm.FrameConsumer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.EbsdGeometry.html">de_twin.ebsd.EbsdGeometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.EbsdRenderer.html">de_twin.ebsd.EbsdRenderer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.MasterPattern.html">de_twin.ebsd.MasterPattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.build_master.html">de_twin.ebsd.build_master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.convert_pc.html">de_twin.ebsd.convert_pc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.load_master_pattern.html">de_twin.ebsd.load_master_pattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.ebsd.write_emsoft.html">de_twin.ebsd.write_emsoft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/de_twin.specimen.indent.Indent.html">de_twin.specimen.indent.Indent</a></li>
 </ul>
 </div>
 </nav></div>
@@ -676,7 +689,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.specimen.from_name.html#de_twin.specimen.from_name" title="de_twin.specimen.from_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">specimen.from_name</span></code></a></p></td>
 <td><p>Look up a preset, test pattern or legacy alias by name (case-insensitive).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary" title="de_twin.crystal.library.CrystalLibrary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crystal.library.CrystalLibrary</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface" title="de_twin.specimen.BulkSurface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">specimen.BulkSurface</span></code></a></p></td>
+<td><p>A polished bulk polycrystal (see the module docstring).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.specimen.BulkSurfaceConfig.html#de_twin.specimen.BulkSurfaceConfig" title="de_twin.specimen.BulkSurfaceConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">specimen.BulkSurfaceConfig</span></code></a></p></td>
+<td><p>What a bulk EBSD specimen is made of (all lengths µm).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.specimen.BulkPhase.html#de_twin.specimen.BulkPhase" title="de_twin.specimen.BulkPhase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">specimen.BulkPhase</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.crystal.library.CrystalLibrary.html#de_twin.crystal.library.CrystalLibrary" title="de_twin.crystal.library.CrystalLibrary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crystal.library.CrystalLibrary</span></code></a></p></td>
 <td><p>Reciprocal lattice + kinematic <code class="docutils literal notranslate"><span class="pre">|F|^2</span></code> of one phase, computed once.</p></td>
 </tr>
 </tbody>
@@ -775,6 +797,38 @@
 </table>
 </div>
 </section>
+<section id="ebsd">
+<h2>EBSD<a class="headerlink" href="#ebsd" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry" title="de_twin.ebsd.EbsdGeometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.EbsdGeometry</span></code></a></p></td>
+<td><p>An SEM with an EBSD detector: everything about the experiment that is not the column's beam energy (<code class="docutils literal notranslate"><span class="pre">MicroscopeState.ht_kv</span></code>) or the scan (<code class="docutils literal notranslate"><span class="pre">AcquisitionRequest.scan</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer" title="de_twin.ebsd.EbsdRenderer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.EbsdRenderer</span></code></a></p></td>
+<td><p>Owns the EBSD scan tables and plans; renders patterns, pattern stacks and ground truth.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.ebsd.MasterPattern.html#de_twin.ebsd.MasterPattern" title="de_twin.ebsd.MasterPattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.MasterPattern</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.ebsd.build_master.html#de_twin.ebsd.build_master" title="de_twin.ebsd.build_master"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.build_master</span></code></a></p></td>
+<td><p>Build the master pattern (see the module docstring).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.ebsd.convert_pc.html#de_twin.ebsd.convert_pc" title="de_twin.ebsd.convert_pc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.convert_pc</span></code></a></p></td>
+<td><p>Convert a Bruker pattern centre (..., 3) to another vendor's convention.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.ebsd.load_master_pattern.html#de_twin.ebsd.load_master_pattern" title="de_twin.ebsd.load_master_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.load_master_pattern</span></code></a></p></td>
+<td><p>A user <code class="xref py py-class docutils literal notranslate"><span class="pre">MasterPattern</span></code> for <code class="docutils literal notranslate"><span class="pre">material</span></code> from a file path (EMsoft / kikuchipy HDF5) or a NumPy array (with <code class="docutils literal notranslate"><span class="pre">projection</span></code>, <code class="docutils literal notranslate"><span class="pre">hemisphere</span></code>, <code class="docutils literal notranslate"><span class="pre">energies</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/de_twin.ebsd.write_emsoft.html#de_twin.ebsd.write_emsoft" title="de_twin.ebsd.write_emsoft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd.write_emsoft</span></code></a></p></td>
+<td><p>Write master hemispheres (n, n) or (nE, n, n) in EMsoft's EMEBSDmaster layout (mLPNH / mLPSH as (1, nE, n, n) float32, EkeVs, CrystalData; <code class="docutils literal notranslate"><span class="pre">weights</span></code>: an energy histogram as <code class="docutils literal notranslate"><span class="pre">EMData/MCOpenCL/accum_e</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/de_twin.specimen.indent.Indent.html#de_twin.specimen.indent.Indent" title="de_twin.specimen.indent.Indent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">specimen.indent.Indent</span></code></a></p></td>
+<td><p>One indent (lengths µm, angles deg); see the module docstring.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 
 
@@ -832,6 +886,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#holders">Holders</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optics-and-rendering">Optics and rendering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faces-serving-the-twin">Faces (serving the twin)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ebsd">EBSD</a></li>
 </ul>
   </nav></div>
 

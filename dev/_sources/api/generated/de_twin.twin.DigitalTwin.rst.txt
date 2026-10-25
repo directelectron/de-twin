@@ -17,20 +17,27 @@
       ~DigitalTwin.acquire
       ~DigitalTwin.beam_on_detector
       ~DigitalTwin.calibration_truth
+      ~DigitalTwin.clear_master_patterns
       ~DigitalTwin.close
+      ~DigitalTwin.configure_ebsd
       ~DigitalTwin.datacube
+      ~DigitalTwin.ebsd_frame_source
+      ~DigitalTwin.ebsd_patterns
       ~DigitalTwin.flux
       ~DigitalTwin.frames
       ~DigitalTwin.ground_truth
       ~DigitalTwin.ground_truth_ptychography
       ~DigitalTwin.holder_state
+      ~DigitalTwin.master_patterns
       ~DigitalTwin.microscope_state
+      ~DigitalTwin.noise_serial
       ~DigitalTwin.optics
       ~DigitalTwin.raw_frame
       ~DigitalTwin.request
       ~DigitalTwin.reset_serial
       ~DigitalTwin.safe_dose_e_per_px_s
       ~DigitalTwin.scan_point
+      ~DigitalTwin.set_master_pattern
       ~DigitalTwin.set_specimen
       ~DigitalTwin.snap
       ~DigitalTwin.start_on_specimen
@@ -45,7 +52,9 @@
 
    .. autosummary::
    
+      ~DigitalTwin.FRAMES_PER_JOB
       ~DigitalTwin.camera_model
+      ~DigitalTwin.ebsd
       ~DigitalTwin.processor
    
    

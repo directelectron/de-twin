@@ -42,7 +42,9 @@
       ~CameraModel.fpn_column_adu
       ~CameraModel.fpn_pattern
       ~CameraModel.full_frame_time_s
+      ~CameraModel.full_stop_kv
       ~CameraModel.gain_column_sigma
+      ~CameraModel.gain_mode
       ~CameraModel.gain_pixel_sigma
       ~CameraModel.gain_radial
       ~CameraModel.gain_stitch
@@ -50,6 +52,7 @@
       ~CameraModel.hot_dark_current_adu_per_s
       ~CameraModel.hot_pixel_fraction
       ~CameraModel.hw_quanta
+      ~CameraModel.low_gain_full_well_e
       ~CameraModel.max_fps
       ~CameraModel.max_value
       ~CameraModel.num_parts

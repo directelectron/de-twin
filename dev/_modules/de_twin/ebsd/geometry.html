@@ -1,0 +1,882 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.ebsd.geometry &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/ebsd/geometry';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/_modules/de_twin/ebsd/geometry.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.ebsd.geometry</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.ebsd.geometry</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""EBSD geometry: sample tilt, detector tilt, pattern centre and how they move with the beam.</span>
+
+<span class="sd">Frames</span>
+<span class="sd">------</span>
+<span class="sd">All frames are right-handed.</span>
+
+<span class="sd">* **Sample frame** (the frame every EBSD orientation is reported in): the de-twin specimen</span>
+<span class="sd">  frame, ``x_s`` = scan x (right in the scan / orientation map), ``y_s`` = scan y (down in</span>
+<span class="sd">  the map), ``z_s`` = ``x_s x y_s`` pointing *into* the sample. The surface's outward normal</span>
+<span class="sd">  is ``-z_s``. In the SEM image the EBSD detector is at the *top* (towards ``-y_s``), and the</span>
+<span class="sd">  tilt axis is ``x_s``.</span>
+<span class="sd">* **Detector frame**: ``x_d`` along the pattern's columns (right), ``y_d`` along its rows</span>
+<span class="sd">  (down), ``z_d`` from the source point towards the screen, normal to it. The pattern is the</span>
+<span class="sd">  screen *as seen from the sample*: its top is towards the pole piece and the bright</span>
+<span class="sd">  forward-scatter region is at the bottom.</span>
+
+<span class="sd">The sample is tilted by ``sample_tilt_deg`` (sigma, default 70) about ``x_s`` towards the</span>
+<span class="sd">detector; the screen's normal is tilted down towards the sample by ``detector_tilt_deg``</span>
+<span class="sd">(theta). With ``D = sigma - theta`` a sample-frame vector ``v`` is ``S2D @ v`` in the</span>
+<span class="sd">detector frame::</span>
+
+<span class="sd">    S2D = [[1,       0,       0],</span>
+<span class="sd">           [0, -sin D,  cos D],</span>
+<span class="sd">           [0, -cos D, -sin D]]</span>
+
+<span class="sd">Orientations follow the rest of de-twin (orix): a grain's rotation ``R`` (unit quaternion,</span>
+<span class="sd">``a &gt;= 0``) has crystal-&gt;sample matrix ``G = R.to_matrix().T``, so a crystal direction ``c``</span>
+<span class="sd">appears in the sample frame as ``G @ c`` and on the detector along ``S2D @ G @ c``.</span>
+
+<span class="sd">Pattern centre (Bruker convention)</span>
+<span class="sd">----------------------------------</span>
+<span class="sd">``(pcx, pcy, pcz)``: the point on the screen nearest the source, ``pcx`` in units of the</span>
+<span class="sd">sensor *width* from its left edge, ``pcy`` in units of the sensor *height* from its top</span>
+<span class="sd">edge, and the source-screen distance ``pcz`` in units of the sensor height. They refer to</span>
+<span class="sd">the whole (unbinned) sensor, so binning and a hardware ROI leave them unchanged.</span>
+<span class="sd">:func:`convert_pc` gives the EDAX/TSL, Oxford and EMsoft forms.</span>
+
+<span class="sd">The pattern centre given in :class:`EbsdGeometry` is the one with the beam on the optic axis</span>
+<span class="sd">(the scan centre) at ``calibration_wd_mm``. Moving the beam by ``(dx, dy)`` on the sample</span>
+<span class="sd">moves the source point by ``S2D @ (dx, dy, 0)`` in the detector frame, so::</span>
+
+<span class="sd">    pcx += dx / (W p)</span>
+<span class="sd">    pcy -= sin(D) dy / (H p)</span>
+<span class="sd">    pcz += cos(D) dy / (H p)</span>
+
+<span class="sd">(W, H sensor pixels, p the pixel pitch), and a working distance ``dWD`` larger than the</span>
+<span class="sd">calibration moves the source down by ``dWD``: ``pcy += cos(theta) dWD / (H p)``,</span>
+<span class="sd">``pcz -= sin(theta) dWD / (H p)``. That is how a real system's pattern centre follows the</span>
+<span class="sd">beam across a scan.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">PC_CONVENTION</span> <span class="o">=</span> <span class="s2">"bruker"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_opt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"lo"</span><span class="p">:</span> <span class="n">lo</span><span class="p">,</span> <span class="s2">"hi"</span><span class="p">:</span> <span class="n">hi</span><span class="p">,</span> <span class="s2">"doc"</span><span class="p">:</span> <span class="n">doc</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="EbsdGeometry">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EbsdGeometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An SEM with an EBSD detector: everything about the experiment that is not the column's</span>
+<span class="sd">    beam energy (``MicroscopeState.ht_kv``) or the scan (``AcquisitionRequest.scan``).</span>
+
+<span class="sd">    Set it as ``OpticsConfig.ebsd`` (``DigitalTwin.configure_ebsd`` does) to put the twin in</span>
+<span class="sd">    EBSD mode. Frozen and made of plain numbers, so a GUI can persist it with</span>
+<span class="sd">    :meth:`to_dict` / :meth:`from_dict` and change it with :meth:`replace`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"EBSD mode on (every acquisition renders EBSD patterns)."</span><span class="p">)</span>
+    <span class="n">sample_tilt_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">70.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">89.0</span><span class="p">,</span> <span class="s2">"Sample tilt about x_s towards the detector."</span><span class="p">)</span>
+    <span class="n">detector_tilt_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="s2">"Screen normal tilted down towards the sample."</span><span class="p">)</span>
+    <span class="n">working_distance_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">15.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">"Working distance (sample height below the pole piece)."</span>
+    <span class="p">)</span>
+    <span class="n">calibration_wd_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">"Working distance the pattern centre was calibrated at."</span><span class="p">)</span>
+    <span class="n">pcx</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"Pattern centre x / sensor width, from the left (Bruker)."</span><span class="p">)</span>
+    <span class="n">pcy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"Pattern centre y / sensor height, from the top (Bruker)."</span><span class="p">)</span>
+    <span class="n">pcz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">"Source-screen distance / sensor height (Bruker)."</span><span class="p">)</span>
+    <span class="n">probe_current_na</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">0.1</span><span class="p">,</span>
+        <span class="mf">0.0</span><span class="p">,</span>
+        <span class="mf">1000.0</span><span class="p">,</span>
+        <span class="s2">"SEM probe current, nA (an integrating DE camera holds ~1 electron per pixel per frame at 20 kV)."</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">step_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">,</span> <span class="s2">"Scan step on the (tilt-corrected) sample surface when the request gives none."</span>
+    <span class="p">)</span>
+    <span class="n">band_contrast</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Kikuchi band modulation relative to the background for a perfect surface."</span>
+    <span class="p">)</span>
+    <span class="n">energy_spread_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">0.08</span><span class="p">,</span>
+        <span class="mf">0.0</span><span class="p">,</span>
+        <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">"FWHM of the backscattered energies that form "</span>
+        <span class="s2">"the bands, over the beam energy (blurs the band edges)."</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">angular_blur_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"Angular blur of the screen (scintillator / charge spread), sigma."</span>
+    <span class="p">)</span>
+    <span class="n">master_resolution_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"Pixel of the cached Lambert master pattern."</span><span class="p">)</span>
+    <span class="n">background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"Angle-dependent backscatter background (off: isotropic, bands only)."</span><span class="p">)</span>
+    <span class="n">boundary_blend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="kc">True</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"Mix the neighbouring grain's pattern within the interaction volume near grain boundaries."</span>
+    <span class="p">)</span>
+    <span class="n">interaction_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">"Scales the interaction-volume footprint."</span><span class="p">)</span>
+    <span class="n">supersample</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_opt</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">"Samples per binned pixel along each axis (binning integrates the band edges; 1 = the pixel centre)."</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------ persistence</span>
+<div class="viewcode-block" id="EbsdGeometry.to_dict">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.from_dict">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdGeometry</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">values</span> <span class="ow">or</span> <span class="p">{}))</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.replace">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.replace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">changes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdGeometry</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A copy with ``changes`` made (numbers clamped to their documented range)."""</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)}</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">changes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown EBSD geometry field </span><span class="si">{</span><span class="n">k</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lo"</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hi"</span><span class="p">)</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">lo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hi</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.describe">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.describe">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Name -&gt; {default, lo, hi, doc} for every field (for building a GUI)."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">f</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">EbsdGeometry</span><span class="p">)}</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ geometry</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delta_rad</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_tilt_deg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector_tilt_deg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EbsdGeometry.sample_to_detector">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.sample_to_detector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_to_detector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``S2D``: sample-frame vector -&gt; detector-frame vector (see the module docstring)."""</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_rad</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.surface_normal_d">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.surface_normal_d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface_normal_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The surface's outward normal in the detector frame."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_to_detector</span><span class="p">()</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.beam_direction_d">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.beam_direction_d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">beam_direction_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The incident beam's direction of travel (straight down) in the detector frame."""</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector_tilt_deg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.forward_direction_d">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.forward_direction_d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward_direction_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The specular (forward-scatter) direction of the beam off the tilted surface."""</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_direction_d</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_normal_d</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">b</span> <span class="o">@</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
+        <span class="k">return</span> <span class="n">f</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdGeometry.pattern_centre">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry.pattern_centre">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pattern_centre</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dx_um</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dy_um</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span> <span class="n">pixel_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">15.0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Bruker ``(pcx, pcy, pcz)`` with the beam ``(dx_um, dy_um)`` from the scan centre on the</span>
+<span class="sd">        sample (sample frame), at this geometry's working distance. Arrays broadcast; the</span>
+<span class="sd">        result has a trailing axis of 3."""</span>
+        <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sensor_shape</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pixel_um</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dx_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dy_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_rad</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector_tilt_deg</span><span class="p">)</span>
+        <span class="n">dwd</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_distance_mm</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_wd_mm</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">dx</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">dwd</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">dwd</span>
+        <span class="n">pcx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcx</span> <span class="o">+</span> <span class="n">sx</span> <span class="o">/</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">pcy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcy</span> <span class="o">+</span> <span class="n">sy</span> <span class="o">/</span> <span class="p">(</span><span class="n">H</span> <span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">pcz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcz</span> <span class="o">-</span> <span class="n">sz</span> <span class="o">/</span> <span class="p">(</span><span class="n">H</span> <span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="n">pcx</span><span class="p">,</span> <span class="n">pcy</span><span class="p">,</span> <span class="n">pcz</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pc_pixels</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Bruker pattern centre -&gt; (x_pc, y_pc, DD) in sensor pixels from the top-left corner."""</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sensor_shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">W</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">pc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+
+
+<div class="viewcode-block" id="convert_pc">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.convert_pc.html#de_twin.ebsd.convert_pc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_pc</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"edax"</span><span class="p">,</span> <span class="n">pixel_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">15.0</span><span class="p">,</span> <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert a Bruker pattern centre (..., 3) to another vendor's convention.</span>
+
+<span class="sd">    * ``"edax"`` / ``"tsl"`` and ``"oxford"``: ``(x*, y*, z*)`` with ``x* = pcx``,</span>
+<span class="sd">      ``y* = (1 - pcy) H / W`` (from the *bottom*, in units of the width) and</span>
+<span class="sd">      ``z* = pcz H / W``.</span>
+<span class="sd">    * ``"emsoft"`` (v5, as kikuchipy converts it): ``(xpc, ypc, L)`` with</span>
+<span class="sd">      ``xpc = W (0.5 - pcx)``, ``ypc = H (0.5 - pcy)`` in (binned) pixels from the screen centre</span>
+<span class="sd">      and ``L = H pcz p`` in micrometres.</span>
+<span class="sd">    * ``"bruker"``: unchanged.</span>
+<span class="sd">    """</span>
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sensor_shape</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">pc</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">pc</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">pc</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">to</span> <span class="o">=</span> <span class="n">to</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">to</span> <span class="o">==</span> <span class="s2">"bruker"</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">to</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"edax"</span><span class="p">,</span> <span class="s2">"tsl"</span><span class="p">,</span> <span class="s2">"oxford"</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">H</span> <span class="o">/</span> <span class="n">W</span><span class="p">,</span> <span class="n">z</span> <span class="o">*</span> <span class="n">H</span> <span class="o">/</span> <span class="n">W</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">to</span> <span class="o">==</span> <span class="s2">"emsoft"</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">binning</span><span class="p">))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">/</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">x</span><span class="p">),</span> <span class="n">H</span> <span class="o">/</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="n">H</span> <span class="o">*</span> <span class="n">z</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">pixel_um</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown pattern-centre convention </span><span class="si">{</span><span class="n">to</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">out</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detector_position</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="n">EbsdGeometry</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Where the crystal direction ``direction`` (Cartesian, crystal frame) of a grain with</span>
+<span class="sd">    crystal-&gt;sample matrix ``matrix`` meets the screen: ``(x, y)`` in sensor pixels from the</span>
+<span class="sd">    top-left corner (pixel ``j`` spans ``[j, j + 1)``), or ``None`` when it points away from</span>
+<span class="sd">    the screen. ``pc``: Bruker pattern centre."""</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">sample_to_detector</span><span class="p">()</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">1e-12</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dd</span> <span class="o">=</span> <span class="n">pc_pixels</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">dd</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dd</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------- physics helpers</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">backscatter_yield</span><span class="p">(</span><span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tilt_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Backscatter coefficient of a flat sample of atomic number ``z`` at ``tilt_deg`` from</span>
+<span class="sd">    normal incidence (Arnal et al.: ``eta = (1 + cos tilt)^(-9 / sqrt Z)``)."""</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt_deg</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">9.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">kanaya_okayama_range_um</span><span class="p">(</span><span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">density_g_cm3</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Kanaya-Okayama electron range (µm), with the atomic weight taken as ``2.1 Z``."""</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mf">2.1</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.0276</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">kv</span><span class="p">)</span> <span class="o">**</span> <span class="mf">1.67</span> <span class="o">/</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.89</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">density_g_cm3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">))</span>
+
+
+<span class="c1">#: The EBSD signal's lateral footprint (radius across the tilt axis) as a fraction of the</span>
+<span class="c1">#: Kanaya-Okayama range: ~30 nm for Ni and ~80 nm for Al at 20 kV, as measured.</span>
+<span class="n">EBSD_FOOTPRINT_FRACTION</span> <span class="o">=</span> <span class="mf">0.02</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">footprint_um</span><span class="p">(</span>
+    <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">density_g_cm3</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tilt_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""(rx, ry) µm: semi-axes of the area the Kikuchi signal comes from, along x_s (the tilt</span>
+<span class="sd">    axis) and y_s (stretched by 1 / cos tilt on the tilted surface)."""</span>
+    <span class="n">rx</span> <span class="o">=</span> <span class="n">EBSD_FOOTPRINT_FRACTION</span> <span class="o">*</span> <span class="n">kanaya_okayama_range_um</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">density_g_cm3</span><span class="p">,</span> <span class="n">kv</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rx</span><span class="p">,</span> <span class="n">rx</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt_deg</span><span class="p">)),</span> <span class="mf">0.05</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">background_parameters</span><span class="p">(</span><span class="n">kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tilt_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""(lobe fraction, lobe concentration) of the backscatter angular distribution: a cosine</span>
+<span class="sd">    (Lambert) part about the surface normal plus a von Mises-Fisher lobe about the specular</span>
+<span class="sd">    direction, more of it and sharper at high tilt and beam energy (heuristic fit to the</span>
+<span class="sd">    Monte-Carlo distributions of tilted bulk samples)."""</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">tilt_deg</span><span class="p">))</span>
+    <span class="k">return</span> <span class="mf">0.65</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="mf">3.0</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">kv</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">boundary_mix</span><span class="p">(</span><span class="n">distance_um</span><span class="p">,</span> <span class="n">normal_xy</span><span class="p">,</span> <span class="n">rx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ry</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Fraction of an elliptical footprint (semi-axes rx, ry along x_s, y_s) on the far side of</span>
+<span class="sd">    a straight boundary ``distance_um`` from its centre with unit normal ``normal_xy``</span>
+<span class="sd">    (..., 2): the circle-segment area fraction after the affine map of the ellipse."""</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">normal_xy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">rx</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ry</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">distance_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

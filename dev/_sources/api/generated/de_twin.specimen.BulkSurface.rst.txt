@@ -1,0 +1,42 @@
+﻿de\_twin.specimen.BulkSurface
+=============================
+
+.. currentmodule:: de_twin.specimen
+
+.. autoclass:: BulkSurface
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BulkSurface.__init__
+      ~BulkSurface.bounds_um
+      ~BulkSurface.features
+      ~BulkSurface.nearest_feature
+      ~BulkSurface.orientations
+      ~BulkSurface.quality
+      ~BulkSurface.rasterize
+      ~BulkSurface.required_layers
+      ~BulkSurface.sample
+      ~BulkSurface.update
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BulkSurface.ebsd_surface
+      ~BulkSurface.generation
+      ~BulkSurface.grains
+      ~BulkSurface.name
+      ~BulkSurface.raster_is_local
+      ~BulkSurface.time_dependent
+   
+   

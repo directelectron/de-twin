@@ -1,0 +1,890 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>EBSD in an SEM &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/ebsd';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/user_guide/ebsd.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Beam tilt and precession" href="beam_tilt_precession.html" />
+    <link rel="prev" title="4D-STEM data for ptychography and tcBF" href="fourd_stem.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="simulated.html">What is simulated</a></li>
+<li class="toctree-l1"><a class="reference internal" href="in_process.html">Using the twin in-process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serving.html">Serving the twin to existing software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deserver.html">Feeding a real DE-Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mirroring.html">Following real software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="corrector.html">Probe and image corrector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fourd_stem.html">4D-STEM data for ptychography and tcBF</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">EBSD in an SEM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beam_tilt_precession.html">Beam tilt and precession</a></li>
+<li class="toctree-l1"><a class="reference internal" href="low_dose.html">Low dose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="realistic_column.html">A realistic column</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialem.html">SerialEM calibrations</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">EBSD in an SEM</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="ebsd-in-an-sem">
+<h1>EBSD in an SEM<a class="headerlink" href="#ebsd-in-an-sem" title="Link to this heading">#</a></h1>
+<p>The twin can be an SEM with a Direct Electron camera as its electron backscatter diffraction
+(EBSD) detector: a bulk polished specimen tilted to 70°, scanned point by point like 4D-STEM,
+one Kikuchi pattern per scan point. de-twin produces the patterns and the ground truth (phase,
+grain, orientation, pattern centre per point); index them with the tool of your choice.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">de_twin</span><span class="w"> </span><span class="kn">import</span> <span class="n">DigitalTwin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">de_twin.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScanRequest</span>
+
+<span class="n">twin</span> <span class="o">=</span> <span class="n">DigitalTwin</span><span class="p">(</span><span class="s2">"EBSD duplex steel"</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"Celeritas"</span><span class="p">)</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">configure_ebsd</span><span class="p">(</span><span class="n">beam_kv</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">sample_tilt_deg</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">pcx</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">pcy</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">pcz</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">probe_current_na</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+    <span class="n">hw_binning</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">frame_time_s</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">total_frames</span><span class="o">=</span><span class="mi">100</span> <span class="o">*</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="n">scan</span><span class="o">=</span><span class="n">ScanRequest</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">step_um</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">dwell_s</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>  <span class="c1"># raw camera frames, 256 x 256, as DE-Server sends them</span>
+    <span class="o">...</span>
+<span class="n">patterns</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">ebsd_patterns</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>  <span class="c1"># noiseless stack (80, 100, 256, 256), e- / binned px / s</span>
+<span class="c1"># orix CrystalMap: phase, orientation, grain_id, pcx/pcy/pcz, band_contrast per scan point</span>
+<span class="c1"># (x, y in um)</span>
+<span class="n">xmap</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">ground_truth</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">configure_ebsd</span></code> sets <code class="docutils literal notranslate"><span class="pre">OpticsConfig.ebsd</span></code>, an <a class="reference internal" href="../api/generated/de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry" title="de_twin.ebsd.EbsdGeometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdGeometry</span></code></a>: a frozen
+dataclass of plain numbers (<code class="docutils literal notranslate"><span class="pre">to_dict</span></code> / <code class="docutils literal notranslate"><span class="pre">from_dict</span></code> / <code class="docutils literal notranslate"><span class="pre">replace</span></code>, <code class="docutils literal notranslate"><span class="pre">describe()</span></code> for ranges), so a
+GUI can persist it. With it set, every acquisition is <code class="docutils literal notranslate"><span class="pre">RenderMode.EBSD</span></code>; <code class="docutils literal notranslate"><span class="pre">enabled=False</span></code>
+returns the twin to a TEM. The beam energy is the column’s high tension (<code class="docutils literal notranslate"><span class="pre">beam_kv</span></code>; 5–30 kV).
+The deapi face exposes the geometry as <code class="docutils literal notranslate"><span class="pre">Simulator</span> <span class="pre">EBSD</span> <span class="pre">...</span></code> properties.</p>
+<p>The pattern stack is <code class="docutils literal notranslate"><span class="pre">ny</span> <span class="pre">*</span> <span class="pre">nx</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">w</span> <span class="pre">*</span> <span class="pre">4</span></code> bytes; pass <code class="docutils literal notranslate"><span class="pre">out=np.memmap(...)</span></code> (or <code class="docutils literal notranslate"><span class="pre">dtype</span></code>) to
+<code class="docutils literal notranslate"><span class="pre">ebsd_patterns</span></code> for large scans.</p>
+<section id="specimens">
+<h2>Specimens<a class="headerlink" href="#specimens" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">de_twin.specimen.BULK_PRESETS</span></code>, by name:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>preset</p></th>
+<th class="head"><p>phases</p></th>
+<th class="head"><p>microstructure</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Ni</span> <span class="pre">polycrystal</span></code></p></td>
+<td><p>FCC Ni</p></td>
+<td><p>8 µm equiaxed grains, random texture</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Al</span> <span class="pre">cube</span> <span class="pre">texture</span></code></p></td>
+<td><p>FCC Al</p></td>
+<td><p>20 µm grains, {001}&lt;100&gt; cube texture (10°), polishing scratches</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">ferrite</span> <span class="pre">gamma</span> <span class="pre">fibre</span></code></p></td>
+<td><p>BCC Fe</p></td>
+<td><p>10 µm grains, &lt;111&gt;‖ND fibre (10°)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">duplex</span> <span class="pre">steel</span></code></p></td>
+<td><p>BCC ferrite 55 %, FCC austenite 45 %</p></td>
+<td><p>6 µm grains, scratches, light damage</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Si</span> <span class="pre">(001)</span> <span class="pre">wafer</span></code></p></td>
+<td><p>Si</p></td>
+<td><p>single crystal, [001] normal, [110] along x: pattern-centre calibration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Si</span> <span class="pre">(001)</span> <span class="pre">Vickers</span> <span class="pre">indent</span></code></p></td>
+<td><p>Si</p></td>
+<td><p>the wafer with a 10 µm Vickers indent (diagonals along ⟨110⟩)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Si</span> <span class="pre">(001)</span> <span class="pre">Berkovich</span> <span class="pre">indent</span></code></p></td>
+<td><p>Si</p></td>
+<td><p>the wafer with a Berkovich indent</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <a class="reference internal" href="../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface" title="de_twin.specimen.BulkSurface"><code class="xref py py-class docutils literal notranslate"><span class="pre">BulkSurface</span></code></a> is an infinite polished surface: a Voronoi
+tessellation of a hashed jittered lattice (deterministic, evaluated point by point), a phase
+per grain from the phase fractions, and an orientation per grain drawn from the phase’s
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Texture</span></code>, unique to the grain. Build your own with
+<a class="reference internal" href="../api/generated/de_twin.specimen.BulkSurfaceConfig.html#de_twin.specimen.BulkSurfaceConfig" title="de_twin.specimen.BulkSurfaceConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BulkSurfaceConfig</span></code></a>. A TEM specimen also works in EBSD mode (its
+field map’s phases and grain orientations, no boundary mixing).</p>
+</section>
+<section id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Sample frame</strong> (orientations are reported in it): <code class="docutils literal notranslate"><span class="pre">x_s</span></code> = scan x (right), <code class="docutils literal notranslate"><span class="pre">y_s</span></code> = scan y
+(down), <code class="docutils literal notranslate"><span class="pre">z_s</span></code> into the sample. The tilt axis is <code class="docutils literal notranslate"><span class="pre">x_s</span></code>; the detector is at the top of the SEM
+image. Orientations are orix rotations: crystal→sample matrix <code class="docutils literal notranslate"><span class="pre">G</span> <span class="pre">=</span> <span class="pre">R.to_matrix().T</span></code>, exactly
+as everywhere else in de-twin (<code class="docutils literal notranslate"><span class="pre">crystal_to_lab</span></code>).</p></li>
+<li><p><strong>Detector frame</strong>: <code class="docutils literal notranslate"><span class="pre">x_d</span></code> along pattern columns, <code class="docutils literal notranslate"><span class="pre">y_d</span></code> down the rows, <code class="docutils literal notranslate"><span class="pre">z_d</span></code> from the source to
+the screen. The pattern is the screen as seen from the sample: the bright forward-scatter
+region is at the bottom.</p></li>
+<li><p><strong>Pattern centre: Bruker convention.</strong> <code class="docutils literal notranslate"><span class="pre">pcx</span></code> from the left in units of the sensor width,
+<code class="docutils literal notranslate"><span class="pre">pcy</span></code> from the top in units of the sensor height, <code class="docutils literal notranslate"><span class="pre">pcz</span></code> = detector distance / sensor height,
+all for the whole unbinned sensor (binning and ROI leave them unchanged).
+<code class="docutils literal notranslate"><span class="pre">de_twin.ebsd.convert_pc</span></code> gives the EDAX/TSL, Oxford and EMsoft (v5) forms.</p></li>
+<li><p><strong>The pattern centre follows the beam</strong>: <code class="docutils literal notranslate"><span class="pre">EbsdGeometry.pcx/pcy/pcz</span></code> are for the beam on the
+optic axis (scan centre) at <code class="docutils literal notranslate"><span class="pre">calibration_wd_mm</span></code>. A beam offset <code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy)</span></code> on the sample moves
+the source by <code class="docutils literal notranslate"><span class="pre">S2D</span> <span class="pre">&#64;</span> <span class="pre">(dx,</span> <span class="pre">dy,</span> <span class="pre">0)</span></code>: <code class="docutils literal notranslate"><span class="pre">pcx</span> <span class="pre">+=</span> <span class="pre">dx/(W</span> <span class="pre">p)</span></code>, <code class="docutils literal notranslate"><span class="pre">pcy</span> <span class="pre">-=</span> <span class="pre">sin(σ−θ)</span> <span class="pre">dy/(H</span> <span class="pre">p)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pcz</span> <span class="pre">+=</span> <span class="pre">cos(σ−θ)</span> <span class="pre">dy/(H</span> <span class="pre">p)</span></code> (σ sample tilt, θ detector tilt, p pixel pitch). A working
+distance change moves it too. The ground truth carries the pattern centre of every point.</p></li>
+<li><p><strong>Scan step</strong> is on the tilt-corrected sample surface (<code class="docutils literal notranslate"><span class="pre">ScanRequest.step_um</span></code>, else
+<code class="docutils literal notranslate"><span class="pre">EbsdGeometry.step_um</span></code>).</p></li>
+<li><p><strong>Strain</strong> (indented specimens): the deformation gradient <code class="docutils literal notranslate"><span class="pre">F</span></code> in the sample frame maps the
+reference lattice to the deformed one (<code class="docutils literal notranslate"><span class="pre">u</span> <span class="pre">=</span> <span class="pre">F</span> <span class="pre">u0</span></code>); <code class="docutils literal notranslate"><span class="pre">F</span> <span class="pre">=</span> <span class="pre">R</span> <span class="pre">U</span></code> with <code class="docutils literal notranslate"><span class="pre">strain</span> <span class="pre">=</span> <span class="pre">U</span> <span class="pre">−</span> <span class="pre">I</span></code> and
+<code class="docutils literal notranslate"><span class="pre">rotation</span></code> the rotation vector of <code class="docutils literal notranslate"><span class="pre">R</span></code> (radians). A deformed crystal’s pattern is the reference
+pattern read along <code class="docutils literal notranslate"><span class="pre">F⁻¹</span> <span class="pre">r</span></code>: zone axes move with <code class="docutils literal notranslate"><span class="pre">F</span></code>, plane normals with <code class="docutils literal notranslate"><span class="pre">F⁻ᵀ</span></code>.</p></li>
+</ul>
+</section>
+<section id="model">
+<h2>Model<a class="headerlink" href="#model" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Master patterns</strong>: kinematic, one per phase and beam energy, built from the crystal
+library’s structure factors (Lobato scattering factors, Debye–Waller) and cached
+process-wide. Every ±g pair gives a band of width 2θ_B and weight |F_g|²; higher orders nest
+inside. Band edges are blurred by the backscatter energy spread (<code class="docutils literal notranslate"><span class="pre">energy_spread_frac</span></code>) and the
+screen’s angular blur, with an excess line inside and a deficiency outside each edge.
+Standardised and the bright tail log-compressed, they are stored as uint8 on a square-Lambert
+hemisphere (kinematic patterns are centrosymmetric; this is also the exchange format) and on
+a gnomonic <strong>cube map</strong>, which the renderer reads (one reciprocal per lookup instead of a
+square root, a division and an arctangent): 2.7 MB per phase at 0.15°, ~1 s to build.</p></li>
+<li><p><strong>Projection</strong>: per scan point, one threaded numba pass over the binned detector grid composes
+the grain orientation, the deformation gradient, the sample and detector tilts and the point’s
+own pattern centre, samples each binned pixel (<code class="docutils literal notranslate"><span class="pre">supersample</span></code> × <code class="docutils literal notranslate"><span class="pre">supersample</span></code> points), adds the
+background and writes the detector’s Poisson means as it goes (<code class="docutils literal notranslate"><span class="pre">Detector.expose(means=)</span></code>):
+no full-sensor render and no second pass over the frame.</p></li>
+<li><p><strong>Signal</strong>: backscatter yield (Arnal, by Z and tilt) × probe current × an angular
+distribution (a cosine about the surface normal plus a forward lobe about the specular
+direction, sharper at higher kV) × each pixel’s solid angle (cos³γ / DD²), shadowed below the
+sample surface; bands modulate it by <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">band_contrast</span> <span class="pre">×</span> <span class="pre">quality</span> <span class="pre">×</span> <span class="pre">m</span></code>. The default
+<code class="docutils literal notranslate"><span class="pre">band_contrast</span> <span class="pre">=</span> <span class="pre">0.06</span></code> puts strong bands ~9–11 % and zone axes ~15 % above the background in
+raw patterns, as in real raw EBSD patterns (5–15 %).</p></li>
+<li><p><strong>Grain boundaries</strong>: within the interaction footprint (0.02 × the Kanaya–Okayama range across
+the tilt axis, 1/cos σ longer along it; ~30 × 80 nm for Ni at 20 kV) the neighbouring grain’s
+pattern is mixed in by the fraction of the footprint across the boundary. That alone touches
+only scan points within the footprint (a dotted line at 0.5 µm steps), so bulk specimens also
+have a <strong>boundary zone</strong> (<code class="docutils literal notranslate"><span class="pre">boundary_zone_um</span></code>, 0.2 µm σ; quality −50 % on the boundary):
+grooves, relief and distorted lattice next to a boundary, which is what makes boundaries
+continuous dark lines in real band-contrast maps. Surface damage and polishing scratches lower
+<code class="docutils literal notranslate"><span class="pre">quality</span></code> too.</p></li>
+<li><p><strong>Noise</strong>: the camera’s own detector model. At 20 kV an electron stops in the sensor and
+deposits all its energy (<code class="docutils literal notranslate"><span class="pre">CameraModel.full_stop_kv</span></code>), ~1600 ADU on a Celeritas: an
+integrating camera holds about one electron per pixel per frame, so EBSD runs at low current
+(default 0.1 nA), binned, or summed over frames.</p></li>
+</ul>
+<p>What it does not have, compared with EMsoft dynamical master patterns: no Bloch-wave
+intensities or channelling (band intensities are kinematic |F|², not dynamical), no Monte-Carlo
+depth and energy distribution of the backscattered electrons (one effective energy and a fixed
+edge blur), no HOLZ rings or fine zone-axis structure, no anomalous absorption, and excess /
+deficiency edges that are symmetric and fixed in the crystal rather than set by the scattering
+geometry. The background is a smooth heuristic, not a Monte-Carlo result. For dynamical
+patterns, load your own master (below).</p>
+</section>
+<section id="your-own-master-patterns">
+<h2>Your own master patterns<a class="headerlink" href="#your-own-master-patterns" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">twin</span><span class="o">.</span><span class="n">set_master_pattern</span><span class="p">(</span><span class="s2">"Nickel"</span><span class="p">,</span> <span class="s2">"Ni-master-20kV.h5"</span><span class="p">)</span>  <span class="c1"># EMsoft EMEBSDmaster output</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">set_master_pattern</span><span class="p">(</span><span class="s2">"Nickel"</span><span class="p">,</span> <span class="s2">"ni_mp.hspy"</span><span class="p">,</span> <span class="n">energy_kv</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># kikuchipy EBSDMasterPattern.save()</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">set_master_pattern</span><span class="p">(</span><span class="s2">"Silicon"</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">"lambert"</span><span class="p">,</span> <span class="n">hemisphere</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">kv</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">master_patterns</span><span class="p">()</span>  <span class="c1"># what is in use, sizes, checks</span>
+<span class="n">twin</span><span class="o">.</span><span class="n">clear_master_patterns</span><span class="p">()</span>  <span class="c1"># back to kinematic</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Formats</strong>: EMsoft HDF5 (<code class="docutils literal notranslate"><span class="pre">EMData/EBSDmaster/mLPNH</span></code> / <code class="docutils literal notranslate"><span class="pre">mLPSH</span></code>, or the stereographic
+<code class="docutils literal notranslate"><span class="pre">masterSPNH</span></code>; per-site sets summed; <code class="docutils literal notranslate"><span class="pre">EkeVs</span></code>), kikuchipy / HyperSpy HDF5
+(<code class="docutils literal notranslate"><span class="pre">Experiments/&lt;title&gt;/data</span></code> with hemisphere and energy axes, <code class="docutils literal notranslate"><span class="pre">projection</span></code> / <code class="docutils literal notranslate"><span class="pre">hemisphere</span></code>
+attributes), or a NumPy array — (n, n), (2, n, n) north/south, (nE, n, n) with <code class="docutils literal notranslate"><span class="pre">energies</span></code>,
+(2, nE, n, n) — square Lambert or stereographic.</p></li>
+<li><p><strong>Energy</strong>: <code class="docutils literal notranslate"><span class="pre">energy_kv</span></code> picks (interpolates) an energy bin; otherwise the Monte-Carlo
+energy-weighted sum when the file has the histogram (<code class="docutils literal notranslate"><span class="pre">EMData/MCOpenCL/accum_e</span></code>), else the
+highest energy. The master is used within 0.5 kV of its <code class="docutils literal notranslate"><span class="pre">kv</span></code>.</p></li>
+<li><p><strong>Hemispheres</strong>: a southern hemisphere that is the inversion of the northern one is dropped;
+otherwise both are kept (non-centrosymmetric phases; six cube faces) and the south is read at
+Lambert(x, y, |z|), as EMsoft stores it.</p></li>
+<li><p><strong>Checks</strong>: the file’s space group must be the phase’s; the pattern must be invariant under the
+phase’s point group (<code class="docutils literal notranslate"><span class="pre">symmetry_error</span></code>; a transposed or mirrored projection is refused).</p></li>
+<li><p><strong>Memory</strong>: resampled and quantised to <code class="docutils literal notranslate"><span class="pre">EbsdGeometry.master_resolution_deg</span></code> on load (an EMsoft
+file is read one energy slice at a time): 2.7 MB centrosymmetric, 5.4 MB with two
+hemispheres at 0.15°.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">de_twin.ebsd.io.write_emsoft</span></code> writes the EMsoft layout (used by the round-trip test: a
+kinematic master exported and re-imported gives the same patterns, correlation &gt; 0.998).</p></li>
+<li><p><strong>deapi</strong>: <code class="docutils literal notranslate"><span class="pre">Simulator</span> <span class="pre">EBSD</span> <span class="pre">Master</span> <span class="pre">Pattern</span> <span class="pre">Phase</span></code>, <code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">File</span></code> (a path on the twin’s machine:
+deapi properties are strings, so there is no upload) and <code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">Status</span></code>.</p></li>
+</ul>
+</section>
+<section id="indents-and-hr-ebsd">
+<h2>Indents and HR-EBSD<a class="headerlink" href="#indents-and-hr-ebsd" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">EBSD</span> <span class="pre">Si</span> <span class="pre">(001)</span> <span class="pre">Vickers</span> <span class="pre">indent</span></code> (and the Berkovich preset; <a class="reference internal" href="../api/generated/de_twin.specimen.indent.Indent.html#de_twin.specimen.indent.Indent" title="de_twin.specimen.indent.Indent"><code class="xref py py-class docutils literal notranslate"><span class="pre">Indent</span></code></a>
+for your own) carries the residual field of an indent
+(<code class="xref py py-mod docutils literal notranslate"><span class="pre">de_twin.specimen.indent</span></code>): outside the plastic zone a traction-free surface field with a
+deviatoric part decaying as 1/r² (radial compression, hoop tension, with the indenter’s and the
+cubic crystal’s four-fold modulation), a Yoffe-blister dilatation decaying as 1/r³, and the
+surface tilt of the residual uplift (2° at the plastic-zone edge, 1/r²) plus a small twist; a
+plastic zone (1.8 × the contact size) with smoothly varying random rotations up to 3° and falling
+pattern quality; the amorphised impression; radial cracks along ⟨110⟩ from the corners (dark
+lines and a mode-I crack-tip field) and a chipped lateral-crack sector. The strain distorts the
+patterns (<code class="docutils literal notranslate"><span class="pre">F⁻¹</span></code> per pixel direction) and the rotation moves them, so cross-correlation HR-EBSD
+measures them. <code class="docutils literal notranslate"><span class="pre">ground_truth</span></code> adds <code class="docutils literal notranslate"><span class="pre">deformation_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">strain</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code> and <code class="docutils literal notranslate"><span class="pre">gnd</span></code> (a GND
+density proxy: the in-plane Nye tensor norm over b, 1/m²).</p>
+<p>The test suite runs a test-only Wilkinson / Britton-Wilkinson HR-EBSD (FFT cross-correlation of
+7 × 7 ROIs, remapping, 8-parameter deviatoric fit) against a reference 57 µm away: on
+full-resolution 1024² Celeritas patterns it recovers the deviatoric strain to 1.3e-4 RMS and the
+rotation to 0.007° RMS at 4000 e⁻ per pixel of shot noise (4e-5 and 0.002° at 16 000;
+3.6e-5 and 0.001° noiseless). With kinematic bands (no dynamical fine structure) that is
+the dose it takes; below ~1000 e⁻/px the cross-correlation fails.</p>
+</section>
+<section id="speed-and-memory">
+<h2>Speed and memory<a class="headerlink" href="#speed-and-memory" title="Link to this heading">#</a></h2>
+<p>On a 48-thread workstation (duplex steel on a Celeritas, masters built):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>pattern</p></th>
+<th class="head"><p>noiseless</p></th>
+<th class="head"><p>camera frames</p></th>
+<th class="head"><p>noiseless stack</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>128²</p></td>
+<td><p>0.44 ms (2260/s)</p></td>
+<td><p>0.56 ms (1800/s)</p></td>
+<td><p>13 000/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>256²</p></td>
+<td><p>0.55 ms (1800/s)</p></td>
+<td><p>0.72 ms (1390/s)</p></td>
+<td><p>4 200/s</p></td>
+</tr>
+<tr class="row-even"><td><p>512²</p></td>
+<td><p>1.38 ms (730/s)</p></td>
+<td><p>1.36 ms (735/s)</p></td>
+<td><p>925/s</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A scan costs ~80 bytes per point (+72 with strain) plus a copy of its phases’ cube maps
+(1.8 MB each); streaming 512² frames peaks at ~400–500 MB RSS, mostly the detector’s maps.
+Master patterns are built on first use of a phase and energy (~1 s) and kept up to 64 MB.</p>
+<p>The test suite checks the geometry (zone axes and band edges where the geometry puts them, the
+pattern centre moving with the beam), round-trips the ground truth, indexes noisy frames with a
+test-only dictionary + refinement (~0.06° median at ~45 e⁻ per binned pixel), round-trips
+master patterns through the EMsoft and kikuchipy layouts, and recovers the indent’s strain with
+HR-EBSD.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="fourd_stem.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">4D-STEM data for ptychography and tcBF</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="beam_tilt_precession.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Beam tilt and precession</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specimens">Specimens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conventions">Conventions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model">Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#your-own-master-patterns">Your own master patterns</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#indents-and-hr-ebsd">Indents and HR-EBSD</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#speed-and-memory">Speed and memory</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/ebsd.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

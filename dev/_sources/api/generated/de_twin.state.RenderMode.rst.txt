@@ -38,5 +38,6 @@
       ~RenderMode.TEM_DIFFRACTION
       ~RenderMode.STEM_PARKED
       ~RenderMode.STEM_4D
+      ~RenderMode.EBSD
    
    

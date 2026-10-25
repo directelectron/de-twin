@@ -31,6 +31,7 @@
       ~OpticsConfig.cs_mm
       ~OpticsConfig.default_camera_length_mm
       ~OpticsConfig.defocus_offset_um
+      ~OpticsConfig.ebsd
       ~OpticsConfig.energy_spread_ev
       ~OpticsConfig.eucentric_height_um
       ~OpticsConfig.fallback_pixel_nm

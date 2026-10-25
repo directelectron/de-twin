@@ -479,6 +479,9 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.Specimen.html">de_twin.specimen.Specimen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.SpecimenConfig.html">de_twin.specimen.SpecimenConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.from_name.html">de_twin.specimen.from_name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurface.html">de_twin.specimen.BulkSurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurfaceConfig.html">de_twin.specimen.BulkSurfaceConfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkPhase.html">de_twin.specimen.BulkPhase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.crystal.library.CrystalLibrary.html">de_twin.crystal.library.CrystalLibrary</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -508,6 +511,16 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">de_twin.faces.shm_face.ShmFace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameProducer.html">de_twin.transport.shm.FrameProducer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameConsumer.html">de_twin.transport.shm.FrameConsumer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html">de_twin.ebsd.EbsdGeometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html">de_twin.ebsd.EbsdRenderer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.MasterPattern.html">de_twin.ebsd.MasterPattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.build_master.html">de_twin.ebsd.build_master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.convert_pc.html">de_twin.ebsd.convert_pc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.load_master_pattern.html">de_twin.ebsd.load_master_pattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.write_emsoft.html">de_twin.ebsd.write_emsoft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.indent.Indent.html">de_twin.specimen.indent.Indent</a></li>
 </ul>
 </div>
 </nav></div>
@@ -633,6 +646,15 @@ times and then picked from.</p>
 </tbody>
 </table>
 </div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.faces.shm_face.ShmFace.FRAMES_PER_JOB" title="de_twin.faces.shm_face.ShmFace.FRAMES_PER_JOB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FRAMES_PER_JOB</span></code></a></p></td>
+<td><p>Frames a worker makes per job (see <cite>DigitalTwin.FRAMES_PER_JOB</cite>).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.faces.shm_face.ShmFace.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/faces/shm_face.html#ShmFace.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.faces.shm_face.ShmFace.start" title="Link to this definition">#</a></dt>
@@ -651,6 +673,12 @@ times and then picked from.</p>
 <dd class="field-odd"><p>None</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="de_twin.faces.shm_face.ShmFace.FRAMES_PER_JOB">
+<span class="sig-name descname"><span class="pre">FRAMES_PER_JOB</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#de_twin.faces.shm_face.ShmFace.FRAMES_PER_JOB" title="Link to this definition">#</a></dt>
+<dd><p>Frames a worker makes per job (see <cite>DigitalTwin.FRAMES_PER_JOB</cite>).</p>
 </dd></dl>
 
 </dd></dl>
@@ -708,6 +736,7 @@ times and then picked from.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.shm_face.ShmFace.__init__"><code class="docutils literal notranslate"><span class="pre">ShmFace.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.shm_face.ShmFace.start"><code class="docutils literal notranslate"><span class="pre">ShmFace.start()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.shm_face.ShmFace.stop"><code class="docutils literal notranslate"><span class="pre">ShmFace.stop()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.faces.shm_face.ShmFace.FRAMES_PER_JOB"><code class="docutils literal notranslate"><span class="pre">ShmFace.FRAMES_PER_JOB</span></code></a></li>
 </ul>
 </li>
 </ul>

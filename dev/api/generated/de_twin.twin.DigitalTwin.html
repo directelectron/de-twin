@@ -479,6 +479,9 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.Specimen.html">de_twin.specimen.Specimen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.SpecimenConfig.html">de_twin.specimen.SpecimenConfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.from_name.html">de_twin.specimen.from_name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurface.html">de_twin.specimen.BulkSurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkSurfaceConfig.html">de_twin.specimen.BulkSurfaceConfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.BulkPhase.html">de_twin.specimen.BulkPhase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.crystal.library.CrystalLibrary.html">de_twin.crystal.library.CrystalLibrary</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -508,6 +511,16 @@
 <li class="toctree-l1"><a class="reference internal" href="de_twin.faces.shm_face.ShmFace.html">de_twin.faces.shm_face.ShmFace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameProducer.html">de_twin.transport.shm.FrameProducer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="de_twin.transport.shm.FrameConsumer.html">de_twin.transport.shm.FrameConsumer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html">de_twin.ebsd.EbsdGeometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.EbsdRenderer.html">de_twin.ebsd.EbsdRenderer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.MasterPattern.html">de_twin.ebsd.MasterPattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.build_master.html">de_twin.ebsd.build_master</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.convert_pc.html">de_twin.ebsd.convert_pc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.load_master_pattern.html">de_twin.ebsd.load_master_pattern</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.ebsd.write_emsoft.html">de_twin.ebsd.write_emsoft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="de_twin.specimen.indent.Indent.html">de_twin.specimen.indent.Indent</a></li>
 </ul>
 </div>
 </nav></div>
@@ -578,8 +591,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>specimen</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><em>object</em></a>) – A preset/pattern name (see <code class="docutils literal notranslate"><span class="pre">de_twin.specimen.PRESETS</span></code>/<code class="docutils literal notranslate"><span class="pre">PATTERNS</span></code>),
-a <code class="docutils literal notranslate"><span class="pre">SpecimenConfig</span></code> or a ready <code class="docutils literal notranslate"><span class="pre">Specimen</span></code>.</p></li>
+<li><p><strong>specimen</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><em>object</em></a>) – A preset/pattern name (see <code class="docutils literal notranslate"><span class="pre">de_twin.specimen.PRESETS</span></code>/<code class="docutils literal notranslate"><span class="pre">PATTERNS</span></code>, and the bulk EBSD
+specimens <code class="docutils literal notranslate"><span class="pre">de_twin.specimen.BULK_PRESETS</span></code>), a <code class="docutils literal notranslate"><span class="pre">SpecimenConfig</span></code>, a
+<code class="docutils literal notranslate"><span class="pre">BulkSurfaceConfig</span></code> or a ready <code class="docutils literal notranslate"><span class="pre">Specimen</span></code> / <code class="docutils literal notranslate"><span class="pre">BulkSurface</span></code>.</p></li>
 <li><p><strong>camera</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><em>object</em></a>) – A camera model name (<code class="docutils literal notranslate"><span class="pre">de_twin.detector.CAMERAS</span></code>) or <code class="docutils literal notranslate"><span class="pre">CameraModel</span></code>.</p></li>
 <li><p><strong>column</strong> – A <code class="docutils literal notranslate"><span class="pre">Column</span></code> (default: a new simulated column on this twin’s clock) or a
 <code class="docutils literal notranslate"><span class="pre">MirrorColumn</span></code> following real software.</p></li>
@@ -632,11 +646,23 @@ moved to an empty area), which is what gain references expect.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.calibration_truth" title="de_twin.twin.DigitalTwin.calibration_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_truth</span></code></a>([request])</p></td>
 <td><p>What SerialEM's calibrations should find at the column's current state: the true pixel size against the nominal one, the image rotation on the camera, the image-shift matrix, the magnification's image offset, the stage's backlash error and how far the specimen is off eucentric height.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.close" title="de_twin.twin.DigitalTwin.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.clear_master_patterns" title="de_twin.twin.DigitalTwin.clear_master_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_master_patterns</span></code></a>([phase])</p></td>
+<td><p>Back to kinematic master patterns (for <code class="docutils literal notranslate"><span class="pre">phase</span></code>, or all).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.close" title="de_twin.twin.DigitalTwin.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code></a>()</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.configure_ebsd" title="de_twin.twin.DigitalTwin.configure_ebsd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_ebsd</span></code></a>([geometry, beam_kv])</p></td>
+<td><p>Make the twin an SEM with this camera as its EBSD detector, and return the geometry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.datacube" title="de_twin.twin.DigitalTwin.datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code></a>(request)</p></td>
 <td><p>Noiseless 4D-STEM data for the request's scan: float32 (scan ny, nx, Hd, Wd) at the detector's <em>binned</em> output shape, electrons per binned pixel per second (multiply by the dwell time for electrons per pattern).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ebsd_frame_source" title="de_twin.twin.DigitalTwin.ebsd_frame_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_frame_source</span></code></a>(request, *[, state, optics])</p></td>
+<td><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdFrameSource</span></code> making <em>request</em>'s EBSD camera frames in one fused CPU pass each, at the column's current state (or <em>state</em>, <em>optics</em>); None when its frames are not that path (not an EBSD camera frame, the beam off the detector, a counting camera, supersampled binning...): <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> then takes the general path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ebsd_patterns" title="de_twin.twin.DigitalTwin.ebsd_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd_patterns</span></code></a>(request, *[, out, dtype])</p></td>
+<td><p>Noiseless EBSD patterns of the request's scan: (scan ny, nx, h, w) at the detector's <em>binned</em> output shape, electrons per binned pixel per second (x the dwell time for electrons per pattern): the same patterns <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> exposes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.flux" title="de_twin.twin.DigitalTwin.flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux</span></code></a>(request[, frame_index, scan_point, ...])</p></td>
 <td><p>Noiseless electrons/pixel/second on the ROI, or None if no beam.</p></td>
@@ -653,8 +679,14 @@ moved to an empty area), which is what gain references expect.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.holder_state" title="de_twin.twin.DigitalTwin.holder_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">holder_state</span></code></a>([t])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.microscope_state" title="de_twin.twin.DigitalTwin.microscope_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">microscope_state</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.master_patterns" title="de_twin.twin.DigitalTwin.master_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">master_patterns</span></code></a>()</p></td>
+<td><p>The user master patterns in use: dicts of phase, kv, source, bytes, hemispheres, symmetry error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.microscope_state" title="de_twin.twin.DigitalTwin.microscope_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">microscope_state</span></code></a>()</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.noise_serial" title="de_twin.twin.DigitalTwin.noise_serial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise_serial</span></code></a>(request, index)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(serial,</span> <span class="pre">seed)</span></code> of frame <em>index</em> of <em>request</em>: the twin-wide frame count (taking the next one) and the detector's seed, or (index, request.seed) for a pinned acquisition.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.optics" title="de_twin.twin.DigitalTwin.optics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optics</span></code></a>(request[, state])</p></td>
 <td><p></p></td>
@@ -674,19 +706,22 @@ moved to an empty area), which is what gain references expect.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.scan_point" title="de_twin.twin.DigitalTwin.scan_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scan_point</span></code></a>(request, frame_index)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.set_specimen" title="de_twin.twin.DigitalTwin.set_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_specimen</span></code></a>(specimen[, start])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.set_master_pattern" title="de_twin.twin.DigitalTwin.set_master_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_master_pattern</span></code></a>(phase, source, *[, ...])</p></td>
+<td><p>Use your own EBSD master pattern for <code class="docutils literal notranslate"><span class="pre">phase</span></code> instead of the kinematic one, and return it (a <a class="reference internal" href="de_twin.ebsd.MasterPattern.html#de_twin.ebsd.MasterPattern" title="de_twin.ebsd.MasterPattern"><code class="xref py py-class docutils literal notranslate"><span class="pre">MasterPattern</span></code></a>; <code class="docutils literal notranslate"><span class="pre">nbytes</span></code>, <code class="docutils literal notranslate"><span class="pre">symmetry_error</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.set_specimen" title="de_twin.twin.DigitalTwin.set_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_specimen</span></code></a>(specimen[, start])</p></td>
 <td><p>Swap the specimen (e.g. a new preset) keeping column/holder/detector.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.snap" title="de_twin.twin.DigitalTwin.snap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code></a>([exposure_s, fps, units])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.snap" title="de_twin.twin.DigitalTwin.snap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code></a>([exposure_s, fps, units])</p></td>
 <td><p>An integrated, dark/gain-corrected image, the way DE-Server delivers one.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.start_on_specimen" title="de_twin.twin.DigitalTwin.start_on_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_on_specimen</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.start_on_specimen" title="de_twin.twin.DigitalTwin.start_on_specimen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_on_specimen</span></code></a>()</p></td>
 <td><p>Point the column at the specimen, as an operator would on loading it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.stem_model" title="de_twin.twin.DigitalTwin.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(request)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.stem_model" title="de_twin.twin.DigitalTwin.stem_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stem_model</span></code></a>(request)</p></td>
 <td><p>&quot;coherent&quot; or &quot;kinematic&quot;: the STEM model the renderer uses for this request.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.virtual_image" title="de_twin.twin.DigitalTwin.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(request, inner_mrad, outer_mrad)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.virtual_image" title="de_twin.twin.DigitalTwin.virtual_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtual_image</span></code></a>(request, inner_mrad, outer_mrad)</p></td>
 <td><p>STEM virtual detector image for the request's scan (noiseless).</p></td>
 </tr>
 </tbody>
@@ -695,8 +730,14 @@ moved to an empty area), which is what gain references expect.</p></li>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.camera_model" title="de_twin.twin.DigitalTwin.camera_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_model</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.FRAMES_PER_JOB" title="de_twin.twin.DigitalTwin.FRAMES_PER_JOB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FRAMES_PER_JOB</span></code></a></p></td>
+<td><p>the interpreter is taken once a job (to start it and to hand it back), and a busy consumer holds it, so a job of several frames waits less.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.camera_model" title="de_twin.twin.DigitalTwin.camera_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_model</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.ebsd" title="de_twin.twin.DigitalTwin.ebsd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ebsd</span></code></a></p></td>
+<td><p>The EBSD geometry (<a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry" title="de_twin.ebsd.EbsdGeometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdGeometry</span></code></a>) when the twin is an SEM with an EBSD detector, else None.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#de_twin.twin.DigitalTwin.processor" title="de_twin.twin.DigitalTwin.processor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processor</span></code></a></p></td>
 <td><p>Reference store + correction (DE-Server-like processing).</p></td>
@@ -869,6 +910,54 @@ whole acquisition, like DE-Server’s VirtualSpecimen.
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.noise_serial">
+<span class="sig-name descname"><span class="pre">noise_serial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.noise_serial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.noise_serial" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(serial,</span> <span class="pre">seed)</span></code> of frame <em>index</em> of <em>request</em>: the twin-wide frame count (taking the
+next one) and the detector’s seed, or (index, request.seed) for a pinned acquisition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a>)</p></li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.ebsd_frame_source">
+<span class="sig-name descname"><span class="pre">ebsd_frame_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.ebsd_frame_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.ebsd_frame_source" title="Link to this definition">#</a></dt>
+<dd><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdFrameSource</span></code> making <em>request</em>’s EBSD camera
+frames in one fused CPU pass each, at the column’s current state (or <em>state</em>,
+<em>optics</em>); None when its frames are not that path (not an EBSD camera frame, the beam
+off the detector, a counting camera, supersampled binning…): <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> then
+takes the general path. <code class="docutils literal notranslate"><span class="pre">DE_TWIN_FUSED_EBSD=0</span></code> turns it off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a>)</p></li>
+<li><p><strong>state</strong> (<a class="reference internal" href="de_twin.state.MicroscopeState.html#de_twin.state.MicroscopeState" title="de_twin.state.MicroscopeState"><em>MicroscopeState</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.FRAMES_PER_JOB">
+<span class="sig-name descname"><span class="pre">FRAMES_PER_JOB</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#de_twin.twin.DigitalTwin.FRAMES_PER_JOB" title="Link to this definition">#</a></dt>
+<dd><p>the interpreter is taken once a job (to start it and to
+hand it back), and a busy consumer holds it, so a job of several frames waits less.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Frames a worker makes per job</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.reset_serial">
 <span class="sig-name descname"><span class="pre">reset_serial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.reset_serial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.reset_serial" title="Link to this definition">#</a></dt>
 <dd><p>Restart the running frame count that seeds the detector noise, so the next
@@ -963,7 +1052,101 @@ image’s noise: the same seed gives the same image whatever came before.</p>
 <span class="sig-name descname"><span class="pre">datacube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.datacube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.datacube" title="Link to this definition">#</a></dt>
 <dd><p>Noiseless 4D-STEM data for the request’s scan: float32 (scan ny, nx, Hd, Wd) at the
 detector’s <em>binned</em> output shape, electrons per binned pixel per second (multiply by the
-dwell time for electrons per pattern). The same patterns <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> exposes.</p>
+dwell time for electrons per pattern). The same patterns <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> exposes. In EBSD
+mode, the EBSD pattern stack (<a class="reference internal" href="#de_twin.twin.DigitalTwin.ebsd_patterns" title="de_twin.twin.DigitalTwin.ebsd_patterns"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ebsd_patterns()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.ebsd">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ebsd</span></span><a class="headerlink" href="#de_twin.twin.DigitalTwin.ebsd" title="Link to this definition">#</a></dt>
+<dd><p>The EBSD geometry (<a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry" title="de_twin.ebsd.EbsdGeometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdGeometry</span></code></a>) when the twin is an SEM with
+an EBSD detector, else None.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.configure_ebsd">
+<span class="sig-name descname"><span class="pre">configure_ebsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_kv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.configure_ebsd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.configure_ebsd" title="Link to this definition">#</a></dt>
+<dd><p>Make the twin an SEM with this camera as its EBSD detector, and return the geometry.</p>
+<p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: an <a class="reference internal" href="de_twin.ebsd.EbsdGeometry.html#de_twin.ebsd.EbsdGeometry" title="de_twin.ebsd.EbsdGeometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">EbsdGeometry</span></code></a> (default: the current one, or the
+defaults: 70 deg sample tilt, Bruker pattern centre (0.5, 0.3, 0.6), 0.1 nA); <code class="docutils literal notranslate"><span class="pre">fields</span></code>
+change it (<code class="docutils literal notranslate"><span class="pre">sample_tilt_deg=70,</span> <span class="pre">pcz=0.55,</span> <span class="pre">...</span></code>). <code class="docutils literal notranslate"><span class="pre">beam_kv</span></code> sets the column’s high
+tension (EBSD is done at 5-30 kV); left out, a twin column outside 5-30 kV is set to
+20 kV when EBSD is enabled. <code class="docutils literal notranslate"><span class="pre">configure_ebsd(enabled=False)</span></code> returns to a TEM (the HT
+stays where it is).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>beam_kv</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> | </em><em>None</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.set_master_pattern">
+<span class="sig-name descname"><span class="pre">set_master_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_kv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centrosymmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.set_master_pattern"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.set_master_pattern" title="Link to this definition">#</a></dt>
+<dd><p>Use your own EBSD master pattern for <code class="docutils literal notranslate"><span class="pre">phase</span></code> instead of the kinematic one, and return
+it (a <a class="reference internal" href="de_twin.ebsd.MasterPattern.html#de_twin.ebsd.MasterPattern" title="de_twin.ebsd.MasterPattern"><code class="xref py py-class docutils literal notranslate"><span class="pre">MasterPattern</span></code></a>; <code class="docutils literal notranslate"><span class="pre">nbytes</span></code>, <code class="docutils literal notranslate"><span class="pre">symmetry_error</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">phase</span></code>: a material id or name (<code class="docutils literal notranslate"><span class="pre">&quot;Nickel&quot;</span></code>). <code class="docutils literal notranslate"><span class="pre">source</span></code>: an EMsoft <code class="docutils literal notranslate"><span class="pre">EMEBSDmaster</span></code>
+HDF5 file, a kikuchipy <code class="docutils literal notranslate"><span class="pre">EBSDMasterPattern</span></code> saved to HDF5, or a NumPy array — (n, n),
+(2, n, n) north/south, (nE, n, n) with <code class="docutils literal notranslate"><span class="pre">energies</span></code>, (2, nE, n, n) — with <code class="docutils literal notranslate"><span class="pre">projection</span></code>
+(“lambert” | “stereographic”) and <code class="docutils literal notranslate"><span class="pre">hemisphere</span></code> (“north” | “south” | “both”).
+<code class="docutils literal notranslate"><span class="pre">energy_kv</span></code> picks (interpolates) an energy bin; by default the Monte-Carlo
+energy-weighted sum when the file has one, else the highest energy. <code class="docutils literal notranslate"><span class="pre">kv</span></code>: the beam energy
+it is used at (default the selected / highest energy, else the column’s HT; it is used
+within 0.5 kV of it). It is resampled and quantised to <code class="docutils literal notranslate"><span class="pre">EbsdGeometry.master_resolution_deg</span></code>
+(a few MB) and validated against the phase’s point group (see <code class="xref py py-mod docutils literal notranslate"><span class="pre">de_twin.ebsd.io</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy_kv</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kv</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>projection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>hemisphere</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>centrosymmetric</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.clear_master_patterns">
+<span class="sig-name descname"><span class="pre">clear_master_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.clear_master_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.clear_master_patterns" title="Link to this definition">#</a></dt>
+<dd><p>Back to kinematic master patterns (for <code class="docutils literal notranslate"><span class="pre">phase</span></code>, or all).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.master_patterns">
+<span class="sig-name descname"><span class="pre">master_patterns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.master_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.master_patterns" title="Link to this definition">#</a></dt>
+<dd><p>The user master patterns in use: dicts of phase, kv, source, bytes, hemispheres,
+symmetry error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="de_twin.twin.DigitalTwin.ebsd_patterns">
+<span class="sig-name descname"><span class="pre">ebsd_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/twin.html#DigitalTwin.ebsd_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.twin.DigitalTwin.ebsd_patterns" title="Link to this definition">#</a></dt>
+<dd><p>Noiseless EBSD patterns of the request’s scan: (scan ny, nx, h, w) at the detector’s
+<em>binned</em> output shape, electrons per binned pixel per second (x the dwell time for
+electrons per pattern): the same patterns <a class="reference internal" href="#de_twin.twin.DigitalTwin.frames" title="de_twin.twin.DigitalTwin.frames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frames()</span></code></a> exposes. <code class="docutils literal notranslate"><span class="pre">out</span></code>: a
+preallocated (e.g. <code class="docutils literal notranslate"><span class="pre">np.memmap</span></code>) array to fill instead of allocating
+<code class="docutils literal notranslate"><span class="pre">ny</span> <span class="pre">*</span> <span class="pre">nx</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">w</span> <span class="pre">*</span> <span class="pre">itemsize</span></code> bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a>)</p>
@@ -1046,6 +1229,11 @@ pixel of a TEM view, for scoring orientation maps (e.g. pyxem against
 <code class="docutils literal notranslate"><span class="pre">CrystalLibrary.template_library</span></code>). An orix <code class="docutils literal notranslate"><span class="pre">CrystalMap</span></code> (phase id = material id,
 <code class="docutils literal notranslate"><span class="pre">-1</span></code> = not indexed: vacuum/amorphous; props <code class="docutils literal notranslate"><span class="pre">grain_id</span></code>, <code class="docutils literal notranslate"><span class="pre">thickness_nm</span></code>; x/y in nm),
 or the raw arrays with <code class="docutils literal notranslate"><span class="pre">as_arrays=True</span></code>.</p>
+<p>In EBSD mode, per scan point: phase, grain id, the orientation in the <em>sample</em> frame
+(x_s scan x, y_s scan y, z_s into the sample; orix convention, see
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">de_twin.ebsd.geometry</span></code>), the Bruker pattern centre and a band-contrast proxy
+(CrystalMap props <code class="docutils literal notranslate"><span class="pre">grain_id</span></code>, <code class="docutils literal notranslate"><span class="pre">band_contrast</span></code>, <code class="docutils literal notranslate"><span class="pre">quality</span></code>, <code class="docutils literal notranslate"><span class="pre">mix</span></code>, <code class="docutils literal notranslate"><span class="pre">pcx</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pcy</span></code>, <code class="docutils literal notranslate"><span class="pre">pcz</span></code>; x/y in µm).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1141,6 +1329,9 @@ or the raw arrays with <code class="docutils literal notranslate"><span class="p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.scan_point"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.scan_point()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.flux"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.flux()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.frames"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.frames()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.noise_serial"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.noise_serial()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ebsd_frame_source"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ebsd_frame_source()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.FRAMES_PER_JOB"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.FRAMES_PER_JOB</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.reset_serial"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.reset_serial()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.acquire"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.acquire()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.raw_frame"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.raw_frame()</span></code></a></li>
@@ -1148,6 +1339,12 @@ or the raw arrays with <code class="docutils literal notranslate"><span class="p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.processor"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.processor</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.virtual_image"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.virtual_image()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.datacube"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.datacube()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ebsd"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ebsd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.configure_ebsd"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.configure_ebsd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.set_master_pattern"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.set_master_pattern()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.clear_master_patterns"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.clear_master_patterns()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.master_patterns"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.master_patterns()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ebsd_patterns"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ebsd_patterns()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.stem_model"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.stem_model()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.ground_truth_ptychography"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.ground_truth_ptychography()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.twin.DigitalTwin.calibration_truth"><code class="docutils literal notranslate"><span class="pre">DigitalTwin.calibration_truth()</span></code></a></li>

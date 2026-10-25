@@ -522,6 +522,12 @@
 <span class="sd">``GET_PROPERTY_SPECIFICATIONS`` (35) and ``GET_GPU_FRAMES`` (44): the twin's frames in</span>
 <span class="sd">shared GPU memory, as DE-Server shares its movie buffers (:mod:`de_twin.faces.gpu_frames`).</span>
 
+<span class="sd">Scan properties DE-Server has and deapi's table lacks: ``Scan - Use DE Camera``</span>
+<span class="sd">(``Use Frame Time`` / ``Independent`` / ``Off``; Off forms only the external image, and a</span>
+<span class="sd">value DE-Server does not offer, ``On`` included, is kept as Off as DE-Server 2.8 does) and</span>
+<span class="sd">the parked beam, ``Scan - Park Enable`` with ``Scan - Park Position X/Y`` (with ``Scan -</span>
+<span class="sd">Enable`` Off every frame is taken at that point of the scan grid).</span>
+
 <span class="sd">A scan acquisition runs a repeat at a time, and each repeat scans with the coil settings</span>
 <span class="sd">(pixel offset, voltages, rotation, flips) DE-Server would have written for it:</span>
 <span class="sd">``Scan - Output Buffer (milliseconds)`` of scan output is queued ahead of the beam, so a</span>
@@ -742,7 +748,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_scan_points</span> <span class="o">=</span> <span class="n">points</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">"Scan - Size X"</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"Scan - Size Y"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="s2">"scan_-_type"</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="s2">"XY File"</span>
-        <span class="k">return</span> <span class="p">()</span>
+        <span class="c1"># deapi's client reads a second acknowledge once the positions are in, as DE-Server</span>
+        <span class="c1"># sends; without it set_xy_array waits out its socket timeout and reports failure.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ack</span><span class="p">(</span><span class="n">command</span><span class="p">),)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parameter</span>

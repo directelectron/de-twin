@@ -1,0 +1,981 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.specimen.bulk &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/specimen/bulk';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/dev/_modules/de_twin/specimen/bulk.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.specimen.bulk</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.specimen.bulk</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Bulk polished specimens for EBSD: a polycrystal surface with a grain map and known orientations.</span>
+
+<span class="sd">A :class:`BulkSurface` is a flat, infinite, polished surface (sample frame: x right, y down,</span>
+<span class="sd">z into the sample, the de-twin specimen frame). Its microstructure is a Voronoi tessellation</span>
+<span class="sd">of a jittered lattice of grain sites (:class:`~de_twin.specimen.geometry.JitteredLattice`,</span>
+<span class="sd">the same hashed lattices the TEM specimens use), so it is deterministic, infinite and</span>
+<span class="sd">evaluated point by point. Every grain has</span>
+
+<span class="sd">* a phase, drawn per grain from the phase fractions (``BulkPhase``), and</span>
+<span class="sd">* an orientation drawn from that phase's :class:`~de_twin.crystal.Texture` with a generator</span>
+<span class="sd">  seeded by the grain's hash, unique per grain (not the 512-per-material TEM grain table).</span>
+
+<span class="sd">Near a boundary the EBSD signal mixes the two grains (see :meth:`BulkSurface.sample`), and the</span>
+<span class="sd">pattern quality falls with surface damage (a uniform deformed layer plus polishing scratches).</span>
+
+<span class="sd">The specimen also rasterises like a TEM specimen (opaque bulk: 100 µm thick, grain ids from</span>
+<span class="sd">the shared grain table) so it can sit in any twin; EBSD is what it is for.</span>
+
+<span class="sd">Presets (:data:`BULK_PRESETS`): FCC nickel (random, and cube-textured aluminium), BCC ferrite</span>
+<span class="sd">with a gamma fibre, a ferrite + austenite duplex steel and a Si (001) wafer for pattern-centre</span>
+<span class="sd">calibration.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..crystal.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="n">RANDOM</span><span class="p">,</span> <span class="n">Texture</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..hashing</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedKind</span><span class="p">,</span> <span class="n">hash_seed</span><span class="p">,</span> <span class="n">rng_for</span><span class="p">,</span> <span class="n">splitmix64</span><span class="p">,</span> <span class="n">uniform_from_hash</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.fieldmap</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldMap</span><span class="p">,</span> <span class="n">GrainTable</span><span class="p">,</span> <span class="n">ViewWindow</span><span class="p">,</span> <span class="n">_direct_basis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">JitteredLattice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.materials</span><span class="w"> </span><span class="kn">import</span> <span class="n">GRAINS_PER_MATERIAL</span><span class="p">,</span> <span class="n">MaterialId</span><span class="p">,</span> <span class="n">material</span>
+
+<span class="c1">#: Thickness a bulk specimen reports to TEM renderers (nm): opaque.</span>
+<span class="n">BULK_THICKNESS_NM</span> <span class="o">=</span> <span class="mf">1.0e5</span>
+<span class="n">_PHASE_SALT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="mh">0x5A17C0DE</span><span class="p">)</span>
+<span class="n">_SCRATCH_SALT</span> <span class="o">=</span> <span class="mh">0x5C2A7C</span>
+
+
+<div class="viewcode-block" id="BulkPhase">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkPhase.html#de_twin.specimen.BulkPhase">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BulkPhase</span><span class="p">:</span>
+    <span class="n">material</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">texture</span><span class="p">:</span> <span class="n">Texture</span> <span class="o">=</span> <span class="n">RANDOM</span></div>
+
+
+
+<div class="viewcode-block" id="BulkSurfaceConfig">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurfaceConfig.html#de_twin.specimen.BulkSurfaceConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BulkSurfaceConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What a bulk EBSD specimen is made of (all lengths µm)."""</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">phases</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">BulkPhase</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">NICKEL</span><span class="p">),)</span>
+    <span class="n">grain_size_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span>  <span class="c1"># lattice cell = mean grain spacing</span>
+    <span class="n">grain_jitter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span>  <span class="c1"># 0: square grains; 0.45: an irregular, equiaxed tessellation</span>
+    <span class="n">single_crystal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># one grain everywhere (phase 0)</span>
+    <span class="n">surface_damage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># 0..1: pattern quality lost everywhere (deformed layer)</span>
+    <span class="n">scratch_density_per_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># polishing scratches crossing a millimetre</span>
+    <span class="n">scratch_width_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">scratch_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span>  <span class="c1"># quality lost at a scratch's centre</span>
+    <span class="n">scratch_angle_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>  <span class="c1"># mean scratch direction from +x</span>
+    <span class="n">scratch_angle_spread_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">25.0</span>
+    <span class="c1">#: Grain-boundary zone: polishing / etching grooves, relief and the distorted lattice next</span>
+    <span class="c1">#: to a boundary lower the pattern quality within ~0.1-0.3 µm of it (what makes boundaries</span>
+    <span class="c1">#: continuous dark lines in real band-contrast maps at 0.1-0.5 µm steps; the EBSD footprint</span>
+    <span class="c1">#: alone, ~30 x 80 nm for Ni at 20 kV, only mixes points within it). Gaussian sigma, µm, and</span>
+    <span class="c1">#: the quality lost on the boundary.</span>
+    <span class="n">boundary_zone_um</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">boundary_zone_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="c1">#: Indents (:class:`~de_twin.specimen.indent.Indent`): residual strain, lattice rotation,</span>
+    <span class="c1">#: plastic zone and cracks around each (the EBSD renderer distorts the patterns with them).</span>
+    <span class="n">indents</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="BulkSurfaceConfig.copy">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurfaceConfig.html#de_twin.specimen.BulkSurfaceConfig.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BulkSurfaceConfig</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BulkSurface">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BulkSurface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A polished bulk polycrystal (see the module docstring)."""</span>
+
+    <span class="n">raster_is_local</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">time_dependent</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">generation</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1">#: EBSD renderers call :meth:`sample` instead of rasterising.</span>
+    <span class="n">ebsd_surface</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="BulkSurface.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span> <span class="ow">or</span> <span class="n">BulkSurfaceConfig</span><span class="p">())</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">fraction</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">phases</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">fr</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"a bulk specimen needs at least one phase with a positive fraction"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">phases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">material</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="p">))</span><span class="o">.</span><span class="n">crystal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"phase material </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="si">}</span><span class="s2"> is not crystalline"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">fr</span> <span class="o">/</span> <span class="n">fr</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">phases</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">JitteredLattice</span><span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">grain_size_um</span><span class="p">),</span> <span class="mf">1e-3</span><span class="p">),</span>
+            <span class="n">hash_seed</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">SeedKind</span><span class="o">.</span><span class="n">STRUCTURE</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">jitter_frac</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">grain_jitter</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mf">0.49</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_orient</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scratches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_scratches</span><span class="p">()</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.indent</span><span class="w"> </span><span class="kn">import</span> <span class="n">IndentField</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indents</span> <span class="o">=</span> <span class="p">[</span><span class="n">IndentField</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">indents</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_s</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ specimen duck type</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GrainTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The shared TEM grain table (only for TEM rendering of the raster's grain ids)."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">_grain_table</span>
+
+        <span class="n">tex</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="p">),</span> <span class="n">p</span><span class="o">.</span><span class="n">texture</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_grain_table</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFFFFFFFF</span><span class="p">,</span> <span class="n">tex</span><span class="p">,</span> <span class="p">())</span>
+
+<div class="viewcode-block" id="BulkSurface.update">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">holder</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BulkSurface.bounds_um">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.bounds_um">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds_um</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="mf">5000.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5000.0</span><span class="p">,</span> <span class="mf">5000.0</span><span class="p">,</span> <span class="mf">5000.0</span><span class="p">)</span>  <span class="c1"># a 10 mm polished coupon</span></div>
+
+
+<div class="viewcode-block" id="BulkSurface.nearest_feature">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.nearest_feature">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nearest_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="BulkSurface.features">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.features">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="BulkSurface.required_layers">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.required_layers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">required_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BulkSurface.rasterize">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.rasterize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rasterize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">ViewWindow</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMap</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">world_grid</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">blend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">FieldMap</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">layers</span><span class="p">)</span>
+        <span class="n">fm</span><span class="o">.</span><span class="n">material_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s2">"material"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+        <span class="n">fm</span><span class="o">.</span><span class="n">thickness_nm</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">BULK_THICKNESS_NM</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">GRAINS_PER_MATERIAL</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">fm</span><span class="o">.</span><span class="n">grain_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"material"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">*</span> <span class="n">GRAINS_PER_MATERIAL</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fm</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ microstructure</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_phase_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">uniform_from_hash</span><span class="p">(</span><span class="n">splitmix64</span><span class="p">(</span><span class="n">h</span> <span class="o">^</span> <span class="n">_PHASE_SALT</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cum</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mats</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BulkSurface.sample">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.sample">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_um</span><span class="p">,</span> <span class="n">y_um</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">blend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The microstructure at surface points (arrays, sample frame, µm).</span>
+
+<span class="sd">        Returns ``hash`` (uint64, the grain's key) and ``grain_id`` (int32 &gt;= 0, unique per</span>
+<span class="sd">        grain up to hash collisions), ``phase`` (index into ``config.phases``) and ``material``</span>
+<span class="sd">        of the grain each point is in; with ``blend``, also the nearest other grain</span>
+<span class="sd">        (``hash2``, ``grain_id2``, ``phase2``, ``material2``), the distance to the boundary</span>
+<span class="sd">        between them (``boundary_um``) and its unit normal (``normal``, (n, 2), pointing into</span>
+<span class="sd">        the other grain), and the surface ``quality`` in (0, 1].</span>
+<span class="sd">        """</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">single_crystal</span><span class="p">:</span>
+            <span class="n">h1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">hash_seed</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">SeedKind</span><span class="o">.</span><span class="n">GRAIN</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"hash"</span><span class="p">:</span> <span class="n">h1</span><span class="p">,</span> <span class="s2">"phase"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="n">blend</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">hash2</span><span class="o">=</span><span class="n">h1</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                    <span class="n">phase2</span><span class="o">=</span><span class="n">out</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                    <span class="n">boundary_um</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+                    <span class="n">normal</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_voronoi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">blend</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">)</span> <span class="k">if</span> <span class="n">blend</span> <span class="k">else</span> <span class="p">(</span><span class="s2">""</span><span class="p">,):</span>
+            <span class="k">if</span> <span class="s2">"hash"</span> <span class="o">+</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">"material"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mats</span><span class="p">[</span><span class="n">out</span><span class="p">[</span><span class="s2">"phase"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]]</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">"grain_id"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"hash"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="mi">33</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blend</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">single_crystal</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">boundary_zone_um</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">boundary_zone_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"boundary_um"</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">boundary_zone_um</span><span class="p">)</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">boundary_zone_depth</span><span class="p">),</span> <span class="mf">0.95</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">d</span> <span class="o">*</span> <span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indents</span><span class="p">:</span>
+                <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">gnd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indents</span><span class="p">:</span>
+                    <span class="n">F</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">deformation_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># superposed (small) displacement gradients</span>
+                    <span class="n">gnd</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">gnd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                    <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">f</span><span class="o">.</span><span class="n">quality</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">"F"</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">"gnd"</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="p">,</span> <span class="n">gnd</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">"quality"</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_voronoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">blend</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">lat</span><span class="o">.</span><span class="n">cell_um</span>
+        <span class="n">ci</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">cj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">h1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+        <span class="n">h2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">hh</span> <span class="o">=</span> <span class="n">lat</span><span class="o">.</span><span class="n">sites</span><span class="p">(</span><span class="n">ci</span> <span class="o">+</span> <span class="n">di</span><span class="p">,</span> <span class="n">cj</span> <span class="o">+</span> <span class="n">dj</span><span class="p">)</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">sx</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">sy</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="n">first</span> <span class="o">=</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">d1</span>
+                <span class="n">second</span> <span class="o">=</span> <span class="o">~</span><span class="n">first</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;</span> <span class="n">d2</span><span class="p">)</span>
+                <span class="c1"># demote the old nearest to second where a new nearest arrives</span>
+                <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d2</span><span class="p">))</span>
+                <span class="n">h2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">h1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">h2</span><span class="p">))</span>
+                <span class="n">s2</span><span class="p">[</span><span class="n">first</span><span class="p">]</span> <span class="o">=</span> <span class="n">s1</span><span class="p">[</span><span class="n">first</span><span class="p">]</span>
+                <span class="n">s2</span><span class="p">[</span><span class="n">second</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">s2</span><span class="p">[</span><span class="n">second</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sx</span><span class="p">[</span><span class="n">second</span><span class="p">],</span> <span class="n">sy</span><span class="p">[</span><span class="n">second</span><span class="p">]</span>
+                <span class="n">d1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span>
+                <span class="n">h1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">h1</span><span class="p">)</span>
+                <span class="n">s1</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">s1</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sx</span><span class="p">[</span><span class="n">first</span><span class="p">],</span> <span class="n">sy</span><span class="p">[</span><span class="n">first</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"hash"</span><span class="p">:</span> <span class="n">h1</span><span class="p">,</span> <span class="s2">"phase"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase_of</span><span class="p">(</span><span class="n">h1</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">blend</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="n">s2</span> <span class="o">-</span> <span class="n">s1</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">sep</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">hash2</span><span class="o">=</span><span class="n">h2</span><span class="p">,</span>
+                <span class="n">phase2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_phase_of</span><span class="p">(</span><span class="n">h2</span><span class="p">),</span>
+                <span class="n">normal</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">boundary_um</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">d2</span> <span class="o">-</span> <span class="n">d1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">)),</span> <span class="mf">0.0</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+<div class="viewcode-block" id="BulkSurface.orientations">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.orientations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">orientations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hashes</span><span class="p">,</span> <span class="n">phases</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Crystal-&gt;sample matrices (n, 3, 3) of the grains with these hashes / phase indices."""</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">hashes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">h</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">hi</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">tolist</span><span class="p">())):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orient</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="n">pi</span><span class="p">]</span>
+                    <span class="n">rng</span> <span class="o">=</span> <span class="n">rng_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">SeedKind</span><span class="o">.</span><span class="n">GRAIN</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="mh">0xEB5D</span><span class="p">)</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">ph</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">_direct_basis</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ph</span><span class="o">.</span><span class="n">material</span><span class="p">)))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_orient</span><span class="p">[</span><span class="n">hi</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_orient</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">200_000</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_orient</span><span class="o">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ surface quality</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_scratches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">scratch_density_per_mm</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.0</span><span class="p">)</span>  <span class="c1"># over the 10 mm coupon</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">rng_for</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">SeedKind</span><span class="o">.</span><span class="n">STRUCTURE</span><span class="p">,</span> <span class="n">_SCRATCH_SALT</span><span class="p">)</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">scratch_angle_deg</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">scratch_angle_spread_deg</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="n">normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">5000.0</span><span class="p">,</span> <span class="mf">5000.0</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">scratch_width_um</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">scratch_depth</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normal</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">depth</span>
+
+<div class="viewcode-block" id="BulkSurface.quality">
+<a class="viewcode-back" href="../../../api/generated/de_twin.specimen.BulkSurface.html#de_twin.specimen.BulkSurface.quality">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_um</span><span class="p">,</span> <span class="n">y_um</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Pattern quality factor in (0, 1] of the surface at points (1: perfect)."""</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_um</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">surface_damage</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mf">0.95</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scratches</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">norm</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">wid</span><span class="p">,</span> <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scratches</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">off</span><span class="p">)):</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">norm</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">norm</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">off</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">dep</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">wid</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">q</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">loss</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------- presets</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_p</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tex</span><span class="o">=</span><span class="n">RANDOM</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">BulkPhase</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">frac</span><span class="p">),</span> <span class="n">tex</span><span class="p">)</span>
+
+
+<span class="c1">#: Cube texture {001}&lt;100&gt;, 10 deg spread (recrystallised aluminium / nickel sheet).</span>
+<span class="n">CUBE</span> <span class="o">=</span> <span class="n">Texture</span><span class="p">(</span><span class="s2">"oriented"</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">10.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="c1">#: Gamma fibre &lt;111&gt; || ND, 10 deg spread (rolled and annealed ferritic steel).</span>
+<span class="n">GAMMA_FIBRE</span> <span class="o">=</span> <span class="n">Texture</span><span class="p">(</span><span class="s2">"fibre"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">10.0</span><span class="p">)</span>
+
+<span class="n">_BULK</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"EBSD Ni polycrystal"</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD Ni polycrystal"</span><span class="p">,</span> <span class="n">phases</span><span class="o">=</span><span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">NICKEL</span><span class="p">),),</span> <span class="n">grain_size_um</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">surface_damage</span><span class="o">=</span><span class="mf">0.05</span>
+    <span class="p">),</span>
+    <span class="s2">"EBSD Al cube texture"</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD Al cube texture"</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">ALUMINUM</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">CUBE</span><span class="p">),),</span>
+        <span class="n">grain_size_um</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">surface_damage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">scratch_density_per_mm</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"EBSD ferrite gamma fibre"</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD ferrite gamma fibre"</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">IRON</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">GAMMA_FIBRE</span><span class="p">),),</span>
+        <span class="n">grain_size_um</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">surface_damage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"EBSD duplex steel"</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD duplex steel"</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">IRON</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">),</span> <span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">AUSTENITE</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)),</span>
+        <span class="n">grain_size_um</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+        <span class="n">surface_damage</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+        <span class="n">scratch_density_per_mm</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">scratch_width_um</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"EBSD Si (001) wafer"</span><span class="p">:</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD Si (001) wafer"</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">SILICON</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">Texture</span><span class="p">(</span><span class="s2">"oriented"</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)),),</span>
+        <span class="n">single_crystal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">surface_damage</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+<span class="n">_INDENT_SI</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"phases"</span><span class="p">:</span> <span class="p">(</span><span class="n">_p</span><span class="p">(</span><span class="n">MaterialId</span><span class="o">.</span><span class="n">SILICON</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">Texture</span><span class="p">(</span><span class="s2">"oriented"</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)),),</span>
+    <span class="s2">"single_crystal"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"surface_damage"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s2">"seed"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_indent</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.indent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Indent</span>
+
+    <span class="k">return</span> <span class="n">Indent</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">)</span>
+
+
+<span class="n">_BULK</span><span class="p">[</span><span class="s2">"EBSD Si (001) Vickers indent"</span><span class="p">]</span> <span class="o">=</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD Si (001) Vickers indent"</span><span class="p">,</span> <span class="n">indents</span><span class="o">=</span><span class="p">(</span><span class="n">_indent</span><span class="p">(</span><span class="s2">"vickers"</span><span class="p">,</span> <span class="n">size_um</span><span class="o">=</span><span class="mf">5.0</span><span class="p">),),</span> <span class="o">**</span><span class="n">_INDENT_SI</span>
+<span class="p">)</span>
+<span class="n">_BULK</span><span class="p">[</span><span class="s2">"EBSD Si (001) Berkovich indent"</span><span class="p">]</span> <span class="o">=</span> <span class="n">BulkSurfaceConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"EBSD Si (001) Berkovich indent"</span><span class="p">,</span>
+    <span class="n">indents</span><span class="o">=</span><span class="p">(</span><span class="n">_indent</span><span class="p">(</span><span class="s2">"berkovich"</span><span class="p">,</span> <span class="n">size_um</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span> <span class="n">rotation_deg</span><span class="o">=-</span><span class="mf">90.0</span><span class="p">),),</span>
+    <span class="o">**</span><span class="n">_INDENT_SI</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Bulk EBSD specimens by name (``DigitalTwin(specimen=&lt;name&gt;)`` builds a :class:`BulkSurface`).</span>
+<span class="n">BULK_PRESETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BulkSurfaceConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">_BULK</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">bulk_from_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BulkSurfaceConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The bulk preset called ``name`` (case-insensitive), or None."""</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">preset_name</span><span class="p">,</span> <span class="n">preset</span> <span class="ow">in</span> <span class="n">BULK_PRESETS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">preset_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">preset</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -18,8 +18,10 @@
       ~Detector.expected_dark
       ~Detector.expected_gain
       ~Detector.expose
+      ~Detector.grid_exposure
       ~Detector.output_shape
       ~Detector.roi
+      ~Detector.set_gain_mode
       ~Detector.super_resolution
    
    

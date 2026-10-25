@@ -16,12 +16,16 @@
       ~Renderer.__init__
       ~Renderer.coherent_sampling
       ~Renderer.datacube
+      ~Renderer.ebsd_flat_point
+      ~Renderer.ebsd_patterns
+      ~Renderer.ebsd_plan
       ~Renderer.field_map
       ~Renderer.ground_truth
       ~Renderer.ground_truth_ptychography
       ~Renderer.invalidate
       ~Renderer.prefetch
       ~Renderer.render
+      ~Renderer.render_ebsd_frame
       ~Renderer.scan_point_for
       ~Renderer.stem_model
       ~Renderer.virtual_image
@@ -36,8 +40,10 @@
    .. autosummary::
    
       ~Renderer.crystallinity
+      ~Renderer.ebsd
       ~Renderer.grains
       ~Renderer.seed
       ~Renderer.stats
+      ~Renderer.ebsd_user_masters
    
    

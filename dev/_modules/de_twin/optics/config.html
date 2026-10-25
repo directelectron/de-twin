@@ -498,6 +498,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProbeMode</span><span class="p">,</span> <span class="n">RenderMode</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..ebsd</span><span class="w"> </span><span class="kn">import</span> <span class="n">EbsdGeometry</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.realism</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnRealism</span>
 
 
@@ -578,6 +579,10 @@
     <span class="c1">#: A real column's geometry (image rotation, true pixel size, image-shift matrices,</span>
     <span class="c1">#: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.</span>
     <span class="n">realism</span><span class="p">:</span> <span class="n">ColumnRealism</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: An SEM with an EBSD detector (:class:`de_twin.ebsd.EbsdGeometry`): when set and enabled,</span>
+    <span class="c1">#: every acquisition renders EBSD patterns (``RenderMode.EBSD``) at the column's beam</span>
+    <span class="c1">#: energy. None: a TEM. ``DigitalTwin.configure_ebsd`` sets it.</span>
+    <span class="n">ebsd</span><span class="p">:</span> <span class="n">EbsdGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="OpticsConfig.realistic">
 <a class="viewcode-back" href="../../../api/generated/de_twin.optics.OpticsConfig.html#de_twin.optics.OpticsConfig.realistic">[docs]</a>

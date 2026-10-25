@@ -204,6 +204,21 @@ STEM has two models (`RenderConfig.stem_model`: `"auto"` | `"coherent"` | `"kine
   `"auto"` picks the coherent model when the binned pattern is at most 256² (or the step is
   below 2x the probe size) and the probe window fits `coherent_max_grid`.
 
+### `de_twin.ebsd`
+EBSD in an SEM (`RenderMode.EBSD`, set by `OpticsConfig.ebsd` / `DigitalTwin.configure_ebsd`).
+The specimen is a bulk polycrystal (`specimen/bulk.py`, `BulkSurface`), sampled per scan point
+rather than rasterised; `specimen/indent.py` adds an indent's strain field.
+
+* `geometry.py`: `EbsdGeometry` (tilts, working distance, Bruker pattern centre, probe
+  current) and how the pattern centre follows the beam.
+* `master.py`: kinematic Kikuchi master patterns per phase and energy, cached process-wide;
+  `io.py` reads user masters (EMsoft, kikuchipy, NumPy).
+* `render.py`: `EbsdRenderer`, the per-point patterns and ground truth (`Renderer.ebsd`).
+* `kernels.py`, `frames.py`, `framesource.py`: numba kernels through `numba_jit`. A camera frame
+  is made in one fused pass (projection, Poisson draw, detector) from `Detector.grid_exposure`;
+  `DigitalTwin.frames` and the shared-memory face hand frames to `de_twin.workers`, a pool of
+  below-normal-priority threads, a few frames per job.
+
 ### Reconstruction checks (`tests/reconstruction/`)
 de-twin produces data; it does not ship reconstruction methods. The test suite keeps small
 numpy reconstructions (tcBF/parallax and ePIE) only to check that coherent twin data
@@ -320,6 +335,8 @@ twin.flux(request) -> np.ndarray         # noiseless ground truth
 twin.datacube(request) -> np.ndarray     # noiseless 4D-STEM (scan y, x, binned det y, x), e/px/s
 twin.ground_truth_ptychography(request)  # object t(r), probe modes, positions, aberrations
 twin.stem_model(request) -> str          # "coherent" | "kinematic"
+twin.configure_ebsd(beam_kv=20.0)        # an SEM with this camera as its EBSD detector
+twin.ebsd_patterns(request)              # noiseless EBSD patterns (scan y, x, binned det y, x)
 ```
 
 ### DE-Server side (`cpp/`)
