@@ -1,0 +1,1 @@
+The twin's column became an SEM in EBSD mode: it reported an SEM's ``InstrumentType`` (``"JEOL SEM (EIK)"``), ``TemStemMode`` 1 and the new ``WorkingDistance`` / ``SampleTilt`` properties, which the DE-TEM-Channel face served too.

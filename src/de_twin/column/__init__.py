@@ -20,7 +20,7 @@ from .errors import ColumnRefused
 from .mirror import MirrorColumn, state_from_batch
 from .properties import BEAM_TILT_MRAD_PER_UNIT, DIFF_SHIFT_MRAD_PER_UNIT
 from .soap import BATCH_KEYS, DESERVER_BATCH, SoapError, SoapTemChannelClient
-from .vendor import probe_mode_from_raw, probe_mode_to_raw
+from .vendor import is_sem, probe_mode_from_raw, probe_mode_to_raw
 
 __all__ = [
     "BATCH_KEYS",
@@ -38,6 +38,7 @@ __all__ = [
     "MirrorColumn",
     "SoapError",
     "SoapTemChannelClient",
+    "is_sem",
     "ladders",
     "probe_mode_from_raw",
     "probe_mode_to_raw",

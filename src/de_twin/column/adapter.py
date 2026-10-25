@@ -62,6 +62,8 @@ VALUE_PROPS = (
     "StageA",
     "StageB",
     "InstrumentType",
+    "WorkingDistance",
+    "SampleTilt",
     "ConvergenceAngle",
     "AlphaSelector",
 )
