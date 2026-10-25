@@ -391,6 +391,18 @@ def test_intensity_zoom_keeps_the_dose_per_pixel_as_the_magnification_changes(
     ).illuminated_diameter_um == pytest.approx(make_derived_optics(d).illuminated_diameter_um)
 
 
+def test_zooming_out_spreads_the_beam_and_zooming_in_leaves_it(make_derived_optics, make_state):
+    config = OpticsConfig(intensity_zoom_out=True)
+    ref = config.intensity_zoom_reference_mag
+
+    def dose(magnification, config):
+        return make_derived_optics(make_state(magnification=magnification), config=config).dose_e_per_px_s
+
+    assert dose(ref / 10, config) == pytest.approx(dose(ref, config), rel=1e-6)
+    for magnification in (ref, 5 * ref):  # at and above the reference: the beam as set
+        assert dose(magnification, config) == pytest.approx(dose(magnification, OpticsConfig()), rel=1e-6)
+
+
 def test_beam_shift_moves_a_scan_even_on_a_column_that_reports_tem(make_derived_optics, make_state):
     """A 4D-STEM request on a column in TEM (DE-Server's Scan - Enable) is a scan: beam shift
     moves the probe, i.e. the scanned area."""

@@ -89,6 +89,12 @@ class OpticsConfig:
     #: the dose per pixel goes as 1/mag^2 and zooming out saturates the camera.
     intensity_zoom: bool = False
     intensity_zoom_reference_mag: float = 20000.0
+    #: Intensity zoom below the reference magnification only: zooming OUT spreads the beam
+    #: with the field of view, so the dose per detector pixel never rises above what
+    #: Intensity gives at `intensity_zoom_reference_mag` and a camera set up there does not
+    #: saturate at a survey magnification; zooming in leaves the beam as Intensity sets it
+    #: (and so its convergence, which high-resolution contrast depends on).
+    intensity_zoom_out: bool = False
     #: A real column's geometry (image rotation, true pixel size, image-shift matrices,
     #: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.
     realism: ColumnRealism | None = None

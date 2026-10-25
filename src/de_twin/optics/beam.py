@@ -92,9 +92,13 @@ def illuminated_diameter_um(state: MicroscopeState, config: OpticsConfig | None 
         d = math.hypot(config.illum_min_diameter_um, config.illum_max_diameter_um * (x - x0) / span)
     else:
         d = config.illum_min_diameter_um * (config.illum_max_diameter_um / config.illum_min_diameter_um) ** x
-    if _intensity_zoom(state, config):
+    zoom = _intensity_zoom(state, config)
+    if zoom:
         # the condenser tracks the field of view (LowMAG included: no separate spread)
-        return float(d * config.intensity_zoom_reference_mag / float(state.magnification))
+        factor = config.intensity_zoom_reference_mag / float(state.magnification)
+        if not config.intensity_zoom:  # zooming out only
+            factor = max(1.0, factor)
+        return float(d * factor)
     mode = "".join(ch for ch in str(state.mag_mode).lower() if ch.isalnum())
     if mode.startswith("low") or mode == "lm":
         d *= config.lowmag_illumination_factor
@@ -103,7 +107,9 @@ def illuminated_diameter_um(state: MicroscopeState, config: OpticsConfig | None 
 
 def _intensity_zoom(state: MicroscopeState, config: OpticsConfig) -> bool:
     """Intensity zoom applies to TEM imaging with a known magnification."""
-    if not getattr(config, "intensity_zoom", False) or not state.magnification or state.magnification <= 0:
+    if not (getattr(config, "intensity_zoom", False) or getattr(config, "intensity_zoom_out", False)):
+        return False
+    if not state.magnification or state.magnification <= 0:
         return False
     if config.intensity_zoom_reference_mag <= 0:
         return False
