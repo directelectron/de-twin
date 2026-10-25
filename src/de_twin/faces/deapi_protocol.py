@@ -33,6 +33,22 @@ GPU_PUBLISH_S = 0.02
 
 TEMPERATURE_PROP = "Simulator Virtual Specimen Temperature (C)"
 
+#: ``Simulator EBSD <label>`` deapi properties -> EbsdGeometry fields.
+EBSD_PROPERTIES = {
+    "enabled": "Enable",
+    "sample_tilt_deg": "Sample Tilt (degrees)",
+    "detector_tilt_deg": "Detector Tilt (degrees)",
+    "working_distance_mm": "Working Distance (mm)",
+    "pcx": "Pattern Center X",
+    "pcy": "Pattern Center Y",
+    "pcz": "Pattern Center Z",
+    "probe_current_na": "Probe Current (nA)",
+    "step_um": "Default Step (micrometers)",
+    "band_contrast": "Band Contrast",
+    "background": "Background",
+    "boundary_blend": "Boundary Blend",
+}
+
 # DE-Server "Instrument Project Name" per (function mode, TEM/STEM) (mag.yaml projects)
 _PROJECT_NAMES = {
     (0, 0): "MAG1",

@@ -1,0 +1,1 @@
+Below ``CameraModel.full_stop_kv`` (40 kV) the ADU an electron deposits now falls in proportion to its energy (it stops in the sensor) instead of following the high-tension table's log-log trend, which at SEM energies gave several times more charge than the electron carries.
