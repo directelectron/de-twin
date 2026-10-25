@@ -61,6 +61,25 @@ def jeol_row(mode: ProbeMode) -> int:
     return _JEOL_RAW[ProbeMode(mode)]
 
 
+#: What DE-TEM-Channel's SEM backends answer for ``INSTRUMENT_Type`` when the column does
+#: not name its model: ``JeolSemColumn::getInstrumentType`` (EIK) and
+#: ``TfsSemColumn::getInstrumentType`` (xT), DE-TEM-Channel ``instruments/sem``.
+SEM_INSTRUMENT_TYPE_JEOL = "JEOL SEM (EIK)"
+SEM_INSTRUMENT_TYPE_TFS = "Thermo Fisher / FEI xT"
+
+
+def sem_instrument_type(vendor: str) -> str:
+    """The ``InstrumentType`` an SEM of this vendor reports over DE-TEM-Channel."""
+    return SEM_INSTRUMENT_TYPE_TFS if is_tfs(vendor) else SEM_INSTRUMENT_TYPE_JEOL
+
+
+def is_sem(instrument_type: str) -> bool:
+    """Whether ``InstrumentType`` names an SEM: the strings :func:`sem_instrument_type`
+    returns, and a JEOL SEM that does name its model ("JEOL JSM-7800F (EIK)")."""
+    v = str(instrument_type or "").upper()
+    return any(t in v for t in (" SEM", "(EIK)", "JSM-", " XT"))
+
+
 def screen_to_raw(instrument_type: str, position: int) -> int:
     """0 up / 1 down -> the vendor's enumeration (TFS: 2 up, 3 down)."""
     if is_tfs(instrument_type):

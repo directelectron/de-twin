@@ -32,6 +32,15 @@ GUI can persist it. With it set, every acquisition is `RenderMode.EBSD`; `enable
 returns the twin to a TEM. The beam energy is the column's high tension (`beam_kv`; 5–30 kV).
 The deapi face exposes the geometry as `Simulator EBSD ...` properties.
 
+The twin's own column becomes an SEM too, reporting what DE-TEM-Channel's SEM backends report:
+`InstrumentType` is `"JEOL SEM (EIK)"` (`"Thermo Fisher / FEI xT"` for an FEI column;
+`de_twin.column.is_sem` recognizes both), `TemStemMode` is 1, and `ProjectionMode` and `SubMode`
+are 0. The column also has two SEM properties, `WorkingDistance` (mm) and `SampleTilt` (degrees).
+Writing either one moves the geometry the patterns are rendered from, and on a TEM both read -1.
+Over the DE-TEM-Channel face, the defocus slot (`getDeFocusValue`, `setDefocus`,
+`PROJ_Defocus`) carries the working distance in meters, as on a real SEM. `getProperty
+WorkingDistance` / `SampleTilt` answer in mm and degrees.
+
 The pattern stack is `ny * nx * h * w * 4` bytes; pass `out=np.memmap(...)` (or `dtype`) to
 `ebsd_patterns` for large scans.
 

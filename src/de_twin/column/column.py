@@ -21,6 +21,13 @@ DE-TEM-Channel's in-memory ``DummyEMInstrument`` (``instruments/tem/dummy``):
   ``ILLUM_ProbeMode``, ``ScreenPosition`` enumerations); the state is always
   vendor-normalised.
 
+An SEM: :meth:`Column.enter_sem` (``DigitalTwin.configure_ebsd`` calls it) makes the column
+report what DE-TEM-Channel's SEM backends report: ``InstrumentType`` names an SEM
+(``"JEOL SEM (EIK)"``, ``vendor.is_sem``), ``TemStemMode`` is 1 and ``ProjectionMode`` /
+``SubMode`` are 0, and projection writes are refused. ``WorkingDistance`` and
+``SampleTilt`` read and write the SEM's setup; on a TEM they read -1 and refuse writes.
+:meth:`Column.leave_sem` returns to the TEM state the column had.
+
 Safety as in de_microscope: high tension and filament writes are refused unless
 the column was built with ``allow_ht=True``.
 
@@ -62,7 +69,9 @@ BeamBlank               0/1
 ScreenPosition          JEOL 0 up / 1 down; FEI 2 up / 3 down
 ColumnValvesOpen        0/1
 HighTension (HT)        volts (write refused unless allow_ht)
-InstrumentType          "JEOL" | "FEI" | ...
+InstrumentType          "JEOL" | "FEI" | ...; an SEM's: "JEOL SEM (EIK)" | "Thermo Fisher / FEI xT"
+WorkingDistance         [SEM] mm; -1 on a TEM
+SampleTilt              [SEM] deg, towards the EBSD detector; -1 on a TEM
 ======================  ====================================================
 
 Aberration corrector: ``Column(corrector="probe" | "image" | "both", seed=...)`` fits
@@ -197,6 +206,9 @@ class Column:
         self.backlash_um = 0.0
         self._approach = [0.0, 0.0]
         self._last_op_state = 0  # DE-TEM-Channel OperationState of the last set
+        self.sem = False
+        self._working_distance_mm = 0.0
+        self._sample_tilt_deg = 0.0
         sizes = [2] * L.APERTURE_KIND_COUNT
         sizes[L.APERTURE_KIND_CLA] = int(s.condenser_aperture_index)
         self._extra: dict[str, Any] = {
@@ -549,6 +561,32 @@ class Column:
 
     def set_instrument_type(self, vendor: str) -> None:
         self.set("InstrumentType", vendor)
+
+    def enter_sem(self, working_distance_mm: float, sample_tilt_deg: float) -> None:
+        """Make the column an SEM with this working distance (mm) and sample tilt (deg)."""
+        with self.lock:
+            before = (self.sem, self._working_distance_mm, self._sample_tilt_deg)
+            self.sem = True
+            try:
+                for name, value in (
+                    ("WorkingDistance", working_distance_mm),
+                    ("SampleTilt", sample_tilt_deg),
+                ):
+                    SETTERS[name](self, value)
+            except ColumnRefused:
+                self.sem, self._working_distance_mm, self._sample_tilt_deg = before
+                raise
+            readback = GETTERS["InstrumentType"](self)
+        self._notify("InstrumentType", readback)
+
+    def leave_sem(self) -> None:
+        """Make the column a TEM again, in the state it had."""
+        with self.lock:
+            if not self.sem:
+                return
+            self.sem = False
+            readback = GETTERS["InstrumentType"](self)
+        self._notify("InstrumentType", readback)
 
     # ------------------------------------------------------------- control
     def stop(self) -> None:
