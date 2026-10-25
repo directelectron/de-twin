@@ -522,3 +522,81 @@ def test_specimen_pixel_size_stays_nominal_behind_a_post_column_magnification():
             c.disconnect()
     assert served[0] > 0
     assert served[1] == served[0]
+
+
+def test_use_de_camera_takes_de_servers_options_and_keeps_off_for_anything_else(client):
+    spec = client.get_property_specifications("Scan - Use DE Camera")
+    options = getattr(spec, "options", None) or getattr(spec, "values", None)
+    assert {"Use Frame Time", "Independent", "Off"} <= set(options)
+    assert client["Scan - Use DE Camera"] == "Use Frame Time"
+    assert client.set_property("Scan - Use DE Camera", "Independent")
+    assert client["Scan - Use DE Camera"] == "Independent"
+    client.set_property("Scan - Use DE Camera", "On")  # DE-Server 2.8 adjusts it, not refuses it
+    assert client["Scan - Use DE Camera"] == "Off"
+
+
+def _scan(client, use_camera):
+    client["Scan - Enable"] = "On"
+    client["Scan - Size X"] = 6
+    client["Scan - Size Y"] = 4
+    client["Scan - Use DE Camera"] = use_camera
+    client.update_scan_size()
+    client.start_acquisition(1)
+    while client.acquiring:
+        time.sleep(0.01)
+
+
+def test_a_scan_without_the_camera_forms_only_the_external_image(client, twin):
+    _scan(client, "Off")
+    assert twin.requests[-1].scan.enabled and twin.requests[-1].total_frames == 24
+    virtual, *_ = client.get_result("virtual_image0")
+    assert not np.any(virtual)
+    pattern, *_ = client.get_result("singleframe_integrated")
+    assert not np.any(pattern)
+    haadf, *_ = client.get_result("external_image1")
+    assert haadf.shape == (4, 6) and haadf[3, 5] == pytest.approx(23)
+
+
+def test_a_scan_with_the_camera_forms_virtual_images(client, twin):
+    _scan(client, "Use Frame Time")
+    virtual, *_ = client.get_result("virtual_image0")
+    assert np.all(virtual > 0)
+
+
+def test_a_parked_beam_holds_its_point_and_follows_a_new_one(client, twin):
+    client["Scan - Enable"] = "Off"
+    client["Scan - Size X"] = 8
+    client["Scan - Size Y"] = 8
+    client["Scan - Park Enable"] = "On"
+    client["Scan - Park Position X"] = 2
+    client["Scan - Park Position Y"] = 5
+    client["Frame Count"] = 3
+    client.start_acquisition(0)
+    deadline = time.time() + 5
+    while not twin.requests and time.time() < deadline:
+        time.sleep(0.01)
+    scan = twin.requests[0].scan
+    assert scan.enabled and scan.park and scan.park_position == (2, 5)
+    assert twin.requests[0].total_frames == 3
+    client["Scan - Park Position X"] = 7
+    while twin.requests[-1].scan.park_position != (7, 5) and time.time() < deadline:
+        time.sleep(0.01)
+    assert client.stop_acquisition()
+    assert twin.requests[-1].scan.park_position == (7, 5)
+
+
+def test_an_xy_array_is_acknowledged_once_its_positions_are_in(client, twin):
+    positions = np.array([[1, 2], [3, 2], [5, 0]], dtype=np.int32)
+    started = time.monotonic()
+    assert client.set_xy_array(positions, width=6, height=4)
+    assert time.monotonic() - started < 5
+    client["Scan - Enable"] = "On"
+    client.start_acquisition(1)
+    while client.acquiring:
+        time.sleep(0.01)
+    assert twin.requests[-1].scan.points == [(1, 2), (3, 2), (5, 0)]
+
+
+def test_a_frame_rate_beyond_the_camera_is_clamped(client):
+    client["Frames Per Second"] = 1.0e6
+    assert client["Frames Per Second"] == pytest.approx(10 / 0.001)  # the stub's 1 ms full frame, x10

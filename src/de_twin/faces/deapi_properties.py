@@ -18,10 +18,15 @@ from .deapi_protocol import (
 )
 from .deapi_request import (
     OUTPUT_BUFFER_PROPERTY,
+    PARK_ENABLE_PROPERTY,
+    PARK_POSITION_PROPERTIES,
     SCAN_COIL_PROPERTIES,
     SCAN_FLIP_PROPERTIES,
     SIMULATOR_SOURCE_PROPERTY,
+    USE_CAMERA_OPTIONS,
+    USE_CAMERA_PROPERTY,
     model_counting,
+    use_camera_value,
 )
 
 log = logging.getLogger(__name__)
@@ -76,7 +81,10 @@ class PropertiesMixin:
                 )
             )
         # exposure: frames per second / frame count / exposure time stay consistent
-        self._fps = min(float(default_fps), max_fps * 10)
+        # DE-Server clamps a frame rate the camera cannot reach, and a client reads the
+        # clamp back as the fastest rate (de_automate's maximise_frame_rate does).
+        fastest_fps = max_fps * 10
+        self._fps = min(float(default_fps), fastest_fps)
         # A 0.5 s exposure to begin with, not one frame: a DE frame is sparse by
         # design (a pixel holds a few electrons), and an image is the sum of frames
         # over the exposure. One frame per image reads as pure noise.
@@ -84,7 +92,7 @@ class PropertiesMixin:
 
         def set_fps(value):
             exposure = self._frame_count / self._fps
-            self._fps = min(max(float(value), 0.06), 1e6)
+            self._fps = min(max(float(value), 0.06), fastest_fps)
             self._frame_count = max(1, round(exposure * self._fps))
 
         def set_count(value):
@@ -149,6 +157,23 @@ class PropertiesMixin:
         self._plain(OUTPUT_BUFFER_PROPERTY, 0.0, "Float", category="Scan")
         for name in SCAN_FLIP_PROPERTIES:
             self._plain(name, "Off", category="Scan")
+        self._use_camera = USE_CAMERA_OPTIONS[0]
+        self._put(
+            DynamicProperty(
+                USE_CAMERA_PROPERTY,
+                lambda: self._use_camera,
+                lambda value: setattr(self, "_use_camera", use_camera_value(value)),
+                value_type="Set",
+                options=", ".join(
+                    f"'{option}{'*' if i == 0 else ''}'" for i, option in enumerate(USE_CAMERA_OPTIONS)
+                ),
+                default_value=USE_CAMERA_OPTIONS[0],
+                category="Scan",
+            )
+        )
+        self._plain(PARK_ENABLE_PROPERTY, "Off", value_type="Set", options="'On', 'Off*'", category="Scan")
+        for name in PARK_POSITION_PROPERTIES:
+            self._plain(name, 0, "Integer", category="Scan")
         clock = getattr(self.twin, "clock", None)
         self._put(
             DynamicProperty(

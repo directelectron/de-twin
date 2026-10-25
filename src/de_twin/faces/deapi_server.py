@@ -37,6 +37,12 @@ Extra commands answered (beyond deapi's fake server): ``SET_HW_ROI`` (16),
 ``GET_PROPERTY_SPECIFICATIONS`` (35) and ``GET_GPU_FRAMES`` (44): the twin's frames in
 shared GPU memory, as DE-Server shares its movie buffers (:mod:`de_twin.faces.gpu_frames`).
 
+Scan properties DE-Server has and deapi's table lacks: ``Scan - Use DE Camera``
+(``Use Frame Time`` / ``Independent`` / ``Off``; Off forms only the external image, and a
+value DE-Server does not offer, ``On`` included, is kept as Off as DE-Server 2.8 does) and
+the parked beam, ``Scan - Park Enable`` with ``Scan - Park Position X/Y`` (with ``Scan -
+Enable`` Off every frame is taken at that point of the scan grid).
+
 A scan acquisition runs a repeat at a time, and each repeat scans with the coil settings
 (pixel offset, voltages, rotation, flips) DE-Server would have written for it:
 ``Scan - Output Buffer (milliseconds)`` of scan output is queued ahead of the beam, so a
@@ -257,7 +263,9 @@ class TwinFakeServer(PropertiesMixin, ResultsMixin, FakeServer):  # type: ignore
         self._scan_points = points
         self["Scan - Size X"], self["Scan - Size Y"] = int(width), int(height)
         self._values["scan_-_type"]._value = "XY File"
-        return ()
+        # deapi's client reads a second acknowledge once the positions are in, as DE-Server
+        # sends; without it set_xy_array waits out its socket timeout and reports failure.
+        return (self._ack(command),)
 
     def _start(self, command):
         params = command.command[0].parameter
