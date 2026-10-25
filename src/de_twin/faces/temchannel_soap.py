@@ -22,6 +22,11 @@ Wire formats are the channel's own:
   deg), pairs are ``x;y``, ``ILLUM_ConvergenceAngle`` is ``%.3f``, unknown keys
   (and ``STAGE_Position``, which the channel never implemented) answer empty,
   ``PROJ_ImageShift``/``PROJ_ImageBeamShift``/``STAGE_Status`` answer ``0``;
+* an SEM (``Column.enter_sem``) answers as DE-TEM-Channel's SEM backends do: the
+  defocus slot (``getDeFocusValue``, ``setDefocus``, ``PROJ_Defocus``, ``getProperty
+  Defocus``) carries the working distance in meters, and ``getProperty WorkingDistance``
+  (mm) / ``SampleTilt`` (deg) are twin extensions; ``InstrumentType``, ``TemStemMode``
+  and the projection modes come from the column;
 * units: ``GUN_HT`` volts, ``PROJ_CameraLength`` cm, ``PROJ_Defocus`` um,
   shifts um, ``PROJ_SubMode`` the raw JEOL EOS function mode (0 MAG1,
   1 MAG2, 2 LowMAG, 3 SAMAG, 4 DIFF) or the TFS submode when the column
@@ -275,6 +280,19 @@ class TemChannelServer:
                     return OP_RUNNING
             return self._ops.get(op_id, OP_IDLE)
 
+    def defocus(self) -> float:
+        """The defocus slot: um on a TEM; on an SEM its working distance in meters, the only
+        meters-valued focus slot the channel has (``JeolSemInstrument::getDeFocus``)."""
+        if self.column.sem:
+            return float(self.column.get("WorkingDistance")) / 1000.0
+        return float(self.column.get("Defocus"))
+
+    def set_defocus(self, value: float) -> None:
+        if self.column.sem:
+            self.column.set("WorkingDistance", float(value) * 1000.0)
+        else:
+            self.column.set("Defocus", float(value))
+
     def _set(self, op_key: str | None, fn: Callable[[], Any], *, stage_mask: int = 0) -> tuple[str, list]:
         try:
             fn()
@@ -379,7 +397,7 @@ class TemChannelServer:
             "getMagMode": sh(lambda: c.function_mode),
             "getMagStr": string("getMagStrResponse", lambda: g("MagString")),
             "getFocusValue": fl(lambda: g("Focus")),
-            "getDeFocusValue": fl(lambda: g("Defocus")),
+            "getDeFocusValue": fl(self.defocus),
             "getScreenPosition": sh(lambda: g("ScreenPosition")),
             "getExposureTime": fl(lambda: g("ExposureTime")),
             "getImageShift": pair("ImageShift"),
@@ -411,7 +429,9 @@ class TemChannelServer:
             "setScanRotation": set_value("ScanRotation", "SCANROTATION", "deg"),
             "setGunShift": set_pair("GunShift", "GUNSHIFT"),
             "setGunTilt": set_pair("GunTilt", "GUNTILT"),
-            "setDefocus": set_value("Defocus", "DEFOCUS", "defocus-m"),
+            "setDefocus": lambda f: self._set(
+                "DEFOCUS", lambda: self.set_defocus(float(f.get("defocus-m", "0") or 0))
+            ),
             "setImageShift": set_pair("ImageShift", "IMAGESHIFT"),
             "setDiffractionShift": set_pair("DiffractionShift", "DIFFRACTIONSHIFT"),
             "setBeamShift": set_pair("BeamShift", "BEAMSHIFT"),
@@ -626,6 +646,8 @@ class TemChannelServer:
         "SubMode": "FUNCTIONMODE",
         "FunctionMode": "FUNCTIONMODE",
         "ProbeMode": "GLOBAL",
+        "WorkingDistance": "DEFOCUS",
+        "SampleTilt": "GLOBAL",
     }
 
     def property_value(self, key: str) -> str:
@@ -646,7 +668,6 @@ class TemChannelServer:
             "FunctionMode",
         }
         floats = {
-            "Defocus",
             "Magnification",
             "ScreenCurrent",
             "Intensity",
@@ -661,6 +682,10 @@ class TemChannelServer:
         }
         if key in ints:
             return f"{int(g(key))}"
+        if key == "Defocus":
+            return f"{self.defocus():.6g}"
+        if key in ("WorkingDistance", "SampleTilt"):
+            return f"{float(g(key)):.6g}"
         if key in floats:
             return f"{float(g(key)):.6g}"
         if key == "ConvergenceAngle":
@@ -704,7 +729,7 @@ class TemChannelServer:
         if key == "PROJ_Focus":
             return str(int(g("Focus")))
         if key == "PROJ_Defocus":
-            return _g(g("Defocus"))
+            return _g(self.defocus())
         if key == "PROJ_ScreenPosition":
             return str(int(g("ScreenPosition")))
         if key == "CAMERA_MeasuredExposureTime":

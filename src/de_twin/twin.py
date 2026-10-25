@@ -105,6 +105,9 @@ class DigitalTwin:
         # Only a column the twin built is its to move: a supplied one may be a mirror of
         # real hardware, whose stage and beam are the operator's.
         self._own_column = column is None
+        if self._own_column:
+            self._column_as_sem()
+            self.column.on_change(self._follow_sem_column)
         if start_on_specimen and self._own_column:
             self.start_on_specimen()
 
@@ -657,6 +660,8 @@ class DigitalTwin:
             geometry = geometry.replace(**fields)
         with self.lock:
             self.optics_config.ebsd = geometry
+            if getattr(self, "_own_column", False):
+                self._column_as_sem()
             if (
                 beam_kv is None
                 and geometry.enabled
@@ -673,6 +678,26 @@ class DigitalTwin:
                 # on HT (allow_ht) is for remote control, so go round it here.
                 self.column._set_local("HighTension", float(beam_kv) * 1000.0)
         return geometry
+
+    def _column_as_sem(self) -> None:
+        """Make the twin's own column say what the instrument is: an SEM with the EBSD
+        geometry's working distance and sample tilt in EBSD mode, else a TEM."""
+        geometry = self.ebsd
+        if geometry is not None and geometry.enabled:
+            self.column.enter_sem(geometry.working_distance_mm, geometry.sample_tilt_deg)
+        else:
+            self.column.leave_sem()
+
+    def _follow_sem_column(self, name: str, value) -> None:
+        """A working distance or sample tilt written to the column moves the EBSD geometry the
+        patterns are rendered from, so the column and the patterns cannot disagree."""
+        field = {"WorkingDistance": "working_distance_mm", "SampleTilt": "sample_tilt_deg"}.get(name)
+        if field is None:
+            return
+        with self.lock:
+            geometry = self.ebsd
+            if geometry is not None and geometry.enabled and getattr(geometry, field) != float(value):
+                self.optics_config.ebsd = geometry.replace(**{field: float(value)})
 
     def set_master_pattern(
         self,
