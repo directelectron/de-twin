@@ -583,16 +583,22 @@ class Renderer:
         self._grains_fallback = None
 
     # -------------------------------------------------------------- render
-    def render(self, optics, *, frame_index: int = 0, scan_point=None, time_s: float = 0.0) -> np.ndarray:
+    def render(
+        self, optics, *, frame_index: int = 0, scan_point=None, time_s: float = 0.0, binned: bool = False
+    ) -> np.ndarray:
         """float32 (ny, nx) = optics.output_shape, electrons / detector pixel / second.
 
         Returns zeros when the beam is blanked (the caller may map that to ``flux=None``).
+        *binned*: a kinematic STEM pattern may come back on the hardware-binned grid instead,
+        averaged per sensor pixel (see `StemRenderer.render`); other renders ignore it.
         """
         inflight = self._inflight
         if inflight is not None and inflight[0] == optics:
             inflight[1].wait(10.0)  # being prefetched: its result is a crop in a moment
         with self._lock:
-            return self._render(optics, frame_index=frame_index, scan_point=scan_point, time_s=time_s)
+            return self._render(
+                optics, frame_index=frame_index, scan_point=scan_point, time_s=time_s, binned=binned
+            )
 
     def prefetch(self, optics, time_s: float = 0.0) -> bool:
         """Render the TEM view ``optics`` into the caches, off the caller's thread: the padded
@@ -671,7 +677,9 @@ class Renderer:
             self.prefetched += 1
         return True
 
-    def _render(self, optics, *, frame_index: int = 0, scan_point=None, time_s: float = 0.0) -> np.ndarray:
+    def _render(
+        self, optics, *, frame_index: int = 0, scan_point=None, time_s: float = 0.0, binned: bool = False
+    ) -> np.ndarray:
         h, w = optics.output_shape
         if optics.beam_blanked:
             return np.zeros((h, w), np.float32)
@@ -707,7 +715,15 @@ class Renderer:
                 self._ctx(optics, time_s), fm, token, optics, scan_point, frame_index, self.specimen
             )
         return self._stem.render(
-            fm, token, optics, self.grains, self.crystallinity, scan_point, frame_index, self.specimen
+            fm,
+            token,
+            optics,
+            self.grains,
+            self.crystallinity,
+            scan_point,
+            frame_index,
+            self.specimen,
+            binned=binned,
         )
 
     # --------------------------------------------------------------- EBSD

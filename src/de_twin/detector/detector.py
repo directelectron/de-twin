@@ -271,6 +271,37 @@ class Detector:
         g = self.gain_map[r.y : r.y + oh * by, r.x : r.x + ow * bx]
         return g.reshape(oh, by, ow, bx).mean(axis=(1, 3), dtype=np.float64)
 
+    def binned_flux(self, flux, request: AcquisitionRequest | None = None):
+        """*flux* (electrons per sensor pixel per second on the ROI) averaged onto the
+        binned output grid, which :meth:`expose` then simulates directly: at 2x binning a
+        quarter of the pixels to draw noise for, and the same electron, deposit and
+        read-noise statistics per binned pixel. What it leaves out is charge sharing
+        between the sensor pixels of one bin and clipping inside a bin, neither visible
+        in a binned frame. Anything else (unbinned, a counting camera, a flux already on
+        the binned grid, None) comes back as it is.
+
+        A read-only flux is a render an exposure shares between its frames (see
+        `Renderer.render`), so its binned grid is made once and shared the same way."""
+        bx, by = _binning(request)
+        if flux is None or (bx, by) == (1, 1) or self.model.hardware_counting or np.ndim(flux) != 2:
+            return flux
+        oh, ow = self._grid_shape(request)
+        if flux.shape[0] < oh * by or flux.shape[1] < ow * bx:
+            return flux
+        shared = not flux.flags.writeable
+        held = getattr(self, "_binned_flux", None)
+        if shared and held is not None and held[0] is flux and held[1] == (oh, ow, bx, by):
+            return held[2]
+        out = np.zeros((oh, ow), np.float32)
+        for dy in range(by):
+            for dx in range(bx):
+                out += flux[dy : oh * by : by, dx : ow * bx : bx]
+        out *= np.float32(1.0 / (bx * by))
+        if shared:
+            out.flags.writeable = False
+            self._binned_flux = (flux, (oh, ow, bx, by), out)
+        return out
+
     # --------------------------------------------------------------- expose
     def expose(
         self,
