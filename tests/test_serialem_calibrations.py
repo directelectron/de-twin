@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from de_twin.clock import ManualClock
+from de_twin.column import ladders
 from de_twin.optics import OpticsConfig
 from de_twin.optics.realism import ColumnRealism
 from de_twin.optics.serialem import ColumnDefinition, from_serialem, to_serialem, twin_mag_table
@@ -50,7 +51,7 @@ def test_a_column_survives_the_round_trip(files, with_props):
     d = from_serialem(calibration, props if with_props else None, camera=CAMERA)
     assert isinstance(d, ColumnDefinition)
     for magnification in twin_mag_table().values():
-        mode = "LowMAG" if magnification <= 200 else "MAG1"
+        mode = "LowMAG" if magnification <= ladders.LOWMAG_MAGS[-1] else "MAG1"
         dr = (d.rotation_rad(mode, magnification) - real.rotation_rad(mode, magnification) + math.pi) % (
             2 * math.pi
         ) - math.pi
@@ -172,12 +173,13 @@ def test_the_image_shift_matrix_is_measured_on_the_twin(files, make_realistic_tw
 def test_the_reader_takes_what_serialem_writes_and_skips_what_it_does_not_define(tmp_path):
     calibration = tmp_path / "cal.txt"
     props = tmp_path / "props.txt"
+    index = next(i for i, m in twin_mag_table().items() if m == 20000.0)
     calibration.write_text(
-        "SerialEMCalibrations\nStageToCameraMatrix 14 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix 14 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration 14 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n14 0 2 0 0 2   20000\nFocusCalibration 14 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1"
+        f"SerialEMCalibrations\nStageToCameraMatrix {index} 0 -2 0 0 -2   0.000000   20000\nStageToCameraMatrix {index} 1 -9 0 0 -9   0.000000   20000\nCrossoverIntensity 3 0.42\nBeamShiftCalibration 0.5 0 0 0.5\nBeamShiftCalibration {index} 0.5 0 0 0.5 -999 1 0  20000\nImageShiftMatrix 1\n{index} 0 2 0 0 2   20000\nFocusCalibration {index} 0 1 1 1.00 2 0 1 -999   20000\n-1 1 1\n1 -1 -1"
         + "\n"
     )
     props.write_text(
-        "CameraProperties 1\nRotationAndPixel 14 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel 14 999 999 0\nEndCameraProperties"
+        f"CameraProperties 1\nRotationAndPixel {index} 999 45 0.1\nEndCameraProperties\nCameraProperties 0\nRotationAndPixel {index} 999 999 0\nEndCameraProperties"
         + "\n"
     )
     d = from_serialem(calibration, props, camera=CAMERA)

@@ -1,0 +1,1 @@
+The simulated column's TEM LowMAG took a real JEOL's ladder (100x to 1500x), so 500x and 1000x became reachable, and its spot size went up to the vendor's limit (9 on JEOL, 11 on TFS) instead of stopping at 5.

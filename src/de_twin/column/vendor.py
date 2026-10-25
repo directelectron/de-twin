@@ -61,6 +61,11 @@ def jeol_row(mode: ProbeMode) -> int:
     return _JEOL_RAW[ProbeMode(mode)]
 
 
+def max_spot_size(instrument_type: str) -> int:
+    """The largest spot size the vendor's column takes."""
+    return L.MAX_SPOT_SIZE_TFS if is_tfs(instrument_type) else L.MAX_SPOT_SIZE_JEOL
+
+
 def screen_to_raw(instrument_type: str, position: int) -> int:
     """0 up / 1 down -> the vendor's enumeration (TFS: 2 up, 3 down)."""
     if is_tfs(instrument_type):

@@ -2,8 +2,11 @@
 
 Copied from DE-TEM-Channel's ``instruments/tem/dummy/DummyDetents.h`` (itself
 generated from DE-Server ``configurations/mag.yaml``, sha256 87b690e6..., 2026-09-04)
-and ``DummyEMInstrument.cpp``, so the twin's column reports exactly the
-magnifications / camera lengths DE-Server's mag table has keys for.
+and ``DummyEMInstrument.cpp``, so the twin's column reports the magnifications /
+camera lengths DE-Server's mag table has keys for, with one exception: TEM LowMAG.
+mag.yaml calibrates only three of its rungs, so the twin uses a real JEOL's LowMAG
+ladder (:data:`LOWMAG_MAGS`), and a DE-Server reading that mag.yaml has no pixel size
+at the rungs it lacks, as it would on the microscope.
 
 JEOL function modes (the raw EOS value DE-TEM-Channel reports as ``PROJ_SubMode``):
 
@@ -102,7 +105,14 @@ MAG1_MAGS = Ladder(
         800000.0,
     )
 )
-LOWMAG_MAGS = Ladder((120.0, 150.0, 200.0))
+#: TEM LowMAG: a JEOL JEM-3200FS's, as calibrated with SerialEM by the Indiana University
+#: Electron Microscopy Center ("Pixel size, Direct Electron DE-64, current (as of July
+#: 2018)", iubemcenter.indiana.edu/equipment/microscopes/jeol-jem-3200fs), up to the rung
+#: below MAG1's lowest. DummyDetents.h has only mag.yaml's 120, 150 and 200, which left
+#: nothing between 200x and 2000x.
+LOWMAG_MAGS = Ladder(
+    (100.0, 120.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0, 600.0, 800.0, 1000.0, 1200.0, 1500.0)
+)
 DIFF_CAMERA_LENGTHS_MM = Ladder(
     (
         15.0,
@@ -274,6 +284,12 @@ STAGE_SPEED_UM_PER_S = 100.0
 TILT_SPEED_DEG_PER_S = 10.0
 #: Stage travel, +/- (X, Y, Z um; alpha, beta deg).
 STAGE_LIMITS = (2000.0, 2000.0, 500.0, 70.0, 30.0)
+#: The largest spot size each vendor's column takes (the smallest is 1). The Dummy clamps
+#: to 5, below either. JEOL: 9, the range DE-TEM-Channel's ``JEOLComTest.cpp`` keeps its
+#: spot-size write inside on a real JEOL over TEM3. TFS: 11, ``Illumination.SpotsizeIndex``
+#: of Thermo Fisher's TEM Scripting (temscript's documentation: "The spot size (1-11)").
+MAX_SPOT_SIZE_JEOL = 9
+MAX_SPOT_SIZE_TFS = 11
 #: Hole indices of an aperture (0..4).
 APERTURE_HOLE_MAX = 4
 APERTURE_KIND_COUNT = 5  # 0 none, 1 CLA, 2 OLA, 3 HCA, 4 SAA

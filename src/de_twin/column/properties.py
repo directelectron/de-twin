@@ -12,7 +12,7 @@ from .errors import ColumnRefused
 
 if TYPE_CHECKING:
     from .column import Column
-from .vendor import probe_mode_to_raw, screen_to_raw, submode_to_raw
+from .vendor import max_spot_size, probe_mode_to_raw, screen_to_raw, submode_to_raw
 
 #: Beam tilt: DE-TEM-Channel's range is the normalised [-1, 1]; one unit is this many mrad.
 BEAM_TILT_MRAD_PER_UNIT = 10.0
@@ -249,7 +249,7 @@ GETTERS: dict[str, Callable[[Column], Any]] = {
 
 
 def _set_spot(c: Column, v) -> None:
-    c._s.spot_size = min(max(int(v), 1), 5)
+    c._s.spot_size = min(max(int(v), 1), max_spot_size(c._s.instrument_type))
 
 
 def _set_alpha(c: Column, v) -> None:
