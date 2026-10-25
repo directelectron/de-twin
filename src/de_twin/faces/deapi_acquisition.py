@@ -15,7 +15,14 @@ import numpy as np
 
 from ..state import AcquisitionRequest, ExposureMode
 from .deapi_protocol import GPU_BUFFER_FRAMES, GPU_PUBLISH_S, PIXEL_DTYPES
-from .deapi_request import _CoilTimeline, queued_scan_points, scan_coil_settings
+from .deapi_request import (
+    _CoilTimeline,
+    camera_in_scan,
+    park_position,
+    parked,
+    queued_scan_points,
+    scan_coil_settings,
+)
 
 if TYPE_CHECKING:
     from .deapi_server import TwinFakeServer
@@ -74,8 +81,11 @@ class _Acquisition:
         self.gpu_info: list = []
         self.gpu_batch_started = 0.0
         scan = request.scan
+        #: A scan with ``Scan - Use DE Camera`` Off forms only the external (HAADF) image:
+        #: the beam still dwells, but nothing of the camera's is kept.
+        self.camera = not scan.enabled or scan.park or camera_in_scan(server.__getitem__)
         self.virtual = None
-        if scan.enabled:
+        if scan.enabled and not scan.park:
             nx, ny = scan.size
             self.virtual = np.zeros((5, ny, nx), np.float64)
         self._server = server
@@ -101,7 +111,7 @@ class _Acquisition:
 
     def _store_references(self) -> None:
         processor = getattr(self._server.twin, "processor", None)
-        if processor is None or not self.count or self.stop.is_set():
+        if processor is None or self.sum is None or self.stop.is_set():
             return
         mean = (self.sum / self.count).astype(np.float32)
         mode = self.request.exposure_mode
@@ -128,6 +138,13 @@ class _Acquisition:
                             self.request,
                             scan=replace(self.request.scan, **scan_coil_settings(srv.__getitem__)),
                         )
+                # DE-Server moves a parked beam the moment the position is written; here it
+                # moves at the next acquisition (a parked probe runs one after another).
+                if a and self.request.scan.park and parked(srv.__getitem__):
+                    self.request = replace(
+                        self.request,
+                        scan=replace(self.request.scan, park_position=park_position(srv.__getitem__)),
+                    )
                 if self.request.scan.enabled:
                     self._scan()
                 else:
@@ -200,6 +217,12 @@ class _Acquisition:
             self._share_gpu_frames()
 
     def _add(self, raw: np.ndarray, meta) -> None:
+        if not self.camera:
+            with self.cond:
+                self.last_meta = meta
+                self.count += 1
+                self.cond.notify_all()
+            return
         if self.refs is not None:
             raw = self._server.twin.processor.correct(raw, self.refs)
         masks = self._server._masks_for(raw.shape) if self.virtual is not None else None

@@ -42,6 +42,43 @@ SCAN_FLIP_PROPERTIES = ("Scan - Flip Horizontally", "Scan - Flip Vertically")
 OUTPUT_BUFFER_PROPERTY = "Scan - Output Buffer (milliseconds)"
 DEFAULT_QUEUED_POINTS = 2 * (1048576 // 4)
 
+#: Whether a scan reads the camera at every point, DE-Server 2.8's spelling. "Independent"
+#: lets the camera free-run beside the scan; the twin renders it as "Use Frame Time".
+USE_CAMERA_PROPERTY = "Scan - Use DE Camera"
+USE_CAMERA_OPTIONS = ("Use Frame Time", "Independent", "Off")
+#: The parked beam: with ``Scan - Enable`` Off and park On, every frame is taken with the
+#: beam held on this point of the ``Scan - Size`` grid.
+PARK_ENABLE_PROPERTY = "Scan - Park Enable"
+PARK_POSITION_PROPERTIES = ("Scan - Park Position X", "Scan - Park Position Y")
+
+
+def use_camera_value(value: Any) -> str:
+    """The value DE-Server keeps for a ``Scan - Use DE Camera`` write: one of its options,
+    and Off for anything it does not offer (an "On" included, as DE-Server 2.8 does)."""
+    wanted = str(value).strip().lower()
+    return next((option for option in USE_CAMERA_OPTIONS if option.lower() == wanted), "Off")
+
+
+def camera_in_scan(get: Callable[[str], Any]) -> bool:
+    """Whether a scan reads the camera (``Scan - Use DE Camera`` not Off)."""
+    try:
+        return use_camera_value(get(USE_CAMERA_PROPERTY)) != "Off"
+    except KeyError:
+        return True
+
+
+def parked(get: Callable[[str], Any]) -> bool:
+    """Whether the beam is parked (``Scan - Park Enable`` On)."""
+    try:
+        return _to_bool(get(PARK_ENABLE_PROPERTY))
+    except KeyError:
+        return False
+
+
+def park_position(get: Callable[[str], Any]) -> tuple[int, int]:
+    x, y = (round(float(get(name))) for name in PARK_POSITION_PROPERTIES)
+    return x, y
+
 
 def scan_coil_settings(get: Callable[[str], Any]) -> dict:
     """The ScanRequest fields the scan coils take from properties (de_twin.optics.scan_coils).
@@ -158,6 +195,16 @@ def request_from_properties(
         )
         n_points = len(points) if points else nx * ny
         frame_count = n_points * fpp * repeats
+    elif parked(get):
+        scan = ScanRequest(
+            enabled=True,
+            size=(int(float(get("Scan - Size X"))), int(float(get("Scan - Size Y")))),
+            dwell_s=frame_count / fps,
+            frames_per_point=frame_count,
+            park=True,
+            park_position=park_position(get),
+            **scan_coil_settings(get),
+        )
     return AcquisitionRequest(
         camera_model=camera_model,
         exposure_mode=mode,
