@@ -12,12 +12,19 @@ from .errors import ColumnRefused
 
 if TYPE_CHECKING:
     from .column import Column
-from .vendor import probe_mode_to_raw, screen_to_raw, submode_to_raw
+from .vendor import probe_mode_to_raw, screen_to_raw, sem_instrument_type, submode_to_raw
 
 #: Beam tilt: DE-TEM-Channel's range is the normalised [-1, 1]; one unit is this many mrad.
 BEAM_TILT_MRAD_PER_UNIT = 10.0
 #: Diffraction shift: normalised +/-1 per axis; one unit is this many mrad.
 DIFF_SHIFT_MRAD_PER_UNIT = 10.0
+#: What ``WorkingDistance`` / ``SampleTilt`` read on a TEM: DE-TEM-Channel's "this
+#: instrument has none" (it answers -1 for a convergence angle a column does not report).
+NOT_THIS_INSTRUMENT = -1.0
+#: The SEM settings a write may take: the ranges ``de_twin.ebsd.EbsdGeometry`` documents,
+#: which the renderer would otherwise clamp to behind the column's back.
+WORKING_DISTANCE_RANGE_MM = (1.0, 50.0)
+SAMPLE_TILT_RANGE_DEG = (0.0, 89.0)
 
 STAGE_AXES = ("x", "y", "z", "a", "b")
 
@@ -219,10 +226,12 @@ GETTERS: dict[str, Callable[[Column], Any]] = {
     "StageZ": _get_axis(2),
     "StageA": _get_axis(3),
     "StageB": _get_axis(4),
-    "TemStemMode": lambda c: int(c._s.tem_stem),
-    "ProjectionMode": lambda c: 2 if c._fm == L.FM_DIFF else 1,
-    "SubMode": lambda c: submode_to_raw(c._s.instrument_type, c._fm),
-    "FunctionMode": lambda c: submode_to_raw(c._s.instrument_type, c._fm),
+    # An SEM scans a probe and has no projector: DE-TEM-Channel's SEM backends answer
+    # TemStemMode 1 and projection / submode 0 whatever was set.
+    "TemStemMode": lambda c: 1 if c.sem else int(c._s.tem_stem),
+    "ProjectionMode": lambda c: 0 if c.sem else (2 if c._fm == L.FM_DIFF else 1),
+    "SubMode": lambda c: 0 if c.sem else submode_to_raw(c._s.instrument_type, c._fm),
+    "FunctionMode": lambda c: 0 if c.sem else submode_to_raw(c._s.instrument_type, c._fm),
     "MagMode": lambda c: L.FUNCTION_MODE_NAMES[c._fm],
     "BeamBlank": lambda c: int(bool(c._s.beam_blanked)),
     "ScreenPosition": lambda c: screen_to_raw(c._s.instrument_type, c._s.screen_position),
@@ -232,7 +241,11 @@ GETTERS: dict[str, Callable[[Column], Any]] = {
     "MaxHighTension": lambda c: float(c._extra["MaxHighTension"]),
     "HTState": lambda c: int(bool(c._s.ht_on)),
     "Filament": lambda c: float(c._extra["Filament"]),
-    "InstrumentType": lambda c: str(c._s.instrument_type),
+    "InstrumentType": lambda c: (
+        sem_instrument_type(c._s.instrument_type) if c.sem else str(c._s.instrument_type)
+    ),
+    "WorkingDistance": lambda c: float(c._working_distance_mm) if c.sem else NOT_THIS_INSTRUMENT,
+    "SampleTilt": lambda c: float(c._sample_tilt_deg) if c.sem else NOT_THIS_INSTRUMENT,
     "OperationStatus": lambda c: c.op_state(),
     "StageMode": lambda c: int(c._extra["StageMode"]),
     "StageHolder": lambda c: int(c._extra["StageHolder"]),
@@ -284,6 +297,36 @@ def _set_intensity(c: Column, v) -> None:
     c._s.intensity = float(v)
 
 
+def _set_sem_setting(attr: str, name: str, limits: tuple[float, float]):
+    def setter(c: Column, value) -> None:
+        if not c.sem:
+            raise ColumnRefused(f"a TEM has no {name}; the column is an SEM only in EBSD mode")
+        v = float(value)
+        lo, hi = limits
+        if not lo <= v <= hi:
+            raise ColumnRefused(f"{name} must be in [{lo:g}, {hi:g}], got {v:g}")
+        setattr(c, attr, v)
+
+    return setter
+
+
+def _refused_on_sem(setter: Callable[[Column, Any], None], name: str):
+    def guarded(c: Column, value) -> None:
+        if c.sem:
+            raise ColumnRefused(f"an SEM has no {name}")
+        setter(c, value)
+
+    return guarded
+
+
+def _set_tem_stem(c: Column, value) -> None:
+    if c.sem:
+        if int(value) != 1:
+            raise ColumnRefused("an SEM scans a probe: TemStemMode is always 1 (STEM)")
+        return
+    c._s_tem_stem(value)
+
+
 def _set_vendor(c: Column, v) -> None:
     c._s.instrument_type = str(v)
 
@@ -318,10 +361,10 @@ SETTERS: dict[str, Callable[[Column, Any], None]] = {
     "StageZ": _set_axis(2),
     "StageA": _set_axis(3),
     "StageB": _set_axis(4),
-    "TemStemMode": _method("_s_tem_stem"),
-    "ProjectionMode": _method("_s_projection"),
-    "SubMode": _method("_s_submode"),
-    "FunctionMode": _method("_s_submode"),
+    "TemStemMode": _set_tem_stem,
+    "ProjectionMode": _refused_on_sem(_method("_s_projection"), "projection mode"),
+    "SubMode": _refused_on_sem(_method("_s_submode"), "projector function mode"),
+    "FunctionMode": _refused_on_sem(_method("_s_submode"), "projector function mode"),
     "BeamBlank": _set_blank,
     "ScreenPosition": _method("_s_screen"),
     "ColumnValvesOpen": _set_valves,
@@ -330,6 +373,10 @@ SETTERS: dict[str, Callable[[Column, Any], None]] = {
     "HTState": _set_ht_state,
     "Filament": _set_extra_float("Filament"),
     "InstrumentType": _set_vendor,
+    "WorkingDistance": _set_sem_setting(
+        "_working_distance_mm", "working distance", WORKING_DISTANCE_RANGE_MM
+    ),
+    "SampleTilt": _set_sem_setting("_sample_tilt_deg", "sample tilt", SAMPLE_TILT_RANGE_DEG),
     "StageMode": _set_stage_mode,
     "ScanRotation": _set_extra_float("ScanRotation"),
     "DiffractionFocus": _set_extra_float("DiffractionFocus"),
