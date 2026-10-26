@@ -1,1 +1,0 @@
-The shared-memory face no longer served recycled frames of the old view after a stage move or other column change, which had made an acquisition straight after a move register no shift.

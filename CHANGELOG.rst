@@ -10,6 +10,36 @@ Fragment files in ``upcoming_changes/`` are assembled into this file by
 
 .. towncrier release notes start
 
+0.4.0 (2026-10-26)
+==================
+
+API and Behaviour Changes
+-------------------------
+
+- Below ``CameraModel.full_stop_kv`` (40 kV) the ADU an electron deposits now falls in proportion to its energy (it stops in the sensor) instead of following the high-tension table's log-log trend, which at SEM energies gave several times more charge than the electron carries.
+
+
+New Features
+------------
+
+- The twin's column became an SEM in EBSD mode: it reported an SEM's ``InstrumentType`` (``"JEOL SEM (EIK)"``), ``TemStemMode`` 1 and the new ``WorkingDistance`` / ``SampleTilt`` properties, which the DE-TEM-Channel face served too. (`#44 <https://github.com/directelectron/de-twin/pull/44>`_)
+- EBSD in an SEM: ``DigitalTwin.configure_ebsd`` (``OpticsConfig.ebsd``, an ``EbsdGeometry`` with sample and detector tilt, working distance and a Bruker pattern centre that follows the beam) makes every acquisition ``RenderMode.EBSD``: kinematic Kikuchi master patterns per phase (cached, ~1 MB), projected per scan point onto the camera with a backscatter background, boundary mixing, a darker zone along grain boundaries and surface damage, through ``frames``/``flux``, ``ebsd_patterns`` and the faces (``Simulator EBSD ...`` deapi properties). ``ground_truth`` gives phase, grain, sample-frame orientation, pattern centre and band contrast per point. New bulk specimens (``BULK_PRESETS``: Ni, cube-textured Al, gamma-fibre ferrite, duplex steel, Si (001) wafer) and materials (nickel, austenite). Camera frames are made in one fused CPU pass per frame, a few frames per job on below-normal-priority worker threads (``DE_TWIN_FRAME_THREADS``): ~7,800 frames/s from ``twin.frames`` for a 512x512 binned frame on a 48-thread machine; ``DE_TWIN_FUSED_EBSD=0`` selects the general path. ``Detector.set_gain_mode("low")`` reads out at a low gain that ~100 electrons saturate, for bright SEM beams.
+- EBSD master patterns of your own: ``DigitalTwin.set_master_pattern(phase, path_or_array, ...)`` reads EMsoft ``EMEBSDmaster`` HDF5 (Lambert or stereographic; an energy bin, interpolation or the Monte-Carlo energy-weighted sum), kikuchipy HDF5 or a NumPy array, keeps both hemispheres for non-centrosymmetric phases, checks the space group and point-group symmetry, and quantises it to the cache resolution (a few MB). The deapi face takes a file path (``Simulator EBSD Master Pattern File``).
+- Indented Si for HR-EBSD: presets ``EBSD Si (001) Vickers indent`` and ``EBSD Si (001) Berkovich indent`` (``de_twin.specimen.indent``) carry a residual strain / rotation field, plastic zone and cracks that distort the EBSD patterns; ``ground_truth`` adds the deformation gradient, strain, rotation and a GND density proxy per scan point.
+
+
+Bug Fixes
+---------
+
+- The simulated column's TEM LowMAG took a real JEOL's ladder (100x to 1500x), so 500x and 1000x became reachable, and its spot size went up to the vendor's limit (9 on JEOL, 11 on TFS) instead of stopping at 5. (`#41 <https://github.com/directelectron/de-twin/pull/41>`_)
+- The deapi face took DE-Server's ``Scan - Use DE Camera`` and parked-beam properties, acknowledged ``set_xy_array`` without a 35 s stall, and clamped ``Frames Per Second`` to what the camera reaches, so a de_automate scan ran through it end to end. (`#42 <https://github.com/directelectron/de-twin/pull/42>`_)
+- The shared-memory face no longer served recycled frames of the old view after a stage move or other column change, which had made an acquisition straight after a move register no shift. (`#45 <https://github.com/directelectron/de-twin/pull/45>`_)
+- The twin's own column spread its beam as the operator zoomed out (the new ``OpticsConfig.intensity_zoom_out``), so frames stopped saturating at survey magnifications such as 200x and 5000x. (`#46 <https://github.com/directelectron/de-twin/pull/46>`_)
+- Hardware-binned frames were rendered and exposed on the binned grid and the shared-memory face took eight numba threads by default, so a DE-Server 4D-STEM scan fed by the twin ran about three times faster on a sixth of the CPU. (`#47 <https://github.com/directelectron/de-twin/pull/47>`_)
+- A parked beam behind a real DE-Server was drawn where DE-Server parked it, and followed the park when it moved. (`#48 <https://github.com/directelectron/de-twin/pull/48>`_)
+- Importing ``de_twin`` sets ``NUMBA_DISABLE_CUDA=1``, so the twin never initialises CUDA (diffsims asked numba for a device on import, which started the driver in the process serving DE-Server). ``DE_TWIN_ALLOW_CUDA=1`` leaves the process alone.
+
+
 0.3.0 (2026-10-23)
 ==================
 
