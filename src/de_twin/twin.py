@@ -95,7 +95,10 @@ class DigitalTwin:
         self.holder = holder
 
         self.calibration = calibration or Calibration.default()
-        self.optics_config = optics_config or OpticsConfig()
+        # The twin's own condenser spreads the beam as the operator zooms out (as a column
+        # with intensity zoom does), so the dose `start_on_specimen` sets the camera up for
+        # holds at every survey magnification instead of rising as 1/mag^2 until it saturates.
+        self.optics_config = optics_config or OpticsConfig(intensity_zoom_out=column is None)
         if self.optics_config.realism is not None and column is None:
             self.column.backlash_um = float(self.optics_config.realism.backlash_um)
         self.renderer = Renderer(self.specimen, render_config)

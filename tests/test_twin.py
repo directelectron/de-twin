@@ -136,3 +136,19 @@ def test_repeated_acquisitions_do_not_repeat_the_noise():
     assert np.abs(a - b).mean() > 1.0  # different shot and read noise
     a2, b2 = two_frames()
     assert np.array_equal(a, a2) and np.array_equal(b, b2)  # still deterministic
+
+
+@pytest.mark.parametrize("binning", [(1, 1), (2, 2)])
+def test_frames_stay_inside_the_camera_range_at_every_survey_magnification(binning):
+    """A twin set up at its start view keeps its frames inside the ADC range as the operator
+    zooms out to a survey magnification, binned or not: its condenser spreads the beam with
+    the field of view rather than piling 1/mag^2 more electrons into each pixel."""
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=1)
+    top = twin.detector.model.max_value
+    start = twin.optics(twin.request(hw_binning=binning)).dose_e_per_px_s
+    for magnification in (100, 200, 500, 1000, 2000, 5000):
+        twin.column.set("Magnification", magnification)
+        request = twin.request(frame_time_s=0.025, total_frames=1, hw_binning=binning)
+        assert twin.optics(request).dose_e_per_px_s == pytest.approx(start, rel=1e-6)
+        raw, _ = next(iter(twin.frames(request)))
+        assert np.median(raw) < 0.5 * top and (raw >= top).mean() < 1e-4, magnification
