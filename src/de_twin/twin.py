@@ -284,10 +284,12 @@ class DigitalTwin:
         optics=None,
         time_s=None,
         frame_time_s: float | None = None,
+        binned: bool = False,
     ):
         """``(flux, means)``: ``means`` (the detector's Poisson means, see ``Detector.expose``) when
         the renderer made them on the way (an EBSD frame with ``frame_time_s``), else None. That
-        flux is a reused buffer, valid until the next frame."""
+        flux is a reused buffer, valid until the next frame. *binned*: the flux may be on the
+        detector's binned grid (per sensor pixel), which ``Detector.expose`` takes as it is."""
         with self.lock:
             t = self.clock.now() if time_s is None else time_s
             state = state or self.column.state()
@@ -313,7 +315,9 @@ class DigitalTwin:
                 return self.renderer.render_ebsd_frame(
                     optics, frame_index, scan_point, t, float(frame_time_s) * binned_pixels
                 )
-            image = self.renderer.render(optics, frame_index=frame_index, scan_point=scan_point, time_s=t)
+            image = self.renderer.render(
+                optics, frame_index=frame_index, scan_point=scan_point, time_s=t, binned=binned
+            )
             if (
                 self.renderer.config.prefetch
                 and not ebsd
@@ -323,7 +327,7 @@ class DigitalTwin:
                 )
             ):
                 self._prefetch_next(request, state, t)
-            if ebsd and image.shape == self.detector._grid_shape(request):
+            if (ebsd or binned) and image.shape == self.detector._grid_shape(request):
                 # rendered on the binned grid already (per sensor pixel: expose takes it)
                 return image, None
             if image.shape != shape:
@@ -418,9 +422,11 @@ class DigitalTwin:
             with self.lock:
                 holder_state = self.holder_state(t)
                 flux, means = self._flux(
-                    request, i, state=state, optics=optics, time_s=t, frame_time_s=frame_time
+                    request, i, state=state, optics=optics, time_s=t, frame_time_s=frame_time, binned=True
                 )
                 blanked = flux is None
+                if means is None:
+                    flux = self.detector.binned_flux(flux, request)
                 # Noise is seeded by a twin-wide frame counter, not the index within this
                 # request: repeated acquisitions (live view) must not repeat their noise.
                 # A request with its own seed is pinned instead: frame i by (seed, i).

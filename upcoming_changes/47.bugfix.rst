@@ -1,0 +1,1 @@
+Hardware-binned frames were rendered and exposed on the binned grid and the shared-memory face took eight numba threads by default, so a DE-Server 4D-STEM scan fed by the twin ran about three times faster on a sixth of the CPU.

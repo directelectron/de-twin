@@ -152,3 +152,27 @@ def test_frames_stay_inside_the_camera_range_at_every_survey_magnification(binni
         assert twin.optics(request).dose_e_per_px_s == pytest.approx(start, rel=1e-6)
         raw, _ = next(iter(twin.frames(request)))
         assert np.median(raw) < 0.5 * top and (raw >= top).mean() < 1e-4, magnification
+
+
+def test_a_binned_stem_frame_is_rendered_on_the_binned_grid():
+    """A hardware-binned 4D-STEM frame is rendered and exposed on the binned grid: the same
+    pattern as rendering every sensor pixel and binning after (shifted a little more
+    coarsely), and the same electrons in the frame."""
+    from de_twin.render.stem import bin_mean
+
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock(), seed=1)
+    twin.column.set_tem_stem(TemStem.STEM)
+    scan = ScanRequest(enabled=True, size=(16, 16), dwell_s=1e-3)
+    request = twin.request(frame_time_s=1e-3, total_frames=4, hw_binning=(2, 2), scan=scan)
+    optics = twin.optics(request)
+    for point in ((3, 4), (12, 9)):
+        binned = twin.renderer.render(optics, scan_point=point, binned=True)
+        whole = bin_mean(twin.renderer.render(optics, scan_point=point), 2)
+        assert binned.shape == whole.shape == twin.detector.output_shape(request)
+        assert binned.sum() == pytest.approx(whole.sum(), rel=1e-3)
+        assert np.abs(binned - whole).max() < 0.05 * whole.max()
+    frames = list(twin.frames(request))
+    unbinned = list(twin.frames(twin.request(frame_time_s=1e-3, total_frames=4, scan=scan)))
+    assert frames[0][0].shape == (512, 512)
+    per_pixel = np.mean([meta.electrons_per_pixel for _, meta in frames])
+    assert per_pixel == pytest.approx(np.mean([meta.electrons_per_pixel for _, meta in unbinned]), rel=0.05)

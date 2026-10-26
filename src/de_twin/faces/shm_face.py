@@ -38,6 +38,11 @@ log = logging.getLogger(__name__)
 KEEPALIVE_S = 0.5
 #: A pool nobody has asked for frames for in this long is closed (its thread stops).
 POOL_IDLE_S = 5.0
+#: The numba threads one frame is rendered with when the caller does not say. A 512^2
+#: frame is a few milliseconds of work, which more threads do not divide further; and on
+#: Windows numba's OpenMP threads spin between kernels, so each one asked for is a core
+#: kept busy for the whole stream (all 48 of a workstation's, at the same frame rate).
+RENDER_THREADS = 8
 _DONE = object()
 
 
@@ -56,7 +61,7 @@ class ShmFace:
     sum of many frames is noisier than N-fold as many would be. ``reuse=1`` (the default)
     publishes every frame once. In a scan steered by DE-Server's voltages, the frames are
     kept per scan point instead: a probe held on one point is rendered ``pool_size``
-    times and then picked from.
+    times and then picked from. ``threads=None`` is `RENDER_THREADS`.
     """
 
     def __init__(
@@ -76,7 +81,7 @@ class ShmFace:
         self._scan_output: S.ScanOutputReader | None = None
         self.reuse = max(1, int(reuse))
         self.pool_size = int(pool_size)
-        self.threads = threads
+        self.threads = RENDER_THREADS if threads is None else threads
         self.frames_reused = 0
         self._pool = None
         self._pool_key = None
@@ -133,6 +138,7 @@ class ShmFace:
             log.exception("warm-up render failed")
 
     def _run(self) -> None:
+        _cap_threads(self.threads)  # a steered scan renders on this thread
         if self.warm_up:
             self._warm_up()
         self.ready.set()
@@ -444,6 +450,19 @@ class ShmFace:
             pool.close()
 
 
+def _cap_threads(threads: int | None) -> None:
+    """Cap the numba threads the kernels called from THIS thread use (numba keeps the
+    count per thread)."""
+    if not threads:
+        return
+    try:
+        import numba
+
+        numba.set_num_threads(max(1, min(int(threads), numba.config.NUMBA_NUM_THREADS)))
+    except Exception:  # without numba the kernels are plain Python, single-threaded anyway
+        pass
+
+
 def _now() -> float:
     import time
 
@@ -494,13 +513,7 @@ class _FramePool:
         self._thread.start()
 
     def _render(self, twin, request, pace, threads) -> None:
-        if threads:
-            try:
-                import numba
-
-                numba.set_num_threads(max(1, min(int(threads), numba.config.NUMBA_NUM_THREADS)))
-            except Exception:
-                pass
+        _cap_threads(threads)
         try:
             restart = True
             while restart:

@@ -20,6 +20,7 @@ def served():
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
     consumer = FrameConsumer(name, max_frame_bytes=1024 * 1024 * 2)  # DE-Server creates the mapping
     face = ShmFace(twin, name=name, pace=False).start()
+    assert face.ready.wait(60)  # warmed up: a test that wraps twin.frames sees only its own calls
     yield twin, face, consumer
     face.stop()
     consumer.close()
@@ -117,6 +118,7 @@ def _served_with(**kw):
     twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
     consumer = FrameConsumer(name, max_frame_bytes=1024 * 1024 * 2)
     face = ShmFace(twin, name=name, pace=False, **kw).start()
+    assert face.ready.wait(60)  # warmed up: a test that wraps twin.frames sees only its own calls
     return twin, face, consumer
 
 
@@ -298,3 +300,13 @@ def test_live_view_as_short_acquisitions_is_kept_fed(monkeypatch):
     finally:
         face.stop()
         consumer.close()
+
+
+def test_the_face_renders_with_a_few_threads_unless_told():
+    """A frame is milliseconds of work: every core of a workstation renders it no faster,
+    and on Windows numba's idle OpenMP threads spin, so the face takes a few."""
+    from de_twin.faces import shm_face
+
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
+    assert ShmFace(twin, warm_up=False).threads == shm_face.RENDER_THREADS
+    assert ShmFace(twin, warm_up=False, threads=2).threads == 2

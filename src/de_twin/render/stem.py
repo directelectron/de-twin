@@ -80,6 +80,19 @@ def build_tables(field_map, optics, grains, crystallinity, config, seed: int) ->
     return StemTables(s, inv.reshape(ny, nx), keys, jit)
 
 
+def bin_mean(image: np.ndarray, bx: int, by: int | None = None) -> np.ndarray:
+    """*image* averaged over bx x by pixel bins (the remainder rows and columns dropped,
+    as hardware binning drops them)."""
+    by = bx if by is None else by
+    h, w = image.shape[0] // by, image.shape[1] // bx
+    out = np.zeros((h, w), np.float32)
+    for dy in range(by):
+        for dx in range(bx):
+            out += image[dy : h * by : by, dx : w * bx : bx]
+    out *= np.float32(1.0 / (bx * by))
+    return out
+
+
 def resolve_scan_point(optics, scan_point, frame_index: int, specimen=None, config=None) -> tuple[int, int]:
     """(ix, iy) on the scan raster for this frame."""
     ny, nx = optics.view.shape
@@ -192,7 +205,15 @@ class StemRenderer:
             return specs[i]
         return self._bucket(tab.keys[i : i + 1], optics, grains)[0]
 
-    def _pattern(self, tab, i, optics, grains) -> np.ndarray:
+    def _cached(self, key, render, b: int = 1) -> np.ndarray:
+        """The cached pattern *key* (made by *render*), averaged over b x b pixel bins
+        when b > 1 and cached in turn: a pattern is binned once, not once a frame."""
+        whole = self.cache.get(key, lambda _k: render())
+        if b == 1:
+            return whole
+        return self.cache.get(("binned", b, key), lambda _k: bin_mean(whole, b))
+
+    def _pattern(self, tab, i, optics, grains, b: int = 1) -> np.ndarray:
         h, w = optics.output_shape
         key = (
             "dp",
@@ -207,22 +228,53 @@ class StemRenderer:
             PatternOptions.from_config(self.config),
             _tilt_key(optics),
         )
-        return self.cache.get(
+        return self._cached(
             key,
-            lambda _k: render_pattern(
+            lambda: render_pattern(
                 self.spec(tab, i, optics, grains), (h, w), optics.recip_pixel_inv_nm, optics.disk_radius_px
             ),
+            b,
         )
 
     # ------------------------------------------------------------ CBED
     def render(
-        self, field_map, fm_token, optics, grains, crystallinity, scan_point, frame_index, specimen=None
+        self,
+        field_map,
+        fm_token,
+        optics,
+        grains,
+        crystallinity,
+        scan_point,
+        frame_index,
+        specimen=None,
+        *,
+        binned: bool = False,
     ) -> np.ndarray:
-        config = self.config
+        """The pattern at the probe position, electrons per detector pixel per second, at
+        `optics.output_shape`; with *binned*, averaged onto the hardware-binned grid
+        instead (per sensor pixel, as `Detector.expose` takes a binned flux). Binning a
+        sum of patterns is the sum of the binned patterns, so the binned frame sums
+        cached binned patterns and shifts the result: a quarter of the pixels per frame at
+        2x binning. Square binning that divides the frame only; anything else, and a
+        strained pattern, is rendered whole and binned after."""
         h, w = optics.output_shape
+        config = self.config
+        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, config)
+        strained = (
+            field_map.strain is not None
+            and np.abs(field_map.strain[:, iy, ix] - [1.0, 0.0, 1.0]).max() > 1e-6
+        )
+        b = 1
+        if binned:
+            bx, by = (max(1, int(v)) for v in optics.extras.get("hw_binning", (1, 1)))
+            if (bx, by) != (1, 1) and (bx != by or h % by or w % bx or strained):
+                whole = self.render(
+                    field_map, fm_token, optics, grains, crystallinity, scan_point, frame_index, specimen
+                )
+                return bin_mean(whole, bx, by)
+            b = bx
         tab = self.tables(field_map, fm_token, optics, grains, crystallinity)
         s = tab.samples
-        ix, iy = resolve_scan_point(optics, scan_point, frame_index, specimen, config)
         terms: dict = {}
         dterms: dict = {}
         for x, y, wt in _blend_samples(optics, ix, iy, config.probe_footprint_blend):
@@ -234,12 +286,12 @@ class StemRenderer:
             if s.under_mat is not None and s.under_w[y, x] > 0:
                 m = int(s.under_mat[y, x])
                 dterms[m] = dterms.get(m, 0.0) + wt * float(s.under_w[y, x])
-        out = np.zeros((h, w), np.float32)
+        out = np.zeros((h // b, w // b), np.float32)
         for k, wt in terms.items():
-            out += np.float32(wt) * self._pattern(tab, k, optics, grains)
+            out += np.float32(wt) * self._pattern(tab, k, optics, grains, b)
         for m, wt in dterms.items():
             key = ("diffuse", m, (h, w), optics.recip_pixel_inv_nm, optics.ht_kv)
-            out += np.float32(wt) * self.cache.get(key, lambda _k, m=m: render_diffuse(m, (h, w), optics))
+            out += np.float32(wt) * self._cached(key, lambda m=m: render_diffuse(m, (h, w), optics), b)
 
         # descan (instrument ramp + layer) and strain, about the pattern centre
         dx = dy = 0.0
@@ -254,10 +306,7 @@ class StemRenderer:
         cx0, cy0 = float(w // 2), float(h // 2)
         dcx, dcy = optics.diffraction_center_px
         tx, ty = dcx - cx0 + dx, dcy - cy0 + dy
-        if (
-            field_map.strain is not None
-            and np.abs(field_map.strain[:, iy, ix] - [1.0, 0.0, 1.0]).max() > 1e-6
-        ):
+        if strained:
             exx, exy, eyy = (float(v) for v in field_map.strain[:, iy, ix])
             # forward map p' = M (p - c) + c + t  ->  ndimage wants the inverse (row, col order)
             minv = np.linalg.inv(np.array([[eyy, exy], [exy, exx]]))
@@ -266,7 +315,7 @@ class StemRenderer:
                 out, minv, offset=c - minv @ (c + np.array([ty, tx])), order=1, mode="constant", cval=0.0
             )
         else:
-            out = shift_bilinear(out, tx, ty)
+            out = shift_bilinear(out, tx / b, ty / b)
         out *= np.float32(optics.pattern_e_per_s / float(tab.jitter[iy, ix]))
         return out
 
