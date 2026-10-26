@@ -1,0 +1,33 @@
+﻿de\_twin.optics.serialem.ColumnDefinition
+=========================================
+
+.. currentmodule:: de_twin.optics.serialem
+
+.. autoclass:: ColumnDefinition
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ColumnDefinition.__init__
+      ~ColumnDefinition.bs_matrix
+      ~ColumnDefinition.crossover
+      ~ColumnDefinition.defocus_rotation_rad
+      ~ColumnDefinition.defocus_scale
+      ~ColumnDefinition.is_astig_nm
+      ~ColumnDefinition.is_matrix
+      ~ColumnDefinition.is_tilt_mrad
+      ~ColumnDefinition.mag_offset_um
+      ~ColumnDefinition.pixel_scale
+      ~ColumnDefinition.rotation_rad
+      ~ColumnDefinition.truth
+   
+   
+
+   
+   
+   

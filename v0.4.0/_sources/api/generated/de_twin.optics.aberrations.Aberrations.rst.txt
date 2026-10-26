@@ -1,0 +1,38 @@
+﻿de\_twin.optics.aberrations.Aberrations
+=======================================
+
+.. currentmodule:: de_twin.optics.aberrations
+
+.. autoclass:: Aberrations
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Aberrations.__init__
+      ~Aberrations.chi
+      ~Aberrations.copy
+      ~Aberrations.flat_angle_mrad
+      ~Aberrations.from_polar
+      ~Aberrations.gradient
+      ~Aberrations.key
+      ~Aberrations.only
+      ~Aberrations.phase_error_at
+      ~Aberrations.polar
+      ~Aberrations.scaled
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Aberrations.coeffs
+   
+   

@@ -1,0 +1,6 @@
+﻿de\_twin.detector.camera
+========================
+
+.. currentmodule:: de_twin.detector
+
+.. autofunction:: camera

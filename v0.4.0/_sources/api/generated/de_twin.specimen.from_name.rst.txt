@@ -1,0 +1,6 @@
+﻿de\_twin.specimen.from\_name
+============================
+
+.. currentmodule:: de_twin.specimen
+
+.. autofunction:: from_name

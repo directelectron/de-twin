@@ -1,0 +1,38 @@
+﻿de\_twin.state.HolderState
+==========================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: HolderState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HolderState.__init__
+      ~HolderState.copy
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HolderState.bias_v
+      ~HolderState.current_a
+      ~HolderState.flow_ul_min
+      ~HolderState.kind
+      ~HolderState.power_w
+      ~HolderState.pressure_mbar
+      ~HolderState.resistance_ohm
+      ~HolderState.t_s
+      ~HolderState.target_c
+      ~HolderState.temperature_c
+   
+   

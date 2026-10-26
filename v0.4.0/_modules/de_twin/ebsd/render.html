@@ -1,0 +1,1215 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>de_twin.ebsd.render &#8212; de-twin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7264e194" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/de_twin/ebsd/render';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://directelectron.github.io/de-twin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://directelectron.github.io/de-twin/v0.4.0/_modules/de_twin/ebsd/render.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">de-twin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../architecture.html">
+    de-twin architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development and releases
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/directelectron/de-twin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">de_twin.ebsd.render</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for de_twin.ebsd.render</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""EBSD rendering: per scan point, project the grain's master pattern onto the detector.</span>
+
+<span class="sd">Per scan point (one per raster pixel of the EBSD optics' view, pitch = scan step on the</span>
+<span class="sd">tilt-corrected sample surface):</span>
+
+<span class="sd">1. the microstructure under the beam (:meth:`de_twin.specimen.bulk.BulkSurface.sample`): grain,</span>
+<span class="sd">   phase, orientation, the neighbouring grain and the distance to the boundary between them,</span>
+<span class="sd">   the surface quality and, for a strained specimen, the deformation gradient;</span>
+<span class="sd">2. near a boundary the neighbour's pattern is mixed in with the fraction of the interaction</span>
+<span class="sd">   volume's footprint (an ellipse ~0.02 x the Kanaya-Okayama range across the tilt axis,</span>
+<span class="sd">   1 / cos(tilt) longer along it) that lies across the boundary;</span>
+<span class="sd">3. the pattern centre for the beam position (:meth:`EbsdGeometry.pattern_centre`: linear in</span>
+<span class="sd">   the beam offset);</span>
+<span class="sd">4. one threaded numba pass (:func:`de_twin.ebsd.kernels.render`) over the binned detector grid:</span>
+<span class="sd">   gnomonic direction of each (supersampled) pixel, through the inverse deformation gradient</span>
+<span class="sd">   and the grain orientation into the crystal, master-pattern lookup, the backscatter</span>
+<span class="sd">   background (cosine + forward lobe, x the backscatter yield and the beam current), the</span>
+<span class="sd">   pixel's solid angle and the band modulation ``1 + band_contrast * quality * m``; for a</span>
+<span class="sd">   camera frame it also writes the detector's Poisson means (``means``), so the detector</span>
+<span class="sd">   starts its frame from them without another pass.</span>
+
+<span class="sd">Steps 1-3 are done once per scan (:class:`EbsdTables`, :class:`EbsdPlan`: ~100 bytes per scan</span>
+<span class="sd">point, +72 for a strained specimen) and kept; master patterns are process-wide</span>
+<span class="sd">(:mod:`de_twin.ebsd.master`) unless the twin was given its own (``user_masters``).</span>
+
+<span class="sd">A specimen without :meth:`sample` (a TEM specimen) is read from its field map: phase and</span>
+<span class="sd">grain-table orientation per scan point, no boundary mixing.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..specimen.materials</span><span class="w"> </span><span class="kn">import</span> <span class="n">GRAINS_PER_MATERIAL</span><span class="p">,</span> <span class="n">material</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">kernels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">EbsdGeometry</span><span class="p">,</span> <span class="n">background_parameters</span><span class="p">,</span> <span class="n">backscatter_yield</span><span class="p">,</span> <span class="n">boundary_mix</span><span class="p">,</span> <span class="n">footprint_um</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.master</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterPattern</span><span class="p">,</span> <span class="n">master_for</span>
+
+<span class="n">ELECTRON_C</span> <span class="o">=</span> <span class="mf">1.602176634e-19</span>
+<span class="n">_NO_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">F32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EbsdTables</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Per scan point (ny, nx) microstructure of one scan."""</span>
+
+    <span class="n">x_um</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># beam position on the sample (sample frame), float64</span>
+    <span class="n">y_um</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">material</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># uint8, 0 = vacuum</span>
+    <span class="n">material2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">grain_id</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># int32, -1 = none</span>
+    <span class="n">grain_id2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (ny, nx) int32 index into matrices (-1 = no crystal)</span>
+    <span class="n">orient2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">matrices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K, 3, 3) crystal -&gt; sample</span>
+    <span class="n">mix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># float32 weight of the neighbour (0 .. 0.5)</span>
+    <span class="n">quality</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># float32 surface quality (0, 1]</span>
+    <span class="n">F</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># (ny, nx, 3, 3) float32 deformation gradient (sample frame)</span>
+    <span class="n">gnd</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># (ny, nx) float32 GND density proxy, 1/m^2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)))</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EbsdPlan</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Everything the kernel needs for every point of a scan (flattened, row-major)."""</span>
+
+    <span class="n">bank</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (B, Nf, Nf) uint8 cube-map faces of every phase</span>
+    <span class="n">face0</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (P,) int32 bank index of each phase's first face</span>
+    <span class="n">full</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (P,) bool: six faces (non-centrosymmetric), else three</span>
+    <span class="n">offsets</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (P,) code -&gt; standardised value</span>
+    <span class="n">scales</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">ph1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) int32 phase of the grain (-1 none)</span>
+    <span class="n">ph2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">o1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) int32 orientation index</span>
+    <span class="n">o2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">mix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) float32</span>
+    <span class="n">contrast</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) float32 band modulation (band_contrast * quality)</span>
+    <span class="n">es</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) float32 backscattered electrons per second</span>
+    <span class="n">finv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n, 3, 3) float32 inverse deformation gradient, or (1, 3, 3)</span>
+    <span class="n">has_f</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">dx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (n,) float32 beam offset from the scan centre, µm</span>
+    <span class="n">dy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">matrices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">pc_lin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (9,) pattern centre (sensor px) linear in the beam offset</span>
+    <span class="n">s2dT</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">normal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">forward</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">lobe</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">masters</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdGeometry</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ebsd"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">EbsdGeometry</span><span class="p">)</span> <span class="k">else</span> <span class="n">EbsdGeometry</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_key</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">boundary_blend</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">interaction_scale</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pc_linear</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="n">EbsdGeometry</span><span class="p">,</span> <span class="n">sensor_shape</span><span class="p">,</span> <span class="n">pixel_um</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pc</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The pattern centre in sensor pixels as ``a + b dx + c dy`` (beam offset µm): (x0, dx0/ddx,</span>
+<span class="sd">    dx0/ddy, y0, ..., dd, ...). ``pc``: a fixed Bruker pattern centre instead (no slope)."""</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sensor_shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">W</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">pattern_centre</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">pixel_um</span><span class="p">)</span>
+    <span class="n">px</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">pattern_centre</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">pixel_um</span><span class="p">)</span> <span class="o">-</span> <span class="n">p0</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">pattern_centre</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">pixel_um</span><span class="p">)</span> <span class="o">-</span> <span class="n">p0</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">H</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">px</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="EbsdRenderer">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EbsdRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Owns the EBSD scan tables and plans; renders patterns, pattern stacks and ground truth.</span>
+
+<span class="sd">    ``user_masters``: material id -&gt; list of user :class:`MasterPattern` (any energy), used in</span>
+<span class="sd">    place of the kinematic master when one is within ``USER_MASTER_KV_TOLERANCE`` of the beam</span>
+<span class="sd">    energy (see :meth:`de_twin.twin.DigitalTwin.set_master_pattern`)."""</span>
+
+    <span class="n">USER_MASTER_KV_TOLERANCE</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<div class="viewcode-block" id="EbsdRenderer.__init__">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">user_masters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_masters</span> <span class="o">=</span> <span class="n">user_masters</span> <span class="k">if</span> <span class="n">user_masters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">EbsdTables</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">EbsdPlan</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns_rendered</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ masters</span>
+<div class="viewcode-block" id="EbsdRenderer.master">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.master">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">master</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">kv</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">EbsdGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MasterPattern</span><span class="p">:</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_masters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">kv</span> <span class="o">-</span> <span class="n">kv</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">best</span><span class="o">.</span><span class="n">kv</span> <span class="o">-</span> <span class="n">kv</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">USER_MASTER_KV_TOLERANCE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">best</span>
+        <span class="k">return</span> <span class="n">master_for</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">kv</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_bank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">kv</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""(bank, face0, full, offs, scales, masters): the cube maps of ``materials`` stacked."""</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">kv</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">cube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">planes</span><span class="p">,</span> <span class="n">face0</span><span class="p">,</span> <span class="n">full</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">cube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"master patterns of one scan must share a resolution (set "</span>
+                    <span class="s2">"EbsdGeometry.master_resolution_deg to the user master's)"</span>
+                <span class="p">)</span>
+            <span class="n">face0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">planes</span><span class="p">))</span>
+            <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">cube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="n">planes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">cube</span><span class="p">)</span>
+        <span class="n">bank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">planes</span><span class="p">)</span> <span class="k">if</span> <span class="n">planes</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">bank</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">face0</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">full</span> <span class="ow">or</span> <span class="p">[</span><span class="kc">False</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">offset</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">scale</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]),</span>
+            <span class="n">masters</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------ tables</span>
+<div class="viewcode-block" id="EbsdRenderer.tables">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.tables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdTables</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_key</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">t</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="o">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdTables</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span>
+        <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">world_grid</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="s2">"sample"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">specimen</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">blend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">"hash2"</span><span class="p">]])</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">"phase2"</span><span class="p">]])</span>
+            <span class="n">uk</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">mats</span> <span class="o">=</span> <span class="n">specimen</span><span class="o">.</span><span class="n">orientations</span><span class="p">(</span><span class="n">uk</span><span class="p">,</span> <span class="n">phases</span><span class="p">[</span><span class="n">first</span><span class="p">])</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span> <span class="o">=</span> <span class="n">inv</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">inv</span><span class="p">[</span><span class="n">n</span><span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">mix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">boundary_blend</span><span class="p">:</span>
+                <span class="n">m1</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s2">"material"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">mid</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">m1</span><span class="p">):</span>
+                    <span class="n">selected</span> <span class="o">=</span> <span class="n">m1</span> <span class="o">==</span> <span class="n">mid</span>
+                    <span class="n">mm</span> <span class="o">=</span> <span class="n">material</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mid</span><span class="p">))</span>
+                    <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span> <span class="o">=</span> <span class="n">footprint_um</span><span class="p">(</span>
+                        <span class="n">mm</span><span class="o">.</span><span class="n">z_eff</span><span class="p">,</span> <span class="n">mm</span><span class="o">.</span><span class="n">density_g_cm3</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">interaction_scale</span>
+                    <span class="p">)</span>
+                    <span class="n">mix</span><span class="p">[</span><span class="n">selected</span><span class="p">]</span> <span class="o">=</span> <span class="n">boundary_mix</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"boundary_um"</span><span class="p">][</span><span class="n">selected</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">"normal"</span><span class="p">][</span><span class="n">selected</span><span class="p">],</span> <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">)</span>
+            <span class="n">mix</span><span class="p">[</span><span class="n">o1</span> <span class="o">==</span> <span class="n">o2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"F"</span><span class="p">)</span>
+            <span class="n">gnd</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gnd"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">EbsdTables</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">"material"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">"material2"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">"grain_id"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">"grain_id2"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">o1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">o2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">mats</span><span class="p">,</span>
+                <span class="n">mix</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">"quality"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+                <span class="kc">None</span> <span class="k">if</span> <span class="n">F</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="kc">None</span> <span class="k">if</span> <span class="n">gnd</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">gnd</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="c1"># a TEM specimen: the field map's phase and grain-table orientation</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">field_map</span>
+        <span class="n">gid</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">grain_id</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">material_id</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">crystalline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">material</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span><span class="o">.</span><span class="n">crystal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">gid</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gid</span> <span class="o">//</span> <span class="n">GRAINS_PER_MATERIAL</span> <span class="o">==</span> <span class="n">mat</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">crystalline</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">grains</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ok</span> <span class="o">&amp;=</span> <span class="n">gid</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">grains</span><span class="p">)</span>
+        <span class="n">uniq</span><span class="p">,</span> <span class="n">inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gid</span><span class="p">[</span><span class="n">ok</span><span class="p">],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="n">grains</span><span class="o">.</span><span class="n">matrices</span><span class="p">[</span><span class="n">uniq</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">grains</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniq</span><span class="p">))</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">orient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">gid</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">orient</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv</span>
+        <span class="n">gid32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">EbsdTables</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="p">,</span>
+            <span class="n">mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="n">mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="n">gid32</span><span class="p">,</span>
+            <span class="n">gid32</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">orient</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">mats</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------ plans</span>
+<div class="viewcode-block" id="EbsdRenderer.plan">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.plan">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdPlan</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_key</span><span class="p">(</span><span class="n">optics</span><span class="p">),</span>
+            <span class="n">g</span><span class="p">,</span>
+            <span class="nb">round</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_shape"</span><span class="p">],</span>
+            <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_pixel_um"</span><span class="p">],</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">pattern_e_per_s</span><span class="p">),</span>
+            <span class="nb">tuple</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_masters</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">p</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_plan</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_plans</span><span class="o">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="n">EbsdTables</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">EbsdGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EbsdPlan</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..specimen.materials</span><span class="w"> </span><span class="kn">import</span> <span class="n">MATERIALS</span>
+
+        <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">orient</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">tab</span><span class="o">.</span><span class="n">orient2</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">tab</span><span class="o">.</span><span class="n">material2</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">crystal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">m1</span><span class="p">[</span><span class="n">o1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">],</span> <span class="n">m2</span><span class="p">[</span><span class="n">o2</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]]))</span>
+        <span class="n">bank</span><span class="p">,</span> <span class="n">face0</span><span class="p">,</span> <span class="n">full</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">scales</span><span class="p">,</span> <span class="n">masters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bank</span><span class="p">(</span><span class="n">crystal</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">lut</span><span class="p">[</span><span class="n">crystal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">crystal</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">ph1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">o1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">lut</span><span class="p">[</span><span class="n">m1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">ph2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">o2</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">lut</span><span class="p">[</span><span class="n">m2</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">backscatter_yield</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">z_eff</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">)</span> <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="n">MATERIALS</span><span class="p">])</span>
+        <span class="n">eta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># vacuum</span>
+        <span class="n">es</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">pattern_e_per_s</span><span class="p">)</span> <span class="o">*</span> <span class="n">eta</span><span class="p">[</span><span class="n">m1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">)</span>
+        <span class="n">contrast</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">band_contrast</span><span class="p">)</span> <span class="o">*</span> <span class="n">tab</span><span class="o">.</span><span class="n">quality</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">)</span>
+        <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center_um</span>
+        <span class="n">has_f</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">F</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">finv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_f</span> <span class="k">else</span> <span class="n">_NO_F</span>
+        <span class="n">lobe</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">EbsdPlan</span><span class="p">(</span>
+            <span class="n">bank</span><span class="p">,</span>
+            <span class="n">face0</span><span class="p">,</span>
+            <span class="n">full</span><span class="p">,</span>
+            <span class="n">offsets</span><span class="p">,</span>
+            <span class="n">scales</span><span class="p">,</span>
+            <span class="n">ph1</span><span class="p">,</span>
+            <span class="n">ph2</span><span class="p">,</span>
+            <span class="n">o1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">o2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">tab</span><span class="o">.</span><span class="n">mix</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">),</span>
+            <span class="n">contrast</span><span class="p">,</span>
+            <span class="n">es</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">finv</span><span class="p">),</span>
+            <span class="n">has_f</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">x_um</span> <span class="o">-</span> <span class="n">cx</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">y_um</span> <span class="o">-</span> <span class="n">cy</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">matrices</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">matrices</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))),</span>
+            <span class="n">pc_linear</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_shape"</span><span class="p">],</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_pixel_um"</span><span class="p">]),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">sample_to_detector</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">surface_normal_d</span><span class="p">(),</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">forward_direction_d</span><span class="p">(),</span>
+            <span class="n">lobe</span><span class="p">,</span>
+            <span class="n">kappa</span><span class="p">,</span>
+            <span class="n">masters</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_background</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">EbsdGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">background</span><span class="p">:</span>  <span class="c1"># isotropic: e_s / 4 pi per steradian</span>
+            <span class="k">return</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">background_parameters</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------ geometry per point</span>
+<div class="viewcode-block" id="EbsdRenderer.pattern_centre">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.pattern_centre">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pattern_centre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="n">EbsdTables</span><span class="p">,</span> <span class="n">ix</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iy</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center_um</span>
+        <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">pattern_centre</span><span class="p">(</span>
+            <span class="n">tab</span><span class="o">.</span><span class="n">x_um</span><span class="p">[</span><span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">-</span> <span class="n">cx</span><span class="p">,</span>
+            <span class="n">tab</span><span class="o">.</span><span class="n">y_um</span><span class="p">[</span><span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">-</span> <span class="n">cy</span><span class="p">,</span>
+            <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_shape"</span><span class="p">],</span>
+            <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_pixel_um"</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdRenderer.pattern_centres">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.pattern_centres">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pattern_centres</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="n">EbsdTables</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center_um</span>
+        <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">pattern_centre</span><span class="p">(</span>
+            <span class="n">tab</span><span class="o">.</span><span class="n">x_um</span> <span class="o">-</span> <span class="n">cx</span><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">y_um</span> <span class="o">-</span> <span class="n">cy</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_shape"</span><span class="p">],</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_pixel_um"</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdRenderer.grid">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.grid">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""(h, w, ox, oy, bx, by): the binned detector grid and its sensor offset."""</span>
+        <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hw_binning"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">oh</span><span class="p">,</span> <span class="n">ow</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">output_shape</span>
+        <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"roi_origin"</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">oh</span> <span class="o">//</span> <span class="n">by</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ow</span> <span class="o">//</span> <span class="n">bx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ox</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">oy</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">bx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">by</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">:</span> <span class="n">EbsdPlan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_nb</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">_h</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span><span class="p">,</span> <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">want</span> <span class="o">=</span> <span class="n">lam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">(</span><span class="s2">"dummy"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">kernels</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">bank</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">face0</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">full</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">offsets</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">scales</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">matrices</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">o1</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">o2</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">ph1</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">ph2</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">contrast</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">es</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">finv</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">has_f</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">pc_lin</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">s2dT</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">ox</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">oy</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">bx</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">by</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">supersample</span><span class="p">)),</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">forward</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">plan</span><span class="o">.</span><span class="n">lobe</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">plan</span><span class="o">.</span><span class="n">kappa</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">t_nb</span><span class="p">),</span>
+            <span class="n">out</span><span class="p">,</span>
+            <span class="n">lam</span> <span class="k">if</span> <span class="n">want</span> <span class="k">else</span> <span class="n">dummy</span><span class="p">,</span>
+            <span class="n">p0</span> <span class="k">if</span> <span class="n">want</span> <span class="k">else</span> <span class="n">dummy</span><span class="p">,</span>
+            <span class="n">want</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns_rendered</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_rows</span> <span class="o">=</span> <span class="n">rows</span>  <span class="c1"># per-row dose of the last call (row totals for a sparse detector path)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span>
+
+    <span class="c1"># ------------------------------------------------------------------ one pattern</span>
+<div class="viewcode-block" id="EbsdRenderer.pattern">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.pattern">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pattern</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">optics</span><span class="p">,</span>
+        <span class="n">matrix</span><span class="p">,</span>
+        <span class="n">pc</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">material_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">matrix2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">material2</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mix</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">quality</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">F</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""One pattern on the optics' binned detector grid for a grain with crystal-&gt;sample</span>
+<span class="sd">        ``matrix`` at Bruker pattern centre ``pc`` (and deformation gradient ``F``, sample</span>
+<span class="sd">        frame). ``raw``: the projected (standardised) master values only. Otherwise electrons</span>
+<span class="sd">        per sensor pixel per second."""</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">)]</span> <span class="k">if</span> <span class="n">material_id</span> <span class="ow">and</span> <span class="n">matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">two</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">matrix2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">material2</span> <span class="ow">and</span> <span class="n">mix</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ids</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">two</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">material2</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material2</span><span class="p">))</span>
+        <span class="n">bank</span><span class="p">,</span> <span class="n">face0</span><span class="p">,</span> <span class="n">full</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">scales</span><span class="p">,</span> <span class="n">masters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bank</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">ht_kv</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span> <span class="o">+</span> <span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span> <span class="k">if</span> <span class="n">two</span> <span class="k">else</span> <span class="p">[]))</span>
+            <span class="k">if</span> <span class="n">ids</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">lobe</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">material_id</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">es</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">optics</span><span class="o">.</span><span class="n">pattern_e_per_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">backscatter_yield</span><span class="p">(</span><span class="n">material</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span><span class="o">.</span><span class="n">z_eff</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">)</span> <span class="k">if</span> <span class="n">mid</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="p">)</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">EbsdPlan</span><span class="p">(</span>
+            <span class="n">bank</span><span class="p">,</span>
+            <span class="n">face0</span><span class="p">,</span>
+            <span class="n">full</span><span class="p">,</span>
+            <span class="n">offsets</span><span class="p">,</span>
+            <span class="n">scales</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">material2</span><span class="p">))</span> <span class="k">if</span> <span class="n">two</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="k">if</span> <span class="n">two</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">mix</span><span class="p">)</span> <span class="k">if</span> <span class="n">two</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">F32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">band_contrast</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">quality</span><span class="p">)],</span> <span class="n">F32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">es</span><span class="p">],</span> <span class="n">F32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))[</span><span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">F32</span><span class="p">)</span> <span class="k">if</span> <span class="n">F</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_NO_F</span><span class="p">,</span>
+            <span class="n">F</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">F32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">F32</span><span class="p">),</span>
+            <span class="n">mats</span><span class="p">,</span>
+            <span class="n">pc_linear</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_shape"</span><span class="p">],</span> <span class="n">optics</span><span class="o">.</span><span class="n">extras</span><span class="p">[</span><span class="s2">"sensor_pixel_um"</span><span class="p">],</span> <span class="n">pc</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">sample_to_detector</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">surface_normal_d</span><span class="p">(),</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">forward_direction_d</span><span class="p">(),</span>
+            <span class="n">lobe</span><span class="p">,</span>
+            <span class="n">kappa</span><span class="p">,</span>
+            <span class="n">masters</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">buf</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ scan points</span>
+<div class="viewcode-block" id="EbsdRenderer.render">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.render">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">ix</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iy</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The pattern at scan point (ix, iy): a new float32 (h, w) array on the binned grid,</span>
+<span class="sd">        electrons per sensor pixel per second."""</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="p">[</span><span class="n">iy</span> <span class="o">*</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ix</span><span class="p">],</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="EbsdRenderer.render_frame">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.render_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">ix</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iy</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">t_nb</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The pattern at (ix, iy) for a camera frame, into reused buffers: ``(flux, means)``</span>
+<span class="sd">        with ``means = (lam, p0, dose, t_nb, row_totals)`` the detector's Poisson means for an exposure of</span>
+<span class="sd">        ``t_nb`` (frame time x sensor pixels per grid pixel): what ``Detector.expose(...,</span>
+<span class="sd">        means=)`` starts from. The buffers are overwritten by the next call."""</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+        <span class="n">lam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">(</span><span class="s2">"lam"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">(</span><span class="s2">"p0"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+        <span class="n">dose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="p">[</span><span class="n">iy</span> <span class="o">*</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ix</span><span class="p">],</span> <span class="n">out</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">t_nb</span><span class="o">=</span><span class="n">t_nb</span><span class="p">)</span>
+        <span class="c1"># row_totals: each row's mean electrons, what a sparse (electron-by-electron) detector path</span>
+        <span class="c1"># builds its per-row alias tables from, made in the same pass</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">lam</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dose</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">t_nb</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_rows</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EbsdRenderer.raw_pattern">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.raw_pattern">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">raw_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">ix</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iy</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The projected master values at scan point (ix, iy) (no background, noiseless)."""</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="p">[</span><span class="n">iy</span> <span class="o">*</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ix</span><span class="p">],</span> <span class="n">out</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ stacks</span>
+<div class="viewcode-block" id="EbsdRenderer.patterns">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.patterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">patterns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">specimen</span><span class="p">,</span>
+        <span class="n">optics</span><span class="p">,</span>
+        <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="n">per_binned_pixel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">block</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Every scan point's pattern: (ny, nx, h, w). ``per_binned_pixel``: electrons per binned</span>
+<span class="sd">        pixel per second (the 4D-STEM datacube's unit); else per sensor pixel. ``out`` may be a</span>
+<span class="sd">        preallocated (e.g. memory-mapped) array of that shape. Rendered ``block`` points per</span>
+<span class="sd">        threaded kernel call."""</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span> <span class="o">*</span> <span class="n">nx</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">bx</span> <span class="o">*</span> <span class="n">by</span> <span class="k">if</span> <span class="n">per_binned_pixel</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">nx</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">b0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+            <span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">b0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">b0</span> <span class="o">+</span> <span class="n">block</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">buf</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">buf</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)]</span> <span class="o">*=</span> <span class="n">k</span>
+            <span class="n">flat</span><span class="p">[</span><span class="n">b0</span> <span class="p">:</span> <span class="n">b0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)]</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ ground truth</span>
+<div class="viewcode-block" id="EbsdRenderer.ground_truth">
+<a class="viewcode-back" href="../../../api/generated/de_twin.ebsd.EbsdRenderer.html#de_twin.ebsd.EbsdRenderer.ground_truth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grains</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Per scan point: ``material_id`` (= phase id; 0 none), ``grain_id`` (-1 none),</span>
+<span class="sd">        ``quaternion`` (orix rotation of the local lattice, *sample* frame, a &gt;= 0: the grain's</span>
+<span class="sd">        orientation, times the lattice rotation of a strained specimen; identity where there is</span>
+<span class="sd">        no crystal), ``pattern_centre`` (Bruker pcx, pcy, pcz), ``band_contrast`` (the dominant</span>
+<span class="sd">        grain's band modulation, ``band_contrast * quality * (1 - mix)``), ``quality`` (surface</span>
+<span class="sd">        quality x (1 - mix)), ``mix`` / ``grain_id2`` / ``material_id2`` (the neighbour mixed in</span>
+<span class="sd">        near a boundary), ``x_um`` / ``y_um`` (beam on the sample).</span>
+
+<span class="sd">        A strained specimen adds ``deformation_gradient`` F (3x3, sample frame, maps reference</span>
+<span class="sd">        lattice vectors to deformed ones: ``u = F u0``), its polar parts ``strain`` (``U - I``,</span>
+<span class="sd">        symmetric: the Biot strain, the small strain to first order) and ``rotation`` (rotation</span>
+<span class="sd">        vector of R, radians, sample frame; ``F = R U``), and ``gnd`` (a GND density proxy:</span>
+<span class="sd">        the norm of the lattice-curvature (Nye) tensor / b, 1/m^2)."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..crystal</span><span class="w"> </span><span class="kn">import</span> <span class="n">rotation_from_crystal_to_lab</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ebsd_geometry</span><span class="p">(</span><span class="n">optics</span><span class="p">)</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">(</span><span class="n">specimen</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="n">grains</span><span class="p">)</span>
+        <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">q</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">orient</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">tab</span><span class="o">.</span><span class="n">F</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span> <span class="k">as</span> <span class="n">_R</span>
+
+            <span class="n">F</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">u</span> <span class="o">@</span> <span class="n">vt</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"nji,nj,njk-&gt;nik"</span><span class="p">,</span> <span class="n">vt</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vt</span><span class="p">)</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"deformation_gradient"</span><span class="p">:</span> <span class="n">F</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">"strain"</span><span class="p">:</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">"rotation"</span><span class="p">:</span> <span class="n">_R</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">as_rotvec</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">"gnd"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">gnd</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">tab</span><span class="o">.</span><span class="n">gnd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">okf</span> <span class="o">=</span> <span class="n">ok</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                <span class="n">local</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"nij,njk-&gt;nik"</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="n">okf</span><span class="p">],</span> <span class="n">tab</span><span class="o">.</span><span class="n">matrices</span><span class="p">[</span><span class="n">tab</span><span class="o">.</span><span class="n">orient</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">okf</span><span class="p">]])</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)[</span><span class="n">okf</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotation_from_crystal_to_lab</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">quats</span> <span class="o">=</span> <span class="n">rotation_from_crystal_to_lab</span><span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">matrices</span><span class="p">)</span>
+            <span class="n">q</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">quats</span><span class="p">[</span><span class="n">tab</span><span class="o">.</span><span class="n">orient</span><span class="p">[</span><span class="n">ok</span><span class="p">]]</span>
+        <span class="n">dominant</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">tab</span><span class="o">.</span><span class="n">mix</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">quality</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">quality</span> <span class="o">*</span> <span class="n">dominant</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">extra</span><span class="p">,</span>
+            <span class="s2">"material_id"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">material</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="s2">"grain_id"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">grain_id</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">"quaternion"</span><span class="p">:</span> <span class="n">q</span><span class="p">,</span>
+            <span class="s2">"pattern_centre"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern_centres</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">tab</span><span class="p">),</span>
+            <span class="s2">"band_contrast"</span><span class="p">:</span> <span class="p">(</span><span class="n">quality</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">band_contrast</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="s2">"quality"</span><span class="p">:</span> <span class="n">quality</span><span class="p">,</span>
+            <span class="s2">"mix"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">mix</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s2">"grain_id2"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">grain_id2</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s2">"material_id2"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">material2</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s2">"x_um"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">x_um</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s2">"y_um"</span><span class="p">:</span> <span class="n">tab</span><span class="o">.</span><span class="n">y_um</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s2">"view"</span><span class="p">:</span> <span class="n">optics</span><span class="o">.</span><span class="n">view</span><span class="p">,</span>
+            <span class="s2">"pc_convention"</span><span class="p">:</span> <span class="s2">"bruker"</span><span class="p">,</span>
+            <span class="s2">"sample_tilt_deg"</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">sample_tilt_deg</span><span class="p">,</span>
+            <span class="s2">"detector_tilt_deg"</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">detector_tilt_deg</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Carter Francis.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+﻿de\_twin.ebsd.write\_emsoft
+===========================
+
+.. currentmodule:: de_twin.ebsd
+
+.. autofunction:: write_emsoft

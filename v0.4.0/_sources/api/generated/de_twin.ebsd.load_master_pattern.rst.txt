@@ -1,0 +1,6 @@
+﻿de\_twin.ebsd.load\_master\_pattern
+===================================
+
+.. currentmodule:: de_twin.ebsd
+
+.. autofunction:: load_master_pattern

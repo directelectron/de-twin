@@ -1,0 +1,46 @@
+﻿de\_twin.state.ExposureMode
+===========================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: ExposureMode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExposureMode.conjugate
+      ~ExposureMode.bit_length
+      ~ExposureMode.bit_count
+      ~ExposureMode.to_bytes
+      ~ExposureMode.from_bytes
+      ~ExposureMode.as_integer_ratio
+      ~ExposureMode.is_integer
+      ~ExposureMode.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ExposureMode.real
+      ~ExposureMode.imag
+      ~ExposureMode.numerator
+      ~ExposureMode.denominator
+      ~ExposureMode.DARK
+      ~ExposureMode.TRIAL
+      ~ExposureMode.GAIN
+      ~ExposureMode.NORMAL
+      ~ExposureMode.RAW
+      ~ExposureMode.VACUUM
+      ~ExposureMode.INTERVALS
+      ~ExposureMode.CONTINUOUS
+   
+   

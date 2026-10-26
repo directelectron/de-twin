@@ -1,0 +1,40 @@
+﻿de\_twin.ebsd.EbsdRenderer
+==========================
+
+.. currentmodule:: de_twin.ebsd
+
+.. autoclass:: EbsdRenderer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EbsdRenderer.__init__
+      ~EbsdRenderer.grid
+      ~EbsdRenderer.ground_truth
+      ~EbsdRenderer.master
+      ~EbsdRenderer.pattern
+      ~EbsdRenderer.pattern_centre
+      ~EbsdRenderer.pattern_centres
+      ~EbsdRenderer.patterns
+      ~EbsdRenderer.plan
+      ~EbsdRenderer.raw_pattern
+      ~EbsdRenderer.render
+      ~EbsdRenderer.render_frame
+      ~EbsdRenderer.tables
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EbsdRenderer.USER_MASTER_KV_TOLERANCE
+   
+   
