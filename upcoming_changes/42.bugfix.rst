@@ -1,1 +1,0 @@
-The deapi face took DE-Server's ``Scan - Use DE Camera`` and parked-beam properties, acknowledged ``set_xy_array`` without a 35 s stall, and clamped ``Frames Per Second`` to what the camera reaches, so a de_automate scan ran through it end to end.

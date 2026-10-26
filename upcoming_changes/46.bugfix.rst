@@ -1,1 +1,0 @@
-The twin's own column spread its beam as the operator zoomed out (the new ``OpticsConfig.intensity_zoom_out``), so frames stopped saturating at survey magnifications such as 200x and 5000x.
