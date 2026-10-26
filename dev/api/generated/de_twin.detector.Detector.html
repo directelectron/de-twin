@@ -620,31 +620,34 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.__init__" title="de_twin.detector.Detector.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([model, seed, ht_kv])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.dark_current_map" title="de_twin.detector.Detector.dark_current_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dark_current_map</span></code></a>(exposure_s)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.binned_flux" title="de_twin.detector.Detector.binned_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binned_flux</span></code></a>(flux[, request])</p></td>
+<td><p><em>flux</em> (electrons per sensor pixel per second on the ROI) averaged onto the binned output grid, which <a class="reference internal" href="#de_twin.detector.Detector.expose" title="de_twin.detector.Detector.expose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expose()</span></code></a> then simulates directly: at 2x binning a quarter of the pixels to draw noise for, and the same electron, deposit and read-noise statistics per binned pixel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.dark_current_map" title="de_twin.detector.Detector.dark_current_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dark_current_map</span></code></a>(exposure_s)</p></td>
 <td><p>Dark-current contribution (ADU) for <code class="docutils literal notranslate"><span class="pre">exposure_s</span></code>, full sensor (hot pixels included).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expected_dark" title="de_twin.detector.Detector.expected_dark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_dark</span></code></a>(exposure_s[, request])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expected_dark" title="de_twin.detector.Detector.expected_dark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_dark</span></code></a>(exposure_s[, request])</p></td>
 <td><p>Noise-free expected dark frame (float64, output shape); integrating cameras.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expected_gain" title="de_twin.detector.Detector.expected_gain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_gain</span></code></a>([request])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expected_gain" title="de_twin.detector.Detector.expected_gain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_gain</span></code></a>([request])</p></td>
 <td><p>Gain map binned to the output shape (float64).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expose" title="de_twin.detector.Detector.expose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expose</span></code></a>(flux, exposure_s[, request, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.expose" title="de_twin.detector.Detector.expose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expose</span></code></a>(flux, exposure_s[, request, ...])</p></td>
 <td><p>Simulate one raw frame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.grid_exposure" title="de_twin.detector.Detector.grid_exposure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_exposure</span></code></a>(exposure_s[, request, ht_kv])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.grid_exposure" title="de_twin.detector.Detector.grid_exposure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_exposure</span></code></a>(exposure_s[, request, ht_kv])</p></td>
 <td><p>What <a class="reference internal" href="#de_twin.detector.Detector.expose" title="de_twin.detector.Detector.expose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expose()</span></code></a> works out for an integrating frame whose flux (or Poisson means) is given on the output grid, independent of the flux: the maps, the noise parameters and the clip.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.output_shape" title="de_twin.detector.Detector.output_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_shape</span></code></a>([request])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.output_shape" title="de_twin.detector.Detector.output_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_shape</span></code></a>([request])</p></td>
 <td><p>(h, w) of the hardware frame: ROI, then binning (integer division, like DE-Server); twice that each way for a super-resolution counting frame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.roi" title="de_twin.detector.Detector.roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi</span></code></a>([request])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.roi" title="de_twin.detector.Detector.roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi</span></code></a>([request])</p></td>
 <td><p>Resolved hardware ROI: the requested ROI clamped to the sensor (0 size = full).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.set_gain_mode" title="de_twin.detector.Detector.set_gain_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gain_mode</span></code></a>(mode)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.set_gain_mode" title="de_twin.detector.Detector.set_gain_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gain_mode</span></code></a>(mode)</p></td>
 <td><p>Read out at <code class="docutils literal notranslate"><span class="pre">&quot;high&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;low&quot;</span></code> gain (<code class="docutils literal notranslate"><span class="pre">CameraModel.gain_mode</span></code>) from the next frame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.detector.Detector.super_resolution" title="de_twin.detector.Detector.super_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">super_resolution</span></code></a>([request])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.detector.Detector.super_resolution" title="de_twin.detector.Detector.super_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">super_resolution</span></code></a>([request])</p></td>
 <td><p>Whether <em>request</em> reads this camera out at super-resolution: a counting camera, asked for it, unbinned (binning and super-resolution do not combine).</p></td>
 </tr>
 </tbody>
@@ -803,6 +806,25 @@ asked for it, unbinned (binning and super-resolution do not combine).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="de_twin.detector.Detector.binned_flux">
+<span class="sig-name descname"><span class="pre">binned_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/detector/detector.html#Detector.binned_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.detector.Detector.binned_flux" title="Link to this definition">#</a></dt>
+<dd><p><em>flux</em> (electrons per sensor pixel per second on the ROI) averaged onto the
+binned output grid, which <a class="reference internal" href="#de_twin.detector.Detector.expose" title="de_twin.detector.Detector.expose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expose()</span></code></a> then simulates directly: at 2x binning a
+quarter of the pixels to draw noise for, and the same electron, deposit and
+read-noise statistics per binned pixel. What it leaves out is charge sharing
+between the sensor pixels of one bin and clipping inside a bin, neither visible
+in a binned frame. Anything else (unbinned, a counting camera, a flux already on
+the binned grid, None) comes back as it is.</p>
+<p>A read-only flux is a render an exposure shares between its frames (see
+<cite>Renderer.render</cite>), so its binned grid is made once and shared the same way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="de_twin.state.AcquisitionRequest.html#de_twin.state.AcquisitionRequest" title="de_twin.state.AcquisitionRequest"><em>AcquisitionRequest</em></a><em> | </em><em>None</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="de_twin.detector.Detector.expose">
 <span class="sig-name descname"><span class="pre">expose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ht_kv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">means</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/detector/detector.html#Detector.expose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.detector.Detector.expose" title="Link to this definition">#</a></dt>
 <dd><p>Simulate one raw frame.</p>
@@ -921,6 +943,7 @@ super-resolution, the numpy reference detector, not 16-bit).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.dark_current_map"><code class="docutils literal notranslate"><span class="pre">Detector.dark_current_map()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.expected_dark"><code class="docutils literal notranslate"><span class="pre">Detector.expected_dark()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.expected_gain"><code class="docutils literal notranslate"><span class="pre">Detector.expected_gain()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.binned_flux"><code class="docutils literal notranslate"><span class="pre">Detector.binned_flux()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.expose"><code class="docutils literal notranslate"><span class="pre">Detector.expose()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.detector.Detector.grid_exposure"><code class="docutils literal notranslate"><span class="pre">Detector.grid_exposure()</span></code></a></li>
 </ul>

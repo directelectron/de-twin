@@ -1081,16 +1081,22 @@
     <span class="c1"># -------------------------------------------------------------- render</span>
 <div class="viewcode-block" id="Renderer.render">
 <a class="viewcode-back" href="../../../api/generated/de_twin.render.Renderer.html#de_twin.render.Renderer.render">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">binned</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""float32 (ny, nx) = optics.output_shape, electrons / detector pixel / second.</span>
 
 <span class="sd">        Returns zeros when the beam is blanked (the caller may map that to ``flux=None``).</span>
+<span class="sd">        *binned*: a kinematic STEM pattern may come back on the hardware-binned grid instead,</span>
+<span class="sd">        averaged per sensor pixel (see `StemRenderer.render`); other renders ignore it.</span>
 <span class="sd">        """</span>
         <span class="n">inflight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflight</span>
         <span class="k">if</span> <span class="n">inflight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inflight</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">optics</span><span class="p">:</span>
             <span class="n">inflight</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>  <span class="c1"># being prefetched: its result is a crop in a moment</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="n">scan_point</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">time_s</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span>
+                <span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="n">scan_point</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">time_s</span><span class="p">,</span> <span class="n">binned</span><span class="o">=</span><span class="n">binned</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Renderer.prefetch">
@@ -1173,7 +1179,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">prefetched</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">binned</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">optics</span><span class="o">.</span><span class="n">output_shape</span>
         <span class="k">if</span> <span class="n">optics</span><span class="o">.</span><span class="n">beam_blanked</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -1209,7 +1217,15 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="p">),</span> <span class="n">fm</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="n">scan_point</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stem</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
-            <span class="n">fm</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">optics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystallinity</span><span class="p">,</span> <span class="n">scan_point</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span>
+            <span class="n">fm</span><span class="p">,</span>
+            <span class="n">token</span><span class="p">,</span>
+            <span class="n">optics</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">crystallinity</span><span class="p">,</span>
+            <span class="n">scan_point</span><span class="p">,</span>
+            <span class="n">frame_index</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specimen</span><span class="p">,</span>
+            <span class="n">binned</span><span class="o">=</span><span class="n">binned</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># --------------------------------------------------------------- EBSD</span>

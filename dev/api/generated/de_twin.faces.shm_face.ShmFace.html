@@ -599,7 +599,7 @@ correct single frame of the current view; what recycling costs is independence, 
 sum of many frames is noisier than N-fold as many would be. <code class="docutils literal notranslate"><span class="pre">reuse=1</span></code> (the default)
 publishes every frame once. In a scan steered by DE-Server’s voltages, the frames are
 kept per scan point instead: a probe held on one point is rendered <code class="docutils literal notranslate"><span class="pre">pool_size</span></code>
-times and then picked from.</p>
+times and then picked from. <code class="docutils literal notranslate"><span class="pre">threads=None</span></code> is <cite>RENDER_THREADS</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

@@ -801,10 +801,12 @@
         <span class="n">optics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">time_s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">frame_time_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">binned</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""``(flux, means)``: ``means`` (the detector's Poisson means, see ``Detector.expose``) when</span>
 <span class="sd">        the renderer made them on the way (an EBSD frame with ``frame_time_s``), else None. That</span>
-<span class="sd">        flux is a reused buffer, valid until the next frame."""</span>
+<span class="sd">        flux is a reused buffer, valid until the next frame. *binned*: the flux may be on the</span>
+<span class="sd">        detector's binned grid (per sensor pixel), which ``Detector.expose`` takes as it is."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="k">if</span> <span class="n">time_s</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">time_s</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span>
@@ -830,7 +832,9 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">render_ebsd_frame</span><span class="p">(</span>
                     <span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">frame_time_s</span><span class="p">)</span> <span class="o">*</span> <span class="n">binned_pixels</span>
                 <span class="p">)</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="n">scan_point</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+                <span class="n">optics</span><span class="p">,</span> <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">scan_point</span><span class="o">=</span><span class="n">scan_point</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">binned</span><span class="o">=</span><span class="n">binned</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prefetch</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">ebsd</span>
@@ -840,7 +844,7 @@
                 <span class="p">)</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_prefetch_next</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">ebsd</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">_grid_shape</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ebsd</span> <span class="ow">or</span> <span class="n">binned</span><span class="p">)</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">_grid_shape</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
                 <span class="c1"># rendered on the binned grid already (per sensor pixel: expose takes it)</span>
                 <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
@@ -937,9 +941,11 @@
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
                 <span class="n">holder_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder_state</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
                 <span class="n">flux</span><span class="p">,</span> <span class="n">means</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux</span><span class="p">(</span>
-                    <span class="n">request</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">frame_time_s</span><span class="o">=</span><span class="n">frame_time</span>
+                    <span class="n">request</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="n">optics</span><span class="p">,</span> <span class="n">time_s</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">frame_time_s</span><span class="o">=</span><span class="n">frame_time</span><span class="p">,</span> <span class="n">binned</span><span class="o">=</span><span class="kc">True</span>
                 <span class="p">)</span>
                 <span class="n">blanked</span> <span class="o">=</span> <span class="n">flux</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">binned_flux</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
                 <span class="c1"># Noise is seeded by a twin-wide frame counter, not the index within this</span>
                 <span class="c1"># request: repeated acquisitions (live view) must not repeat their noise.</span>
                 <span class="c1"># A request with its own seed is pinned instead: frame i by (seed, i).</span>
