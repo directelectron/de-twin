@@ -76,5 +76,6 @@
       ~MirrorColumn.function_mode
       ~MirrorColumn.instrument_type
       ~MirrorColumn.real
+      ~MirrorColumn.revision
    
    

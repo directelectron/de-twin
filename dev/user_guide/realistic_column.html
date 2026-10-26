@@ -616,6 +616,11 @@ magnification, so the illuminated area keeps its size relative to the field of v
 dose per pixel stays the same. Intensity still sets the beam at
 <code class="docutils literal notranslate"><span class="pre">intensity_zoom_reference_mag</span></code>, and so at every magnification. Diffraction and STEM are
 unaffected. Ground Crew’s twin turns it on.</p>
+<p><code class="docutils literal notranslate"><span class="pre">OpticsConfig(intensity_zoom_out=True)</span></code> applies it below the reference magnification only.
+Zooming out spreads the beam with the field of view, so a camera set up at the reference does
+not saturate at a survey magnification. Zooming in leaves the beam, and its convergence, as
+Intensity sets it. A <code class="docutils literal notranslate"><span class="pre">DigitalTwin</span></code> that builds its own column uses this unless it is given an
+<code class="docutils literal notranslate"><span class="pre">OpticsConfig</span></code>.</p>
 </section>
 <section id="calibration-specimens">
 <h2>Calibration specimens<a class="headerlink" href="#calibration-specimens" title="Link to this heading">#</a></h2>

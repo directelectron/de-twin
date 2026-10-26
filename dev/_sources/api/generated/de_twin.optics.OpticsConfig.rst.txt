@@ -45,6 +45,7 @@
       ~OpticsConfig.illum_reference_diameter_um
       ~OpticsConfig.illumination_semi_angle_mrad
       ~OpticsConfig.intensity_zoom
+      ~OpticsConfig.intensity_zoom_out
       ~OpticsConfig.intensity_zoom_reference_mag
       ~OpticsConfig.lowmag_illumination_factor
       ~OpticsConfig.max_raster_pixels

@@ -495,6 +495,8 @@
 <span class="sd">frame is then rendered where those voltages put the beam, so whatever steers the scan (a</span>
 <span class="sd">pixel offset, an XY array, drift correction) moves the beam with the latency DE-Server's</span>
 <span class="sd">output buffer gives it on hardware. Without them the twin rasters the grid by frame index.</span>
+<span class="sd">A parked beam is an acquisition without a scan, but DE-Server still drives the coils to the</span>
+<span class="sd">park point (and again whenever it moves), so a STEM or EBSD frame is rendered there too.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -508,6 +510,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..optics.scan_coils</span><span class="w"> </span><span class="kn">import</span> <span class="n">point_from_volts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..state</span><span class="w"> </span><span class="kn">import</span> <span class="n">RenderMode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">scan_output</span> <span class="k">as</span> <span class="n">S</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">shm_layout</span> <span class="k">as</span> <span class="n">L</span>
 
@@ -657,6 +660,9 @@
 <span class="sd">        the stream runs at the frame rate DE-Server asks for rather than at the rate the</span>
 <span class="sd">        detector physics can manage.</span>
 <span class="sd">        """</span>
+        <span class="n">parked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parked</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parked</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serve_steered</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">parked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan_output</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="n">coils</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coils</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">coils</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -728,6 +734,29 @@
             <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan_output</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""*request* as a scan held where DE-Server has parked the beam, or None.</span>
+
+<span class="sd">        A parked beam's acquisition has no scan, so the request says nothing of it; what</span>
+<span class="sd">        does is the scan output, which DE-Server rewrites as one point each time it parks</span>
+<span class="sd">        the beam. So a STEM or EBSD acquisition without a scan, while the scan output last</span>
+<span class="sd">        written is a single point, is steered by it like a scan (`_serve_steered`), and</span>
+<span class="sd">        a park moved during the acquisition moves the beam.</span>
+
+<span class="sd">        DE-Server writes nothing when it takes the park off, so until the next scan the</span>
+<span class="sd">        beam stays at the last park point. A TEM acquisition is never steered."""</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">coils</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coils</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">coils</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">coils</span><span class="o">.</span><span class="n">written</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">coils</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">total_points</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span><span class="o">.</span><span class="n">optics</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">render_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">RenderMode</span><span class="o">.</span><span class="n">STEM_PARKED</span><span class="p">,</span> <span class="n">RenderMode</span><span class="o">.</span><span class="n">EBSD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">scan</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">frames_per_point</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dwell_s</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">frame_time_s</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="n">scan</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_serve_steered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">coils</span><span class="p">:</span> <span class="n">S</span><span class="o">.</span><span class="n">ScanOutputReader</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""`_serve` for a scan whose beam DE-Server's coil voltages place: each frame is</span>
@@ -931,13 +960,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">_FramePool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The twin's frames for one request, rendered on a thread of their own.</span>
 
-<span class="sd">    A ring of up to *size* frames of the CURRENT view: when the microscope state of a new</span>
-<span class="sd">    frame differs from the last one's, the older frames are dropped, so a recycled frame</span>
-<span class="sd">    never shows a view the column has left. `take` hands out the oldest frame not yet</span>
-<span class="sd">    published, else (recycling) the least-used one still under *reuse* publications, else</span>
-<span class="sd">    waits; after *keepalive* seconds with nothing new it hands back the last frame</span>
-<span class="sd">    anyway. *threads* caps the numba threads the detector uses (leave cores for the</span>
-<span class="sd">    consumer's own processing).</span>
+<span class="sd">    A ring of up to *size* frames of the CURRENT view. `take` hands out the oldest frame</span>
+<span class="sd">    not yet published, else (recycling) the least-used one still under *reuse*</span>
+<span class="sd">    publications, else waits; after *keepalive* seconds with nothing new it hands back</span>
+<span class="sd">    the last frame anyway. *threads* caps the numba threads the detector uses (leave</span>
+<span class="sd">    cores for the consumer's own processing).</span>
+
+<span class="sd">    Outside a scan, a frame is only ever handed out while the column is still in the</span>
+<span class="sd">    state it was rendered in: a `take` after a move of the stage (or any other change to</span>
+<span class="sd">    the column) has returned gets a frame of the new view, never one the ring kept from</span>
+<span class="sd">    the old. A scan freezes the optics for its acquisition (`DigitalTwin.frames`), and its</span>
+<span class="sd">    pool lives for that one request.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reuse</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pace</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -948,6 +981,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># _DONE or an exception</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_view</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the column state the frames in the ring were rendered in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seen</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># (revision, time) of the last look at the column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
             <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">twin</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="p">,</span> <span class="n">threads</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"de-twin-shm-render"</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
@@ -961,43 +998,72 @@
                 <span class="n">numba</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">threads</span><span class="p">),</span> <span class="n">numba</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">NUMBA_NUM_THREADS</span><span class="p">)))</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">pass</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="c1"># A scan's frames depend on their index, so only a fixed view is re-rendered from</span>
-        <span class="c1"># the start when the column moves (diffraction and STEM freeze the optics for the</span>
-        <span class="c1"># whole of a `frames` call, so a running one would never see the move).</span>
-        <span class="n">watch</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">scan</span><span class="o">.</span><span class="n">enabled</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">restart</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">while</span> <span class="n">restart</span><span class="p">:</span>
                 <span class="n">restart</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">):</span>
+                <span class="n">frames</span> <span class="o">=</span> <span class="n">twin</span><span class="o">.</span><span class="n">frames</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pace</span><span class="o">=</span><span class="n">pace</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
                     <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">microscope</span> <span class="o">!=</span> <span class="n">state</span><span class="p">:</span>
-                            <span class="n">state</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">microscope</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># a new view: nothing older may be shown</span>
                         <span class="c1"># A ring full of frames that may still be published is a library:</span>
                         <span class="c1"># stop rendering, which also stops taking the interpreter from the</span>
                         <span class="c1"># thread that publishes them, until the view changes.</span>
                         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishable</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">watch</span> <span class="ow">and</span> <span class="n">twin</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span> <span class="o">!=</span> <span class="n">state</span><span class="p">:</span>
-                                <span class="n">restart</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="p">[]</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moved</span><span class="p">():</span>
                                 <span class="k">break</span>
                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
                             <span class="k">return</span>
-                        <span class="k">if</span> <span class="n">restart</span><span class="p">:</span>
+                        <span class="n">state</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">microscope</span>
+                        <span class="c1"># Rendered before the column moved (TEM imaging reads the column</span>
+                        <span class="c1"># once a buffer, diffraction and STEM once a `frames` call): start</span>
+                        <span class="c1"># again from the column as it is now.</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">state</span><span class="p">():</span>
+                            <span class="n">restart</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="o">=</span> <span class="n">state</span><span class="p">,</span> <span class="p">[]</span>  <span class="c1"># a new view: nothing older</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">item</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>  <span class="c1"># drop the most-used frame</span>
                             <span class="n">worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
                             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+                <span class="n">frames</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">_DONE</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">e</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">end</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_moved</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the column has left the view of the frames in the ring; if it has, the</span>
+<span class="sd">        ring is emptied. Call with the lock held.</span>
+
+<span class="sd">        A snapshot of the column costs a few hundred microseconds, too much to take for</span>
+<span class="sd">        every frame of a stream at thousands a second, so one is taken only when the</span>
+<span class="sd">        column has been written to since the last, while its stage is still on its way, or</span>
+<span class="sd">        every `VIEW_CHECK_S` (what changes without a write: a corrector's drift)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column</span>
+        <span class="n">revision</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="s2">"revision"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seen</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">revision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">seen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">seen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">revision</span>
+            <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="n">seen</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">VIEW_CHECK_S</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">column</span><span class="o">.</span><span class="n">busy</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seen</span> <span class="o">=</span> <span class="p">(</span><span class="n">revision</span><span class="p">,</span> <span class="n">now</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">state</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_publishable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse</span><span class="p">)</span>
@@ -1016,6 +1082,8 @@
 
         <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">keepalive</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_moved</span><span class="p">()</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">taken</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ring</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][:</span><span class="n">count</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">taken</span><span class="p">:</span>
@@ -1120,6 +1188,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">settled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Frames whose beam position DE-Server has written (the rest hold the last one)."""</span>
         <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span>
+        <span class="k">if</span> <span class="n">library</span><span class="o">.</span><span class="n">coils</span><span class="o">.</span><span class="n">written</span> <span class="o">&gt;=</span> <span class="n">library</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">total_points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">62</span>  <span class="c1"># all of it written (a park is one point): the coils hold the last</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">library</span><span class="o">.</span><span class="n">coils</span><span class="o">.</span><span class="n">written</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">library</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">points_per_frame</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>

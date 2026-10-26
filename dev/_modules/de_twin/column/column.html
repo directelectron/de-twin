@@ -668,6 +668,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tilt_speed_deg_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tilt_speed_deg_s</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stage_limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">stage_limits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#: Counts the writes to the column: a reader that saw the same revision, with the</span>
+        <span class="c1">#: stage at rest, knows the state has not changed without taking a snapshot.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">state</span> <span class="ow">or</span> <span class="n">MicroscopeState</span><span class="p">())</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">instrument_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -987,6 +990,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_op_state</span> <span class="o">=</span> <span class="mi">3</span>
                 <span class="k">raise</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_last_op_state</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tune_key</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">after</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">before</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -1217,7 +1221,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_stage_start</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stage_now</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_stage_target</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stage_now</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_move_t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_last_op_state</span> <span class="o">=</span> <span class="mi">4</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_op_state</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
 <div class="viewcode-block" id="Column.wait_idle">
@@ -1461,6 +1466,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_stage_now</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_move_t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_convergence_explicit</span> <span class="o">=</span> <span class="n">convergence_explicit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span><span class="p">[</span><span class="s2">"ApertureSizes"</span><span class="p">][</span><span class="n">L</span><span class="o">.</span><span class="n">APERTURE_KIND_CLA</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">condenser_aperture_index</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>

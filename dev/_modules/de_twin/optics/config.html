@@ -576,6 +576,12 @@
     <span class="c1">#: the dose per pixel goes as 1/mag^2 and zooming out saturates the camera.</span>
     <span class="n">intensity_zoom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">intensity_zoom_reference_mag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20000.0</span>
+    <span class="c1">#: Intensity zoom below the reference magnification only: zooming OUT spreads the beam</span>
+    <span class="c1">#: with the field of view, so the dose per detector pixel never rises above what</span>
+    <span class="c1">#: Intensity gives at `intensity_zoom_reference_mag` and a camera set up there does not</span>
+    <span class="c1">#: saturate at a survey magnification; zooming in leaves the beam as Intensity sets it</span>
+    <span class="c1">#: (and so its convergence, which high-resolution contrast depends on).</span>
+    <span class="n">intensity_zoom_out</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="c1">#: A real column's geometry (image rotation, true pixel size, image-shift matrices,</span>
     <span class="c1">#: magnification offsets, backlash): what SerialEM's calibrations measure. None: ideal.</span>
     <span class="n">realism</span><span class="p">:</span> <span class="n">ColumnRealism</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>

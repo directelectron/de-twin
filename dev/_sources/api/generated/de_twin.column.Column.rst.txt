@@ -72,5 +72,6 @@
       ~Column.busy
       ~Column.function_mode
       ~Column.instrument_type
+      ~Column.revision
    
    

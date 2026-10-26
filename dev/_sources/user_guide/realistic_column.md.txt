@@ -70,6 +70,12 @@ dose per pixel stays the same. Intensity still sets the beam at
 `intensity_zoom_reference_mag`, and so at every magnification. Diffraction and STEM are
 unaffected. Ground Crew's twin turns it on.
 
+`OpticsConfig(intensity_zoom_out=True)` applies it below the reference magnification only.
+Zooming out spreads the beam with the field of view, so a camera set up at the reference does
+not saturate at a survey magnification. Zooming in leaves the beam, and its convergence, as
+Intensity sets it. A `DigitalTwin` that builds its own column uses this unless it is given an
+`OpticsConfig`.
+
 ## Calibration specimens
 
 `"Cross grating 2160 l/mm"` is a carbon replica cross grating with a 463 nm period. It is

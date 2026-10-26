@@ -787,9 +787,24 @@ or <code class="docutils literal notranslate"><span class="pre">&quot;both&quot;
 <tr class="row-odd"><td><p><a class="reference internal" href="#de_twin.column.Column.instrument_type" title="de_twin.column.Column.instrument_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instrument_type</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#de_twin.column.Column.revision" title="de_twin.column.Column.revision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revision</span></code></a></p></td>
+<td><p>a reader that saw the same revision, with the stage at rest, knows the state has not changed without taking a snapshot.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="de_twin.column.Column.revision">
+<span class="sig-name descname"><span class="pre">revision</span></span><a class="headerlink" href="#de_twin.column.Column.revision" title="Link to this definition">#</a></dt>
+<dd><p>a reader that saw the same revision, with the
+stage at rest, knows the state has not changed without taking a snapshot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Counts the writes to the column</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="de_twin.column.Column.on_change">
 <span class="sig-name descname"><span class="pre">on_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/de_twin/column/column.html#Column.on_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#de_twin.column.Column.on_change" title="Link to this definition">#</a></dt>
@@ -1448,6 +1463,7 @@ has one, so a <code class="docutils literal notranslate"><span class="pre">Manua
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column"><code class="docutils literal notranslate"><span class="pre">Column</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.__init__"><code class="docutils literal notranslate"><span class="pre">Column.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.revision"><code class="docutils literal notranslate"><span class="pre">Column.revision</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.on_change"><code class="docutils literal notranslate"><span class="pre">Column.on_change()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.now"><code class="docutils literal notranslate"><span class="pre">Column.now()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#de_twin.column.Column.instrument_type"><code class="docutils literal notranslate"><span class="pre">Column.instrument_type</span></code></a></li>
