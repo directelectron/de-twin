@@ -10,6 +10,8 @@ In a scan, DE-Server's scan simulator also shares the coil voltages it outputs
 frame is then rendered where those voltages put the beam, so whatever steers the scan (a
 pixel offset, an XY array, drift correction) moves the beam with the latency DE-Server's
 output buffer gives it on hardware. Without them the twin rasters the grid by frame index.
+A parked beam is an acquisition without a scan, but DE-Server still drives the coils to the
+park point (and again whenever it moves), so a STEM or EBSD frame is rendered there too.
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ from collections import OrderedDict
 import numpy as np
 
 from ..optics.scan_coils import point_from_volts
+from ..state import RenderMode
 from ..transport import scan_output as S
 from ..transport import shm_layout as L
 
@@ -161,6 +164,9 @@ class ShmFace:
         the stream runs at the frame rate DE-Server asks for rather than at the rate the
         detector physics can manage.
         """
+        parked = self._parked(request)
+        if parked is not None:
+            return self._serve_steered(request_id, parked, self._scan_output)
         if request.scan.enabled:
             coils = self._coils()
             if coils is not None:
@@ -232,6 +238,29 @@ class ShmFace:
             except (FileNotFoundError, RuntimeError):
                 return None
         return self._scan_output
+
+    def _parked(self, request):
+        """*request* as a scan held where DE-Server has parked the beam, or None.
+
+        A parked beam's acquisition has no scan, so the request says nothing of it; what
+        does is the scan output, which DE-Server rewrites as one point each time it parks
+        the beam. So a STEM or EBSD acquisition without a scan, while the scan output last
+        written is a single point, is steered by it like a scan (`_serve_steered`), and
+        a park moved during the acquisition moves the beam.
+
+        DE-Server writes nothing when it takes the park off, so until the next scan the
+        beam stays at the last park point. A TEM acquisition is never steered."""
+        if request.scan.enabled:
+            return None
+        coils = self._coils()
+        if coils is None or coils.written == 0 or coils.geometry().total_points != 1:
+            return None
+        if self.twin.optics(request).render_mode not in (RenderMode.STEM_PARKED, RenderMode.EBSD):
+            return None
+        scan = dataclasses.replace(
+            request.scan, enabled=True, frames_per_point=1, dwell_s=request.frame_time_s
+        )
+        return dataclasses.replace(request, scan=scan)
 
     def _serve_steered(self, request_id: int, request, coils: S.ScanOutputReader):
         """`_serve` for a scan whose beam DE-Server's coil voltages place: each frame is
@@ -623,6 +652,8 @@ class _SteeredFeed:
     def settled(self) -> int:
         """Frames whose beam position DE-Server has written (the rest hold the last one)."""
         library = self.library
+        if library.coils.written >= library.geometry.total_points:
+            return 1 << 62  # all of it written (a park is one point): the coils hold the last
         return int((library.coils.written - 1) / library.geometry.points_per_frame) + 1
 
     def points(self, first: int, count: int) -> list:
