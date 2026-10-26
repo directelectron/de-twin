@@ -181,6 +181,28 @@ def test_a_view_change_drops_recycled_frames():
         pool.close()
 
 
+def test_the_first_frame_after_a_move_shows_the_new_view():
+    """Once a move of the stage has returned, the very next frame is of the new view, even
+    from a pool full of recycled frames of the old one: an acquisition straight after a
+    move must not register the stage as having stayed put."""
+    from de_twin.faces.shm_face import _FramePool
+
+    twin = DigitalTwin("Dense Au on holey C", camera="DESim", clock=ManualClock())
+    pool = _FramePool(twin, twin.request(total_frames=0, frame_time_s=0.01), size=8, reuse=10**9, pace=False)
+    try:
+        x0 = pool.take(60)[0][1].microscope.stage.x_um
+        for step in (1.0, 2.0, 3.0):
+            assert len(pool.take_many(50, 10)) == 50  # the old view, recycled
+            twin.column.move_stage(x=x0 + step)
+            after = [item[1].microscope.stage.x_um for item, _ in pool.take_many(5, 60)]
+            assert after == pytest.approx([x0 + step] * len(after))
+        twin.column.set_defocus_um(twin.column.state().defocus_um + 0.5)  # not only the stage
+        item, _ = pool.take(60)
+        assert item[1].microscope == twin.column.state()
+    finally:
+        pool.close()
+
+
 def test_a_full_pool_is_a_library_until_the_view_changes(monkeypatch):
     """With frames to recycle, the renderer stops once the pool is full: publishing picks
     from it instead, and the interpreter is left to the thread that publishes. A move of
@@ -226,7 +248,7 @@ def test_frames_are_taken_in_the_order_take_hands_them_out():
     pool = _FramePool.__new__(_FramePool)
     import threading
 
-    pool.reuse, pool._cond, pool._end, pool._last = 2, threading.Condition(), None, None
+    pool.reuse, pool._cond, pool._end, pool._last, pool._watch = 2, threading.Condition(), None, None, False
     pool._ring = [[("a", None), 1], [("b", None), 0], [("c", None), 0]]
     got = pool.take_many(10, 0.0)
     assert [(item[0], fresh) for item, fresh in got] == [
