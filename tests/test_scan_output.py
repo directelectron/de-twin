@@ -3,8 +3,10 @@
 import os
 import subprocess
 import sys
+import time
 import uuid
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -24,6 +26,20 @@ GEOMETRY = S.ScanGeometry(
     points_per_frame=1.0,
     total_points=10_000,
 )
+
+
+#: DE-Server's scan output for a parked beam: one point (`ScanController::_ParkSimulatedOutput`).
+PARK = S.ScanGeometry(
+    size=(8, 8),
+    voltage_h=(-1.0, 1.0),
+    voltage_v=(-1.0, 1.0),
+    rotation_deg=0.0,
+    flip=(False, False),
+    points_per_frame=1.0,
+    total_points=1,
+)
+#: Where `PointTwin` says the beam was in a frame no coil voltages placed.
+UNSTEERED = (99, 99)
 
 
 def _names():
@@ -134,6 +150,9 @@ class _Column:
 class PointTwin:
     """Frames that say where the beam was: pixel (0, 0) is the scan point's x, (0, 1) its y."""
 
+    #: What an acquisition without a scan renders as.
+    unscanned = RenderMode.STEM_PARKED
+
     def __init__(self):
         self.column = _Column()
         self.rendered = 0
@@ -141,12 +160,16 @@ class PointTwin:
     def request(self, **kw):
         raise NotImplementedError
 
+    def optics(self, request):
+        return SimpleNamespace(render_mode=RenderMode.STEM_4D if request.scan.enabled else self.unscanned)
+
     def frames(self, request, pace=False, stop=None):
         i = 0
         while request.total_frames <= 0 or i < request.total_frames:
             if stop is not None and stop.is_set():
                 return
-            x, y = request.scan.points[i // max(1, request.scan.frames_per_point)]
+            points = request.scan.points
+            x, y = points[i // max(1, request.scan.frames_per_point)] if points else UNSTEERED
             frame = np.zeros((4, 4), np.uint16)
             frame[0, 0], frame[0, 1] = x, y
             self.rendered += 1
@@ -260,6 +283,79 @@ class TestSteeredFace:
             face.stop()
             consumer.close()
         assert points == [(0, 0), (1, 0), (2, 0)]
+
+
+def _park(writer, x, y):
+    """What DE-Server does each time it parks the beam: a new scan output of one point."""
+    writer.begin(PARK)
+    writer.write(_volts(ScanRequest(enabled=True, size=PARK.size), x, y, 1))
+
+
+class TestParkedFace:
+    """A parked beam: an acquisition without a scan, the coils held at the park point."""
+
+    def _face(self, twin):
+        scan_name, frame_name = _names()
+        writer = S.ScanOutputWriter(scan_name)
+        consumer = FrameConsumer(frame_name, max_frame_bytes=4 * 4 * 2)
+        face = ShmFace(twin, name=frame_name, scan_output=scan_name, pace=False, warm_up=False).start()
+        return writer, consumer, face
+
+    @staticmethod
+    def _read(consumer, n):
+        return [tuple(int(v) for v in consumer.read(timeout=20)[0][0, :2]) for _ in range(n)]
+
+    def test_the_frames_are_from_the_park_point(self):
+        writer, consumer, face = self._face(PointTwin())
+        try:
+            _park(writer, 5, 2)
+            consumer.begin(frame_shape=(4, 4), frame_time_s=1e-4, total_frames=6)
+            assert self._read(consumer, 6) == [(5, 2)] * 6
+        finally:
+            face.stop()
+            consumer.close()
+            writer.close()
+
+    def test_moving_the_park_during_the_acquisition_moves_the_beam(self):
+        writer, consumer, face = self._face(PointTwin())
+        try:
+            _park(writer, 1, 1)
+            consumer.begin(frame_shape=(4, 4), frame_time_s=1e-4, total_frames=0)
+            assert set(self._read(consumer, 20)) == {(1, 1)}
+            _park(writer, 6, 3)
+            deadline = time.monotonic() + 20
+            while self._read(consumer, 1) != [(6, 3)]:  # the frames already in the ring first
+                assert time.monotonic() < deadline, "the beam did not follow the park"
+            assert set(self._read(consumer, 20)) == {(6, 3)}
+        finally:
+            face.stop()
+            consumer.close()
+            writer.close()
+
+    def test_a_tem_acquisition_is_not_steered_by_a_park(self):
+        twin = PointTwin()
+        twin.unscanned = RenderMode.TEM_IMAGING
+        writer, consumer, face = self._face(twin)
+        try:
+            _park(writer, 5, 2)
+            consumer.begin(frame_shape=(4, 4), frame_time_s=1e-4, total_frames=3)
+            assert self._read(consumer, 3) == [UNSTEERED] * 3
+        finally:
+            face.stop()
+            consumer.close()
+            writer.close()
+
+    def test_a_scan_output_of_many_points_is_not_a_park(self):
+        writer, consumer, face = self._face(PointTwin())
+        try:
+            writer.begin(GEOMETRY)
+            writer.write(_volts(ScanRequest(enabled=True, size=GEOMETRY.size), 5, 2, 4))
+            consumer.begin(frame_shape=(4, 4), frame_time_s=1e-4, total_frames=3)
+            assert self._read(consumer, 3) == [UNSTEERED] * 3
+        finally:
+            face.stop()
+            consumer.close()
+            writer.close()
 
 
 class PointTwinRaster(PointTwin):
