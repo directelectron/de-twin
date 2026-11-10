@@ -431,6 +431,9 @@ def test_references_are_reported_as_de_server_reports_them():
             "Off",
         )
         assert c["Reference - Dark"] == c["Reference - Integrating Gain"] == "None"
+        c["Simulator Auto References"] = "On"  # the twin makes what is missing: applied
+        assert c["Reference - Dark"] == "Applied (twin_auto_dark_ref)"
+        c["Simulator Auto References"] = "Off"
         c["Frames Per Second"] = 200
         c["Exposure Mode"] = "Dark"
         c["Exposure Time (seconds)"] = 1

@@ -231,17 +231,28 @@ class PropertiesMixin:
                     category="Advanced",
                 )
             )
+
+        def report(kind: str, counting: bool | None = None):
+            def read() -> str:
+                request = self.request()
+                if counting is not None:
+                    request = replace(request, counting=counting)
+                held = processor.reported(request, kind)
+                # With Simulator Auto References On the twin makes a missing
+                # reference itself on the next acquisition, so it is one applied.
+                if held == "None" and getattr(self, "auto_references", False):
+                    return f"Applied (twin_auto_{kind}_ref)"
+                return held
+
+            return read
+
         reports = {
-            "Reference - Dark": lambda: processor.reported(self.request(), "dark"),
-            "Reference - Integrating Gain": lambda: processor.reported(
-                replace(self.request(), counting=False), "gain"
-            ),
-            "Reference - Counting Gain": lambda: processor.reported(
-                replace(self.request(), counting=True), "gain"
-            ),
+            "Reference - Dark": report("dark"),
+            "Reference - Integrating Gain": report("gain", counting=False),
+            "Reference - Counting Gain": report("gain", counting=True),
         }
-        for name, report in reports.items():
-            self._put(DynamicProperty(name, report, value_type="ReadOnly", category="Advanced"))
+        for name, read in reports.items():
+            self._put(DynamicProperty(name, read, value_type="ReadOnly", category="Advanced"))
 
     def _install_ebsd_properties(self) -> None:
         """``Simulator EBSD ...``: the twin's EBSD geometry (``DigitalTwin.configure_ebsd``), so a
