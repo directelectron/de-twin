@@ -94,7 +94,15 @@ def make_stem_optics():
     from de_twin.render.testing import StubCamera
     from de_twin.state import AcquisitionRequest, MicroscopeState, Roi, TemStem
 
-    def build(scan=True, size=(32, 32), step_um=0.002, camera_length_mm=13.0, config=None, **state):
+    def build(
+        scan=True,
+        size=(32, 32),
+        step_um=0.002,
+        camera_length_mm=13.0,
+        config=None,
+        scan_rotation=0.0,
+        **state,
+    ):
         microscope = MicroscopeState()
         microscope.tem_stem = TemStem.STEM
         microscope.camera_length_mm = camera_length_mm
@@ -105,6 +113,7 @@ def make_stem_optics():
         request.scan.enabled = scan
         request.scan.size = size
         request.scan.step_um = step_um
+        request.scan.rotation_deg = scan_rotation
         return derive_optics(
             microscope, request, StubCamera(), Calibration.default(), config or OpticsConfig()
         )

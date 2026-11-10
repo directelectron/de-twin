@@ -53,6 +53,14 @@ class OpticsConfig:
     sa_aperture_um: float = 10.0  # selected-area aperture projected to the specimen; 0 = none
     tem_illuminated_area_um: float = 0.0  # >0 forces the illuminated diameter; 0 = from Intensity
     stem_default_convergence_mrad: float = 10.0  # STEM alpha when the column reports 0
+    #: The descan coils' residual: the beam tilt (mrad) left after descan per um the scan
+    #: coils deflect the probe across the specimen, as a 2x2 ``(xx, xy, yx, yy)`` in the
+    #: specimen frame (tilt x from deflection x, from y; tilt y from x, from y). On the
+    #: detector a tilt is a shift of the whole pattern, so the zero beam walks linearly with
+    #: the probe's place in the field: by the field's width (magnification, voltage range),
+    #: turned with the scan rotation and flips, and scaled by the camera length. Zero: a
+    #: perfect descan.
+    descan_residual_mrad_per_um: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
     probe_d0_nm: float = 0.0  # >0 overrides the d0(probe mode, spot) table
 
     # ---- dose model (see beam.py) --------------------------------
