@@ -20,14 +20,16 @@ import numpy as np
 from .state import AcquisitionRequest, ExposureMode
 
 
-def _key(request: AcquisitionRequest, roi) -> tuple:
+def _key(request: AcquisitionRequest, roi, *, frame_time: bool = True) -> tuple:
+    """A reference's readout, as DE-Server's RefFinder matches it: the frame
+    time only while the reference's "Match Frame Rate" switch is on."""
     return (
         roi.x,
         roi.y,
         roi.w,
         roi.h,
         tuple(request.hw_binning),
-        round(request.frame_time_s, 9),
+        round(request.frame_time_s, 9) if frame_time else None,
         request.counting,
     )
 
@@ -42,7 +44,13 @@ class References:
 
 
 class Processor:
-    """Reference acquisition + correction, keyed like DE-Server's RefFinder."""
+    """Reference acquisition + correction, keyed like DE-Server's RefFinder.
+
+    Darks and gains are kept apart, as DE-Server keeps them: a dark matches
+    the frame rate (``dark_match_frame_rate``, on by default) and a gain does
+    not (``gain_match_frame_rate``, off by default). Each one stored has a
+    name, which the deapi face reports as ``Applied (<name>)``.
+    """
 
     def __init__(
         self, twin, dark_frames: int = 20, gain_frames: int = 20, gain_dose_e_per_px: float = 2000.0
@@ -51,7 +59,12 @@ class Processor:
         self.dark_frames = dark_frames
         self.gain_frames = gain_frames
         self.gain_dose_e_per_px = gain_dose_e_per_px
-        self._refs: dict[tuple, References] = {}
+        self.dark_match_frame_rate = True
+        self.gain_match_frame_rate = False
+        #: (mean dark, frames, frame time, name) and (gain, frames, name), by readout.
+        self._darks: dict[tuple, tuple] = {}
+        self._gains: dict[tuple, tuple] = {}
+        self._stored = 0
 
     def _mean(self, request: AcquisitionRequest, mode: ExposureMode, n: int) -> np.ndarray:
         req = replace(request, exposure_mode=mode, total_frames=n, scan=replace(request.scan, enabled=False))
@@ -60,22 +73,46 @@ class Processor:
             acc = raw.astype(np.float64) if acc is None else acc + raw
         return (acc / n).astype(np.float32)
 
+    def _dark_key(self, request: AcquisitionRequest) -> tuple:
+        return _key(request, self.twin.detector.roi(request), frame_time=self.dark_match_frame_rate)
+
+    def _gain_key(self, request: AcquisitionRequest) -> tuple:
+        return _key(request, self.twin.detector.roi(request), frame_time=self.gain_match_frame_rate)
+
+    def _name(self, kind: str) -> str:
+        self._stored += 1
+        return f"twin_{self._stored:04d}_{kind}_ref"
+
     def lookup(self, request: AcquisitionRequest) -> References | None:
-        """Stored references matching ``request`` (no acquisition)."""
-        return self._refs.get(_key(request, self.twin.detector.roi(request)))
+        """Stored references matching ``request`` (no acquisition): None without a dark."""
+        dark = self._darks.get(self._dark_key(request))
+        if dark is None:
+            return None
+        gain = self._gains.get(self._gain_key(request))
+        return References(dark[0], gain[0] if gain else None, dark[1], gain[1] if gain else 0, dark[2])
+
+    def reported(self, request: AcquisitionRequest, kind: str) -> str:
+        """DE-Server's ``Reference - …`` report for the readout of ``request``:
+        ``None``, or ``Applied (<name>)``."""
+        stored = (
+            self._darks.get(self._dark_key(request))
+            if kind == "dark"
+            else self._gains.get(self._gain_key(request))
+        )
+        return f"Applied ({stored[-1]})" if stored else "None"
 
     def store_dark(self, request: AcquisitionRequest, mean_dark: np.ndarray, n_frames: int) -> References:
-        key = _key(request, self.twin.detector.roi(request))
-        old = self._refs.get(key)
-        refs = References(
+        self._darks[self._dark_key(request)] = (
             np.asarray(mean_dark, np.float32),
-            old.gain if old else None,
             n_frames,
-            old.n_gain if old else 0,
             request.frame_time_s,
+            self._name("dark"),
         )
-        self._refs[key] = refs
-        return refs
+        return self.lookup(request)
+
+    def _store_gain(self, request: AcquisitionRequest, gain: np.ndarray, n_frames: int) -> References:
+        self._gains[self._gain_key(request)] = (gain, n_frames, self._name("gain"))
+        return self.lookup(request)
 
     def store_gain(self, request: AcquisitionRequest, mean_flood: np.ndarray, n_frames: int) -> References:
         """Store a gain reference from a mean flood frame (dark-subtracted here)."""
@@ -86,8 +123,7 @@ class Processor:
         mean = float(flood.mean())
         if mean <= 0:
             raise RuntimeError("gain reference has no signal (beam blanked or column closed?)")
-        refs.gain, refs.n_gain = np.clip(flood / mean, 0.05, None).astype(np.float32), n_frames
-        return refs
+        return self._store_gain(request, np.clip(flood / mean, 0.05, None).astype(np.float32), n_frames)
 
     def take_dark(self, request: AcquisitionRequest, n_frames: int | None = None) -> References:
         n = n_frames or self.dark_frames
@@ -118,15 +154,13 @@ class Processor:
         from .hashing import SeedKind, rng_for
 
         dose = float(dose_e_per_px or self.gain_dose_e_per_px)
-        refs = self.references(request, gain=False)
+        self.references(request, gain=False)  # the dark it is taken over
         truth = self.twin.detector.expected_gain(request).astype(np.float32)
         truth /= float(truth.mean())
         cv = getattr(self.twin.detector.model, "adu_cv", 0.7)
         rng = rng_for(self.twin.seed, SeedKind.GAIN, int(dose))
         noise = rng.standard_normal(truth.shape, dtype=np.float32) * np.float32(np.sqrt((1 + cv * cv) / dose))
-        refs.gain = np.clip(truth * (1 + noise), 0.05, None).astype(np.float32)
-        refs.n_gain = 0
-        return refs
+        return self._store_gain(request, np.clip(truth * (1 + noise), 0.05, None).astype(np.float32), 0)
 
     def references(self, request: AcquisitionRequest, *, gain: bool = True) -> References:
         """References for ``request``; missing ones are provided like a prepared operator would.
@@ -135,8 +169,7 @@ class Processor:
         :meth:`synthesize_gain` (well dosed); use :meth:`take_gain` or a Gain-mode
         acquisition to measure one frame by frame instead.
         """
-        roi = self.twin.detector.roi(request)
-        refs = self._refs.get(_key(request, roi))
+        refs = self.lookup(request)
         if refs is None:
             refs = self.take_dark(request)
         if gain and refs.gain is None:
@@ -144,7 +177,8 @@ class Processor:
         return refs
 
     def clear(self) -> None:
-        self._refs.clear()
+        self._darks.clear()
+        self._gains.clear()
 
     def correct(self, raw: np.ndarray, refs: References) -> np.ndarray:
         out = raw.astype(np.float32) - refs.dark

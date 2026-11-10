@@ -408,6 +408,48 @@ def test_real_twin_if_available():
     assert corrected.mean() == pytest.approx(raw.mean() - dark.mean(), rel=0.1)
 
 
+def test_references_are_reported_as_de_server_reports_them():
+    """``Reference - Dark`` names the dark for the frame rate in force (Dark
+    Match Frame Rate On); ``Reference - Integrating Gain`` the gain at any rate
+    (Gain Match Frame Rate Off); ``Frames Per Second (Max)`` is the detector's."""
+    try:
+        from de_twin.twin import DigitalTwin
+
+        twin = DigitalTwin(camera="DE16")
+        twin.detector.output_shape(twin.request())
+    except Exception as exc:
+        pytest.skip(f"DigitalTwin not ready: {exc}")
+    with TwinDeapiServer(twin, port=0, pace=False) as srv:
+        c = deapi.Client()
+        c.usingMmf = False
+        c.connect(port=srv.port)
+        c["Simulator Auto References"] = "Off"
+        c.set_hw_roi(0, 0, 256, 256)
+        assert c["Frames Per Second (Max)"] == pytest.approx(twin.detector.model.max_fps)
+        assert (c["Reference - Dark Match Frame Rate"], c["Reference - Gain Match Frame Rate"]) == (
+            "On",
+            "Off",
+        )
+        assert c["Reference - Dark"] == c["Reference - Integrating Gain"] == "None"
+        c["Frames Per Second"] = 200
+        c["Exposure Mode"] = "Dark"
+        c["Exposure Time (seconds)"] = 1
+        _acquire(c, n=2)
+        dark = c["Reference - Dark"]
+        assert dark.startswith("Applied (") and dark.endswith("_dark_ref)")
+        c["Exposure Mode"] = "Gain"
+        _acquire(c, n=2)
+        gain = c["Reference - Integrating Gain"]
+        assert gain.startswith("Applied (") and c["Reference - Counting Gain"] == "None"
+        c["Exposure Mode"] = "Normal"
+        c["Frames Per Second"] = 100
+        assert c["Reference - Dark"] == "None"  # a dark is for its own rate
+        assert c["Reference - Integrating Gain"] == gain  # a gain is for any
+        c["Reference - Gain Match Frame Rate"] = "On"
+        assert c["Reference - Integrating Gain"] == "None"
+        c.disconnect()
+
+
 def test_deapi_own_loop_with_patched_factory(twin, monkeypatch):
     """deapi's initialize_server loop, patched like Ground Crew's launcher patches inp_file."""
     import socket
