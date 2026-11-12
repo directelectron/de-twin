@@ -183,6 +183,17 @@ class PropertiesMixin:
             )
         )
         self._put(DynamicProperty("Twin Holder", lambda: self._holder_state().kind))
+        # DE-Server's own maximum: one over the detector's shortest frame time.
+        self._put(
+            DynamicProperty(
+                "Frames Per Second (Max)",
+                lambda: max_fps,
+                data_type="Float",
+                value_type="ReadOnly",
+                category="Basic",
+            )
+        )
+        self._install_reference_properties()
         self.auto_references = True
         self._put(
             DynamicProperty(
@@ -196,6 +207,52 @@ class PropertiesMixin:
         self._install_ebsd_properties()
         self._install_instrument_properties()
         self.virtual_masks = [np.ones((self._image_shape()), np.int8) for _ in range(5)]
+
+    def _install_reference_properties(self) -> None:
+        """DE-Server's reference reports, for the readout in force: ``None`` or
+        ``Applied (<name>)`` — a dark at its own frame rate, a gain per
+        processing mode at any rate — and the two "Match Frame Rate" switches."""
+        from dataclasses import replace
+
+        processor = getattr(self.twin, "processor", None)
+        if processor is None:
+            return
+        for name, attribute in (
+            ("Reference - Dark Match Frame Rate", "dark_match_frame_rate"),
+            ("Reference - Gain Match Frame Rate", "gain_match_frame_rate"),
+        ):
+            self._put(
+                DynamicProperty(
+                    name,
+                    (lambda a=attribute: "On" if getattr(processor, a) else "Off"),
+                    (lambda v, a=attribute: setattr(processor, a, _to_bool(v))),
+                    value_type="Set",
+                    options="'On', 'Off'",
+                    category="Advanced",
+                )
+            )
+
+        def report(kind: str, counting: bool | None = None):
+            def read() -> str:
+                request = self.request()
+                if counting is not None:
+                    request = replace(request, counting=counting)
+                held = processor.reported(request, kind)
+                # With Simulator Auto References On the twin makes a missing
+                # reference itself on the next acquisition, so it is one applied.
+                if held == "None" and getattr(self, "auto_references", False):
+                    return f"Applied (twin_auto_{kind}_ref)"
+                return held
+
+            return read
+
+        reports = {
+            "Reference - Dark": report("dark"),
+            "Reference - Integrating Gain": report("gain", counting=False),
+            "Reference - Counting Gain": report("gain", counting=True),
+        }
+        for name, read in reports.items():
+            self._put(DynamicProperty(name, read, value_type="ReadOnly", category="Advanced"))
 
     def _install_ebsd_properties(self) -> None:
         """``Simulator EBSD ...``: the twin's EBSD geometry (``DigitalTwin.configure_ebsd``), so a

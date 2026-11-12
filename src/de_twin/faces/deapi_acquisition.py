@@ -55,10 +55,19 @@ def _convert(image: np.ndarray, pixel_format: int) -> np.ndarray:
     )
 
 
+#: The exposure modes whose frames make a reference rather than an image.
+REFERENCE_MODES = (ExposureMode.DARK, ExposureMode.GAIN, ExposureMode.TRIAL)
+
+
 class _Acquisition:
     """One start_acquisition: frames rendered by a background thread."""
 
     def __init__(self, server: TwinFakeServer, request: AcquisitionRequest, n_acq: int, movie: bool):
+        processor = getattr(server.twin, "processor", None)
+        if processor is not None and request.exposure_mode in REFERENCE_MODES:
+            # A reference is averaged over the finite frame count `Processor` measures
+            # one with, not every frame of a second at the camera's maximum rate.
+            request = replace(request, total_frames=min(request.total_frames, processor.dark_frames))
         self.request = request
         # 0 acquisitions = repeat until stopped (live view), as DE-Server does
         self.n_acq = max(0, int(n_acq))
