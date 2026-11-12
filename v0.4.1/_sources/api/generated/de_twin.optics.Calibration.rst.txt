@@ -1,0 +1,34 @@
+﻿de\_twin.optics.Calibration
+===========================
+
+.. currentmodule:: de_twin.optics
+
+.. autoclass:: Calibration
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Calibration.__init__
+      ~Calibration.cl_ladder
+      ~Calibration.default
+      ~Calibration.from_mag_yaml
+      ~Calibration.geometric_recip_inv_nm
+      ~Calibration.mag_ladder
+      ~Calibration.mag_modes
+      ~Calibration.project_for
+      ~Calibration.recip_pixel_inv_nm
+      ~Calibration.snap_cl
+      ~Calibration.snap_mag
+      ~Calibration.specimen_pixel_nm
+      ~Calibration.stem_step_nm
+   
+   
+
+   
+   
+   

@@ -1,0 +1,42 @@
+﻿de\_twin.holder.SimHeatingHolder
+================================
+
+.. currentmodule:: de_twin.holder
+
+.. autoclass:: SimHeatingHolder
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SimHeatingHolder.__init__
+      ~SimHeatingHolder.close
+      ~SimHeatingHolder.describe
+      ~SimHeatingHolder.flag
+      ~SimHeatingHolder.heater_power
+      ~SimHeatingHolder.heater_resistance
+      ~SimHeatingHolder.ramp
+      ~SimHeatingHolder.read
+      ~SimHeatingHolder.sample_resistance
+      ~SimHeatingHolder.set
+      ~SimHeatingHolder.state
+      ~SimHeatingHolder.stop
+      ~SimHeatingHolder.wait_for_control
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SimHeatingHolder.busy
+      ~SimHeatingHolder.flags
+      ~SimHeatingHolder.real
+   
+   

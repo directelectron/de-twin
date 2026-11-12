@@ -1,0 +1,42 @@
+﻿de\_twin.column.MeasurementResult
+=================================
+
+.. currentmodule:: de_twin.column
+
+.. autoclass:: MeasurementResult
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MeasurementResult.__init__
+      ~MeasurementResult.ceos
+      ~MeasurementResult.pi4_angle_mrad
+      ~MeasurementResult.to_string
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MeasurementResult.angle_mrad
+      ~MeasurementResult.images
+      ~MeasurementResult.images_lost
+      ~MeasurementResult.max_fit
+      ~MeasurementResult.names
+      ~MeasurementResult.side
+      ~MeasurementResult.t_done
+      ~MeasurementResult.t_start
+      ~MeasurementResult.tab_type
+      ~MeasurementResult.kind
+      ~MeasurementResult.aberrations
+      ~MeasurementResult.sigma_nm
+   
+   

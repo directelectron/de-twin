@@ -1,0 +1,30 @@
+﻿de\_twin.specimen.BulkPhase
+===========================
+
+.. currentmodule:: de_twin.specimen
+
+.. autoclass:: BulkPhase
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BulkPhase.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BulkPhase.fraction
+      ~BulkPhase.texture
+      ~BulkPhase.material
+   
+   

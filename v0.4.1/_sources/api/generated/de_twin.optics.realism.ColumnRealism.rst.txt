@@ -1,0 +1,56 @@
+﻿de\_twin.optics.realism.ColumnRealism
+=====================================
+
+.. currentmodule:: de_twin.optics.realism
+
+.. autoclass:: ColumnRealism
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ColumnRealism.__init__
+      ~ColumnRealism.bs_matrix
+      ~ColumnRealism.crossover
+      ~ColumnRealism.defocus_rotation_rad
+      ~ColumnRealism.defocus_scale
+      ~ColumnRealism.is_astig_nm
+      ~ColumnRealism.is_matrix
+      ~ColumnRealism.is_tilt_mrad
+      ~ColumnRealism.mag_offset_um
+      ~ColumnRealism.pixel_scale
+      ~ColumnRealism.rotation_rad
+      ~ColumnRealism.truth
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ColumnRealism.backlash_um
+      ~ColumnRealism.bs_rotation_sigma_deg
+      ~ColumnRealism.bs_scale_sigma
+      ~ColumnRealism.bs_skew_sigma
+      ~ColumnRealism.crossover_intensity
+      ~ColumnRealism.crossover_sigma
+      ~ColumnRealism.hd_rotation_deg_per_um
+      ~ColumnRealism.hd_scale_per_um
+      ~ColumnRealism.image_rotation
+      ~ColumnRealism.is_astig_nm_per_um
+      ~ColumnRealism.is_coma_mrad_per_um
+      ~ColumnRealism.is_rotation_sigma_deg
+      ~ColumnRealism.is_scale_sigma
+      ~ColumnRealism.is_skew_sigma
+      ~ColumnRealism.mag_offset_fraction
+      ~ColumnRealism.pixel_scale_sigma
+      ~ColumnRealism.rotation_jitter_deg
+      ~ColumnRealism.seed
+   
+   

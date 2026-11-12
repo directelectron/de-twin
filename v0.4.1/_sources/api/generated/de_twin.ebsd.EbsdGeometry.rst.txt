@@ -1,0 +1,55 @@
+﻿de\_twin.ebsd.EbsdGeometry
+==========================
+
+.. currentmodule:: de_twin.ebsd
+
+.. autoclass:: EbsdGeometry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EbsdGeometry.__init__
+      ~EbsdGeometry.beam_direction_d
+      ~EbsdGeometry.describe
+      ~EbsdGeometry.forward_direction_d
+      ~EbsdGeometry.from_dict
+      ~EbsdGeometry.pattern_centre
+      ~EbsdGeometry.replace
+      ~EbsdGeometry.sample_to_detector
+      ~EbsdGeometry.surface_normal_d
+      ~EbsdGeometry.to_dict
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EbsdGeometry.angular_blur_deg
+      ~EbsdGeometry.background
+      ~EbsdGeometry.band_contrast
+      ~EbsdGeometry.boundary_blend
+      ~EbsdGeometry.calibration_wd_mm
+      ~EbsdGeometry.delta_rad
+      ~EbsdGeometry.detector_tilt_deg
+      ~EbsdGeometry.enabled
+      ~EbsdGeometry.energy_spread_frac
+      ~EbsdGeometry.interaction_scale
+      ~EbsdGeometry.master_resolution_deg
+      ~EbsdGeometry.pcx
+      ~EbsdGeometry.pcy
+      ~EbsdGeometry.pcz
+      ~EbsdGeometry.probe_current_na
+      ~EbsdGeometry.sample_tilt_deg
+      ~EbsdGeometry.step_um
+      ~EbsdGeometry.supersample
+      ~EbsdGeometry.working_distance_mm
+   
+   

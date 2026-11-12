@@ -1,0 +1,43 @@
+﻿de\_twin.specimen.BulkSurfaceConfig
+===================================
+
+.. currentmodule:: de_twin.specimen
+
+.. autoclass:: BulkSurfaceConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BulkSurfaceConfig.__init__
+      ~BulkSurfaceConfig.copy
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BulkSurfaceConfig.boundary_zone_depth
+      ~BulkSurfaceConfig.boundary_zone_um
+      ~BulkSurfaceConfig.grain_jitter
+      ~BulkSurfaceConfig.grain_size_um
+      ~BulkSurfaceConfig.indents
+      ~BulkSurfaceConfig.name
+      ~BulkSurfaceConfig.phases
+      ~BulkSurfaceConfig.scratch_angle_deg
+      ~BulkSurfaceConfig.scratch_angle_spread_deg
+      ~BulkSurfaceConfig.scratch_density_per_mm
+      ~BulkSurfaceConfig.scratch_depth
+      ~BulkSurfaceConfig.scratch_width_um
+      ~BulkSurfaceConfig.seed
+      ~BulkSurfaceConfig.single_crystal
+      ~BulkSurfaceConfig.surface_damage
+   
+   

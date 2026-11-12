@@ -1,0 +1,46 @@
+﻿de\_twin.column.corrector.Corrector
+===================================
+
+.. currentmodule:: de_twin.column.corrector
+
+.. autoclass:: Corrector
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Corrector.__init__
+      ~Corrector.correct
+      ~Corrector.endpoints
+      ~Corrector.get
+      ~Corrector.has
+      ~Corrector.load_alignment
+      ~Corrector.measure
+      ~Corrector.on_ht_change
+      ~Corrector.perturb
+      ~Corrector.pi4_angle_mrad
+      ~Corrector.residual_dict
+      ~Corrector.save_alignment
+      ~Corrector.set
+      ~Corrector.set_beam_tilt
+      ~Corrector.status
+      ~Corrector.unit
+      ~Corrector.wait
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Corrector.beam_tilt
+      ~Corrector.busy
+      ~Corrector.served
+   
+   

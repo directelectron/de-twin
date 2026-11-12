@@ -1,0 +1,36 @@
+﻿de\_twin.state.FrameMeta
+========================
+
+.. currentmodule:: de_twin.state
+
+.. autoclass:: FrameMeta
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrameMeta.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FrameMeta.holder
+      ~FrameMeta.microscope
+      ~FrameMeta.scan_point
+      ~FrameMeta.frame_index
+      ~FrameMeta.time_s
+      ~FrameMeta.exposure_s
+      ~FrameMeta.electrons_per_pixel
+      ~FrameMeta.render_mode
+      ~FrameMeta.blanked
+   
+   

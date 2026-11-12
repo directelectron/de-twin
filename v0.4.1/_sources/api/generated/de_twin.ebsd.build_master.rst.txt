@@ -1,0 +1,6 @@
+﻿de\_twin.ebsd.build\_master
+===========================
+
+.. currentmodule:: de_twin.ebsd
+
+.. autofunction:: build_master

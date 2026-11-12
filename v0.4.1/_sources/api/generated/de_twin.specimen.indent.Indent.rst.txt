@@ -1,0 +1,50 @@
+﻿de\_twin.specimen.indent.Indent
+===============================
+
+.. currentmodule:: de_twin.specimen.indent
+
+.. autoclass:: Indent
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Indent.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Indent.anisotropy
+      ~Indent.blister_strain
+      ~Indent.center_um
+      ~Indent.chip_quality
+      ~Indent.chip_tilt_deg
+      ~Indent.core_quality
+      ~Indent.corners
+      ~Indent.crack_length_ratio
+      ~Indent.crack_quality
+      ~Indent.crack_tip_strain
+      ~Indent.crack_width_um
+      ~Indent.face_angle_deg
+      ~Indent.kind
+      ~Indent.lateral_chips
+      ~Indent.plastic_rotation_deg
+      ~Indent.plastic_zone_ratio
+      ~Indent.poisson
+      ~Indent.rotation_deg
+      ~Indent.seed
+      ~Indent.size_um
+      ~Indent.strain_amplitude
+      ~Indent.tilt_deg
+      ~Indent.twist_deg
+   
+   

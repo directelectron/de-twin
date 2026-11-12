@@ -1,0 +1,28 @@
+﻿de\_twin.transport.shm.FrameConsumer
+====================================
+
+.. currentmodule:: de_twin.transport.shm
+
+.. autoclass:: FrameConsumer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrameConsumer.__init__
+      ~FrameConsumer.begin
+      ~FrameConsumer.close
+      ~FrameConsumer.end
+      ~FrameConsumer.payload
+      ~FrameConsumer.read
+      ~FrameConsumer.slot
+   
+   
+
+   
+   
+   

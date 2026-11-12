@@ -1,0 +1,39 @@
+﻿de\_twin.holder.ImpulseFollower
+===============================
+
+.. currentmodule:: de_twin.holder
+
+.. autoclass:: ImpulseFollower
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImpulseFollower.__init__
+      ~ImpulseFollower.close
+      ~ImpulseFollower.describe
+      ~ImpulseFollower.flag
+      ~ImpulseFollower.ramp
+      ~ImpulseFollower.read
+      ~ImpulseFollower.set
+      ~ImpulseFollower.state
+      ~ImpulseFollower.stop
+      ~ImpulseFollower.wait_for_control
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ImpulseFollower.busy
+      ~ImpulseFollower.real
+      ~ImpulseFollower.reason
+   
+   

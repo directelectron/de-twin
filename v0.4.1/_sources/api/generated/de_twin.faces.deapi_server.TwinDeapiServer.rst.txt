@@ -1,0 +1,31 @@
+﻿de\_twin.faces.deapi\_server.TwinDeapiServer
+============================================
+
+.. currentmodule:: de_twin.faces.deapi_server
+
+.. autoclass:: TwinDeapiServer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TwinDeapiServer.__init__
+      ~TwinDeapiServer.serve_forever
+      ~TwinDeapiServer.start
+      ~TwinDeapiServer.stop
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TwinDeapiServer.port
+   
+   
