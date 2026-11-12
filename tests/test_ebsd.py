@@ -506,3 +506,25 @@ def test_deapi_face_serves_ebsd():
         c.disconnect()
     assert image.shape == (256, 256) and float(np.asarray(image).std()) > 0
     assert not twin.ebsd.enabled
+
+
+def test_a_scan_with_no_step_divides_one_field_whatever_its_size():
+    """A DE-Server feed says how many points, not how far apart: the field
+    stays the geometry's and the points divide it, as a scan generator does,
+    so a coarse scan covers the same grains as a fine one."""
+    from de_twin import DigitalTwin
+    from de_twin.state import ScanRequest
+
+    twin = DigitalTwin("EBSD Ni polycrystal", camera="Celeritas")
+    twin.configure_ebsd()
+    steps = {}
+    for size in (8, 64):
+        request = twin.request(
+            hw_binning=(4, 4),
+            frame_time_s=1e-3,
+            total_frames=size * size,
+            scan=ScanRequest(enabled=True, size=(size, size), dwell_s=1e-3),
+        )
+        steps[size] = twin.optics(request).scan_step_um
+    field = twin.ebsd.field_um
+    assert steps[8] * 8 == pytest.approx(field) and steps[64] * 64 == pytest.approx(field)
