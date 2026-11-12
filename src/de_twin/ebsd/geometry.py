@@ -91,7 +91,15 @@ class EbsdGeometry:
         "SEM probe current, nA (an integrating DE camera holds ~1 electron per pixel per frame at 20 kV).",
     )
     step_um: float = _opt(
-        0.5, 1e-4, 1e4, "Scan step on the (tilt-corrected) sample surface when the request gives none."
+        0.5, 1e-4, 1e4, "Where a single pattern is taken, the pixel it stands for on the sample."
+    )
+    field_um: float = _opt(
+        32.0,
+        1e-3,
+        1e5,
+        "Width of the field a scan covers when the request gives no step: N points step field/N,"
+        " as a scan generator divides the field its magnification sets (a DE-Server feed says"
+        " only how many points).",
     )
     band_contrast: float = _opt(
         0.06, 0.0, 1.0, "Kikuchi band modulation relative to the background for a perfect surface."

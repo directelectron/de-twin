@@ -179,7 +179,8 @@ def test_a_steered_scan_publishes_where_the_voltages_put_the_beam():
 
     tag = f"{os.getpid()}_{uuid.uuid4().hex[:6]}"
     scan_name, frame_name = f"DE_ScanOutputFused_{tag}", f"DE_ExternalFramesFused_{tag}"
-    twin = _twin()
+    # The 8 µm field the targets were picked in: 16 points 0.5 µm apart.
+    twin = _twin(field_um=8.0)
     geometry = S.ScanGeometry(
         size=(16, 16),
         voltage_h=(-1.0, 1.0),

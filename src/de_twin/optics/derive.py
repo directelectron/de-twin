@@ -491,7 +491,9 @@ def _derive_ebsd(
     scan = request.scan
     if scan.enabled:
         nx, ny = max(1, int(scan.size[0])), max(1, int(scan.size[1]))
-        step_um = float(scan.step_um) if scan.step_um > 0 else float(geometry.step_um)
+        # No step given (a DE-Server feed sends only the size): the field is
+        # fixed and the points divide it, so an 8×8 scan covers what 64×64 does.
+        step_um = float(scan.step_um) if scan.step_um > 0 else float(geometry.field_um) / max(nx, ny)
     else:  # a single pattern with the beam on the optic axis
         nx = ny = 1
         step_um = float(geometry.step_um)
