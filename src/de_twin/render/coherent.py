@@ -99,6 +99,7 @@ from collections.abc import Callable
 import numpy as np
 from scipy import fft as sfft
 
+from ..optics.derive import descan_residual_px
 from ..optics.state import probe_aberrations_of
 from ..specimen.materials import GRAINS_PER_MATERIAL, MATERIALS
 from . import stem_nb as _snb
@@ -367,7 +368,8 @@ class CoherentStem:
         if field_map is not None and field_map.descan is not None:
             dx += float(field_map.descan[0, iy, ix])
             dy += float(field_map.descan[1, iy, ix])
-        return dx, dy
+        rx, ry = descan_residual_px(optics, ix, iy)
+        return dx + rx, dy + ry
 
     # ------------------------------------------------------------ core
     def _weights(self, tile: Tile, probe: Probe) -> dict:

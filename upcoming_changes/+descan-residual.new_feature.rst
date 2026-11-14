@@ -1,0 +1,1 @@
+The descan coils can leave a residual (``OpticsConfig.descan_residual_mrad_per_um``): the zero beam then walks linearly across the detector with the probe's place in the scan, by the field's width, turned with the scan rotation and flips, and scaled by the camera length — what an application's descan calibration measures and corrects.

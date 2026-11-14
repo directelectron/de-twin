@@ -26,6 +26,7 @@ import numpy as np
 from scipy import ndimage
 
 from ..hashing import SeedKind, hash_seed, uniform_from_hash
+from ..optics.derive import descan_residual_px
 from ..specimen.materials import MATERIALS
 from ..state import RenderMode
 from .diffraction import (
@@ -303,6 +304,8 @@ class StemRenderer:
         if field_map.descan is not None:
             dx += float(field_map.descan[0, iy, ix])
             dy += float(field_map.descan[1, iy, ix])
+        rx, ry = descan_residual_px(optics, ix, iy)
+        dx, dy = dx + rx, dy + ry
         cx0, cy0 = float(w // 2), float(h // 2)
         dcx, dcy = optics.diffraction_center_px
         tx, ty = dcx - cx0 + dx, dcy - cy0 + dy

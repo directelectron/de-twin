@@ -129,6 +129,43 @@ def _beam_shift_world(state: MicroscopeState, config: OpticsConfig) -> tuple[flo
     return bx, by
 
 
+def descan_px_per_point(config, coils, step_um: float, mrad_per_px: float) -> tuple:
+    """Where the descan residual puts the pattern, detector pixels per scan point from the
+    grid centre, ``(xx, xy, yx, yy)`` (``OpticsState.descan_px_per_point``).
+
+    A point ``(u, v)`` from the grid centre is deflected ``step * R(rotation) F (u, v)`` um
+    across the specimen (``scan_coils.point_volts``' flip, then rotation); the residual turns
+    that into a tilt (``OpticsConfig.descan_residual_mrad_per_um``), and the camera length
+    into detector pixels."""
+    mxx, mxy, myx, myy = (float(v) for v in config.descan_residual_mrad_per_um)
+    if not (mxx or mxy or myx or myy) or coils is None or not mrad_per_px > 0:
+        return (0.0, 0.0, 0.0, 0.0)
+    a = math.radians(coils.rotation_deg)
+    c, s = math.cos(a), math.sin(a)
+    fx = -1.0 if coils.flip[0] else 1.0
+    fy = -1.0 if coils.flip[1] else 1.0
+    # R F: a point's offset in grid steps to its deflection in steps, specimen frame.
+    rxx, rxy, ryx, ryy = c * fx, -s * fy, s * fx, c * fy
+    k = step_um / mrad_per_px
+    return (
+        k * (mxx * rxx + mxy * ryx),
+        k * (mxx * rxy + mxy * ryy),
+        k * (myx * rxx + myy * ryx),
+        k * (myx * rxy + myy * ryy),
+    )
+
+
+def descan_residual_px(optics, ix: float, iy: float) -> tuple[float, float]:
+    """The descan residual's shift of the pattern at scan point (*ix*, *iy*), detector
+    pixels (``OpticsState.descan_px_per_point`` about the grid centre)."""
+    pxx, pxy, pyx, pyy = optics.descan_px_per_point
+    if not (pxx or pxy or pyx or pyy):
+        return 0.0, 0.0
+    ny, nx = optics.scan_shape
+    u, v = float(ix) - (nx - 1) / 2.0, float(iy) - (ny - 1) / 2.0
+    return pxx * u + pxy * v, pyx * u + pyy * v
+
+
 def view_center_um(
     state: MicroscopeState, config: OpticsConfig, mode: RenderMode | None = None
 ) -> tuple[float, float]:
@@ -453,6 +490,11 @@ def derive_optics(
         scan_step_um=step_nm / 1000.0,
         scan_shape=(int(ny_scan), int(nx_scan)) if scanning else (0, 0),
         scan_rotation_rad=rotation,
+        descan_px_per_point=(
+            descan_px_per_point(config, coils, step_nm / 1000.0, mrad_per_px)
+            if scanning
+            else (0.0, 0.0, 0.0, 0.0)
+        ),
         park_um=park,
         raster_downsample=int(downsample),
         cs_mm=float(image_ab["C3"].real) * 1e-6,

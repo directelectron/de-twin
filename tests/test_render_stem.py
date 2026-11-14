@@ -122,6 +122,44 @@ def test_descan_and_strain_layers(make_stem_optics):
     assert wx(left, (left * x).sum() / left.sum()) == pytest.approx(1.05 * wx(right, cx), rel=0.02)
 
 
+def _centre(image):
+    y, x = np.indices(image.shape)
+    return (image * x).sum() / image.sum(), (image * y).sum() / image.sum()
+
+
+def test_the_descan_residual_walks_the_pattern_with_the_scan(make_stem_optics):
+    """A residual tilt per um of deflection is a linear walk across the field: twice the
+    camera length walks twice as far, a step twice as long twice as far, and a rotated
+    scan turns the walk with it."""
+    spec = SyntheticSpecimen(film_material=MaterialId.VACUUM)
+    residual = OpticsConfig(descan_residual_mrad_per_um=(40.0, -10.0, 15.0, 30.0))
+    r = Renderer(spec, RenderConfig(intensity_jitter=False))
+
+    def walk(o, ix, iy):
+        return np.subtract(_centre(r.render(o, scan_point=(ix, iy))), (128.0, 128.0))
+
+    o = make_stem_optics(config=residual)
+    pxx, pxy, pyx, pyy = o.descan_px_per_point
+    assert (pxx, pxy, pyx, pyy) != (0.0, 0.0, 0.0, 0.0)
+    middle = (NSCAN - 1) / 2.0
+    for ix, iy in ((0, 0), (31, 0), (0, 31), (31, 31)):
+        u, v = ix - middle, iy - middle
+        assert walk(o, ix, iy) == pytest.approx((pxx * u + pxy * v, pyx * u + pyy * v), abs=0.05)
+    corner = walk(o, 31, 0)
+    assert np.abs(corner).max() > 1.0  # pixels, not a rounding error
+    assert walk(make_stem_optics(config=residual, camera_length_mm=26.0), 31, 0) == pytest.approx(
+        2 * corner, abs=0.1
+    )
+    assert walk(make_stem_optics(config=residual, step_um=2 * STEP_UM), 31, 0) == pytest.approx(
+        2 * corner, abs=0.1
+    )
+    rotated = make_stem_optics(config=residual, scan_rotation=90.0)
+    # A point's deflection turns by the rotation: (u, v) is deflected as (-v, u) was.
+    u, v = 31 - middle, 0 - middle
+    assert walk(rotated, 31, 0) == pytest.approx((pxx * -v + pxy * u, pyx * -v + pyy * u), abs=0.05)
+    assert make_stem_optics().descan_px_per_point == (0.0, 0.0, 0.0, 0.0)  # a perfect descan
+
+
 def test_probe_blend_mixes_neighbours(make_stem_optics):
     # a wide probe (d0 = 8 nm on a 2 nm step -> +-2 step arms) sees the particle from next door
     ocfg = OpticsConfig(probe_d0_nm=8.0)

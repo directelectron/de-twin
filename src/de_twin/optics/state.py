@@ -72,6 +72,11 @@ class OpticsState:
     scan_step_um: float = 0.0
     scan_shape: tuple[int, int] = (0, 0)  # (ny, nx) scan points
     scan_rotation_rad: float = 0.0
+    #: Where the descan residual puts the pattern, detector pixels per scan point from the
+    #: grid centre, ``(xx, xy, yx, yy)``: ``shift = P @ (x - (nx - 1) / 2, y - (ny - 1) / 2)``
+    #: (``OpticsConfig.descan_residual_mrad_per_um`` through the scan coils and the camera
+    #: length). Zero when the descan is perfect or nothing scans.
+    descan_px_per_point: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
     park_um: tuple[float, float] | None = None  # parked probe position (world um)
 
     # Raster downsample: output pixels per raster pixel (TEM); 1 = no resample
