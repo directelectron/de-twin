@@ -551,19 +551,21 @@ class EbsdRenderer:
     # ------------------------------------------------------------------ ground truth
     def ground_truth(self, specimen, optics, field_map=None, grains=None) -> dict:
         """Per scan point: ``material_id`` (= phase id; 0 none), ``grain_id`` (-1 none),
-        ``quaternion`` (orix rotation of the local lattice, *sample* frame, a >= 0: the grain's
-        orientation, times the lattice rotation of a strained specimen; identity where there is
-        no crystal), ``pattern_centre`` (Bruker pcx, pcy, pcz), ``band_contrast`` (the dominant
+        ``quaternion`` (orix rotation of the local lattice in OIM's (EDAX TSL) sample frame,
+        :data:`~de_twin.ebsd.geometry.OIM_FROM_SAMPLE`, a >= 0: the grain's orientation, times
+        the lattice rotation of a strained specimen; identity where there is no crystal),
+        ``pattern_centre`` (Bruker pcx, pcy, pcz), ``band_contrast`` (the dominant
         grain's band modulation, ``band_contrast * quality * (1 - mix)``), ``quality`` (surface
         quality x (1 - mix)), ``mix`` / ``grain_id2`` / ``material_id2`` (the neighbour mixed in
         near a boundary), ``x_um`` / ``y_um`` (beam on the sample).
 
-        A strained specimen adds ``deformation_gradient`` F (3x3, sample frame, maps reference
+        A strained specimen adds ``deformation_gradient`` F (3x3, OIM's frame, maps reference
         lattice vectors to deformed ones: ``u = F u0``), its polar parts ``strain`` (``U - I``,
         symmetric: the Biot strain, the small strain to first order) and ``rotation`` (rotation
-        vector of R, radians, sample frame; ``F = R U``), and ``gnd`` (a GND density proxy:
+        vector of R, radians, OIM's frame; ``F = R U``), and ``gnd`` (a GND density proxy:
         the norm of the lattice-curvature (Nye) tensor / b, 1/m^2)."""
         from ..crystal import rotation_from_crystal_to_lab
+        from .geometry import OIM_FROM_SAMPLE as M
 
         g = ebsd_geometry(optics)
         tab = self.tables(specimen, optics, field_map, grains)
@@ -575,7 +577,8 @@ class EbsdRenderer:
         if tab.F is not None:
             from scipy.spatial.transform import Rotation as _R
 
-            F = tab.F.reshape(-1, 3, 3).astype(np.float64)
+            # into OIM's frame: every tensor and orientation below follows
+            F = M @ tab.F.reshape(-1, 3, 3).astype(np.float64) @ M.T
             u, s, vt = np.linalg.svd(F)
             R = u @ vt
             U = np.einsum("nji,nj,njk->nik", vt, s, vt)
@@ -587,10 +590,10 @@ class EbsdRenderer:
             }
             if ok.any():
                 okf = ok.ravel()
-                local = np.einsum("nij,njk->nik", R[okf], tab.matrices[tab.orient.ravel()[okf]])
+                local = np.einsum("nij,njk->nik", R[okf], M @ tab.matrices[tab.orient.ravel()[okf]])
                 q.reshape(-1, 4)[okf] = rotation_from_crystal_to_lab(local)
         elif ok.any():
-            quats = rotation_from_crystal_to_lab(tab.matrices)
+            quats = rotation_from_crystal_to_lab(M @ tab.matrices)
             q[ok] = quats[tab.orient[ok]]
         dominant = (1.0 - tab.mix).astype(np.float32)
         quality = np.where(ok, tab.quality * dominant, 0.0).astype(np.float32)

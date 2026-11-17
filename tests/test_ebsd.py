@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from de_twin import DigitalTwin
-from de_twin.ebsd import EbsdGeometry, convert_pc, detector_position, master_for
+from de_twin.ebsd import OIM_FROM_SAMPLE, EbsdGeometry, convert_pc, detector_position, master_for
 from de_twin.ebsd.geometry import pc_pixels
 from de_twin.ebsd.master import MASTERS, bands, build_master
 from de_twin.specimen.bulk import BULK_PRESETS, BulkPhase, BulkSurface, BulkSurfaceConfig
@@ -258,7 +258,9 @@ def test_ground_truth_round_trips():
     assert (truth["quaternion"][..., 0] >= 0).all()
     s = twin.specimen.sample(truth["x_um"].ravel(), truth["y_um"].ravel())
     matrices = twin.specimen.orientations(s["hash"], s["phase"])
-    assert np.allclose(crystal_to_lab(truth["quaternion"].reshape(-1, 4)), matrices, atol=1e-9)
+    # reported in OIM's frame, a quarter-turn about the normal from the sample frame rendered in
+    oim = crystal_to_lab(truth["quaternion"].reshape(-1, 4))
+    assert np.allclose(oim, OIM_FROM_SAMPLE @ matrices, atol=1e-9)
     assert (truth["grain_id"].ravel() == s["grain_id"]).all()
     # re-simulating from the ground truth gives the frames' patterns
     optics = twin.optics(request)
@@ -266,7 +268,7 @@ def test_ground_truth_round_trips():
     for iy, ix in [(0, 0), (4, 7), (9, 11)]:
         if truth["mix"][iy, ix] > 0:
             continue
-        G = crystal_to_lab(truth["quaternion"][iy, ix])[0]
+        G = OIM_FROM_SAMPLE.T @ crystal_to_lab(truth["quaternion"][iy, ix])[0]
         p = r.pattern(
             optics,
             G,
@@ -278,6 +280,29 @@ def test_ground_truth_round_trips():
     cm = twin.ground_truth(request)
     assert cm.scan_unit == "um" and set(cm.prop) >= {"grain_id", "band_contrast", "pcx", "pcy", "pcz"}
     assert sorted(cm.phases.ids) == [MaterialId.IRON, MaterialId.AUSTENITE]
+
+
+def test_ground_truth_is_in_oims_frame():
+    """OIM (EDAX TSL) refers its Euler angles to axes a quarter-turn about the surface normal
+    from the scan's, and kikuchipy and de-ebsd index into the same frame: the truth is reported
+    there, so an indexed map compares with it unturned. The positions stay the scan's."""
+    from de_twin.crystal import crystal_to_lab
+
+    assert np.allclose(OIM_FROM_SAMPLE @ [0, 1, 0], [1, 0, 0])  # x_oim down the scan's columns
+    assert np.allclose(OIM_FROM_SAMPLE @ [1, 0, 0], [0, -1, 0])  # y_oim against a row
+    # the normal stays: an IPF-Z map cannot show the turn, IPF-X and IPF-Y do
+    assert np.allclose(OIM_FROM_SAMPLE @ [0, 0, 1], [0, 0, 1])
+    assert np.linalg.det(OIM_FROM_SAMPLE) == pytest.approx(1.0)
+
+    twin = _twin("EBSD duplex steel")
+    request = _scan(twin, 5, 4, step=1.5, binning=8)
+    cm = twin.ground_truth(request)
+    truth = twin.ground_truth(request, as_arrays=True)
+    s = twin.specimen.sample(truth["x_um"].ravel(), truth["y_um"].ravel())
+    sample = twin.specimen.orientations(s["hash"], s["phase"])
+    oim = crystal_to_lab(cm.rotations.data)
+    assert np.allclose(oim, OIM_FROM_SAMPLE @ sample, atol=1e-9)
+    assert np.allclose(cm.x.reshape(4, 5)[0], np.arange(5) * 1.5)  # x along a row, as scanned
 
 
 def test_boundaries_mix_patterns_and_lower_band_contrast():
@@ -466,7 +491,7 @@ def test_dictionary_indexing_recovers_orientations():
         if truth["quality"][iy, ix] < 0.7:  # on a boundary (mixed or in its zone)
             continue
         m, _c = refine(exp_fine[k], sim(optics, pcs[k]), D[index[k]])
-        G = crystal_to_lab(truth["quaternion"][iy, ix])[0]
+        G = OIM_FROM_SAMPLE.T @ crystal_to_lab(truth["quaternion"][iy, ix])[0]
         errs.append(float(misorientation_deg(m[None], G[None], Oh)[0]))
     errs = np.array(errs)
     assert len(errs) >= 20

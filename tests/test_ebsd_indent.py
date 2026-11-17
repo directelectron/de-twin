@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from de_twin import DigitalTwin
+from de_twin.ebsd import OIM_FROM_SAMPLE as M
 from de_twin.specimen.bulk import BULK_PRESETS, BulkSurface
 from de_twin.specimen.indent import Indent, IndentField
 from de_twin.specimen.materials import MaterialId
@@ -81,7 +82,7 @@ def test_indent_ground_truth_and_patterns():
     s = twin.specimen.sample([0.0], [0.0])
     G = twin.specimen.orientations(s["hash"], s["phase"])[0]
     k = np.unravel_index(np.argmin(np.abs(r - 11)), r.shape)
-    want = R.reshape(21, 21, 3, 3)[k] @ G
+    want = R.reshape(21, 21, 3, 3)[k] @ M @ G  # both in OIM's frame
     assert np.allclose(crystal_to_lab(truth["quaternion"][k])[0], want, atol=1e-6)
     # the pattern at a strained point is the wafer's pattern through that F
     optics = twin.optics(request)
@@ -92,7 +93,7 @@ def test_indent_ground_truth_and_patterns():
         G,
         truth["pattern_centre"][k],
         material_id=MaterialId.SILICON,
-        F=F[k],
+        F=M.T @ F[k] @ M,  # the renderer's sample frame
         quality=float(truth["quality"][k]),
     )
     assert np.allclose(p, twin.flux(request, index), rtol=1e-4)
@@ -119,7 +120,8 @@ def test_hrebsd_recovers_strain_and_rotation():
     s2d = twin.ebsd.sample_to_detector()
     H, W = twin.optics(request).extras["sensor_shape"]
     r = np.hypot(truth["x_um"], truth["y_um"]).ravel()
-    F = truth["deformation_gradient"].reshape(-1, 3, 3)
+    # the measurement is made in the sample frame the detector is placed in
+    F = M.T @ truth["deformation_gradient"].reshape(-1, 3, 3) @ M
     pcs = truth["pattern_centre"].reshape(-1, 3)
     q = truth["quality"].ravel()
     pts = np.random.default_rng(0).choice(np.flatnonzero((r > 12) & (r < 32) & (q > 0.9)), 6, replace=False)

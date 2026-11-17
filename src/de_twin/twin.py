@@ -884,8 +884,9 @@ class DigitalTwin:
         ``-1`` = not indexed: vacuum/amorphous; props ``grain_id``, ``thickness_nm``; x/y in nm),
         or the raw arrays with ``as_arrays=True``.
 
-        In EBSD mode, per scan point: phase, grain id, the orientation in the *sample* frame
-        (x_s scan x, y_s scan y, z_s into the sample; orix convention, see
+        In EBSD mode, per scan point: phase, grain id, the orientation in OIM's (EDAX TSL)
+        sample frame (a quarter-turn about the surface normal from the scan's x and y, as OIM,
+        kikuchipy and de-ebsd report orientations; orix convention, see
         :mod:`de_twin.ebsd.geometry`), the Bruker pattern centre and a band-contrast proxy
         (CrystalMap props ``grain_id``, ``band_contrast``, ``quality``, ``mix``, ``pcx``,
         ``pcy``, ``pcz``; x/y in µm)."""
@@ -899,7 +900,7 @@ class DigitalTwin:
 
         from .crystal import phase_for
 
-        if "pattern_centre" in gt:  # EBSD: sample-frame orientations per scan point
+        if "pattern_centre" in gt:  # EBSD: OIM-frame orientations per scan point
             gid, mat = gt["grain_id"].ravel(), gt["material_id"].ravel()
             ids = [int(i) for i in np.unique(mat[gid >= 0])]
             ny, nx = gt["grain_id"].shape

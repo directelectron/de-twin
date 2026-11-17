@@ -1,0 +1,2 @@
+The EBSD ground truth (``DigitalTwin.ground_truth``, ``EbsdRenderer.ground_truth``) reports its orientations, deformation gradients, strains and lattice rotations in OIM's (EDAX TSL) sample frame, a quarter-turn about the surface normal from the scan's x and y, so a map indexed by OIM, kikuchipy or de-ebsd matches it with no turn; the patterns and positions are unchanged.
+To take a truth orientation ``G`` back to the frame the renderer works in, use ``de_twin.ebsd.OIM_FROM_SAMPLE.T @ G`` (and ``OIM_FROM_SAMPLE.T @ F @ OIM_FROM_SAMPLE`` for a tensor).

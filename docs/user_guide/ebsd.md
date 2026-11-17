@@ -67,10 +67,16 @@ field map's phases and grain orientations, no boundary mixing).
 
 ## Conventions
 
-- **Sample frame** (orientations are reported in it): `x_s` = scan x (right), `y_s` = scan y
+- **Sample frame** (patterns are rendered in it): `x_s` = scan x (right), `y_s` = scan y
   (down), `z_s` into the sample. The tilt axis is `x_s`; the detector is at the top of the SEM
-  image. Orientations are orix rotations: crystal→sample matrix `G = R.to_matrix().T`, exactly
-  as everywhere else in de-twin (`crystal_to_lab`).
+  image.
+- **Ground-truth orientations are in OIM's (EDAX TSL) sample frame**, the one OIM, kikuchipy
+  and de-ebsd index into, so an indexed map compares with the truth unturned. OIM refers its
+  Euler angles to axes a quarter-turn about the surface normal from the scan's: `x_oim = y_s`,
+  `y_oim = -x_s`, `z_oim = z_s` (`de_twin.ebsd.OIM_FROM_SAMPLE`). The strain truth
+  (`deformation_gradient`, `strain`, `rotation`) is in the same frame; the positions (`x`, `y`)
+  stay the scan's. Orientations are orix rotations: crystal→OIM matrix `G = R.to_matrix().T`
+  (`crystal_to_lab`); `OIM_FROM_SAMPLE.T @ G` is the crystal→sample matrix the renderer takes.
 - **Detector frame**: `x_d` along pattern columns, `y_d` down the rows, `z_d` from the source to
   the screen. The pattern is the screen as seen from the sample: the bright forward-scatter
   region is at the bottom.
@@ -176,7 +182,7 @@ plastic zone (1.8 × the contact size) with smoothly varying random rotations up
 pattern quality; the amorphised impression; radial cracks along ⟨110⟩ from the corners (dark
 lines and a mode-I crack-tip field) and a chipped lateral-crack sector. The strain distorts the
 patterns (`F⁻¹` per pixel direction) and the rotation moves them, so cross-correlation HR-EBSD
-measures them. `ground_truth` adds `deformation_gradient`, `strain`, `rotation` and `gnd` (a GND
+measures them. `ground_truth` adds `deformation_gradient`, `strain`, `rotation` (in OIM's frame) and `gnd` (a GND
 density proxy: the in-plane Nye tensor norm over b, 1/m²).
 
 The test suite runs a test-only Wilkinson / Britton-Wilkinson HR-EBSD (FFT cross-correlation of
