@@ -4,11 +4,19 @@ Frames
 ------
 All frames are right-handed.
 
-* **Sample frame** (the frame every EBSD orientation is reported in): the de-twin specimen
-  frame, ``x_s`` = scan x (right in the scan / orientation map), ``y_s`` = scan y (down in
-  the map), ``z_s`` = ``x_s x y_s`` pointing *into* the sample. The surface's outward normal
-  is ``-z_s``. In the SEM image the EBSD detector is at the *top* (towards ``-y_s``), and the
+* **Sample frame** (the frame patterns are rendered in): the de-twin specimen frame,
+  ``x_s`` = scan x (right in the scan / orientation map), ``y_s`` = scan y (down in the map),
+  ``z_s`` = ``x_s x y_s`` pointing *into* the sample. The surface's outward normal is
+  ``-z_s``. In the SEM image the EBSD detector is at the *top* (towards ``-y_s``), and the
   tilt axis is ``x_s``.
+* **OIM's (EDAX TSL) sample frame** (the frame every EBSD orientation and tensor in the
+  ground truth is reported in): OIM refers its Euler angles to axes a quarter-turn about the
+  surface normal from the scan's, ``x_oim = y_s`` (down the scan's columns),
+  ``y_oim = -x_s``, ``z_oim = z_s``. A sample-frame vector ``v`` is ``OIM_FROM_SAMPLE @ v``
+  in it, so a crystal->sample matrix ``G`` is ``OIM_FROM_SAMPLE @ G`` there and a tensor
+  ``T`` is ``OIM_FROM_SAMPLE @ T @ OIM_FROM_SAMPLE.T``. An orientation map written as OIM,
+  kikuchipy or de-ebsd write it -- and an orientation any of them indexes -- compares with the
+  ground truth unturned. The positions (``x_um``, ``y_um``) stay the scan's.
 * **Detector frame**: ``x_d`` along the pattern's columns (right), ``y_d`` along its rows
   (down), ``z_d`` from the source point towards the screen, normal to it. The pattern is the
   screen *as seen from the sample*: its top is towards the pole piece and the bright
@@ -58,6 +66,10 @@ from dataclasses import dataclass, fields
 import numpy as np
 
 PC_CONVENTION = "bruker"
+
+#: OIM's (EDAX TSL) sample frame, which the ground truth reports orientations in: a
+#: sample-frame vector ``v`` is ``OIM_FROM_SAMPLE @ v`` there (see the module docstring).
+OIM_FROM_SAMPLE = np.array([[0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
 
 
 def _opt(default, lo=None, hi=None, doc=""):

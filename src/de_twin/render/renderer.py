@@ -901,7 +901,7 @@ class Renderer:
         """Per raster pixel (TEM view) or scan point (STEM): ``material_id``, ``grain_id`` and the
         effective orientation ``quaternion`` (orix/diffsims rotation incl. the stage tilt;
         identity where there is no crystal), plus ``thickness_nm``. EBSD optics: the EBSD ground
-        truth per scan point (:meth:`de_twin.ebsd.EbsdRenderer.ground_truth`; sample frame)."""
+        truth per scan point (:meth:`de_twin.ebsd.EbsdRenderer.ground_truth`; OIM's sample frame)."""
         if optics.render_mode == RenderMode.EBSD:
             with self._lock:
                 return self.ebsd.ground_truth(self.specimen, optics, *self._ebsd_source(optics, time_s))
