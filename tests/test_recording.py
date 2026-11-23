@@ -257,6 +257,27 @@ def test_de_servers_own_voltages_place_the_beam(movie):
     assert codes == [code(0, 4, 3), code(0, 0, 0), 0]
 
 
+def test_the_recorded_field_is_whatever_field_the_scans_voltage_range_spans(movie):
+    """DE-Server scanning over ±3 V means the same field as the twin's ±1 V: the range the
+    recording was taken at is not recorded, so a scan's whole range is the recorded field."""
+    wide = {"voltage_h": (-3.0, 3.0), "voltage_v": (-3.0, 3.0)}
+    _, codes, _ = served(movie, scan_request(**wide), SIDE * SIDE)
+    assert codes == [code(0, r, c) for r in range(SIDE) for c in range(SIDE)]
+    scan = ScanRequest(enabled=True, size=(SIDE, SIDE), **wide)
+    volts = points_volts(scan, np.array([[3, 4], [7, 7]]))
+    _, codes, _ = served(movie, scan_request(), 2, volts=volts, voltage_range=((-3.0, 3.0), (-3.0, 3.0)))
+    assert codes == [code(0, 4, 3), code(0, 7, 7)]
+    # DE-Server's end points sit on the range's ends: the edge, not off the field
+    _, codes, _ = served(
+        movie,
+        scan_request(),
+        2,
+        volts=np.array([[3.0, 3.0], [-3.0, 0.0]]),
+        voltage_range=((-3.0, 3.0), (-3.0, 3.0)),
+    )
+    assert codes == [code(0, SIDE - 1, SIDE - 1), code(0, SIDE // 2, 0)]
+
+
 def test_a_roi_is_cut_from_the_middle_and_binning_sums(tmp_path):
     ramp = np.arange(64, dtype=np.uint16).reshape(8, 8)
     path = tmp_path / "r_movie.mrc"
@@ -458,16 +479,17 @@ def test_the_feed_serves_the_recording_where_de_servers_voltages_put_the_beam(tw
 
     tag = f"{os.getpid()}_{uuid.uuid4().hex[:6]}"
     scan_name, frame_name = f"DE_ScanOutput_{tag}", f"DE_ExternalFrames_{tag}"
+    # DE-Server's own range, ±3 V, not the twin's default
     geometry = S.ScanGeometry(
         size=(SIDE, SIDE),
-        voltage_h=(-1.0, 1.0),
-        voltage_v=(-1.0, 1.0),
+        voltage_h=(-3.0, 3.0),
+        voltage_v=(-3.0, 3.0),
         rotation_deg=0.0,
         flip=(False, False),
         points_per_frame=1.0,
         total_points=SIDE * SIDE,
     )
-    scan = ScanRequest(enabled=True, size=(SIDE, SIDE))
+    scan = ScanRequest(enabled=True, size=(SIDE, SIDE), voltage_h=(-3.0, 3.0), voltage_v=(-3.0, 3.0))
     twin.load_recording(movie)
     writer = S.ScanOutputWriter(scan_name)
     consumer = FrameConsumer(frame_name, max_frame_bytes=8 * 8 * 2)

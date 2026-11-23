@@ -31,7 +31,9 @@ plays for as long as it is asked to with flat memory.
 * **The sensor is the recording's frame.** A hardware ROI is cut from its middle; binning
   sums.
 * **Every scan point lands on the recorded point under it**, through the coil voltages its
-  scan asks for (size, `Scan - Pixel Offset X/Y`, voltage range, rotation, flips). A scan of
+  scan asks for (size, `Scan - Pixel Offset X/Y`, rotation, flips). The recorded field is
+  whatever field the scan's voltage range spans (the range the recording was taken at is not
+  recorded, and ±3 V from DE-Server means the same field as the twin's ±1 V). A scan of
   the recorded size replays it point for point; a smaller one has a larger step and
   subsamples the same field; ROIs and XY arrays read the points under them; a point off the
   recorded field is zeros. Through DE-Server's shared memory the voltages are DE-Server's

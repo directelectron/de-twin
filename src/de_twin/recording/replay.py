@@ -1,9 +1,11 @@
 """A recording served as the twin's camera: where each frame is read from, and how.
 
 **Where.** Every frame of a scan is taken where the scan coils put the beam: the scan point,
-through the coil voltages its scan asks for (size, pixel offset, voltage range, rotation,
-flips: :mod:`de_twin.optics.scan_coils`), lands on a point of the recorded field, which was
-scanned at the default range at the recording's size. The frame recorded at that point is
+through the coil voltages its scan asks for (size, pixel offset, rotation, flips:
+:mod:`de_twin.optics.scan_coils`), lands on a point of the recorded field. The recorded
+field is the field the scan's voltage range spans: what range the recording was taken at
+is not recorded, and a driver that scans over ±3 V means the same field by it as one over
+±1 V. The frame recorded at that point is
 served; off the recorded field, zeros. So a scan of the recording's size replays it point
 for point, a smaller scan has a larger step and subsamples it (the same field), a region,
 an XY array or an offset reads the recorded points under it, and a frame with no scan is
@@ -65,8 +67,7 @@ class Replay:
         self.clock = clock or RecordedClock(
             recording.frame_time_s or 0.0, recording.pass_frames, recording.passes
         )
-        #: The scan the recording was taken with: its field, at the default voltage range.
-        self.field_scan = ScanRequest(enabled=True, size=recording.field)
+        self._field_scans: dict = {}
         self._ring: list[np.ndarray] = []
         self._points_cache: tuple[object, np.ndarray] | None = None
         self._lock = threading.Lock()
@@ -102,16 +103,35 @@ class Replay:
             cached = self._points_cache = (points, np.asarray(points, np.int64).reshape(-1, 2))
         return cached[1]
 
-    def recorded_points(self, volts: np.ndarray | None, count: int) -> tuple[np.ndarray, np.ndarray]:
-        """(columns, rows) of the recorded points the beam is on at *volts* ((n, 2) H, V);
-        the field's middle point for every frame when *volts* is None (no scan)."""
+    def field_scan(self, voltage_h=(-1.0, 1.0), voltage_v=(-1.0, 1.0)) -> ScanRequest:
+        """The recorded field as a scan over the voltage range given: the recording's size,
+        spread over that range, unrotated and unflipped."""
+        key = (tuple(float(v) for v in voltage_h), tuple(float(v) for v in voltage_v))
+        found = self._field_scans.get(key)
+        if found is None:
+            found = self._field_scans[key] = ScanRequest(
+                enabled=True, size=self.recording.field, voltage_h=key[0], voltage_v=key[1]
+            )
+        return found
+
+    def recorded_points(
+        self, volts: np.ndarray | None, count: int, field: ScanRequest | None = None
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """(columns, rows) of the recorded points the beam is on at *volts* ((n, 2) H, V),
+        the recorded field spread over *field*'s voltage range (default ±1 V); the field's
+        middle point for every frame when *volts* is None (no scan)."""
         nx, ny = self.recording.field
         if volts is None:
             return np.full(count, nx // 2, np.int64), np.full(count, ny // 2, np.int64)
-        xy = points_from_volts(self.field_scan, volts)
+        xy = points_from_volts(field or self.field_scan(), volts)
         # the recorded point whose cell holds the beam (a hair over, so that a scan point
         # half way between two recorded ones lands the same way however it was rounded)
         at = np.floor(xy + 0.5 + 1e-9)
+        # DE-Server's output puts a scan's end points on the ends of its range, half a point
+        # past the field's outer cells: within one point of the field is its edge
+        size = np.array([nx, ny])
+        near = (xy > -1.0) & (xy < size)
+        at = np.where(near, np.clip(at, 0, size - 1), at)
         bad = ~np.isfinite(at).all(axis=1)
         at[bad] = -1
         return at[:, 0].astype(np.int64), at[:, 1].astype(np.int64)
@@ -164,24 +184,34 @@ class Replay:
 
     # ── serving ──
     def chunk(
-        self, request: AcquisitionRequest, first: int, count: int, *, volts=None, blanked: bool = False
+        self,
+        request: AcquisitionRequest,
+        first: int,
+        count: int,
+        *,
+        volts=None,
+        voltage_range=None,
+        blanked: bool = False,
     ) -> tuple[np.ndarray, np.ndarray | None]:
         """Frames *first* .. *first* + *count* of *request*, finished, and their scan points.
 
-        *volts*: the coil voltages of each frame when the caller has them (DE-Server's own);
-        else those *request*'s scan gives. *blanked*: the beam does not reach the camera, so
+        *volts*: the coil voltages of each frame when the caller has them (DE-Server's own),
+        with *voltage_range* ``(H min/max, V min/max)`` the range its scan spans (the recorded
+        field's); else those *request*'s scan gives, and its range. *blanked*: the beam does not reach the camera, so
         the frames are zeros (the recording's dark was taken off before it was saved). The
         recorded clock moves on by *count* frames either way."""
         points = self.scan_points(request, first, count)
         if volts is None and points is not None:
             volts = points_volts(request.scan, points)
+            voltage_range = (request.scan.voltage_h, request.scan.voltage_v)
+        field = self.field_scan(*voltage_range) if voltage_range is not None else None
         passes = self.clock.take(count)
         if blanked:
             with self._lock:
                 frames = self._buffer(count)
             frames[:] = 0
         else:
-            columns, rows = self.recorded_points(volts, count)
+            columns, rows = self.recorded_points(volts, count, field)
             frames = self.read(passes, columns, rows)
         return self.finish(frames, request), points
 

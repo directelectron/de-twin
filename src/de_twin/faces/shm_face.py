@@ -276,17 +276,22 @@ class ShmFace:
                     count = min(count, request.total_frames - k)
                 if count <= 0:
                     continue
-                volts = None
+                volts = voltage_range = None
                 written = coils.written if coils is not None else 0
+                if written:
+                    geometry = coils.geometry()
+                    voltage_range = (geometry.voltage_h, geometry.voltage_v)
                 if written and parked:
                     volts = np.tile(coils.latest()[1], (count, 1))
                 elif written and request.scan.enabled:
-                    per_frame = coils.geometry().points_per_frame
+                    per_frame = geometry.points_per_frame
                     settled = int((written - 1) / per_frame) + 1  # frames whose voltages are out
                     if settled > k:  # else nothing output for them yet: the scan's own points
                         count = min(count, settled - k)
                         volts = coils.volts_many((np.arange(k, k + count) * per_frame).astype(np.int64))
-                frames, _ = replay.chunk(whole, k, count, volts=volts, blanked=blanked)
+                frames, _ = replay.chunk(
+                    whole, k, count, volts=volts, voltage_range=voltage_range, blanked=blanked
+                )
                 for frame in frames:
                     out = _centred(frame, shape, dtype)
                     p.publish(out, request_id=request_id, frame_index=k, flags=flags)
