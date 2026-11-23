@@ -6,3 +6,8 @@ point its coil voltages put the beam on (subsampling, ROIs, XY arrays and the pi
 included); and which recorded scan a frame comes from follows recorded time, moved by the
 frames acquired and by the wall clock between acquisitions (``searching``,
 ``series_started``). ``de-twin serve --recording``.
+
+The deapi face takes in an acquisition's frames a chunk at a time
+(``DigitalTwin.frame_chunks``): its virtual detectors are one matrix product per chunk
+(the masks as a matrix times the stack) and its sum one reduction, instead of Python
+float64 sums per frame. A recording replays several times faster through it.
