@@ -32,6 +32,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+import numpy as np
+
 #: DE-Server's default ``Scan - Voltage H/V Min/Max``.
 DEFAULT_VOLTAGE_RANGE = (-1.0, 1.0)
 DEFAULT_VOLTAGE_SPAN = DEFAULT_VOLTAGE_RANGE[1] - DEFAULT_VOLTAGE_RANGE[0]
@@ -130,6 +132,43 @@ def point_from_volts(scan, h: float, v: float) -> tuple[float, float]:
     if coils.flip[1]:
         w = -w
     return u + (nx - 1) / 2.0, w + (ny - 1) / 2.0
+
+
+def points_volts(scan, points: np.ndarray) -> np.ndarray:
+    """:func:`point_volts` for many points: (n, 2) full-grid (x, y) in, (n, 2) (H, V) out."""
+    coils = scan_coils(scan)
+    nx, ny = max(1, int(scan.size[0])), max(1, int(scan.size[1]))
+    points = np.asarray(points, np.float64).reshape(-1, 2)
+    u = points[:, 0] - (nx - 1) / 2.0
+    v = points[:, 1] - (ny - 1) / 2.0
+    if coils.flip[0]:
+        u = -u
+    if coils.flip[1]:
+        v = -v
+    a = math.radians(coils.rotation_deg)
+    c, s = math.cos(a), math.sin(a)
+    out = np.empty((len(points), 2))
+    out[:, 0] = coils.center_volts[0] + coils.volts_per_point * (u * c - v * s)
+    out[:, 1] = coils.center_volts[1] + coils.volts_per_point * (u * s + v * c)
+    return out
+
+
+def points_from_volts(scan, volts: np.ndarray) -> np.ndarray:
+    """:func:`point_from_volts` for many voltages: (n, 2) (H, V) in, (n, 2) full-grid (x, y)
+    out, neither rounded nor kept inside the grid."""
+    coils = scan_coils(scan)
+    nx, ny = max(1, int(scan.size[0])), max(1, int(scan.size[1]))
+    volts = np.asarray(volts, np.float64).reshape(-1, 2)
+    u = (volts[:, 0] - coils.center_volts[0]) / coils.volts_per_point
+    w = (volts[:, 1] - coils.center_volts[1]) / coils.volts_per_point
+    a = math.radians(coils.rotation_deg)
+    c, s = math.cos(a), math.sin(a)
+    u, w = u * c + w * s, -u * s + w * c
+    if coils.flip[0]:
+        u = -u
+    if coils.flip[1]:
+        w = -w
+    return np.stack([u + (nx - 1) / 2.0, w + (ny - 1) / 2.0], axis=1)
 
 
 def nm_per_volt(default_step_nm: float, size: tuple[int, int]) -> float:

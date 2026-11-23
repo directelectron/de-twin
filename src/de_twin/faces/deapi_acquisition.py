@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import itertools
 import logging
 import threading
@@ -13,7 +14,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..state import AcquisitionRequest, ExposureMode
+from ..state import AcquisitionRequest, ExposureMode, FrameChunk
 from .deapi_protocol import GPU_BUFFER_FRAMES, GPU_PUBLISH_S, PIXEL_DTYPES
 from .deapi_request import (
     _CoilTimeline,
@@ -43,6 +44,25 @@ def _gpu_image_dtype():
     from .gpu_frames import IMAGE
 
     return IMAGE
+
+
+def _chunks(twin, request: AcquisitionRequest, *, pace: bool, stop: threading.Event):
+    """*twin*'s frames for *request* as :class:`FrameChunk` s: its own when it makes them
+    (`DigitalTwin.frame_chunks`), else its frames one at a time."""
+    make = getattr(twin, "frame_chunks", None)
+    if callable(make):
+        yield from make(request, pace=pace, stop=stop)
+        return
+    for raw, meta in twin.frames(request, pace=pace, stop=stop):
+        yield FrameChunk.of_frame(raw, meta)
+
+
+def _sum(frames: np.ndarray) -> np.ndarray:
+    """The sum of a stack of frames, without a float per pixel per frame for whole numbers
+    (a chunk of 16-bit frames cannot overflow 64 bits)."""
+    if frames.dtype.kind in "ui":
+        return np.add.reduce(frames, axis=0, dtype=np.uint64)
+    return np.add.reduce(frames, axis=0, dtype=np.float64)
 
 
 def _convert(image: np.ndarray, pixel_format: int) -> np.ndarray:
@@ -100,10 +120,13 @@ class _Acquisition:
         return self.thread.is_alive()
 
     def _prepare_references(self) -> None:
-        """Pick up (or measure) dark/gain references like DE-Server's RefFinder."""
+        """Pick up (or measure) dark/gain references like DE-Server's RefFinder. A recording's
+        frames were corrected before they were saved, and are served as they were."""
         self.refs = None
         processor = getattr(self._server.twin, "processor", None)
         if processor is None or self.request.exposure_mode in (ExposureMode.DARK, ExposureMode.GAIN):
+            return
+        if getattr(self._server.twin, "recording", None) is not None:
             return
         self.refs = processor.lookup(self.request)
         if getattr(self._server, "auto_references", False) and (self.refs is None or self.refs.gain is None):
@@ -113,6 +136,8 @@ class _Acquisition:
         processor = getattr(self._server.twin, "processor", None)
         if processor is None or self.sum is None or self.stop.is_set():
             return
+        if getattr(self._server.twin, "recording", None) is not None:
+            return  # a recording's frames need none, and its sensor is not the camera's
         mean = (self.sum / self.count).astype(np.float32)
         mode = self.request.exposure_mode
         if mode == ExposureMode.DARK:
@@ -124,38 +149,10 @@ class _Acquisition:
                 log.warning("gain reference not stored: %s", exc)
 
     def _run(self) -> None:
-        srv = self._server
+        acquiring = getattr(self._server.twin, "acquiring", None)
         try:
-            self._prepare_references()
-            for a in itertools.count() if self.continuous else range(self.n_acq):
-                self.index = a
-                if self.continuous and a:
-                    with self.cond:
-                        self.sum = None  # the sum is per repetition, like one live buffer
-                    # a client steers the probe while it scans: take the coils' settings now
-                    if self.request.scan.enabled:
-                        self.request = replace(
-                            self.request,
-                            scan=replace(self.request.scan, **scan_coil_settings(srv.__getitem__)),
-                        )
-                # DE-Server moves a parked beam the moment the position is written; here it
-                # moves at the next acquisition (a parked probe runs one after another).
-                if a and self.request.scan.park and parked(srv.__getitem__):
-                    self.request = replace(
-                        self.request,
-                        scan=replace(self.request.scan, park_position=park_position(srv.__getitem__)),
-                    )
-                if self.request.scan.enabled:
-                    self._scan()
-                else:
-                    for raw, meta in srv.twin.frames(self.request, pace=srv.pace, stop=self.stop):
-                        self._add(raw, meta)
-                        if self.stop.is_set():
-                            break
-                if self.stop.is_set():
-                    break
-            self._share_gpu_frames()
-            self._store_references()
+            with acquiring(self.request) if callable(acquiring) else contextlib.nullcontext():
+                self._acquire()
         except Exception as exc:
             self.error = f"{type(exc).__name__}: {exc}"
             log.error("twin acquisition failed:\n%s", traceback.format_exc())
@@ -163,6 +160,39 @@ class _Acquisition:
             with self.cond:
                 self.done = True
                 self.cond.notify_all()
+
+    def _acquire(self) -> None:
+        srv = self._server
+        self._prepare_references()
+        for a in itertools.count() if self.continuous else range(self.n_acq):
+            self.index = a
+            if self.continuous and a:
+                with self.cond:
+                    self.sum = None  # the sum is per repetition, like one live buffer
+                # a client steers the probe while it scans: take the coils' settings now
+                if self.request.scan.enabled:
+                    self.request = replace(
+                        self.request,
+                        scan=replace(self.request.scan, **scan_coil_settings(srv.__getitem__)),
+                    )
+            # DE-Server moves a parked beam the moment the position is written; here it
+            # moves at the next acquisition (a parked probe runs one after another).
+            if a and self.request.scan.park and parked(srv.__getitem__):
+                self.request = replace(
+                    self.request,
+                    scan=replace(self.request.scan, park_position=park_position(srv.__getitem__)),
+                )
+            if self.request.scan.enabled:
+                self._scan()
+            else:
+                for chunk in _chunks(srv.twin, self.request, pace=srv.pace, stop=self.stop):
+                    self._add(chunk)
+                    if self.stop.is_set():
+                        break
+            if self.stop.is_set():
+                break
+        self._share_gpu_frames()
+        self._store_references()
 
     def _scan(self) -> None:
         """One scan acquisition, a repeat at a time, each repeat with the coil settings
@@ -180,9 +210,9 @@ class _Acquisition:
             this_repeat = replace(
                 request, total_frames=frames_per_repeat, scan=replace(scan, repeats=1, **settings)
             )
-            for raw, meta in srv.twin.frames(this_repeat, pace=srv.pace, stop=self.stop):
-                self._add(raw, meta)
-                frames += 1
+            for chunk in _chunks(srv.twin, this_repeat, pace=srv.pace, stop=self.stop):
+                self._add(chunk)
+                frames += len(chunk)
                 timeline.record(frames // max(1, scan.frames_per_point), scan_coil_settings(srv.__getitem__))
                 if self.stop.is_set():
                     return
@@ -201,56 +231,63 @@ class _Acquisition:
         shared.allocate(GPU_BUFFER_FRAMES, *images.shape[1:])
         shared.publish(images, info, stop=self.stop)
 
-    def _gather_gpu_frame(self, frame: np.ndarray, meta) -> None:
+    def _gather_gpu_frames(self, frames: np.ndarray, chunk: FrameChunk, first_count: int) -> None:
         shared = self._server._shared_frames
         if shared is None or not shared.attached:
             return
-        if not self.gpu_images:
-            self.gpu_batch_started = time.monotonic()
-        point = getattr(meta, "scan_point", None)
-        self.gpu_images.append(frame)
-        self.gpu_info.append((self.count - 1, *(point if point is not None else (-1, -1))))
-        if (
-            len(self.gpu_images) >= GPU_BUFFER_FRAMES
-            or time.monotonic() - self.gpu_batch_started >= GPU_PUBLISH_S
-        ):
-            self._share_gpu_frames()
+        for i, frame in enumerate(frames):
+            if not self.gpu_images:
+                self.gpu_batch_started = time.monotonic()
+            point = chunk.point(i)
+            self.gpu_images.append(frame)
+            self.gpu_info.append((first_count + i, *(point if point is not None else (-1, -1))))
+            if (
+                len(self.gpu_images) >= GPU_BUFFER_FRAMES
+                or time.monotonic() - self.gpu_batch_started >= GPU_PUBLISH_S
+            ):
+                self._share_gpu_frames()
 
-    def _add(self, raw: np.ndarray, meta) -> None:
+    def _add(self, chunk: FrameChunk) -> None:
+        """Take in a chunk of frames: the last one, the sum, the movie and the virtual
+        detectors, a stack at a time (the virtual detectors are the masks, as a matrix,
+        times the stack)."""
+        frames = chunk.frames
+        n = len(frames)
+        if not n:
+            return
+        last_meta = chunk.meta(n - 1)
         if not self.camera:
             with self.cond:
-                self.last_meta = meta
-                self.count += 1
+                self.last_meta = last_meta
+                self.count += n
                 self.cond.notify_all()
             return
         if self.refs is not None:
-            raw = self._server.twin.processor.correct(raw, self.refs)
-        masks = self._server._masks_for(raw.shape) if self.virtual is not None else None
-        vi_vals = None
-        if masks is not None and getattr(meta, "scan_point", None) is not None:
-            f = raw.astype(np.float64, copy=False)
-            vi_vals = []
-            for k, (pos, neg, calc) in enumerate(masks):
-                s = float(f[pos].sum())
-                if calc == "difference":
-                    s -= float(f[neg].sum())
-                elif neg is not None:
-                    s += float(f[neg].sum())
-                vi_vals.append(s)
+            correct = self._server.twin.processor.correct
+            frames = np.stack([correct(frame, self.refs) for frame in frames])
+        vi_values = None
+        if self.virtual is not None and chunk.points is not None:
+            weights = self._server._mask_weights(frames.shape[1:])
+            vi_values = frames.reshape(n, -1).astype(np.float32, copy=False) @ weights.T  # (n, 5)
+        total = _sum(frames)
+        # a chunk of one is the twin's own frame; from a larger one the last is copied, so the
+        # chunk's buffer is free to be used again
+        last = frames[-1] if n == 1 else frames[-1].copy()
         with self.cond:
-            self.last = raw
-            self.last_meta = meta
-            self.sum = raw.astype(np.float64) if self.sum is None else self.sum + raw
-            self.count += 1
+            first_count = self.count
+            self.last = last
+            self.last_meta = last_meta
+            self.sum = total.astype(np.float64) if self.sum is None else self.sum + total
+            self.count += n
             if self.movie:
-                self.movie_frames.append(raw)
-            if vi_vals is not None:
-                ix, iy = meta.scan_point
+                self.movie_frames.extend(frames)
+            if vi_values is not None:
+                ix, iy = chunk.points[:, 0], chunk.points[:, 1]
                 ny, nx = self.virtual.shape[1:]
-                if 0 <= iy < ny and 0 <= ix < nx:
-                    self.virtual[:, iy, ix] += vi_vals
+                inside = (iy >= 0) & (iy < ny) & (ix >= 0) & (ix < nx)
+                np.add.at(self.virtual, (slice(None), iy[inside], ix[inside]), vi_values[inside].T)
             self.cond.notify_all()
-        self._gather_gpu_frame(raw, meta)
+        self._gather_gpu_frames(frames, chunk, first_count)
 
     def wait_first(self, timeout: float) -> bool:
         with self.cond:

@@ -12,6 +12,9 @@ pixel offset, an XY array, drift correction) moves the beam with the latency DE-
 output buffer gives it on hardware. Without them the twin rasters the grid by frame index.
 A parked beam is an acquisition without a scan, but DE-Server still drives the coils to the
 park point (and again whenever it moves), so a STEM or EBSD frame is rendered there too.
+
+With a recording loaded (:meth:`DigitalTwin.load_recording`) the frames are the recording's,
+read where those same voltages put the beam (`ShmFace._serve_recorded`).
 """
 
 from __future__ import annotations
@@ -170,6 +173,8 @@ class ShmFace:
         the stream runs at the frame rate DE-Server asks for rather than at the rate the
         detector physics can manage.
         """
+        if getattr(self.twin, "recording", None) is not None:
+            return self._serve_recorded(request_id, request)
         parked = self._parked(request)
         if parked is not None:
             return self._serve_steered(request_id, parked, self._scan_output)
@@ -235,6 +240,65 @@ class ShmFace:
                 pool.close()
                 if self._pool is pool:
                     self._pool = None
+
+    def _serve_recorded(self, request_id: int, request):
+        """`_serve` for a recording: each frame read where DE-Server's coil voltages put the
+        beam (the scan's own points while it has written none; the parked point; the
+        field's middle without a scan), a chunk at a time, every frame once. The frame is the
+        recorded one cut to (or set in the middle of) the frame DE-Server asked for; with the
+        beam off the camera, zeros."""
+        from ..recording.replay import chunk_frames
+
+        replay = self.twin.recording
+        p = self.producer
+        h = p.hdr
+        shape = (h.frame_height, h.frame_width)
+        dtype = np.uint8 if h.bytes_per_pixel == 1 else np.uint16
+        coils = self._coils()
+        parked = not request.scan.enabled and self._parked(request) is not None
+        frame_time = max(float(request.frame_time_s), 1e-9)
+        most = chunk_frames(frame_time, replay.recording.files.frame_bytes)
+        blanked = not self.twin.beam_on_detector(request, self.twin.column.state())
+        flags = L.FLAG_BLANKED if blanked else 0
+        # the raw frame, not the ROI'd one: DE-Server says the frame it wants
+        whole = dataclasses.replace(request, hw_roi=None, hw_binning=(1, 1))
+        t0 = time.monotonic()
+        k = 0
+        with self.twin.acquiring(request):
+            while True:
+                if self._stop.is_set() or p.request_changed(request_id):
+                    return p.poll_request()
+                while not p.wait_slot_free(timeout=0.05):
+                    if self._stop.is_set() or p.request_changed(request_id):
+                        return p.poll_request()
+                count = min(p.free_slots(), most)
+                if request.total_frames > 0:
+                    count = min(count, request.total_frames - k)
+                if count <= 0:
+                    continue
+                volts = None
+                written = coils.written if coils is not None else 0
+                if written and parked:
+                    volts = np.tile(coils.latest()[1], (count, 1))
+                elif written and request.scan.enabled:
+                    per_frame = coils.geometry().points_per_frame
+                    settled = int((written - 1) / per_frame) + 1  # frames whose voltages are out
+                    if settled > k:  # else nothing output for them yet: the scan's own points
+                        count = min(count, settled - k)
+                        volts = coils.volts_many((np.arange(k, k + count) * per_frame).astype(np.int64))
+                frames, _ = replay.chunk(whole, k, count, volts=volts, blanked=blanked)
+                for frame in frames:
+                    out = _centred(frame, shape, dtype)
+                    p.publish(out, request_id=request_id, frame_index=k, flags=flags)
+                    k += 1
+                self._last_frame = (out.copy(), (out, _BEAM_ON))
+                self.frames_published += count
+                if request.total_frames > 0 and k >= request.total_frames:
+                    return None
+                if self.pace:
+                    delay = t0 + k * frame_time - time.monotonic()
+                    if delay > 0:
+                        self._stop.wait(delay)
 
     def _coils(self) -> S.ScanOutputReader | None:
         """DE-Server's scan output, once its scan simulator has made one."""
@@ -476,6 +540,19 @@ def _fit(frame: np.ndarray, shape: tuple[int, int], dtype) -> np.ndarray:
     out = np.zeros(shape, dtype)
     h, w = min(shape[0], frame.shape[0]), min(shape[1], frame.shape[1])
     out[:h, :w] = np.clip(frame[:h, :w], 0, np.iinfo(dtype).max)
+    return out
+
+
+def _centred(frame: np.ndarray, shape: tuple[int, int], dtype) -> np.ndarray:
+    """*frame* cut to *shape* about its middle, or set in the middle of zeros where it is
+    smaller, as *dtype* (clipped)."""
+    if frame.shape == shape and frame.dtype == dtype:
+        return frame
+    out = np.zeros(shape, dtype)
+    h, w = min(shape[0], frame.shape[0]), min(shape[1], frame.shape[1])
+    sy, sx = (frame.shape[0] - h) // 2, (frame.shape[1] - w) // 2
+    dy, dx = (shape[0] - h) // 2, (shape[1] - w) // 2
+    out[dy : dy + h, dx : dx + w] = np.clip(frame[sy : sy + h, sx : sx + w], 0, np.iinfo(dtype).max)
     return out
 
 
