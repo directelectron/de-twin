@@ -204,6 +204,7 @@ class TwinFakeServer(PropertiesMixin, ResultsMixin, FakeServer):  # type: ignore
         cid = command.command[0].command_id - commandVersion * 100
         params = command.command[0].parameter
         with self._cmd_lock:
+            self._follow_sensor()
             if cid == SET_HW_ROI:
                 ox, oy, sx, sy = (p.p_int for p in params[:4])
                 self["Hardware ROI Offset X"], self["Hardware ROI Offset Y"] = ox, oy

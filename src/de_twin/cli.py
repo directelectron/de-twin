@@ -97,6 +97,13 @@ def _add_twin_args(p: argparse.ArgumentParser) -> None:
 
 def cmd_serve(args) -> int:
     twin = _build_twin(args)
+    if args.recording:
+        replay = twin.load_recording(args.recording, side=args.recording_side)
+        described = replay.recording.describe()
+        print(
+            f"replaying {described['name']}: {described['field'][0]}x{described['field'][1]} points, "
+            f"{described['scans']} scans, frames {described['frame_shape']}"
+        )
     stoppers = []
     if args.soap:
         if args.mirror_temchannel:
@@ -231,6 +238,18 @@ def main(argv=None) -> int:
         default=None,
         metavar="N",
         help="shared memory: cores the detector physics may use (leave the rest for DE-Server's processing)",
+    )
+    p.add_argument(
+        "--recording",
+        metavar="PATH",
+        help="replay a recorded dataset in place of the specimen: an Autopilot run folder, a "
+        "DE-Server .mrc movie (its _info.txt beside it) or a .up1/.up2 file",
+    )
+    p.add_argument(
+        "--recording-side",
+        type=int,
+        metavar="N",
+        help="the recording's square scan side, where its files do not say it",
     )
     p.add_argument(
         "--interactive",

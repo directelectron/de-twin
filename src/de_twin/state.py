@@ -256,3 +256,63 @@ class FrameMeta:
     scan_point: tuple[int, int] | None = None
     microscope: MicroscopeState | None = None
     holder: HolderState | None = None
+
+
+@dataclass
+class FrameChunk:
+    """Consecutive frames of one acquisition, made together: ``frames`` (n, h, w), frame
+    ``first_index`` onwards, with ``points`` the scan point of each, an (n, 2) array of
+    (x, y) (None outside a scan). The rest is shared by every frame of the chunk, as in
+    :class:`FrameMeta`. ``frames`` may be a buffer the twin reuses once it is let go."""
+
+    frames: object
+    first_index: int
+    points: object | None
+    time_s: float
+    exposure_s: float
+    render_mode: RenderMode
+    blanked: bool
+    electrons_per_pixel: float = 0.0
+    microscope: MicroscopeState | None = None
+    holder: HolderState | None = None
+
+    @classmethod
+    def of_frame(cls, raw, meta: FrameMeta) -> FrameChunk:
+        """One frame and its :class:`FrameMeta` as a chunk of one."""
+        import numpy as np
+
+        return cls(
+            frames=raw[None],
+            first_index=meta.frame_index,
+            points=None if meta.scan_point is None else np.asarray([meta.scan_point], np.int64),
+            time_s=meta.time_s,
+            exposure_s=meta.exposure_s,
+            render_mode=meta.render_mode,
+            blanked=meta.blanked,
+            electrons_per_pixel=meta.electrons_per_pixel,
+            microscope=meta.microscope,
+            holder=meta.holder,
+        )
+
+    def __len__(self) -> int:
+        return len(self.frames)
+
+    def point(self, i: int) -> tuple[int, int] | None:
+        if self.points is None:
+            return None
+        x, y = self.points[i]
+        return int(x), int(y)
+
+    def meta(self, i: int) -> FrameMeta:
+        """Frame *i*'s :class:`FrameMeta`."""
+        return FrameMeta(
+            frame_index=self.first_index + i,
+            time_s=self.time_s,
+            exposure_s=self.exposure_s,
+            electrons_per_pixel=self.electrons_per_pixel,
+            render_mode=self.render_mode,
+            blanked=self.blanked,
+            scan_point=self.point(i),
+            microscope=self.microscope,
+            holder=self.holder,
+        )

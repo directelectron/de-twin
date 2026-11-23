@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import math
 import threading
@@ -13,6 +14,7 @@ from .clock import Clock
 from .state import (
     AcquisitionRequest,
     ExposureMode,
+    FrameChunk,
     FrameMeta,
     HolderState,
     MicroscopeState,
@@ -76,6 +78,10 @@ class DigitalTwin:
 
         self.lock = threading.RLock()
         self._frame_serial = 0  # frames exposed so far; seeds the detector noise
+        #: The recording served in place of rendered frames (`load_recording`), or None.
+        self.recording = None
+        self._rendered_sensor: tuple[int, int] | None = None
+        self._searching = False
         self.clock = clock or Clock()
         self.seed = int(seed)
         self.flood_for_gain = flood_for_gain
@@ -398,7 +404,14 @@ class DigitalTwin:
         follows stage moves); diffraction and STEM freeze the optics for the
         whole acquisition, like DE-Server's VirtualSpecimen.
         ``total_frames == 0`` means "until ``stop`` is set".
+        With a recording loaded (:meth:`load_recording`) the frames are the recording's.
         """
+        replay = self.recording
+        if replay is not None:
+            for chunk in replay.chunks(self, request, pace=pace, stop=stop):
+                for i in range(len(chunk)):
+                    yield chunk.frames[i], chunk.meta(i)
+            return
         frame_time = max(float(request.frame_time_s), 1e-6)
         fpb = max(1, int(request.frames_per_buffer))
         state = self.column.state()
@@ -453,6 +466,93 @@ class DigitalTwin:
                 self.clock.sleep_until(t_start + (i + 1) * frame_time)
             yield raw, meta
             i += 1
+
+    def frame_chunks(
+        self,
+        request: AcquisitionRequest,
+        *,
+        pace: bool = False,
+        stop: threading.Event | None = None,
+    ) -> Iterator[FrameChunk]:
+        """:meth:`frames`, as :class:`~de_twin.state.FrameChunk` s: a recording's frames many
+        at a time (a consumer then works on a stack, not frame by frame), a rendered frame
+        one at a time."""
+        replay = self.recording
+        if replay is not None:
+            yield from replay.chunks(self, request, pace=pace, stop=stop)
+            return
+        for raw, meta in self.frames(request, pace=pace, stop=stop):
+            yield FrameChunk.of_frame(raw, meta)
+
+    # ------------------------------------------------------------- recordings
+    def load_recording(self, source, *, side: int | None = None):
+        """Serve a recorded dataset in place of rendered frames, and return its
+        :class:`~de_twin.recording.Replay`.
+
+        *source*: a path (an Autopilot run folder, a DE-Server ``.mrc`` movie with its
+        ``_info.txt``, a ``.up1``/``.up2`` file; see :mod:`de_twin.recording.formats`) or an
+        opened :class:`~de_twin.recording.Recording`. *side*: the square scan's side where
+        the files do not say it (else :class:`~de_twin.recording.SideNeeded`).
+
+        The sensor becomes the recording's frame; the column, holder and specimen stay, and
+        are what the column reports. :meth:`unload_recording` goes back to rendering."""
+        from .recording import Recording, Replay, open_recording
+
+        recording = source if isinstance(source, Recording) else open_recording(source, side=side)
+        replay = Replay(recording)
+        replay.clock.set_searching(self._searching)
+        with self.lock:
+            old, self.recording = self.recording, replay
+            if self._rendered_sensor is None:
+                self._rendered_sensor = tuple(self.detector.model.sensor_shape)
+            self._set_sensor(recording.frame_shape)
+        if old is not None:
+            old.close()
+        return replay
+
+    def unload_recording(self) -> None:
+        """Back to rendering the specimen, on the camera's own sensor."""
+        with self.lock:
+            replay, self.recording = self.recording, None
+            if self._rendered_sensor is not None:
+                self._set_sensor(self._rendered_sensor)
+                self._rendered_sensor = None
+        if replay is not None:
+            replay.close()
+
+    def _set_sensor(self, shape) -> None:
+        detector = self.detector
+        detector.model = detector.model.with_(sensor_shape=(int(shape[0]), int(shape[1])))
+        detector._maps_built = False  # the sensor maps are per pixel of the old shape
+        detector._binned_cache = {}
+
+    def series_started(self) -> None:
+        """A series starts: a recording's time goes back to its beginning (the series' first
+        acquisition starts it). Nothing without a recording."""
+        replay = self.recording
+        if replay is not None:
+            replay.clock.series_started()
+
+    def searching(self, on: bool) -> None:
+        """Whether the acquisitions begun from now on are searches, which look without
+        starting (or moving) a recording's time. The twin only sees acquisitions, so the
+        driver says."""
+        self._searching = bool(on)
+        replay = self.recording
+        if replay is not None:
+            replay.clock.set_searching(on)
+
+    @contextlib.contextmanager
+    def acquiring(self, request: AcquisitionRequest | None = None):
+        """Wrap one acquisition (a face's start to its end): a recording's time is driven by
+        its frames while it runs, by the wall clock between."""
+        replay = self.recording
+        kind = replay.clock.begin() if replay is not None else None
+        try:
+            yield
+        finally:
+            if replay is not None:
+                replay.clock.end(kind)
 
     def noise_serial(self, request: AcquisitionRequest, index: int) -> tuple[int, int]:
         """``(serial, seed)`` of frame *index* of *request*: the twin-wide frame count (taking the

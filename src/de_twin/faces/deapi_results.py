@@ -41,6 +41,22 @@ class ResultsMixin:
             self._mask_cache = {key: out}
         return self._mask_cache[key]
 
+    def _mask_weights(self, shape) -> np.ndarray:
+        """The five virtual detectors as one (5, h * w) float32 matrix for frames of *shape*:
+        +1 on a mask's plus pixels, and on its minus pixels -1 for a ``Difference`` (+1
+        otherwise), so that a stack of frames times it is every frame's five sums."""
+        masks = self._masks_for(tuple(shape))
+        key = ("weights", tuple(shape), tuple(id(m) for m in self.virtual_masks))
+        found = self._mask_cache.get(key)
+        if found is None:
+            found = np.zeros((len(masks), int(np.prod(shape))), np.float32)
+            for k, (pos, neg, calc) in enumerate(masks):
+                found[k, pos.reshape(-1)] = 1.0
+                if neg is not None:
+                    found[k, neg.reshape(-1)] = -1.0 if calc == "difference" else 1.0
+            self._mask_cache[key] = found
+        return found
+
     def _set_virtual_mask(self, command):
         mask_id = command.command[0].parameter[0].p_int
         w = command.command[0].parameter[1].p_int
@@ -110,7 +126,9 @@ class ResultsMixin:
                 return acq.virtual[frame_type - 17].copy(), acq.count, eppix
         if 22 <= frame_type <= 25:
             vi = getattr(self.twin, "virtual_image", None)
-            if callable(vi) and acq.request.scan.enabled:
+            # a recording has no annular image of its own: its first virtual detector stands in
+            recorded = getattr(self.twin, "recording", None) is not None
+            if callable(vi) and acq.request.scan.enabled and not recorded:
                 try:
                     return np.asarray(vi(acq.request, 50.0, 200.0), np.float32), acq.count, eppix
                 except Exception as exc:

@@ -43,12 +43,7 @@ class PropertiesMixin:
         )
         v = self._values
         v["camera_name"]._value = str(model.name)
-        for axis, n in (("x", w), ("y", h)):
-            v[f"sensor_size_{axis}_pixels"]._value = str(n)
-            v[f"sensor_size_{axis}_pixels"].default_value = str(n)
-            v[f"hardware_roi_size_{axis}"]._value = str(n)
-            v[f"hardware_roi_size_{axis}"].options = f"1.0, {float(n)}, '1 - {n}'"
-            v[f"hardware_roi_offset_{axis}"].options = f"0.0, {float(n - 1)}, '0 - {n - 1}'"
+        self._set_sensor(h, w)
         v["exposure_mode"].options = "'Dark', 'Gain', 'Normal*', 'Trial', 'Vacuum'"
         # hardware binning: X also sets Y (deapi's set_also passes a sympy float that its
         # own Set check then rejects, so the coupling is done here)
@@ -196,6 +191,43 @@ class PropertiesMixin:
         self._install_ebsd_properties()
         self._install_instrument_properties()
         self.virtual_masks = [np.ones((self._image_shape()), np.int8) for _ in range(5)]
+
+    def _set_sensor(self, h: int, w: int) -> None:
+        """Say the sensor is *h* by *w*, with the hardware ROI the whole of it."""
+        v = self._values
+        self._sensor = (int(h), int(w))
+        for axis, n in (("x", int(w)), ("y", int(h))):
+            v[f"sensor_size_{axis}_pixels"]._value = str(n)
+            v[f"sensor_size_{axis}_pixels"].default_value = str(n)
+            v[f"hardware_roi_size_{axis}"]._value = str(n)
+            v[f"hardware_roi_size_{axis}"].options = f"1.0, {float(n)}, '1 - {n}'"
+            v[f"hardware_roi_offset_{axis}"]._value = "0"
+            v[f"hardware_roi_offset_{axis}"].options = f"0.0, {float(n - 1)}, '0 - {n - 1}'"
+
+    def _follow_sensor(self) -> None:
+        """The twin's sensor changes when a recording is loaded (its frame) or unloaded: say
+        so before answering anything else, as a camera swapped in DE-Server would."""
+        shape = tuple(int(v) for v in self.twin.detector.model.sensor_shape)
+        if shape != getattr(self, "_sensor", shape):
+            self._set_sensor(*shape)
+            self._mask_cache = {}
+        self._clamp_roi()
+
+    def _clamp_roi(self) -> None:
+        """Keep the hardware ROI on the sensor, as DE-Server does: a window larger than
+        the sensor (a preset made for a larger camera, a recording's smaller frame) is the
+        sensor, and its offset keeps it on it."""
+        v = self._values
+        for axis, n in (("x", self._sensor[1]), ("y", self._sensor[0])):
+            size_prop, offset_prop = v[f"hardware_roi_size_{axis}"], v[f"hardware_roi_offset_{axis}"]
+            try:
+                size, offset = int(float(size_prop._value)), int(float(offset_prop._value))
+            except (TypeError, ValueError):
+                continue
+            fitted = min(max(1, size), n)
+            placed = min(max(0, offset), n - fitted)
+            if (fitted, placed) != (size, offset):
+                size_prop._value, offset_prop._value = str(fitted), str(placed)
 
     def _install_ebsd_properties(self) -> None:
         """``Simulator EBSD ...``: the twin's EBSD geometry (``DigitalTwin.configure_ebsd``), so a
